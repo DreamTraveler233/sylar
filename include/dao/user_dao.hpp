@@ -61,6 +61,10 @@ class UserDAO {
                                const uint32_t gender, const std::string& birthday,
                                std::string* err = nullptr);
 
+    // 更新用户手机号
+    static bool UpdateMobile(const uint64_t id, const std::string& new_mobile,
+                             std::string* err = nullptr);
+
     // 用户上线
     static bool UpdateOnlineStatus(const uint64_t id, std::string* err = nullptr);
 

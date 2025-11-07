@@ -45,7 +45,7 @@ bool ContactApiModule::onServerReady() {
                                  auto result =
                                      CIM::app::ContactService::AgreeApply(apply_id, remark);
                                  if (!result.ok) {
-                                     res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
+                                     res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
                                      return 0;
                                  }
@@ -80,7 +80,7 @@ bool ContactApiModule::onServerReady() {
                                  auto result = CIM::app::ContactService::CreateContactApply(
                                      uid_result.data, to_id, remark);
                                  if (!result.ok) {
-                                     res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
+                                     res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
                                      return 0;
                                  }
@@ -94,6 +94,7 @@ bool ContactApiModule::onServerReady() {
                              [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
                                 CIM::http::HttpSession::ptr /*session*/) {
                                  res->setHeader("Content-Type", "application/json");
+                                 
                                  uint64_t apply_id;
                                  std::string remark;
                                  Json::Value body;
@@ -106,7 +107,7 @@ bool ContactApiModule::onServerReady() {
                                  auto result =
                                      CIM::app::ContactService::RejectApply(apply_id, remark);
                                  if (!result.ok) {
-                                     res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
+                                     res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
                                      return 0;
                                  }
@@ -123,7 +124,7 @@ bool ContactApiModule::onServerReady() {
 
                                  auto uid_result = GetUidFromToken(req, res);
                                  if (!uid_result.ok) {
-                                     res->setStatus(CIM::http::HttpStatus::UNAUTHORIZED);
+                                     res->setStatus(ToHttpStatus(uid_result.code));
                                      res->setBody(Error(uid_result.code, uid_result.err));
                                      return 0;
                                  }
@@ -132,7 +133,7 @@ bool ContactApiModule::onServerReady() {
                                  auto result =
                                      CIM::app::ContactService::ListContactApplies(uid_result.data);
                                  if (!result.ok) {
-                                     res->setStatus(CIM::http::HttpStatus::INTERNAL_SERVER_ERROR);
+                                     res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
                                      return 0;
                                  }
@@ -164,7 +165,7 @@ bool ContactApiModule::onServerReady() {
 
                 auto uid_result = GetUidFromToken(req, res);
                 if (!uid_result.ok) {
-                    res->setStatus(CIM::http::HttpStatus::UNAUTHORIZED);
+                    res->setStatus(ToHttpStatus(uid_result.code));
                     res->setBody(Error(uid_result.code, uid_result.err));
                     return 0;
                 }
@@ -172,7 +173,7 @@ bool ContactApiModule::onServerReady() {
                 auto result =
                     CIM::app::ContactService::GetPendingContactApplyCount(uid_result.data);
                 if (!result.ok) {
-                    res->setStatus(CIM::http::HttpStatus::INTERNAL_SERVER_ERROR);
+                    res->setStatus(ToHttpStatus(result.code));
                     res->setBody(Error(result.code, result.err));
                     return 0;
                 }
@@ -188,19 +189,19 @@ bool ContactApiModule::onServerReady() {
             "/api/v1/contact-group/list",
             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
                CIM::http::HttpSession::ptr /*session*/) {
-                CIM_LOG_INFO(g_logger) << "/api/v1/contact-group/list";
                 res->setHeader("Content-Type", "application/json");
 
                 auto uid_result = GetUidFromToken(req, res);
                 if (!uid_result.ok) {
-                    res->setStatus(CIM::http::HttpStatus::UNAUTHORIZED);
+                    res->setStatus(ToHttpStatus(uid_result.code));
                     res->setBody(Error(uid_result.code, uid_result.err));
                     return 0;
                 }
+
                 /*调用业务逻辑处理获取联系人分组列表*/
                 auto result = CIM::app::ContactService::GetContactGroupLists(uid_result.data);
                 if (!result.ok) {
-                    res->setStatus(CIM::http::HttpStatus::INTERNAL_SERVER_ERROR);
+                    res->setStatus(ToHttpStatus(result.code));
                     res->setBody(Error(result.code, result.err));
                     return 0;
                 }
@@ -225,7 +226,6 @@ bool ContactApiModule::onServerReady() {
             "/api/v1/contact-group/save",
             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
                CIM::http::HttpSession::ptr /*session*/) {
-                CIM_LOG_INFO(g_logger) << "/api/v1/contact-group/save";
                 res->setHeader("Content-Type", "application/json");
 
                 std::vector<std::tuple<uint64_t, uint64_t, std::string>> groupItems;
@@ -242,7 +242,7 @@ bool ContactApiModule::onServerReady() {
 
                 auto uid_result = GetUidFromToken(req, res);
                 if (!uid_result.ok) {
-                    res->setStatus(CIM::http::HttpStatus::UNAUTHORIZED);
+                    res->setStatus(ToHttpStatus(uid_result.code));
                     res->setBody(Error(uid_result.code, uid_result.err));
                     return 0;
                 }
@@ -251,7 +251,7 @@ bool ContactApiModule::onServerReady() {
                 auto result =
                     CIM::app::ContactService::SaveContactGroup(uid_result.data, groupItems);
                 if (!result.ok) {
-                    res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
+                    res->setStatus(ToHttpStatus(result.code));
                     res->setBody(Error(result.code, result.err));
                     return 0;
                 }
@@ -274,7 +274,7 @@ bool ContactApiModule::onServerReady() {
 
                                  auto uid_result = GetUidFromToken(req, res);
                                  if (!uid_result.ok) {
-                                     res->setStatus(CIM::http::HttpStatus::UNAUTHORIZED);
+                                     res->setStatus(ToHttpStatus(uid_result.code));
                                      res->setBody(Error(uid_result.code, uid_result.err));
                                      return 0;
                                  }
@@ -282,7 +282,7 @@ bool ContactApiModule::onServerReady() {
                                  auto result = CIM::app::ContactService::ChangeContactGroup(
                                      uid_result.data, contact_id, group_id);
                                  if (!result.ok) {
-                                     res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
+                                     res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
                                      return 0;
                                  }
@@ -295,8 +295,8 @@ bool ContactApiModule::onServerReady() {
         dispatch->addServlet("/api/v1/contact/delete", [](CIM::http::HttpRequest::ptr req,
                                                           CIM::http::HttpResponse::ptr res,
                                                           CIM::http::HttpSession::ptr /*session*/) {
-            CIM_LOG_INFO(g_logger) << "/api/v1/contact/delete";
             res->setHeader("Content-Type", "application/json");
+
             uint64_t contact_id;
             Json::Value body;
             if (ParseBody(req->getBody(), body)) {
@@ -305,7 +305,7 @@ bool ContactApiModule::onServerReady() {
 
             auto uid_result = GetUidFromToken(req, res);
             if (!uid_result.ok) {
-                res->setStatus(CIM::http::HttpStatus::UNAUTHORIZED);
+                res->setStatus(ToHttpStatus(uid_result.code));
                 res->setBody(Error(uid_result.code, uid_result.err));
                 return 0;
             }
@@ -313,7 +313,7 @@ bool ContactApiModule::onServerReady() {
             /*调用业务逻辑处理删除联系人*/
             auto result = CIM::app::ContactService::DeleteContact(uid_result.data, contact_id);
             if (!result.ok) {
-                res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
+                res->setStatus(ToHttpStatus(result.code));
                 res->setBody(Error(result.code, result.err));
                 return 0;
             }
@@ -335,14 +335,14 @@ bool ContactApiModule::onServerReady() {
 
             auto uid_result = GetUidFromToken(req, res);
             if (!uid_result.ok) {
-                res->setStatus(CIM::http::HttpStatus::UNAUTHORIZED);
+                res->setStatus(ToHttpStatus(uid_result.code));
                 res->setBody(Error(uid_result.code, uid_result.err));
                 return 0;
             }
 
             auto result = CIM::app::ContactService::GetContactDetail(uid_result.data, target_id);
             if (!result.ok) {
-                res->setStatus(CIM::http::HttpStatus::NOT_FOUND);
+                res->setStatus(ToHttpStatus(result.code));
                 res->setBody(Error(result.code, result.err));
                 return 0;
             }
@@ -383,7 +383,7 @@ bool ContactApiModule::onServerReady() {
 
                                  auto uid_result = GetUidFromToken(req, res);
                                  if (!uid_result.ok) {
-                                     res->setStatus(CIM::http::HttpStatus::UNAUTHORIZED);
+                                     res->setStatus(ToHttpStatus(uid_result.code));
                                      res->setBody(Error(uid_result.code, uid_result.err));
                                      return 0;
                                  }
@@ -392,7 +392,7 @@ bool ContactApiModule::onServerReady() {
                                  auto result = CIM::app::ContactService::EditContactRemark(
                                      uid_result.data, contact_id, remark);
                                  if (!result.ok) {
-                                     res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
+                                     res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
                                      return 0;
                                  }
@@ -409,7 +409,7 @@ bool ContactApiModule::onServerReady() {
 
             auto uid_result = GetUidFromToken(req, res);
             if (!uid_result.ok) {
-                res->setStatus(CIM::http::HttpStatus::UNAUTHORIZED);
+                res->setStatus(ToHttpStatus(uid_result.code));
                 res->setBody(Error(uid_result.code, uid_result.err));
                 return 0;
             }
@@ -417,7 +417,7 @@ bool ContactApiModule::onServerReady() {
             /*根据用户 ID 获取用户好友列表*/
             auto contacts = CIM::app::ContactService::ListFriends(uid_result.data);
             if (!contacts.ok) {
-                res->setStatus(CIM::http::HttpStatus::INTERNAL_SERVER_ERROR);
+                res->setStatus(ToHttpStatus(contacts.code));
                 res->setBody(Error(contacts.code, contacts.err));
                 return 0;
             }
@@ -455,7 +455,7 @@ bool ContactApiModule::onServerReady() {
                                  auto result =
                                      CIM::app::UserService::GetUserOnlineStatus(contact_id);
                                  if (!result.ok) {
-                                     res->setStatus(CIM::http::HttpStatus::NOT_FOUND);
+                                     res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
                                      return 0;
                                  }
@@ -480,7 +480,7 @@ bool ContactApiModule::onServerReady() {
 
                                  auto result = CIM::app::ContactService::SearchByMobile(mobile);
                                  if (!result.ok) {
-                                     res->setStatus(CIM::http::HttpStatus::NOT_FOUND);
+                                     res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
                                      return 0;
                                  }

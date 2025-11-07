@@ -1,6 +1,7 @@
 #include "api/common_api_module.hpp"
 
 #include "app/common_service.hpp"
+#include "app/user_service.hpp"
 #include "base/macro.hpp"
 #include "common/common.hpp"
 #include "dao/user_dao.hpp"
@@ -35,12 +36,8 @@ bool CommonApiModule::onServerReady() {
         dispatch->addServlet("/api/v1/common/send-sms", [](CIM::http::HttpRequest::ptr req,
                                                            CIM::http::HttpResponse::ptr res,
                                                            CIM::http::HttpSession::ptr session) {
-            CIM_LOG_DEBUG(g_logger) << "/api/v1/common/send-sms";
-
-            /* 设置响应头 */
             res->setHeader("Content-Type", "application/json");
 
-            /* 提取字段 */
             std::string mobile, channel;
             Json::Value body;
             if (ParseBody(req->getBody(), body)) {
@@ -49,25 +46,21 @@ bool CommonApiModule::onServerReady() {
             }
 
             /*判断手机号是否已经注册*/
-            CIM::dao::User user;
-            if (channel == "register") {
-                if (CIM::dao::UserDAO::GetByMobile(mobile, user)) {
-                    res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
-                    res->setBody(Error(400, "手机号已注册!"));
-                    return 0;
-                }
-            } else if (channel == "forget_account") {
-                if (!CIM::dao::UserDAO::GetByMobile(mobile, user)) {
-                    res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
-                    res->setBody(Error(400, "手机号未注册!"));
-                    return 0;
-                }
+            auto ret = CIM::app::UserService::GetUserByMobile(mobile, channel);
+            if (!ret.ok) {
+                res->setStatus(ToHttpStatus(ret.code));
+                res->setBody(Error(ret.code, ret.err));
+                return 0;
             }
 
             /* 发送短信验证码 */
             auto result = CIM::app::CommonService::SendSmsCode(mobile, channel, session);
+            if (!result.ok) {
+                res->setStatus(ToHttpStatus(result.code));
+                res->setBody(Error(result.code, result.err));
+                return 0;
+            }
 
-            /* 构造并设置响应体 */
             Json::Value data;
             data["sms_code"] = result.data.sms_code;
             res->setBody(Ok(data));

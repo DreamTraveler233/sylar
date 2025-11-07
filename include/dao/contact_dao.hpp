@@ -2,8 +2,13 @@
 
 #include <cstdint>
 #include <ctime>
+#include <memory>
 #include <string>
 #include <vector>
+
+namespace CIM {
+class MySQL;
+}
 
 namespace CIM::dao {
 
@@ -58,6 +63,10 @@ class ContactDAO {
 
     // 插入或更新联系人记录（如果已存在则更新 status/relation/remark/group_id）
     static bool Upsert(const Contact& c, std::string* err = nullptr);
+
+    // 使用已有的 MySQL 连接执行 Upsert，便于包裹事务
+    static bool UpsertWithConn(const std::shared_ptr<CIM::MySQL>& db, const Contact& c,
+                               std::string* err = nullptr);
 
     // 添加好友（非首次）
     static bool AddFriend(const uint64_t user_id, const uint64_t contact_id,

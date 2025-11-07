@@ -221,6 +221,27 @@ bool UserDAO::UpdateUserInfo(uint64_t id, const std::string& nickname, const std
     return true;
 }
 
+bool UserDAO::UpdateMobile(const uint64_t id, const std::string& new_mobile, std::string* err) {
+    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    if (!db) {
+        if (err) *err = "no mysql connection";
+        return false;
+    }
+    const char* sql = "UPDATE users SET mobile = ?, updated_at = NOW() WHERE id = ?";
+    auto stmt = db->prepare(sql);
+    if (!stmt) {
+        if (err) *err = "prepare failed";
+        return false;
+    }
+    stmt->bindString(1, new_mobile);
+    stmt->bindUint64(2, id);
+    if (stmt->execute() != 0) {
+        if (err) *err = "execute failed";
+        return false;
+    }
+    return true;
+}
+
 bool UserDAO::UpdateOnlineStatus(const uint64_t id, std::string* err) {
     auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {

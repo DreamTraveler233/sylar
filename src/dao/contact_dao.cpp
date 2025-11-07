@@ -3,8 +3,8 @@
 #include "db/mysql.hpp"
 
 namespace CIM::dao {
+constexpr const char* kDBName = "default";
 
-static const char* kDBName = "default";
 bool ContactDAO::ListByUser(uint64_t user_id, std::vector<ContactItem>& out, std::string* err) {
     auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
@@ -142,8 +142,8 @@ bool ContactDAO::Create(const Contact& c, std::string* err) {
     return true;
 }
 
-bool ContactDAO::Upsert(const Contact& c, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+bool ContactDAO::UpsertWithConn(const std::shared_ptr<CIM::MySQL>& db, const Contact& c,
+                                std::string* err) {
     if (!db) {
         if (err) *err = "db error";
         return false;
@@ -181,6 +181,15 @@ bool ContactDAO::Upsert(const Contact& c, std::string* err) {
         return false;
     }
     return true;
+}
+
+bool ContactDAO::Upsert(const Contact& c, std::string* err) {
+    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    if (!db) {
+        if (err) *err = "db error";
+        return false;
+    }
+    return UpsertWithConn(db, c, err);
 }
 
 bool ContactDAO::AddFriend(const uint64_t user_id, const uint64_t contact_id, std::string* err) {

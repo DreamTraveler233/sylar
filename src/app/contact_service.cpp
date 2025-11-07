@@ -6,10 +6,12 @@
 #include "dao/contact_apply_dao.hpp"
 #include "dao/contact_dao.hpp"
 #include "dao/user_dao.hpp"
+#include "db/mysql.hpp"
 #include "macro.hpp"
 
 namespace CIM::app {
-static auto g_logger = CIM_LOG_NAME("system");
+static auto g_logger = CIM_LOG_NAME("root");
+static constexpr const char* kDBName = "default";
 
 UserResult ContactService::SearchByMobile(const std::string& mobile) {
     UserResult result;
@@ -112,7 +114,7 @@ ResultVoid ContactService::AgreeApply(const uint64_t apply_id, const std::string
     ResultVoid result;
     std::string err;
 
-    // 更新申请状态为已同意
+    // 1. 更新申请状态为已同意
     if (!CIM::dao::ContactApplyDAO::AgreeApply(apply_id, remark, &err)) {
         CIM_LOG_ERROR(g_logger) << "HandleContactApply AgreeApply failed, apply_id=" << apply_id
                                 << ", err=" << err;
@@ -121,7 +123,7 @@ ResultVoid ContactService::AgreeApply(const uint64_t apply_id, const std::string
         return result;
     }
 
-    // 获取申请详情
+    // 2. 获取申请详情
     CIM::dao::ContactApply apply;
     if (!CIM::dao::ContactApplyDAO::GetDetailById(apply_id, apply, &err)) {
         CIM_LOG_ERROR(g_logger) << "HandleContactApply GetDetailById failed, apply_id=" << apply_id
@@ -131,35 +133,76 @@ ResultVoid ContactService::AgreeApply(const uint64_t apply_id, const std::string
         return result;
     }
 
-    // 使用 SQL 级别的 upsert（插入或更新）简化：无记录则创建，有记录则把 status/relation 恢复为好友状态
+    // 3. 开启数据库事务，保证后续操作的原子性
+    auto trans = CIM::MySQLMgr::GetInstance()->openTransaction(kDBName, false);
+    if (!trans) {
+        CIM_LOG_ERROR(g_logger) << "AgreeApply openTransaction failed, apply_id=" << apply_id;
+        result.code = 500;
+        result.err = "处理好友申请失败！";
+        return result;
+    }
+
+    // 4. 获取事务绑定的数据库连接
+    auto db = trans->getMySQL();
+    if (!db) {
+        CIM_LOG_ERROR(g_logger) << "AgreeApply get transaction connection failed, apply_id="
+                                << apply_id;
+        result.code = 500;
+        result.err = "处理好友申请失败！";
+        return result;
+    }
+
+    const auto now = TimeUtil::NowToS();
+
+    // 5. 使用 SQL 级别的 upsert（插入或更新）简化：无记录则创建，有记录则把 status/relation 恢复为好友状态
+    //    第一次 upsert：目标用户添加申请人
     CIM::dao::Contact c1;
     c1.user_id = apply.target_id;  // 目标用户添加申请人
     c1.contact_id = apply.applicant_id;
     c1.relation = 2;
-    c1.created_at = TimeUtil::NowToS();
+    c1.group_id = 0;
+    c1.created_at = now;
     c1.status = 1;
-    if (!CIM::dao::ContactDAO::Upsert(c1, &err)) {
+    if (!CIM::dao::ContactDAO::UpsertWithConn(db, c1, &err)) {
+        // 失败则回滚事务，防止只建立单向好友关系
         CIM_LOG_ERROR(g_logger) << "AgreeApply Upsert failed for target->applicant, apply_id="
                                 << apply_id << ", err=" << err;
+        trans->rollback();
         result.code = 500;
         result.err = "创建/更新好友记录失败！";
         return result;
     }
 
     CIM::dao::Contact c2;
+    // 第二次 upsert：申请人添加目标用户
     c2.user_id = apply.applicant_id;  // 申请人添加目标用户
     c2.contact_id = apply.target_id;
     c2.relation = 2;
     c2.group_id = 0;
     c2.created_at = TimeUtil::NowToS();
     c2.status = 1;
-    if (!CIM::dao::ContactDAO::Upsert(c2, &err)) {
+    if (!CIM::dao::ContactDAO::UpsertWithConn(db, c2, &err)) {
+        // 失败则回滚事务，防止只建立单向好友关系
         CIM_LOG_ERROR(g_logger) << "AgreeApply Upsert failed for applicant->target, apply_id="
                                 << apply_id << ", err=" << err;
+        trans->rollback();
         result.code = 500;
         result.err = "创建/更新好友记录失败！";
         return result;
     }
+
+    // 6. 提交事务，只有全部成功才真正写入数据库
+    if (!trans->commit()) {
+        // 提交失败也要回滚，保证数据一致性
+        const auto commit_err = db->getErrStr();
+        trans->rollback();
+        CIM_LOG_ERROR(g_logger) << "AgreeApply commit transaction failed, apply_id=" << apply_id
+                                << ", err=" << commit_err;
+        result.code = 500;
+        result.err = "处理好友申请失败！";
+        return result;
+    }
+
     result.ok = true;
     return result;
 }

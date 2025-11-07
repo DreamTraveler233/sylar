@@ -40,17 +40,14 @@ bool AuthApiModule::onServerReady() {
         dispatch->addServlet("/api/v1/auth/login", [](CIM::http::HttpRequest::ptr req,
                                                       CIM::http::HttpResponse::ptr res,
                                                       CIM::http::HttpSession::ptr /*session*/) {
-            /* 设置响应头 */
             res->setHeader("Content-Type", "application/json");
 
-            /* 提取请求字段 */
             std::string mobile, password, platform;
             Json::Value body;
             if (ParseBody(req->getBody(), body)) {
                 mobile = CIM::JsonUtil::GetString(body, "mobile");
                 password = CIM::JsonUtil::GetString(body, "password");
                 platform = CIM::JsonUtil::GetString(body, "platform");
-                // 前端已经确保手机号和密码不为空，不用判断是否存在该字段
             }
 
             /* 鉴权用户 */
@@ -61,7 +58,7 @@ bool AuthApiModule::onServerReady() {
             if (result.data.id != 0) {
                 auto LogLogin_res = CIM::app::UserService::LogLogin(result, platform);
                 if (!LogLogin_res.ok) {
-                    res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
+                    res->setStatus(ToHttpStatus(LogLogin_res.code));
                     res->setBody(Error(LogLogin_res.code, LogLogin_res.err));
                     return 0;
                 }
@@ -69,13 +66,13 @@ bool AuthApiModule::onServerReady() {
                 // 更新在线状态为在线
                 auto goOnline_res = CIM::app::UserService::GoOnline(result.data.id);
                 if (!goOnline_res.ok) {
-                    res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
+                    res->setStatus(ToHttpStatus(goOnline_res.code));
                     res->setBody(Error(goOnline_res.code, goOnline_res.err));
                     return 0;
                 }
             }
             if (!result.ok) {
-                res->setStatus(CIM::http::HttpStatus::UNAUTHORIZED);
+                res->setStatus(ToHttpStatus(result.code));
                 res->setBody(Error(result.code, result.err));
                 return 0;
             }
@@ -84,12 +81,11 @@ bool AuthApiModule::onServerReady() {
             auto token_result =
                 SignJwt(std::to_string(result.data.id), g_jwt_expires_in->getValue());
             if (!token_result.ok) {
-                res->setStatus(CIM::http::HttpStatus::INTERNAL_SERVER_ERROR);
+                res->setStatus(ToHttpStatus(token_result.code));
                 res->setBody(Error(token_result.code, token_result.err));
                 return 0;
             }
 
-            /* 构造并设置响应体 */
             Json::Value data;
             data["type"] = "Bearer";                   // token类型，固定值Bearer
             data["access_token"] = token_result.data;  // 访问令牌
@@ -103,10 +99,8 @@ bool AuthApiModule::onServerReady() {
         dispatch->addServlet("/api/v1/auth/register", [](CIM::http::HttpRequest::ptr req,
                                                          CIM::http::HttpResponse::ptr res,
                                                          CIM::http::HttpSession::ptr /*session*/) {
-            /* 设置响应头 */
             res->setHeader("Content-Type", "application/json");
 
-            /* 提取请求字段 */
             std::string nickname, mobile, password, sms_code, platform;
             Json::Value body;
             if (ParseBody(req->getBody(), body)) {
@@ -121,7 +115,7 @@ bool AuthApiModule::onServerReady() {
             auto verifyResult =
                 CIM::app::CommonService::VerifySmsCode(mobile, sms_code, "register");
             if (!verifyResult.ok) {
-                res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
+                res->setStatus(ToHttpStatus(verifyResult.code));
                 res->setBody(Error(verifyResult.code, verifyResult.err));
                 return 0;
             }
@@ -134,7 +128,7 @@ bool AuthApiModule::onServerReady() {
             if (result.data.id != 0) {
                 auto LogLogin_res = CIM::app::UserService::LogLogin(result, platform);
                 if (!LogLogin_res.ok) {
-                    res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
+                    res->setStatus(ToHttpStatus(LogLogin_res.code));
                     res->setBody(Error(LogLogin_res.code, "记录登录日志失败！"));
                     return 0;
                 }
@@ -142,13 +136,13 @@ bool AuthApiModule::onServerReady() {
                 // 更新在线状态为在线
                 auto goOnline_res = CIM::app::UserService::GoOnline(result.data.id);
                 if (!goOnline_res.ok) {
-                    res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
+                    res->setStatus(ToHttpStatus(goOnline_res.code));
                     res->setBody(Error(goOnline_res.code, "更新在线状态失败！"));
                     return 0;
                 }
             }
             if (!result.ok) {
-                res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
+                res->setStatus(ToHttpStatus(result.code));
                 res->setBody(Error(result.code, result.err));
                 return 0;
             }
@@ -157,12 +151,11 @@ bool AuthApiModule::onServerReady() {
             auto token_result =
                 SignJwt(std::to_string(result.data.id), g_jwt_expires_in->getValue());
             if (!token_result.ok) {
-                res->setStatus(CIM::http::HttpStatus::INTERNAL_SERVER_ERROR);
+                res->setStatus(ToHttpStatus(token_result.code));
                 res->setBody(Error(token_result.code, token_result.err));
                 return 0;
             }
 
-            /* 设置响应体 */
             Json::Value data;
             data["type"] = "Bearer";
             data["access_token"] = token_result.data;
@@ -175,10 +168,8 @@ bool AuthApiModule::onServerReady() {
         dispatch->addServlet("/api/v1/auth/forget", [](CIM::http::HttpRequest::ptr req,
                                                        CIM::http::HttpResponse::ptr res,
                                                        CIM::http::HttpSession::ptr session) {
-            /* 设置响应头 */
             res->setHeader("Content-Type", "application/json");
 
-            /*提取请求字段*/
             std::string mobile, password, sms_code;
             Json::Value body;
             if (ParseBody(req->getBody(), body)) {
@@ -191,7 +182,7 @@ bool AuthApiModule::onServerReady() {
             auto verifyResult =
                 CIM::app::CommonService::VerifySmsCode(mobile, sms_code, "forget_account");
             if (!verifyResult.ok) {
-                res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
+                res->setStatus(ToHttpStatus(verifyResult.code));
                 res->setBody(Error(verifyResult.code, verifyResult.err));
                 return 0;
             }
@@ -199,7 +190,7 @@ bool AuthApiModule::onServerReady() {
             /* 找回密码 */
             auto forgetResult = CIM::app::UserService::Forget(mobile, password);
             if (!forgetResult.ok) {
-                res->setStatus(CIM::http::HttpStatus::BAD_REQUEST);
+                res->setStatus(ToHttpStatus(forgetResult.code));
                 res->setBody(Error(forgetResult.code, forgetResult.err));
                 return 0;
             }

@@ -5,6 +5,7 @@
 #include "config.hpp"
 #include "macro.hpp"
 #include "net/tcp_server.hpp"
+#include "other/crypto_module.hpp"
 #include "util/json_util.hpp"
 
 namespace CIM {
@@ -134,4 +135,50 @@ UidResult GetUidFromToken(CIM::http::HttpRequest::ptr req, CIM::http::HttpRespon
     return result;
 }
 
+PasswordResult DecryptPassword(const std::string& encrypted_password, std::string& out_plaintext) {
+    PasswordResult result;
+
+    // Base64 解码
+    std::string cipher_bin = CIM::base64decode(encrypted_password);
+    if (cipher_bin.empty()) {
+        result.err = "密码解码失败！";
+        return result;
+    }
+    // 私钥解密
+    auto cm = CIM::CryptoModule::Get();
+    if (!cm || !cm->isReady()) {
+        result.err = "密钥模块未加载！";
+        return result;
+    }
+    if (!cm->PrivateDecrypt(cipher_bin, out_plaintext)) {
+        result.err = "密码解密失败！";
+        return result;
+    }
+    result.ok = true;
+    return result;
+}
+
+CIM::http::HttpStatus ToHttpStatus(const int code) {
+    switch (code) {
+        case 400: return CIM::http::HttpStatus::BAD_REQUEST;              // 请求参数错误
+        case 401: return CIM::http::HttpStatus::UNAUTHORIZED;             // 未认证/Token无效
+        case 403: return CIM::http::HttpStatus::FORBIDDEN;                // 权限不足
+        case 404: return CIM::http::HttpStatus::NOT_FOUND;                // 资源不存在
+        case 405: return CIM::http::HttpStatus::METHOD_NOT_ALLOWED;       // 方法不允许
+        case 406: return CIM::http::HttpStatus::NOT_ACCEPTABLE;           // 不可接受
+        case 408: return CIM::http::HttpStatus::REQUEST_TIMEOUT;          // 请求超时
+        case 409: return CIM::http::HttpStatus::CONFLICT;                 // 冲突（如重复）
+        case 410: return CIM::http::HttpStatus::GONE;                     // 资源已删除
+        case 413: return CIM::http::HttpStatus::PAYLOAD_TOO_LARGE;        // 请求体过大
+        case 415: return CIM::http::HttpStatus::UNSUPPORTED_MEDIA_TYPE;   // 媒体类型不支持
+        case 422: return CIM::http::HttpStatus::UNPROCESSABLE_ENTITY;     // 语义错误
+        case 429: return CIM::http::HttpStatus::TOO_MANY_REQUESTS;        // 请求过多
+        case 500: return CIM::http::HttpStatus::INTERNAL_SERVER_ERROR;    // 服务端错误
+        case 501: return CIM::http::HttpStatus::NOT_IMPLEMENTED;          // 未实现
+        case 502: return CIM::http::HttpStatus::BAD_GATEWAY;              // 网关错误
+        case 503: return CIM::http::HttpStatus::SERVICE_UNAVAILABLE;      // 服务不可用
+        case 504: return CIM::http::HttpStatus::GATEWAY_TIMEOUT;          // 网关超时
+        default:  return CIM::http::HttpStatus::INTERNAL_SERVER_ERROR;
+    }
+}
 }  // namespace CIM

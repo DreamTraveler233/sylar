@@ -21,10 +21,22 @@ class UserService {
     // 加载用户信息
     static UserResult LoadUserInfo(const uint64_t uid);
 
+    //  更新用户密码
+    static ResultVoid UpdatePassword(const uint64_t uid, const std::string& old_password,
+                                     const std::string& new_password);
+
     // 更新用户信息
     static ResultVoid UpdateUserInfo(const uint64_t uid, const std::string& nickname,
                                      const std::string& avatar, const std::string& motto,
                                      const uint32_t gender, const std::string& birthday);
+
+    // 更新手机号
+    static ResultVoid UpdateMobile(const uint64_t uid, const std::string& password,
+                                   const std::string& new_mobile);
+
+    // 判断手机号是否已注册
+    static UserResult GetUserByMobile(const std::string& mobile, const std::string& channel);
+
     // 注册新用户
     static UserResult Register(const std::string& nickname, const std::string& mobile,
                                const std::string& password, const std::string& platform);
