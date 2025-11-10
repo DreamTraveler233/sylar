@@ -50,11 +50,10 @@ SmsCodeResult CommonService::SendSmsCode(const std::string& mobile, const std::s
 
     /*保存验证码*/
     result.data.mobile = mobile;
-    result.data.sms_code = sms_code;
     result.data.channel = channel;
-    result.data.expired_at = TimeUtil::NowToS() + 300;  // 5分钟后过期
-    result.data.send_ip = session->getRemoteAddressString();
-    result.data.created_at = TimeUtil::NowToS();
+    result.data.code = sms_code;
+    result.data.sent_ip = session->getRemoteAddressString();
+    result.data.expire_at = TimeUtil::NowToS() + 300;  // 5分钟后过期
     if (!CIM::dao::SmsCodeDAO::Create(result.data, &err)) {
         CIM_LOG_ERROR(g_logger) << "保存短信验证码失败: " << err;
         result.code = 500;
@@ -71,12 +70,14 @@ SmsCodeResult CommonService::VerifySmsCode(const std::string& mobile, const std:
     // 使用 DAO 层进行原子校验（同时校验未过期与未使用，并标记为已使用）
     SmsCodeResult result;
     std::string err;
-    
+
     if (!CIM::dao::SmsCodeDAO::Verify(mobile, code, channel, &err)) {
-        CIM_LOG_WARN(g_logger) << "验证码校验失败: " << err;
-        result.code = 400;
-        result.err = "验证码不正确";
-        return result;
+        if (!err.empty()) {
+            CIM_LOG_WARN(g_logger) << "验证码校验失败: " << err;
+            result.code = 400;
+            result.err = "验证码不正确";
+            return result;
+        }
     }
     result.ok = true;
     return result;

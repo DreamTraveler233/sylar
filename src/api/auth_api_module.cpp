@@ -40,7 +40,7 @@ bool AuthApiModule::onServerReady() {
         /*登录接口*/
         dispatch->addServlet("/api/v1/auth/login", [](CIM::http::HttpRequest::ptr req,
                                                       CIM::http::HttpResponse::ptr res,
-                                                      CIM::http::HttpSession::ptr /*session*/) {
+                                                      CIM::http::HttpSession::ptr session) {
             res->setHeader("Content-Type", "application/json");
 
             std::string mobile, password, platform;
@@ -51,24 +51,16 @@ bool AuthApiModule::onServerReady() {
                 platform = CIM::JsonUtil::GetString(body, "platform");
             }
 
-            /* 鉴权用户 */
+            // 执行登陆业务
             auto result = CIM::app::AuthService::Authenticate(mobile, password, platform);
 
             /*只要用户存在，无论鉴权成功还是失败都要记录登录日志*/
             std::string err;
             if (result.data.id != 0) {
-                auto LogLogin_res = CIM::app::AuthService::LogLogin(result, platform);
+                auto LogLogin_res = CIM::app::AuthService::LogLogin(result, platform, session);
                 if (!LogLogin_res.ok) {
                     res->setStatus(ToHttpStatus(LogLogin_res.code));
                     res->setBody(Error(LogLogin_res.code, LogLogin_res.err));
-                    return 0;
-                }
-
-                // 更新在线状态为在线
-                auto goOnline_res = CIM::app::AuthService::GoOnline(result.data.id);
-                if (!goOnline_res.ok) {
-                    res->setStatus(ToHttpStatus(goOnline_res.code));
-                    res->setBody(Error(goOnline_res.code, goOnline_res.err));
                     return 0;
                 }
             }
@@ -87,6 +79,14 @@ bool AuthApiModule::onServerReady() {
                 return 0;
             }
 
+            // 更新在线状态为在线
+            auto goOnline_res = CIM::app::AuthService::GoOnline(result.data.id);
+            if (!goOnline_res.ok) {
+                res->setStatus(ToHttpStatus(goOnline_res.code));
+                res->setBody(Error(goOnline_res.code, goOnline_res.err));
+                return 0;
+            }
+
             Json::Value data;
             data["type"] = "Bearer";                   // token类型，固定值Bearer
             data["access_token"] = token_result.data;  // 访问令牌
@@ -99,7 +99,7 @@ bool AuthApiModule::onServerReady() {
         /*注册接口*/
         dispatch->addServlet("/api/v1/auth/register", [](CIM::http::HttpRequest::ptr req,
                                                          CIM::http::HttpResponse::ptr res,
-                                                         CIM::http::HttpSession::ptr /*session*/) {
+                                                         CIM::http::HttpSession::ptr session) {
             res->setHeader("Content-Type", "application/json");
 
             std::string nickname, mobile, password, sms_code, platform;
@@ -127,18 +127,10 @@ bool AuthApiModule::onServerReady() {
             /*只要创建用户成功就记录登录日志*/
             std::string err;
             if (result.data.id != 0) {
-                auto LogLogin_res = CIM::app::AuthService::LogLogin(result, platform);
+                auto LogLogin_res = CIM::app::AuthService::LogLogin(result, platform, session);
                 if (!LogLogin_res.ok) {
                     res->setStatus(ToHttpStatus(LogLogin_res.code));
-                    res->setBody(Error(LogLogin_res.code, "记录登录日志失败！"));
-                    return 0;
-                }
-
-                // 更新在线状态为在线
-                auto goOnline_res = CIM::app::AuthService::GoOnline(result.data.id);
-                if (!goOnline_res.ok) {
-                    res->setStatus(ToHttpStatus(goOnline_res.code));
-                    res->setBody(Error(goOnline_res.code, "更新在线状态失败！"));
+                    res->setBody(Error(LogLogin_res.code, LogLogin_res.err));
                     return 0;
                 }
             }
@@ -154,6 +146,14 @@ bool AuthApiModule::onServerReady() {
             if (!token_result.ok) {
                 res->setStatus(ToHttpStatus(token_result.code));
                 res->setBody(Error(token_result.code, token_result.err));
+                return 0;
+            }
+
+            // 更新在线状态为在线
+            auto goOnline_res = CIM::app::AuthService::GoOnline(result.data.id);
+            if (!goOnline_res.ok) {
+                res->setStatus(ToHttpStatus(goOnline_res.code));
+                res->setBody(Error(goOnline_res.code, goOnline_res.err));
                 return 0;
             }
 

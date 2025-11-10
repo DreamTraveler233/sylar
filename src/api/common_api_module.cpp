@@ -62,7 +62,7 @@ bool CommonApiModule::onServerReady() {
             }
 
             Json::Value data;
-            data["sms_code"] = result.data.sms_code;
+            data["sms_code"] = result.data.code;
             res->setBody(Ok(data));
             return 0;
         });

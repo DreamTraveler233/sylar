@@ -12,6 +12,7 @@
 #include "name_server_module.hpp"
 #include "fox_thread.hpp"
 #include "redis.hpp"
+#include "id_worker.hpp"
 
 #include <unistd.h>
 #include <signal.h>
@@ -38,6 +39,9 @@ namespace CIM
     // 服务器配置列表，包含所有需要启动的服务器参数。
     // 默认值：空列表
     static auto g_servers_conf = Config::Lookup("servers", std::vector<TcpServerConf>(), "http server config");
+
+    static auto g_machine_code =
+        Config::Lookup<uint16_t>("machine.code", uint16_t(0), "machine code for id worker");
 
     Application *Application::s_instance = nullptr;
 
@@ -247,6 +251,9 @@ namespace CIM
         WorkerMgr::GetInstance()->init();
         FoxThreadMgr::GetInstance()->init();
         FoxThreadMgr::GetInstance()->start();
+
+    // 不再使用雪花ID生成器，改用数据库自增ID。
+    // 如果将来需要恢复分布式ID，可在此处重新初始化 IdWorker。
 
         // 初始化Redis管理器
         RedisMgr::GetInstance();

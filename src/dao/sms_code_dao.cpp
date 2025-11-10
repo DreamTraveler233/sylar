@@ -12,26 +12,31 @@ static const char* kDBName = "default";
 bool SmsCodeDAO::Create(const SmsCode& code, std::string* err) {
     auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
-        if (err) *err = "no mysql connection";
+        if (err) *err = "get mysql connection failed";
         return false;
     }
 
     const char* sql =
-        "INSERT INTO sms_verification_codes (mobile, code, channel, expired_at, send_ip) "
-        "VALUES (?, ?, ?, ?, ?)";
+        "INSERT INTO im_sms_verify_code (mobile, channel, code, status, sent_ip, sent_at, "
+        "expire_at, used_at, created_at) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, NOW())";
     auto stmt = db->prepare(sql);
     if (!stmt) {
-        if (err) *err = "prepare failed";
+        if (err) *err = "prepare sql failed";
         return false;
     }
     stmt->bindString(1, code.mobile);
-    stmt->bindString(2, code.sms_code);
-    stmt->bindString(3, code.channel);
-    stmt->bindTime(4, code.expired_at);
-    if (!code.send_ip.empty())
-        stmt->bindString(5, code.send_ip);
+    stmt->bindString(2, code.channel);
+    stmt->bindString(3, code.code);
+    stmt->bindUint8(4, code.status);
+    if (!code.sent_ip.empty())
+        stmt->bindString(5, code.sent_ip);
     else
         stmt->bindNull(5);
+    stmt->bindTime(6, code.expire_at);
+    if (code.used_at != 0)
+        stmt->bindTime(7, code.used_at);
+    else
+        stmt->bindNull(7);
 
     if (stmt->execute() != 0) {
         if (err) *err = stmt->getErrStr();
@@ -44,17 +49,16 @@ bool SmsCodeDAO::Verify(const std::string& mobile, const std::string& code,
                         const std::string& channel, std::string* err) {
     auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
-        if (err) *err = "no mysql connection";
+        if (err) *err = "get mysql connection failed";
         return false;
     }
 
     const char* sql =
-        "SELECT id FROM sms_verification_codes "
-        "WHERE mobile = ? AND code = ? AND channel = ? AND status = 0 AND expired_at > NOW() "
-        "ORDER BY created_at DESC LIMIT 1";
+        "SELECT id FROM im_sms_verify_code WHERE mobile = ? AND code = ? AND channel = ? AND "
+        "status = 1 AND expire_at > NOW() ORDER BY created_at DESC LIMIT 1";
     auto stmt = db->prepare(sql);
     if (!stmt) {
-        if (err) *err = "prepare failed";
+        if (err) *err = "prepare sql failed";
         return false;
     }
     stmt->bindString(1, mobile);
@@ -65,31 +69,33 @@ bool SmsCodeDAO::Verify(const std::string& mobile, const std::string& code,
         if (err) *err = "query failed";
         return false;
     }
+
     if (!res->next()) {
-        if (err) *err = "verification code not found or expired";
+        if (err) *err = "no record found";
         return false;
     }
 
-    uint64_t id = static_cast<uint64_t>(res->getUint64(0));
+    uint64_t id = res->getUint64(0);
+
     return MarkAsUsed(id, err);
 }
 
 bool SmsCodeDAO::MarkAsUsed(const uint64_t id, std::string* err) {
     auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
-        if (err) *err = "no mysql connection";
+        if (err) *err = "get mysql connection failed";
         return false;
     }
 
-    const char* sql = "UPDATE sms_verification_codes SET status = 1, used_at = NOW() WHERE id = ?";
+    const char* sql = "UPDATE im_sms_verify_code SET status = 2, used_at = NOW() WHERE id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
-        if (err) *err = "prepare failed";
+        if (err) *err = "prepare sql failed";
         return false;
     }
     stmt->bindUint64(1, id);
     if (stmt->execute() != 0) {
-        if (err) *err = "execute failed";
+        if (err) *err = stmt->getErrStr();
         return false;
     }
     return true;
@@ -98,18 +104,18 @@ bool SmsCodeDAO::MarkAsUsed(const uint64_t id, std::string* err) {
 bool SmsCodeDAO::MarkExpiredAsInvalid(std::string* err) {
     auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
-        if (err) *err = "no mysql connection";
+        if (err) *err = "get mysql connection failed";
         return false;
     }
     const char* sql =
-        "UPDATE sms_verification_codes SET status = 2 WHERE expired_at < NOW() AND status = 0";
+        "UPDATE im_sms_verify_code SET status = 3 WHERE expire_at < NOW() AND status = 1";
     auto stmt = db->prepare(sql);
     if (!stmt) {
-        if (err) *err = "prepare failed";
+        if (err) *err = "prepare sql failed";
         return false;
     }
     if (stmt->execute() != 0) {
-        if (err) *err = "execute failed";
+        if (err) *err = stmt->getErrStr();
         return false;
     }
     return true;
@@ -118,18 +124,18 @@ bool SmsCodeDAO::MarkExpiredAsInvalid(std::string* err) {
 bool SmsCodeDAO::DeleteInvalidCodes(std::string* err) {
     auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
-        if (err) *err = "no mysql connection";
+        if (err) *err = "get mysql connection failed";
         return false;
     }
 
-    const char* sql = "DELETE FROM sms_verification_codes WHERE status = 2";
+    const char* sql = "DELETE FROM im_sms_verify_code WHERE status = 3";
     auto stmt = db->prepare(sql);
     if (!stmt) {
-        if (err) *err = "prepare failed";
+        if (err) *err = "prepare sql failed";
         return false;
     }
     if (stmt->execute() != 0) {
-        if (err) *err = "execute failed";
+        if (err) *err = stmt->getErrStr();
         return false;
     }
     return true;

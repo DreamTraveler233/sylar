@@ -77,7 +77,9 @@ bool TalkApiModule::onServerReady() {
                                  data["updated_at"] = Json::Value();  // 最后更新时间
                                  Json::Value items;
                                  items["items"] = data;
-                                 res->setBody(Ok(items));
+                                 Json::Value d(Json::objectValue);
+                                 d["session_id"] = static_cast<Json::Int64>(0);
+                                 res->setBody(Ok(d));
                                  return 0;
                              });
         dispatch->addServlet("/api/v1/talk/session-top",

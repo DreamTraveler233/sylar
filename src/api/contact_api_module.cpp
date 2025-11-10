@@ -41,9 +41,16 @@ bool ContactApiModule::onServerReady() {
                                      remark = CIM::JsonUtil::GetString(body, "remark");
                                  }
 
+                                 auto uid_result = GetUidFromToken(req, res);
+                                 if (!uid_result.ok) {
+                                     res->setStatus(ToHttpStatus(uid_result.code));
+                                     res->setBody(Error(uid_result.code, uid_result.err));
+                                     return 0;
+                                 }
+
                                  /*调用业务逻辑处理接受好友申请*/
-                                 auto result =
-                                     CIM::app::ContactService::AgreeApply(apply_id, remark);
+                                 auto result = CIM::app::ContactService::AgreeApply(
+                                     uid_result.data, apply_id, remark);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -62,7 +69,7 @@ bool ContactApiModule::onServerReady() {
 
                                  auto uid_result = GetUidFromToken(req, res);
                                  if (!uid_result.ok) {
-                                     res->setStatus(CIM::http::HttpStatus::UNAUTHORIZED);
+                                     res->setStatus(ToHttpStatus(uid_result.code));
                                      res->setBody(Error(uid_result.code, uid_result.err));
                                      return 0;
                                  }
@@ -94,7 +101,7 @@ bool ContactApiModule::onServerReady() {
                              [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
                                 CIM::http::HttpSession::ptr /*session*/) {
                                  res->setHeader("Content-Type", "application/json");
-                                 
+
                                  uint64_t apply_id;
                                  std::string remark;
                                  Json::Value body;
@@ -103,9 +110,16 @@ bool ContactApiModule::onServerReady() {
                                      remark = CIM::JsonUtil::GetString(body, "remark");
                                  }
 
+                                 auto uid_result = GetUidFromToken(req, res);
+                                 if (!uid_result.ok) {
+                                     res->setStatus(ToHttpStatus(uid_result.code));
+                                     res->setBody(Error(uid_result.code, uid_result.err));
+                                     return 0;
+                                 }
+
                                  /*调用业务逻辑处理接受好友申请*/
-                                 auto result =
-                                     CIM::app::ContactService::RejectApply(apply_id, remark);
+                                 auto result = CIM::app::ContactService::RejectApply(
+                                     uid_result.data, apply_id, remark);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -143,8 +157,8 @@ bool ContactApiModule::onServerReady() {
                                  for (const auto& item : result.data) {
                                      Json::Value jitem;
                                      jitem["id"] = item.id;
-                                     jitem["user_id"] = item.user_id;
-                                     jitem["friend_id"] = item.friend_id;
+                                     jitem["user_id"] = item.target_user_id;
+                                     jitem["friend_id"] = item.apply_user_id;
                                      jitem["remark"] = item.remark;
                                      jitem["nickname"] = item.nickname;
                                      jitem["avatar"] = item.avatar;
@@ -260,6 +274,7 @@ bool ContactApiModule::onServerReady() {
                 return 0;
             });
 
+        /*修改联系人分组接口*/
         dispatch->addServlet("/api/v1/contact/change-group",
                              [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
                                 CIM::http::HttpSession::ptr /*session*/) {

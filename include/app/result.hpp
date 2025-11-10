@@ -1,6 +1,7 @@
 #ifndef __CIM_APP_RESULT_HPP__
 #define __CIM_APP_RESULT_HPP__
 
+#include "util/id_worker.hpp"
 #include "dao/contact_apply_dao.hpp"
 #include "dao/contact_dao.hpp"
 #include "dao/contact_group_dao.hpp"

@@ -3,7 +3,7 @@
 
 -- 群基础信息
 CREATE TABLE IF NOT EXISTS `im_group` (
-  `id` BIGINT UNSIGNED NOT NULL COMMENT '群ID（雪花ID/分布式ID）',
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '群ID（由数据库自增）',
   `group_name` VARCHAR(64) NOT NULL COMMENT '群名称',
   `avatar` VARCHAR(255) NULL COMMENT '群头像URL',
   `profile` VARCHAR(255) NULL COMMENT '群简介/公告摘要（非正式公告）',
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `im_group_invite` (
 
 -- 群投票主表
 CREATE TABLE IF NOT EXISTS `im_group_vote` (
-  `id` BIGINT UNSIGNED NOT NULL COMMENT '投票ID（雪花ID）',
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '投票ID（由数据库自增）',
   `group_id` BIGINT UNSIGNED NOT NULL COMMENT '群ID',
   `title` VARCHAR(128) NOT NULL COMMENT '投票标题',
   `answer_mode` TINYINT NOT NULL DEFAULT 1 COMMENT '回答模式：1=单选 2=多选（或扩展）',

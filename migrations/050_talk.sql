@@ -3,7 +3,7 @@
 
 -- 会话主实体：唯一标识一个会话（单聊=两人唯一，群聊=群唯一）
 CREATE TABLE IF NOT EXISTS `im_talk` (
-  `id` BIGINT UNSIGNED NOT NULL COMMENT '会话ID（雪花ID/分布式ID）',
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '会话ID（由数据库自增）',
   `talk_mode` TINYINT NOT NULL COMMENT '会话类型: 1=单聊 2=群聊（对应 TalkModeEnum）',
   `user_min_id` BIGINT UNSIGNED NULL COMMENT '单聊: 两个用户ID中的较小者（用于唯一性约束）',
   `user_max_id` BIGINT UNSIGNED NULL COMMENT '单聊: 两个用户ID中的较大者（用于唯一性约束）',

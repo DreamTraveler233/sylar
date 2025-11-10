@@ -25,6 +25,8 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    std::srand(std::time(nullptr));  // 初始化随机数种子
+
     // 注册加解密模块
     CIM::ModuleMgr::GetInstance()->add(std::make_shared<CIM::CryptoModule>());
     // 注册登录鉴权模块

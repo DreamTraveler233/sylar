@@ -3,7 +3,7 @@
 
 -- 消息主表
 CREATE TABLE IF NOT EXISTS `im_message` (
-  `id` BIGINT UNSIGNED NOT NULL COMMENT '消息ID（雪花ID，全局唯一）',
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '消息ID（由数据库自增，全局唯一）',
   `talk_id` BIGINT UNSIGNED NOT NULL COMMENT '所属会话ID（im_talk.id）',
   `sequence` BIGINT NOT NULL COMMENT '会话内消息序号（严格递增，用于排序/分页）',
   `talk_mode` TINYINT NOT NULL COMMENT '会话类型: 1=单聊 2=群聊',

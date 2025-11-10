@@ -3,7 +3,7 @@
 
 -- 文章主表
 CREATE TABLE IF NOT EXISTS `im_article` (
-  `id` BIGINT UNSIGNED NOT NULL COMMENT '文章ID（雪花ID）',
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '文章ID（由数据库自增）',
   `user_id` BIGINT UNSIGNED NOT NULL COMMENT '作者用户ID',
   `classify_id` BIGINT UNSIGNED NULL COMMENT '分类ID（im_article_classify.id，可为空表示未分类或默认）',
   `title` VARCHAR(200) NOT NULL COMMENT '标题',

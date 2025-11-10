@@ -8,14 +8,15 @@
 namespace CIM::dao {
 
 struct SmsCode {
-    uint64_t id = 0;             // 验证码ID
-    std::string mobile;          // 手机号
-    std::string sms_code;        // 验证码内容
-    std::string channel;         // 发送渠道：aliyun, tencent等
-    int32_t status = 0;          // 状态：0待验证 1成功 2失效
-    std::time_t expired_at = 0;  // 过期时间
+    uint64_t id = 0;             // 主键ID
+    std::string mobile = "";     // 手机号
+    std::string channel = "";    // 场景（register/login/forget/update_mobile等）
+    std::string code = "";       // 验证码
+    uint8_t status = 1;          // 状态（1=未使用 2=已使用 3=已过期）
+    std::string sent_ip = "";    // 发送请求IP
+    std::time_t sent_at = 0;     // 发送时间
+    std::time_t expire_at = 0;   // 过期时间
     std::time_t used_at = 0;     // 使用时间
-    std::string send_ip;         // 发送请求IP
     std::time_t created_at = 0;  // 创建时间
 };
 

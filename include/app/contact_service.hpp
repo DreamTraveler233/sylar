@@ -9,9 +9,11 @@
 
 namespace CIM::app {
 
-
 class ContactService {
    public:
+    // 同意好友申请
+    static VoidResult AgreeApply(const uint64_t user_id, const uint64_t apply_id,
+                                 const std::string& remark);
     // 根据手机号查询联系人
     static UserResult SearchByMobile(const std::string& mobile);
 
@@ -22,8 +24,8 @@ class ContactService {
     static ContactListResult ListFriends(const uint64_t user_id);
 
     // 创建添加联系人申请
-    static VoidResult CreateContactApply(const uint64_t from_id, const uint64_t to_id,
-                                         const std::string& remark);
+    static VoidResult CreateContactApply(const uint64_t apply_user_id,
+                                         const uint64_t target_user_id, const std::string& remark);
 
     // 查询添加联系人申请未处理数量
     static ApplyCountResult GetPendingContactApplyCount(const uint64_t user_id);
@@ -31,11 +33,9 @@ class ContactService {
     // 获取好友申请列表
     static ContactApplyListResult ListContactApplies(const uint64_t user_id);
 
-    // 同意好友申请
-    static VoidResult AgreeApply(const uint64_t apply_id, const std::string& remark);
-
     // 拒绝好友申请
-    static VoidResult RejectApply(const uint64_t apply_id, const std::string& remark);
+    static VoidResult RejectApply(const uint64_t handler_user_id, const uint64_t apply_user_id,
+                                  const std::string& remark);
 
     // 修改联系人备注
     static VoidResult EditContactRemark(const uint64_t user_id, const uint64_t contact_id,
@@ -53,7 +53,8 @@ class ContactService {
     static ContactGroupListResult GetContactGroupLists(const uint64_t user_id);
 
     // 修改联系人分组
-    static VoidResult ChangeContactGroup(const uint64_t user_id, const uint64_t contact_id, const uint64_t group_id);
+    static VoidResult ChangeContactGroup(const uint64_t user_id, const uint64_t contact_id,
+                                         const uint64_t group_id);
 };
 
 }  // namespace CIM::app

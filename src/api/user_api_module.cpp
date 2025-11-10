@@ -104,7 +104,6 @@ bool UserApiModule::onServerReady() {
         dispatch->addServlet("/api/v1/user/email-update",
                              [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
                                 CIM::http::HttpSession::ptr) {
-                                 CIM_LOG_DEBUG(g_logger) << "/api/v1/user/detail-update";
                                  res->setHeader("Content-Type", "application/json");
                                  res->setBody(Ok());
                                  return 0;
@@ -201,7 +200,7 @@ bool UserApiModule::onServerReady() {
 
             auto uid_result = GetUidFromToken(req, res);
             if (!uid_result.ok) {
-                res->setStatus(CIM::http::HttpStatus::UNAUTHORIZED);
+                res->setStatus(ToHttpStatus(uid_result.code));
                 res->setBody(Error(uid_result.code, uid_result.err));
                 return 0;
             }
@@ -227,7 +226,7 @@ bool UserApiModule::onServerReady() {
 
             auto uid_result = GetUidFromToken(req, res);
             if (!uid_result.ok) {
-                res->setStatus(CIM::http::HttpStatus::UNAUTHORIZED);
+                res->setStatus(ToHttpStatus(uid_result.code));
                 res->setBody(Error(uid_result.code, uid_result.err));
                 return 0;
             }

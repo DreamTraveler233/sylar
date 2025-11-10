@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <string>
 
+#include "http_session.hpp"
 #include "result.hpp"
 
 namespace CIM::app {
@@ -15,7 +16,8 @@ class AuthService {
                                    const std::string& platform);
 
     // 记录登录日志
-    static VoidResult LogLogin(const UserResult& result, const std::string& platform);
+    static VoidResult LogLogin(const UserResult& result, const std::string& platform,
+                               CIM::http::HttpSession::ptr session);
 
     // 用户上线
     static VoidResult GoOnline(const uint64_t id);

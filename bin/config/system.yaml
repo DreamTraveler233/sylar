@@ -9,6 +9,10 @@ auth:
         issuer: "auth-service"
         expires_in: 3600
 
+# 机器编码配置（用于区分不同机器，范围是 0~1023）
+machine:
+    code: "0"
+
 # RSA 密钥配置
 crypto:
     rsa_private_key_path: "keys/rsa_private_2048.pem"

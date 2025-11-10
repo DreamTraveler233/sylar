@@ -3,7 +3,7 @@
 
 -- 用户主档
 CREATE TABLE IF NOT EXISTS `im_user` (
-  `id` BIGINT UNSIGNED NOT NULL COMMENT '用户ID（雪花ID/分布式ID）',
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '用户ID（由数据库自增）',
   `mobile` VARCHAR(20) NOT NULL COMMENT '手机号（唯一，用于登录/找回）',
   `email` VARCHAR(100) NULL COMMENT '邮箱（唯一，可选，用于找回/通知）',
   `nickname` VARCHAR(64) NOT NULL COMMENT '昵称',
@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS `im_user_setting` (
   `theme_mode` VARCHAR(16) NOT NULL DEFAULT 'auto' COMMENT '主题模式：light/dark/auto',
   `theme_bag_img` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '聊天背景图片URL',
   `theme_color` VARCHAR(32) NOT NULL DEFAULT '' COMMENT '主题主色调（#RRGGBB）',
-  `notify_cue_tone` TINYINT NOT NULL DEFAULT 1 COMMENT '通知提示音开关：1=开 0=关（前端接受Y/N或true/false，接口转换）',
-  `keyboard_event_notify` TINYINT NOT NULL DEFAULT 1 COMMENT '键盘事件通知：1=开 0=关（接口转换）',
+  `notify_cue_tone` VARCHAR(16) NOT NULL DEFAULT "N" COMMENT '通知提示音开关：Y是 N否',
+  `keyboard_event_notify` VARCHAR(16) NOT NULL DEFAULT "N" COMMENT '键盘事件通知：Y是 N否',
   `created_at` DATETIME NOT NULL COMMENT '创建时间',
   `updated_at` DATETIME NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`user_id`),
@@ -69,26 +69,41 @@ CREATE TABLE IF NOT EXISTS `im_auth_login_log` (
   CONSTRAINT `fk_loginlog_user` FOREIGN KEY (`user_id`) REFERENCES `im_user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='认证登录日志';
 
--- 验证码（短信/邮箱）统一表
-CREATE TABLE IF NOT EXISTS `im_verify_code` (
+-- 短信验证码记录
+CREATE TABLE IF NOT EXISTS `im_sms_verify_code` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `channel` TINYINT NOT NULL COMMENT '渠道：1=短信 2=邮箱',
-  `scene` VARCHAR(32) NOT NULL COMMENT '场景：register/login/forget/update_mobile/update_email/oauth_bind 等',
-  `target` VARCHAR(100) NOT NULL COMMENT '目标：手机号或邮箱',
+  `mobile` VARCHAR(20) NOT NULL COMMENT '手机号（目标）',
+  `channel` VARCHAR(255) NOT NULL COMMENT '场景：register/login/forget/update_mobile/update_email/oauth_bind 等',
   `code` VARCHAR(12) NOT NULL COMMENT '验证码',
   `status` TINYINT NOT NULL DEFAULT 1 COMMENT '状态：1=未使用 2=已使用 3=已过期',
-  `attempts` INT NOT NULL DEFAULT 0 COMMENT '校验尝试次数',
-  `max_attempts` INT NOT NULL DEFAULT 5 COMMENT '最大允许尝试次数',
   `sent_ip` VARCHAR(45) NULL COMMENT '发送请求IP',
   `sent_at` DATETIME NOT NULL COMMENT '发送时间',
   `expire_at` DATETIME NOT NULL COMMENT '过期时间',
   `used_at` DATETIME NULL COMMENT '使用时间',
   `created_at` DATETIME NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`),
-  KEY `idx_target_scene` (`target`,`scene`,`status`),
+  KEY `idx_target_scene` (`mobile`,`channel`,`status`),
   KEY `idx_expire` (`expire_at`),
   KEY `idx_sent_at` (`sent_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='验证码记录（短信/邮箱统一）';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='短信验证码记录';
+
+-- 邮箱验证码表
+CREATE TABLE IF NOT EXISTS `im_email_verify_code` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `email` VARCHAR(100) NULL COMMENT '邮箱（目标）',
+  `channel` VARCHAR(255) NOT NULL COMMENT '场景：register/login/forget/update_mobile/update_email/oauth_bind 等',
+  `code` VARCHAR(12) NOT NULL COMMENT '验证码',
+  `status` TINYINT NOT NULL DEFAULT 1 COMMENT '状态：1=未使用 2=已使用 3=已过期',
+  `sent_ip` VARCHAR(45) NULL COMMENT '发送请求IP',
+  `sent_at` DATETIME NOT NULL COMMENT '发送时间',
+  `expire_at` DATETIME NOT NULL COMMENT '过期时间',
+  `used_at` DATETIME NULL COMMENT '使用时间',
+  `created_at` DATETIME NOT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_target_scene` (`email`,`channel`,`status`),
+  KEY `idx_expire` (`expire_at`),
+  KEY `idx_sent_at` (`sent_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='邮箱验证码记录';
 
 -- 会话/令牌管理（支持多端登录/注销/吊销）
 CREATE TABLE IF NOT EXISTS `im_auth_session` (
