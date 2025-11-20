@@ -42,4 +42,4 @@ namespace CIM::orm
 
 }
 
-#endif
+#endif // __CIM_ORM_INDEX_HPP__

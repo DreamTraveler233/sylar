@@ -1,5 +1,5 @@
-#ifndef __CIM_UTIL_UTIL_CPP__
-#define __CIM_UTIL_UTIL_CPP__
+#ifndef __CIM_UTIL_UTIL_HPP__
+#define __CIM_UTIL_UTIL_HPP__
 
 #include <cxxabi.h>
 #include <jsoncpp/json/json.h>
@@ -489,4 +489,4 @@ class SharedArray {
 };
 }  // namespace CIM
 
-#endif
+#endif // __CIM_UTIL_UTIL_HPP__

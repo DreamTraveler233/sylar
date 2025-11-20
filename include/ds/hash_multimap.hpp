@@ -525,4 +525,4 @@ RWMutex HashMultimap<K, V, PosHash>::s_mutex[MAX_MUTEX];
 
 }  // namespace CIM::ds
 
-#endif
+#endif // __CIM_DS_HASH_MULTIMAP_HPP__

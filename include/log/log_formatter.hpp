@@ -9,7 +9,8 @@
  * 支持多种格式化项，如时间、线程ID、日志级别等，可以灵活组合形成不同的日志输出格式。
  */
 
-#pragma once
+#ifndef __CIM_LOG_LOG_FORMATTER_HPP__
+#define __CIM_LOG_LOG_FORMATTER_HPP__
 
 #include <iostream>
 #include <map>
@@ -378,3 +379,5 @@ class StringFormatItem : public LogFormatter::FormatItem {
     std::string m_string;  ///< 字符串内容
 };
 }  // namespace CIM
+
+#endif // __CIM_LOG_LOG_FORMATTER_HPP__

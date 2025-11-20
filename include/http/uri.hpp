@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_HTTP_URI_HPP__
+#define __CIM_HTTP_URI_HPP__
 
 #include <stdint.h>
 
@@ -145,3 +146,5 @@ class Uri {
     std::string m_fragment;  /// fragment
 };
 }  // namespace CIM
+
+#endif // __CIM_HTTP_URI_HPP__

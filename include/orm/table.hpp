@@ -61,4 +61,4 @@ namespace CIM::orm
 
 }
 
-#endif
+#endif // __CIM_ORM_TABLE_HPP__

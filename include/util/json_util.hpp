@@ -38,4 +38,4 @@ class JsonUtil {
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_UTIL_JSON_UTIL_HPP__

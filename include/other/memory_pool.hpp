@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_OTHER_MEMORY_POOL_HPP__
+#define __CIM_OTHER_MEMORY_POOL_HPP__
 
 #include <cstdint>
 #include <cstdlib>
@@ -85,3 +86,5 @@ class NgxMemPool {
     NgxPool_t* _pool;
 };
 }  // namespace CIM
+
+#endif // __CIM_OTHER_MEMORY_POOL_HPP__

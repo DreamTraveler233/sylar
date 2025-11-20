@@ -8,7 +8,8 @@
  * 支持配置值的序列化/反序列化、变更监听回调等特性。
  */
 
-#pragma once
+#ifndef __CIM_CONFIG_CONFIG_VAR_HPP__
+#define __CIM_CONFIG_CONFIG_VAR_HPP__
 
 #include "io/lock.hpp"
 #include "lexical_cast.hpp"
@@ -193,3 +194,5 @@ class ConfigVar : public ConfigVariableBase {
     RWMutexType m_mutex;                       // 读写锁
 };
 }  // namespace CIM
+
+#endif // __CIM_CONFIG_CONFIG_VAR_HPP__

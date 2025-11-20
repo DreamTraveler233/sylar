@@ -8,7 +8,8 @@
  * 用于统一管理和配置系统中的所有日志记录器(Logger)实例。
  */
 
-#pragma once
+#ifndef __CIM_LOG_LOGGER_MANAGER_HPP__
+#define __CIM_LOG_LOGGER_MANAGER_HPP__
 
 #include <cstdint>
 #include <map>
@@ -120,3 +121,5 @@ struct LogDefine {
     bool operator<(const LogDefine& other) const { return name < other.name; }
 };
 }  // namespace CIM
+
+#endif // __CIM_LOG_LOGGER_MANAGER_HPP__

@@ -1,5 +1,5 @@
-#ifndef __CIM_ROCK_SERVER_HPP__
-#define __CIM_ROCK_SERVER_HPP__
+#ifndef __CIM_ROCK_ROCK_SERVER_HPP__
+#define __CIM_ROCK_ROCK_SERVER_HPP__
 
 #include "rock_stream.hpp"
 #include "net/tcp_server.hpp"
@@ -18,4 +18,4 @@ class RockServer : public TcpServer {
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_ROCK_ROCK_SERVER_HPP__

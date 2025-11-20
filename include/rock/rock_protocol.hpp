@@ -99,4 +99,4 @@ class RockMessageDecoder : public MessageDecoder {
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_ROCK_ROCK_PROTOCOL_HPP__

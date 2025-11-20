@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_NET_HOOK_HPP__
+#define __CIM_NET_HOOK_HPP__
 
 #include <stdarg.h>
 #include <stdint.h>
@@ -10,6 +11,8 @@ bool is_hook_enable();
 // 用于设置钩子功能的启用状态
 void set_hook_enable(bool flag);
 }  // namespace CIM
+
+#endif // __CIM_NET_HOOK_HPP__
 
 // 这些函数指针变量不会被C++名称修饰
 extern "C" {

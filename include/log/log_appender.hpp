@@ -8,7 +8,8 @@
  * 包括标准输出追加器和文件追加器，用于控制日志的输出目标和格式化方式。
  */
 
-#pragma once
+#ifndef __CIM_LOG_LOG_APPENDER_HPP__
+#define __CIM_LOG_LOG_APPENDER_HPP__
 
 #include <fstream>
 #include <string>
@@ -142,3 +143,5 @@ class FileLogAppender : public LogAppender {
     LogFile::ptr m_logFile;  ///< 文件对象
 };
 }  // namespace CIM
+
+#endif // __CIM_LOG_LOG_APPENDER_HPP__

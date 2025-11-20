@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_HTTP_HTTP_PARSER_HPP__
+#define __CIM_HTTP_HTTP_PARSER_HPP__
 
 #include "http.hpp"
 #include "http11_parser.hpp"
@@ -151,3 +152,5 @@ class HttpResponseParser {
     int m_error;
 };
 }  // namespace CIM::http
+
+#endif // __CIM_HTTP_HTTP_PARSER_HPP__

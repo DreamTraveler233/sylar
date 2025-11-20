@@ -1,5 +1,5 @@
-#ifndef __CIM_DS_DICT_HPP__
-#define __CIM_DS_DICT_HPP__
+#ifndef __CIM_DS_DICH_HPP__
+#define __CIM_DS_DICH_HPP__
 
 #include <functional>
 #include <iostream>
@@ -428,4 +428,4 @@ class StringDict {
 
 }  // namespace CIM::ds
 
-#endif
+#endif // __CIM_DS_DICH_HPP__

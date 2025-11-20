@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_HTTP_HTTP_HPP__
+#define __CIM_HTTP_HTTP_HPP__
 
 #include <boost/lexical_cast.hpp>
 #include <map>
@@ -744,3 +745,5 @@ std::ostream& operator<<(std::ostream& os, const HttpRequest& req);
      */
 std::ostream& operator<<(std::ostream& os, const HttpResponse& rsp);
 }  // namespace CIM::http
+
+#endif // __CIM_HTTP_HTTP_HPP__

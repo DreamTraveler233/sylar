@@ -102,4 +102,4 @@ class IDB : public ISQLUpdate, public ISQLQuery {
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_DB_DB_HPP__

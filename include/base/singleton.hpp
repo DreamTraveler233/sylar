@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_BASE_SINGLETON_HPP__
+#define __CIM_BASE_SINGLETON_HPP__
 #include <memory>
 
 namespace CIM {
@@ -20,3 +21,5 @@ class SingletonPtr {
     }
 };
 }  // namespace CIM
+
+#endif // __CIM_BASE_SINGLETON_HPP__

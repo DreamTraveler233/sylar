@@ -16,4 +16,4 @@ namespace CIM::orm
 
 }
 
-#endif
+#endif // __CIM_ORM_ORM_UTIL_HPP__

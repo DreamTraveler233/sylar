@@ -8,7 +8,8 @@
  * 所有锁类都继承自Noncopyable，禁止拷贝构造和赋值操作，确保锁的安全性。
  */
 
-#pragma once
+#ifndef __CIM_IO_LOCK_HPP__
+#define __CIM_IO_LOCK_HPP__
 
 #include <pthread.h>
 
@@ -284,3 +285,5 @@ class CoroutineSemaphore : Noncopyable {
     size_t m_concurrency;
 };
 }  // namespace CIM
+
+#endif // __CIM_IO_LOCK_HPP__

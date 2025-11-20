@@ -14,7 +14,8 @@
  * 通过getSingleton获取单例对象，然后使用getLogFile获取或创建日志文件对象。
  */
 
-#pragma once
+#ifndef __CIM_LOG_LOG_FILE_MANAGER_HPP__
+#define __CIM_LOG_LOG_FILE_MANAGER_HPP__
 
 #include <memory>
 #include <string>
@@ -110,3 +111,5 @@ class LogFileManager : public Singleton<LogFileManager> {
     bool m_isInit;                                         //!< 是否已初始化标志
 };
 }  // namespace CIM
+
+#endif // __CIM_LOG_LOG_FILE_MANAGER_HPP__

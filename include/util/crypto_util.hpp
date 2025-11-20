@@ -244,4 +244,4 @@ class RSACipher {
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_UTIL_CRYPTO_UTIL_HPP__

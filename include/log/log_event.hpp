@@ -9,7 +9,8 @@
  * LogEventWrap是一个包装类，用于在析构时自动将日志事件提交到日志系统。
  */
 
-#pragma once
+#ifndef __CIM_LOG_LOG_EVENT_HPP__
+#define __CIM_LOG_LOG_EVENT_HPP__
 
 #include <memory>
 #include <sstream>
@@ -183,3 +184,5 @@ class LogEventWrap {
 };
 
 }  // namespace CIM
+
+#endif // __CIM_LOG_LOG_EVENT_HPP__

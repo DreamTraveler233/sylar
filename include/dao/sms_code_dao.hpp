@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_DAO_SMS_CODE_DAO_HPP__
+#define __CIM_DAO_SMS_CODE_DAO_HPP__
 
 #include <cstdint>
 #include <ctime>
@@ -40,3 +41,5 @@ class SmsCodeDAO {
 };
 
 }  // namespace CIM::dao
+
+#endif // __CIM_DAO_SMS_CODE_DAO_HPP__

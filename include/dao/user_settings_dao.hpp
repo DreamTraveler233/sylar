@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_DAO_USER_SETTINGS_DAO_HPP__
+#define __CIM_DAO_USER_SETTINGS_DAO_HPP__
 
 #include <cstdint>
 #include <ctime>
@@ -35,3 +36,5 @@ class UserSettingsDAO {
 };
 
 }  // namespace CIM::dao
+
+#endif // __CIM_DAO_USER_SETTINGS_DAO_HPP__

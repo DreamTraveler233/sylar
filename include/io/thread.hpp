@@ -7,7 +7,8 @@
  * 通过该类可以更方便地创建和控制线程，并支持获取线程信息、设置线程名称等操作。
  */
 
-#pragma once
+#ifndef __CIM_IO_THREAD_HPP__
+#define __CIM_IO_THREAD_HPP__
 
 #include <functional>
 #include <memory>
@@ -100,3 +101,5 @@ class Thread : public Noncopyable {
     Semaphore m_semaphore;       // 信号量，用于线程启动同步
 };
 }  // namespace CIM
+
+#endif // __CIM_IO_THREAD_HPP__

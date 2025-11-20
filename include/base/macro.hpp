@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_BASE_MACRO_HPP__
+#define __CIM_BASE_MACRO_HPP__
 
 #include "log/logger.hpp"
 #include "log/logger_manager.hpp"
@@ -19,7 +20,7 @@
 #else
 #define CIM_LIKELY(x) (x)
 #define CIM_UNLIKELY(x) (x)
-#endif
+#endif // __CIM_BASE_MACRO_HPP__
 
 #define CIM_LOG(logger, level)                                               \
     if (level >= logger->getLevel())                                           \
@@ -74,3 +75,5 @@
                                           << CIM::BacktraceToString(100, 2, "    "); \
         assert(X);                                                                     \
     }
+
+#endif // __CIM_BASE_MACRO_HPP__

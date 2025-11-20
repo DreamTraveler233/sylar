@@ -211,4 +211,4 @@ class Array {
 
 }  // namespace CIM::ds
 
-#endif
+#endif // __CIM_DS_ARRAY_HPP__

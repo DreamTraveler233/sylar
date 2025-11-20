@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_NET_STREAM_HPP__
+#define __CIM_NET_STREAM_HPP__
 
 #include <memory>
 
@@ -112,3 +113,5 @@ class Stream {
     virtual void close() = 0;
 };
 }  // namespace CIM
+
+#endif // __CIM_NET_STREAM_HPP__

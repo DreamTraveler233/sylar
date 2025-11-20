@@ -307,4 +307,4 @@ XX(double, double);
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_DB_SQLITE3_HPP__

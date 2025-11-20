@@ -8,7 +8,8 @@
  * SchedulerSwitcher用于临时切换到指定的调度器上下文执行。
  */
 
-#pragma once
+#ifndef __CIM_IO_SCHEDULER_HPP__
+#define __CIM_IO_SCHEDULER_HPP__
 
 #include <list>
 #include <vector>
@@ -359,3 +360,5 @@ class SchedulerSwitcher : public Noncopyable {
     Scheduler* m_caller;  ///< 调用者调度器，用于保存原调度器上下文
 };
 }  // namespace CIM
+
+#endif // __CIM_IO_SCHEDULER_HPP__

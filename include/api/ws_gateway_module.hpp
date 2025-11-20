@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_API_WS_GATEWAY_MODULE_HPP__
+#define __CIM_API_WS_GATEWAY_MODULE_HPP__
 
 #include "other/module.hpp"
 
@@ -29,3 +30,5 @@ class WsGatewayModule : public CIM::Module {
 };
 
 }  // namespace CIM::api
+
+#endif // __CIM_API_WS_GATEWAY_MODULE_HPP__

@@ -14,4 +14,4 @@ class ConfigServlet : public Servlet {
 
 }  // namespace CIM::http
 
-#endif
+#endif // __CIM_HTTP_SERVLETS_CONFIG_SERVLET_HPP__

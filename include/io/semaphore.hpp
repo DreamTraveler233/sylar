@@ -7,7 +7,8 @@
  * 信号量是一种用于控制多个线程对共享资源访问的同步原语，常用于线程间的协调和同步。
  */
 
-#pragma once
+#ifndef __CIM_IO_SEMAPHORE_HPP__
+#define __CIM_IO_SEMAPHORE_HPP__
 
 #include <semaphore.h>
 #include <stdint.h>
@@ -61,3 +62,5 @@ class Semaphore : public Noncopyable {
     sem_t m_semaphore;  // POSIX信号量
 };
 }  // namespace CIM
+
+#endif // __CIM_IO_SEMAPHORE_HPP__

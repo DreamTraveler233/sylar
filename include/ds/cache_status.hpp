@@ -64,4 +64,4 @@ class CacheStatus {
 
 }  // namespace CIM::ds
 
-#endif
+#endif // __CIM_DS_CACHE_STATUS_HPP__

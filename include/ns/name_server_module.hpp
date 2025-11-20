@@ -60,4 +60,4 @@ class NameServerModule : public RockModule {
 
 }  // namespace CIM::ns
 
-#endif
+#endif // __CIM_NS_NAME_SERVER_MODULE_HPP__

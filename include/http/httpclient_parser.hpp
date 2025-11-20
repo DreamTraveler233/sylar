@@ -48,7 +48,8 @@
  * 解析过程通过回调函数通知上层应用解析到的数据，解析器本身不存储解析结果。
  */
 
-#pragma once
+#ifndef __CIM_HTTP_HTTPCLIENT_PARSER_HPP__
+#define __CIM_HTTP_HTTPCLIENT_PARSER_HPP__
 
 #include "http11_common.hpp"
 
@@ -127,3 +128,5 @@ int httpclient_parser_is_finished(httpclient_parser* parser);
  * @return 已读取的字节数
  */
 #define httpclient_parser_nread(parser) (parser)->nread
+
+#endif // __CIM_HTTP_HTTPCLIENT_PARSER_HPP__

@@ -48,4 +48,4 @@ class HttpServer : public TcpServer {
 
 }  // namespace CIM::http
 
-#endif
+#endif // __CIM_HTTP_HTTP_SERVER_HPP__

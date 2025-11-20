@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_BASE_ENDIAN_HPP__
+#define __CIM_BASE_ENDIAN_HPP__
 
 #include <byteswap.h>
 
@@ -58,3 +59,5 @@ T hton(T n) {
 }
 #endif
 }  // namespace CIM
+
+#endif // __CIM_BASE_ENDIAN_HPP__

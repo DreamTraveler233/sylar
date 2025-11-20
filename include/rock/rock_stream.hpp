@@ -122,4 +122,4 @@ namespace CIM
 
 }
 
-#endif
+#endif // __CIM_ROCK_ROCK_STREAM_HPP__

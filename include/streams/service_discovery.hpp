@@ -118,4 +118,4 @@ class ZKServiceDiscovery : public IServiceDiscovery,
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_STREAMS_SERVICE_DISCOVERY_HPP__

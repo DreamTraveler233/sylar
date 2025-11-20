@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_SYSTEM_DAEMON_HPP__
+#define __CIM_SYSTEM_DAEMON_HPP__
 
 #include <unistd.h>
 
@@ -37,3 +38,5 @@ int start_daemon(int argc, char** argv, std::function<int(int argc, char** argv)
                  bool is_daemon);
 
 }  // namespace CIM
+
+#endif // __CIM_SYSTEM_DAEMON_HPP__

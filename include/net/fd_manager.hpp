@@ -16,8 +16,8 @@
  * - 提供RAII机制自动管理文件描述符生命周期
  */
 
-#ifndef __CIM_FD_MANAGER_H__
-#define __CIM_FD_MANAGER_H__
+#ifndef __CIM_NET_FD_MANAGER_HPP__
+#define __CIM_NET_FD_MANAGER_HPP__
 
 #include "io/iomanager.hpp"
 #include "io/lock.hpp"
@@ -210,4 +210,4 @@ class FileDescriptor : public Noncopyable {
 };
 }  // namespace CIM
 
-#endif  // __CIM_FD_MANAGER_H__
+#endif // __CIM_NET_FD_MANAGER_HPP__

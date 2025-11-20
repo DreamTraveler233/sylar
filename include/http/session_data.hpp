@@ -67,4 +67,4 @@ typedef Singleton<SessionDataManager> SessionDataMgr;
 
 }  // namespace CIM::http
 
-#endif
+#endif // __CIM_HTTP_SESSION_DATA_HPP__

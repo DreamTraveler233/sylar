@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_UTIL_HASH_UTIL_HPP__
+#define __CIM_UTIL_HASH_UTIL_HPP__
 
 #include <stdint.h>
 
@@ -56,3 +57,5 @@ std::string random_string(
     size_t len,
     const std::string& chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
 }  // namespace CIM
+
+#endif // __CIM_UTIL_HASH_UTIL_HPP__

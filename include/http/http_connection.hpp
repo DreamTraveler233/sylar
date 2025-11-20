@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_HTTP_HTTP_CONNECTION_HPP__
+#define __CIM_HTTP_HTTP_CONNECTION_HPP__
 
 #include <list>
 
@@ -280,3 +281,5 @@ class HttpConnectionPool {
     std::atomic<int32_t> m_total = {0};  /// 当前连接池的连接数
 };
 }  // namespace CIM::http
+
+#endif // __CIM_HTTP_HTTP_CONNECTION_HPP__

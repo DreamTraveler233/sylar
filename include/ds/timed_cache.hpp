@@ -346,4 +346,4 @@ class HashTimedCache {
 
 }  // namespace CIM::ds
 
-#endif
+#endif // __CIM_DS_TIMED_CACHE_HPP__

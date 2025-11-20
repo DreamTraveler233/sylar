@@ -9,7 +9,8 @@
  * 日志等级从低到高依次为: DEBUG, INFO, WARN, ERROR, FATAL
  */
 
-#pragma once
+#ifndef __CIM_LOG_LOG_LEVEL_HPP__
+#define __CIM_LOG_LOG_LEVEL_HPP__
 
 #include <string>
 
@@ -53,3 +54,5 @@ class LogLevel {
 };
 
 }  // namespace CIM
+
+#endif // __CIM_LOG_LOG_LEVEL_HPP__

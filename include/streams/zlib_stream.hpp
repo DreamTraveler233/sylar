@@ -1,3 +1,6 @@
+#ifndef __CIM_STREAMS_ZLIB_STREAM_HPP__
+#define __CIM_STREAMS_ZLIB_STREAM_HPP__
+
 #include <stdint.h>
 #include <sys/uio.h>
 #include <zlib.h>
@@ -73,3 +76,5 @@ class ZlibStream : public Stream {
     std::vector<iovec> m_buffs;
 };
 }  // namespace CIM
+
+#endif // __CIM_STREAMS_ZLIB_STREAM_HPP__

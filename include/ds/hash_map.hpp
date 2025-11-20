@@ -1,5 +1,5 @@
-#ifndef __CIM_DS_HASH_MAP2_HPP__
-#define __CIM_DS_HASH_MAP2_HPP__
+#ifndef __CIM_DS_HASH_MAP_HPP__
+#define __CIM_DS_HASH_MAP_HPP__
 
 #include <functional>
 #include <iostream>
@@ -301,4 +301,4 @@ RWMutex HashMap<K, V, PosHash>::s_mutex[MAX_MUTEX];
 
 }  // namespace CIM::ds
 
-#endif
+#endif // __CIM_DS_HASH_MAP_HPP__

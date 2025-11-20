@@ -1,5 +1,5 @@
-#ifndef __CIM_LIBRARY_HPP__
-#define __CIM_LIBRARY_HPP__
+#ifndef __CIM_OTHER_LIBRARY_HPP__
+#define __CIM_OTHER_LIBRARY_HPP__
 
 #include <memory>
 
@@ -13,4 +13,4 @@ class Library {
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_OTHER_LIBRARY_HPP__

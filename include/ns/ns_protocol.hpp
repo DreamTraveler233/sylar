@@ -127,4 +127,4 @@ class NSDomainSet {
 
 }  // namespace CIM::ns
 
-#endif
+#endif // __CIM_NS_NS_PROTOCOL_HPP__

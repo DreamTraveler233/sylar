@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_BASE_NONCOPYABLE_HPP__
+#define __CIM_BASE_NONCOPYABLE_HPP__
 
 namespace CIM {
 class Noncopyable {
@@ -11,3 +12,5 @@ class Noncopyable {
     ~Noncopyable() = default;
 };
 }  // namespace CIM
+
+#endif // __CIM_BASE_NONCOPYABLE_HPP__

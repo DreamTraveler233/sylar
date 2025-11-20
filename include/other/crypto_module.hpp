@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_OTHER_CRYPTO_MODULE_HPP__
+#define __CIM_OTHER_CRYPTO_MODULE_HPP__
 
 #include "config/config.hpp"
 #include "other/module.hpp"
@@ -112,3 +113,5 @@ class CryptoModule : public Module {
     mutable RWMutex m_mutex;                 // 简单并发保护
 };
 }  // namespace CIM
+
+#endif // __CIM_OTHER_CRYPTO_MODULE_HPP__

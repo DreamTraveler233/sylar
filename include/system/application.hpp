@@ -1,5 +1,5 @@
-#ifndef __CIM_APPLICATION_HPP__
-#define __CIM_APPLICATION_HPP__
+#ifndef __CIM_SYSTEM_APPLICATION_HPP__
+#define __CIM_SYSTEM_APPLICATION_HPP__
 
 #include "http/http_server.hpp"
 #include "rock/rock_stream.hpp"
@@ -122,4 +122,4 @@ class Application {
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_SYSTEM_APPLICATION_HPP__

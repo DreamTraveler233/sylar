@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_DAO_CONTACT_APPLY_DAO_HPP__
+#define __CIM_DAO_CONTACT_APPLY_DAO_HPP__
 
 #include <cstdint>
 #include <ctime>
@@ -60,3 +61,5 @@ class ContactApplyDAO {
 };
 
 }  // namespace CIM::dao
+
+#endif // __CIM_DAO_CONTACT_APPLY_DAO_HPP__

@@ -1,5 +1,5 @@
-#ifndef __CIM_PROTOCOL_HPP__
-#define __CIM_PROTOCOL_HPP__
+#ifndef __CIM_OTHER_PROTOCOL_HPP__
+#define __CIM_OTHER_PROTOCOL_HPP__
 
 #include <memory>
 #include <string>
@@ -95,4 +95,4 @@ class Notify : public Message {
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_OTHER_PROTOCOL_HPP__

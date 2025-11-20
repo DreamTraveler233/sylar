@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_UTIL_PASSWORD_HPP__
+#define __CIM_UTIL_PASSWORD_HPP__
 
 #include <cstdint>
 #include <string>
@@ -26,3 +27,5 @@ class Password {
 };
 
 }  // namespace CIM::util
+
+#endif // __CIM_UTIL_PASSWORD_HPP__

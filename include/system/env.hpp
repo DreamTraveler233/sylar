@@ -8,7 +8,8 @@
  * 命令行参数以及程序相关信息，提供了获取程序路径、工作目录、配置路径等功能。
  */
 
-#pragma once
+#ifndef __CIM_SYSTEM_ENV_HPP__
+#define __CIM_SYSTEM_ENV_HPP__
 
 #include <map>
 #include <vector>
@@ -144,3 +145,5 @@ class Env {
 using EnvMgr = Singleton<Env>;
 
 }  // namespace CIM
+
+#endif // __CIM_SYSTEM_ENV_HPP__

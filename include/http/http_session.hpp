@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_HTTP_HTTP_SESSION_HPP__
+#define __CIM_HTTP_HTTP_SESSION_HPP__
 
 #include "http.hpp"
 #include "streams/socket_stream.hpp"
@@ -43,3 +44,5 @@ class HttpSession : public SocketStream {
     std::string m_leftoverBuf;
 };
 }  // namespace CIM::http
+
+#endif // __CIM_HTTP_HTTP_SESSION_HPP__

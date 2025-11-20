@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_STREAMS_SOCKET_STREAM_HPP__
+#define __CIM_STREAMS_SOCKET_STREAM_HPP__
 
 #include "io/iomanager.hpp"
 #include "net/socket.hpp"
@@ -109,3 +110,5 @@ class SocketStream : public Stream {
     bool m_owner;          /// 是否主控
 };
 }  // namespace CIM
+
+#endif // __CIM_STREAMS_SOCKET_STREAM_HPP__

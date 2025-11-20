@@ -78,4 +78,4 @@ namespace CIM::orm
 
 }
 
-#endif
+#endif // __CIM_ORM_COLUMN_HPP__

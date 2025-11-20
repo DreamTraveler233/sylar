@@ -1,5 +1,5 @@
-#ifndef __APP_SETTING_SERVICE_HPP__
-#define __APP_SETTING_SERVICE_HPP__
+#ifndef __CIM_APP_USER_SERVICE_HPP__
+#define __CIM_APP_USER_SERVICE_HPP__
 
 #include <cstdint>
 #include <optional>
@@ -52,4 +52,4 @@ class UserService {
 
 }  // namespace CIM::app
 
-#endif  // __SETTING_SERVICE_HPP__
+#endif // __CIM_APP_USER_SERVICE_HPP__

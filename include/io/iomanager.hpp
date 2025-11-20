@@ -9,7 +9,8 @@
  * 相应的协程或回调函数执行，从而实现高效的异步IO编程。
  */
 
-#pragma once
+#ifndef __CIM_IO_IOMANAGER_HPP__
+#define __CIM_IO_IOMANAGER_HPP__
 
 #include "scheduler.hpp"
 #include "timer.hpp"
@@ -175,3 +176,5 @@ class IOManager : public Scheduler, public TimerManager {
     std::vector<FdContext*> m_fdContexts;           /// 文件描述符上下文数组
 };
 }  // namespace CIM
+
+#endif // __CIM_IO_IOMANAGER_HPP__

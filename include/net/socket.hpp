@@ -19,7 +19,8 @@
  * - SSL支持：SSLSocket子类提供安全的网络通信
  */
 
-#pragma once
+#ifndef __CIM_NET_SOCKET_HPP__
+#define __CIM_NET_SOCKET_HPP__
 
 #include <netinet/tcp.h>
 #include <openssl/err.h>
@@ -671,3 +672,5 @@ class SSLSocket : public Socket {
 std::ostream& operator<<(std::ostream& os, const Socket& sock);
 
 }  // namespace CIM
+
+#endif // __CIM_NET_SOCKET_HPP__

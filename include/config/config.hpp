@@ -1,3 +1,5 @@
+#ifndef __CIM_CONFIG_CONFIG_HPP__
+#define __CIM_CONFIG_CONFIG_HPP__
 /**
  * @file config.hpp
  * @brief 配置管理器定义文件
@@ -8,7 +10,7 @@
  * 配置项访问接口。通过模板方法支持任意类型的配置项管理。
  */
 
-#pragma once
+// #pragma once removed; using header guard
 
 #include "config_variable_base.hpp"
 #include "config_var.hpp"
@@ -157,3 +159,5 @@ class Config {
     }
 };
 }  // namespace CIM
+
+#endif // __CIM_CONFIG_CONFIG_HPP__

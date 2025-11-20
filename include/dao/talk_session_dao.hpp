@@ -1,5 +1,5 @@
-#ifndef __CIM_DAO_TALK_SESSION_HPP__
-#define __CIM_DAO_TALK_SESSION_HPP__
+#ifndef __CIM_DAO_TALK_SESSION_DAO_HPP__
+#define __CIM_DAO_TALK_SESSION_DAO_HPP__
 
 #include <cstdint>
 #include <ctime>
@@ -121,4 +121,4 @@ class TalkSessionDAO {
                                    std::string* err = nullptr);
 };
 }  // namespace CIM::dao
-#endif  // __CIM_DAO_TALK_SESSION_HPP__
+#endif // __CIM_DAO_TALK_SESSION_DAO_HPP__

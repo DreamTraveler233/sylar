@@ -14,4 +14,4 @@ class StatusServlet : public Servlet {
 
 }  // namespace CIM::http
 
-#endif
+#endif // __CIM_HTTP_SERVLETS_STATUS_SERVLET_HPP__

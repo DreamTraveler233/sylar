@@ -168,4 +168,4 @@ class FoxThreadManager {
 using FoxThreadMgr = Singleton<FoxThreadManager>;
 
 }  // namespace CIM
-#endif
+#endif // __CIM_DB_FOX_THREAD_HPP__

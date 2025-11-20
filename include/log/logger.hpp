@@ -9,7 +9,8 @@
  * 日志输出器(LogAppender)。每个Logger可以设置独立的日志级别和格式化器。
  */
 
-#pragma once
+#ifndef __CIM_LOG_LOGGER_HPP__
+#define __CIM_LOG_LOGGER_HPP__
 
 #include <list>
 #include <memory>
@@ -159,3 +160,5 @@ class Logger {
     MutexType m_mutex;                        ///< 互斥锁
 };
 }  // namespace CIM
+
+#endif // __CIM_LOG_LOGGER_HPP__

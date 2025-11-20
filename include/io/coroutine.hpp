@@ -6,7 +6,8 @@
  * 基于ucontext实现协程上下文切换，支持协程的挂起、恢复等操作。
  */
 
-#pragma once
+#ifndef __CIM_IO_COROUTINE_HPP__
+#define __CIM_IO_COROUTINE_HPP__
 
 #include <ucontext.h>
 
@@ -179,3 +180,5 @@ class MallocStackAllocator : public Noncopyable {
     static void Dealloc(void* ptr, size_t size);
 };
 }  // namespace CIM
+
+#endif // __CIM_IO_COROUTINE_HPP__

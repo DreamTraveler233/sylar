@@ -15,7 +15,8 @@
  * - 灵活的工作线程模型
  */
 
-#pragma once
+#ifndef __CIM_NET_TCP_SERVER_HPP__
+#define __CIM_NET_TCP_SERVER_HPP__
 
 #include <functional>
 #include <memory>
@@ -285,3 +286,5 @@ class TcpServer : public std::enable_shared_from_this<TcpServer>, Noncopyable {
     TcpServerConf::ptr m_conf;         /// 服务器配置
 };
 }  // namespace CIM
+
+#endif // __CIM_NET_TCP_SERVER_HPP__

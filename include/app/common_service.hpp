@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_APP_COMMON_SERVICE_HPP__
+#define __CIM_APP_COMMON_SERVICE_HPP__
 
 #include <string>
 
@@ -39,3 +40,5 @@ class CommonService {
 };
 
 }  // namespace CIM::app
+
+#endif // __CIM_APP_COMMON_SERVICE_HPP__

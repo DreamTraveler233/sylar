@@ -86,4 +86,4 @@ class RoaringBitmap {
 
 }  // namespace CIM::ds
 
-#endif
+#endif // __CIM_DS_ROARING_BITMAP_HPP__

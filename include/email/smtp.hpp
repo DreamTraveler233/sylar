@@ -90,4 +90,4 @@ class SmtpClient : public SocketStream {
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_EMAIL_SMTP_HPP__

@@ -158,4 +158,4 @@ class Bitmap {
 
 }  // namespace CIM::ds
 
-#endif
+#endif // __CIM_DS_BITMAP_HPP__

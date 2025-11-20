@@ -401,4 +401,4 @@ XX(double, double&);
 }  // namespace
 }  // namespace CIM
 
-#endif
+#endif // __CIM_DB_MYSQL_HPP__

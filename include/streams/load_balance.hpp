@@ -1,5 +1,5 @@
-#ifndef __CIM_STREAMS_SOCKET_STREAM_POOL_HPP__
-#define __CIM_STREAMS_SOCKET_STREAM_POOL_HPP__
+#ifndef __CIM_STREAMS_LOAD_BALANCE_HPP__
+#define __CIM_STREAMS_LOAD_BALANCE_HPP__
 
 #include <unordered_map>
 #include <vector>
@@ -235,4 +235,4 @@ class SDLoadBalance {
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_STREAMS_LOAD_BALANCE_HPP__

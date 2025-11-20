@@ -197,4 +197,4 @@ class EMail {
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_EMAIL_EMAIL_HPP__

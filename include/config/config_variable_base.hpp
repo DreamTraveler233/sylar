@@ -8,7 +8,8 @@
  * 是整个配置系统的核心基础类。
  */
 
-#pragma once
+#ifndef __CIM_CONFIG_CONFIG_VARIABLE_BASE_HPP__
+#define __CIM_CONFIG_CONFIG_VARIABLE_BASE_HPP__
 
 #include <memory>
 #include <string>
@@ -74,3 +75,5 @@ class ConfigVariableBase {
     std::string m_description;  // 配置项描述
 };
 }  // namespace CIM
+
+#endif // __CIM_CONFIG_CONFIG_VARIABLE_BASE_HPP__

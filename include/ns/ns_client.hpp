@@ -43,4 +43,4 @@ class NSClient : public RockConnection {
 
 }  // namespace CIM::ns
 
-#endif
+#endif // __CIM_NS_NS_CLIENT_HPP__

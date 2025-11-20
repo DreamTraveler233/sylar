@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_HTTP_HTTP_SERVLET_HPP__
+#define __CIM_HTTP_HTTP_SERVLET_HPP__
 
 #include <functional>
 #include <memory>
@@ -247,3 +248,5 @@ class NotFoundServlet : public Servlet {
     std::string m_content;
 };
 }  // namespace CIM::http
+
+#endif // __CIM_HTTP_HTTP_SERVLET_HPP__

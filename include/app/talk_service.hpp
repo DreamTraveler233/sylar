@@ -1,5 +1,5 @@
-#ifndef __CIM_APP_TALK_SESSION_HPP__
-#define __CIM_APP_TALK_SESSION_HPP__
+#ifndef __CIM_APP_TALK_SERVICE_HPP__
+#define __CIM_APP_TALK_SERVICE_HPP__
 
 #include "dao/talk_session_dao.hpp"
 #include "result.hpp"
@@ -31,4 +31,4 @@ class TalkService {
 
 }  // namespace CIM::app
 
-#endif  // __CIM_APP_TALK_SESSION_HPP__
+#endif // __CIM_APP_TALK_SERVICE_HPP__

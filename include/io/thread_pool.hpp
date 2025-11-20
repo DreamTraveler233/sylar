@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_IO_THREAD_POOL_HPP__
+#define __CIM_IO_THREAD_POOL_HPP__
 
 #include <atomic>
 #include <condition_variable>
@@ -363,3 +364,5 @@ class ThreadPool {
     std::atomic_bool poolIsRunning_;  // 线程池启动标志
 };
 }  // namespace CIM
+
+#endif // __CIM_IO_THREAD_POOL_HPP__

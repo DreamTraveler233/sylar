@@ -1,6 +1,6 @@
 
-#ifndef __CIM_ZK_CLIENT_HPP__
-#define __CIM_ZK_CLIENT_HPP__
+#ifndef __CIM_OTHER_ZK_CLIENT_HPP__
+#define __CIM_OTHER_ZK_CLIENT_HPP__
 
 #include <stdint.h>
 
@@ -86,4 +86,4 @@ class ZKClient : public std::enable_shared_from_this<ZKClient> {
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_OTHER_ZK_CLIENT_HPP__

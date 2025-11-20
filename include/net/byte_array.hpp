@@ -20,7 +20,8 @@
  * - 线程不安全，需要外部同步机制
  */
 
-#pragma once
+#ifndef __CIM_NET_BYTE_ARRAY_HPP__
+#define __CIM_NET_BYTE_ARRAY_HPP__
 
 #include <stdint.h>
 #include <sys/socket.h>
@@ -479,3 +480,5 @@ class ByteArray {
     Node* m_cur_node;    //!< 当前节点指针
 };
 }  // namespace CIM
+
+#endif // __CIM_NET_BYTE_ARRAY_HPP__

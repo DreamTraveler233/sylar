@@ -7,8 +7,8 @@
  * @note    本文件为CIM框架的模块化扩展提供基础抽象。
  */
 
-#ifndef __CIM_MODULE_HPP__
-#define __CIM_MODULE_HPP__
+#ifndef __CIM_OTHER_MODULE_HPP__
+#define __CIM_OTHER_MODULE_HPP__
 
 #include <map>
 #include <unordered_map>
@@ -344,4 +344,4 @@ typedef Singleton<ModuleManager> ModuleMgr;
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_OTHER_MODULE_HPP__

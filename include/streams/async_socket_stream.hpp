@@ -1,5 +1,5 @@
-#ifndef __CIM_STREAMS_ASYNC_SOCKET_STREAM_H__
-#define __CIM_STREAMS_ASYNC_SOCKET_STREAM_H__
+#ifndef __CIM_STREAMS_ASYNC_SOCKET_STREAM_HPP__
+#define __CIM_STREAMS_ASYNC_SOCKET_STREAM_HPP__
 
 #include <boost/any.hpp>
 #include <list>
@@ -178,4 +178,4 @@ class AsyncSocketStreamManager {
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_STREAMS_ASYNC_SOCKET_STREAM_HPP__

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_UTIL_STRING_UTIL_HPP__
+#define __CIM_UTIL_STRING_UTIL_HPP__
 
 #include <string>
 #include <vector>
@@ -109,3 +110,5 @@ class StringUtil {
     static std::wstring StringToWString(const std::string& s);
 };
 }  // namespace CIM
+
+#endif // __CIM_UTIL_STRING_UTIL_HPP__

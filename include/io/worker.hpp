@@ -6,8 +6,8 @@
  * @note    提供WorkerGroup与WorkerManager等核心调度组件。
  */
 
-#ifndef __CIM_WORKER_HPP__
-#define __CIM_WORKER_HPP__
+#ifndef __CIM_IO_WORKER_HPP__
+#define __CIM_IO_WORKER_HPP__
 
 #include "base/macro.hpp"
 #include "base/singleton.hpp"
@@ -202,4 +202,4 @@ using WorkerMgr = Singleton<WorkerManager>;
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_IO_WORKER_HPP__

@@ -305,4 +305,4 @@ class RedisUtil {
 
 }  // namespace CIM
 
-#endif
+#endif // __CIM_DB_REDIS_HPP__

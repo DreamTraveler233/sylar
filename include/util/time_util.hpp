@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CIM_UTIL_TIME_UTIL_HPP__
+#define __CIM_UTIL_TIME_UTIL_HPP__
 
 #include <stdint.h>
 
@@ -62,3 +63,5 @@ class TimeUtil {
     static time_t StrToTime(const char* str, const char* format = "%Y-%m-%d %H:%M:%S");
 };
 }  // namespace CIM
+
+#endif // __CIM_UTIL_TIME_UTIL_HPP__
