@@ -5,7 +5,7 @@
 #include "dao/contact_dao.hpp"
 #include "dao/contact_group_dao.hpp"
 #include "dao/message_dao.hpp"
-#include "dao/sms_code_dao.hpp"
+#include "dao/sms_verify_code_dao.hpp"
 #include "dao/talk_session_dao.hpp"
 #include "dao/user_dao.hpp"
 #include "dao/user_login_log_dao.hpp"

@@ -105,6 +105,38 @@ bool UserApiModule::onServerReady() {
                              [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
                                 IM::http::HttpSession::ptr) {
                                  res->setHeader("Content-Type", "application/json");
+
+                                 auto uid_result = GetUidFromToken(req, res);
+                                 if (!uid_result.ok) {
+                                     res->setStatus(ToHttpStatus(uid_result.code));
+                                     res->setBody(Error(uid_result.code, uid_result.err));
+                                     return 0;
+                                 }
+
+                                 std::string new_email, password, code;
+                                 Json::Value body;
+                                 if (IM::ParseBody(req->getBody(), body)) {
+                                     new_email = IM::JsonUtil::GetString(body, "email");
+                                     password = IM::JsonUtil::GetString(body, "password");
+                                     code = IM::JsonUtil::GetString(body, "code");
+                                 }
+
+                                 auto verify_result =
+                                     IM::app::CommonService::VerifyEmailCode(new_email, code, "update_email");
+                                 if (!verify_result.ok) {
+                                     res->setStatus(ToHttpStatus(verify_result.code));
+                                     res->setBody(Error(verify_result.code, verify_result.err));
+                                     return 0;
+                                 }
+
+                                 auto update_result =
+                                     IM::app::UserService::UpdateEmail(uid_result.data, password, new_email);
+                                 if (!update_result.ok) {
+                                     res->setStatus(ToHttpStatus(update_result.code));
+                                     res->setBody(Error(update_result.code, update_result.err));
+                                     return 0;
+                                 }
+
                                  res->setBody(Ok());
                                  return 0;
                              });

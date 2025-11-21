@@ -103,6 +103,52 @@ bool UserDAO::GetByMobile(const std::string& mobile, User& out, std::string* err
     return true;
 }
 
+bool UserDAO::GetByEmail(const std::string& email, User& out, std::string* err) {
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
+    if (!db) {
+        if (err) *err = "get mysql connection failed";
+        return false;
+    }
+    const char* sql =
+        "SELECT id, mobile, email, nickname, avatar, motto, DATE_FORMAT(birthday, '%Y-%m-%d') as "
+        "birthday, gender, online_status, last_online_at, is_qiye, is_robot, is_disabled, "
+        "created_at, updated_at FROM im_user WHERE email = ? LIMIT 1";
+    auto stmt = db->prepare(sql);
+    if (!stmt) {
+        if (err) *err = "prepare sql failed";
+        return false;
+    }
+    stmt->bindString(1, email);
+    auto res = stmt->query();
+    if (!res) {
+        if (err) *err = "query failed";
+        return false;
+    }
+
+    if (!res->next()) {
+        if (err) *err = "no record found";
+        return false;
+    }
+
+    out.id = res->getUint64(0);
+    out.mobile = res->isNull(1) ? std::string() : res->getString(1);
+    out.email = res->isNull(2) ? std::string() : res->getString(2);
+    out.nickname = res->isNull(3) ? std::string() : res->getString(3);
+    out.avatar = res->isNull(4) ? std::string() : res->getString(4);
+    out.motto = res->isNull(5) ? std::string() : res->getString(5);
+    out.birthday = res->isNull(6) ? std::string() : res->getString(6);
+    out.gender = res->getUint8(7);
+    out.online_status = res->isNull(8) ? "N" : res->getString(8);
+    out.last_online_at = res->isNull(9) ? 0 : res->getTime(9);
+    out.is_qiye = res->isNull(10) ? 0 : res->getUint8(10);
+    out.is_robot = res->isNull(11) ? 0 : res->getUint8(11);
+    out.is_disabled = res->isNull(12) ? 0 : res->getUint8(12);
+    out.created_at = res->getTime(13);
+    out.updated_at = res->getTime(14);
+
+    return true;
+}
+
 bool UserDAO::GetById(uint64_t id, User& out, std::string* err) {
     auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
@@ -229,13 +275,34 @@ bool UserDAO::UpdateMobile(const uint64_t id, const std::string& new_mobile, std
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql = "UPDATE users SET mobile = ?, updated_at = NOW() WHERE id = ?";
+    const char* sql = "UPDATE im_user SET mobile = ?, updated_at = NOW() WHERE id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
         return false;
     }
     stmt->bindString(1, new_mobile);
+    stmt->bindUint64(2, id);
+    if (stmt->execute() != 0) {
+        if (err) *err = stmt->getErrStr();
+        return false;
+    }
+    return true;
+}
+
+bool UserDAO::UpdateEmail(const uint64_t id, const std::string& new_email, std::string* err) {
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
+    if (!db) {
+        if (err) *err = "get mysql connection failed";
+        return false;
+    }
+    const char* sql = "UPDATE im_user SET email = ?, updated_at = NOW() WHERE id = ?";
+    auto stmt = db->prepare(sql);
+    if (!stmt) {
+        if (err) *err = "prepare sql failed";
+        return false;
+    }
+    stmt->bindString(1, new_email);
     stmt->bindUint64(2, id);
     if (stmt->execute() != 0) {
         if (err) *err = stmt->getErrStr();

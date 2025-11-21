@@ -67,27 +67,77 @@ bool CommonApiModule::onServerReady() {
             return 0;
         });
 
-        // 注册邮箱服务（占位实现）
-        dispatch->addServlet(
-            "/api/v1/common/send-email",
-            [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
-               IM::http::HttpSession::ptr /*session*/) {
-                res->setHeader("Content-Type", "application/json");
-                res->setBody("{\"code\":0,\"msg\":\"ok\",\"data\":{\"status\":\"running\"}} ");
+        // 注册邮箱服务
+        dispatch->addServlet("/api/v1/common/send-email", [](IM::http::HttpRequest::ptr req,
+                                                             IM::http::HttpResponse::ptr res,
+                                                             IM::http::HttpSession::ptr session) {
+            res->setHeader("Content-Type", "application/json");
+
+            std::string email, channel;
+            Json::Value body;
+            if (ParseBody(req->getBody(), body)) {
+                email = IM::JsonUtil::GetString(body, "email");
+                channel = IM::JsonUtil::GetString(body, "channel");
+            }
+
+            /*判断邮箱是否已经注册*/
+            auto ret = IM::app::UserService::GetUserByEmail(email, channel);
+            if (!ret.ok) {
+                res->setStatus(ToHttpStatus(ret.code));
+                res->setBody(Error(ret.code, ret.err));
                 return 0;
-            });
+            }
+
+            auto result = IM::app::CommonService::SendEmailCode(email, channel, session);
+            if (!result.ok) {
+                res->setStatus(ToHttpStatus(result.code));
+                res->setBody(Error(result.code, result.err));
+                return 0;
+            }
+
+            Json::Value data;
+            // 为了方便调试，返回验证码，生产环境应移除
+            data["code"] = result.data.code;
+            res->setBody(Ok(data));
+            return 0;
+        });
+
+        // 验证邮箱验证码
+        dispatch->addServlet("/api/v1/common/verify-email",
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr /*session*/) {
+                                 res->setHeader("Content-Type", "application/json");
+
+                                 std::string email, code, channel;
+                                 Json::Value body;
+                                 if (ParseBody(req->getBody(), body)) {
+                                     email = IM::JsonUtil::GetString(body, "email");
+                                     code = IM::JsonUtil::GetString(body, "code");
+                                     channel = IM::JsonUtil::GetString(body, "channel");
+                                 }
+
+                                 auto result =
+                                     IM::app::CommonService::VerifyEmailCode(email, code, channel);
+                                 if (!result.ok) {
+                                     res->setStatus(ToHttpStatus(result.code));
+                                     res->setBody(Error(result.code, result.err));
+                                     return 0;
+                                 }
+
+                                 res->setBody(Ok());
+                                 return 0;
+                             });
 
         // 测试接口（占位）
-        dispatch->addServlet(
-            "/api/v1/common/send-test",
-            [](IM::http::HttpRequest::ptr /*req*/, IM::http::HttpResponse::ptr res,
-               IM::http::HttpSession::ptr /*session*/) {
-                res->setHeader("Content-Type", "application/json");
-                Json::Value data;
-                data["echo"] = true;
-                res->setBody(IM::JsonUtil::ToString(data));
-                return 0;
-            });
+        dispatch->addServlet("/api/v1/common/send-test",
+                             [](IM::http::HttpRequest::ptr /*req*/, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr /*session*/) {
+                                 res->setHeader("Content-Type", "application/json");
+                                 Json::Value data;
+                                 data["echo"] = true;
+                                 res->setBody(IM::JsonUtil::ToString(data));
+                                 return 0;
+                             });
     }
     return true;
 }

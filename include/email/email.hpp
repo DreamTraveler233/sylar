@@ -184,9 +184,14 @@ class EMail {
      */
     const std::vector<EMailEntity::ptr>& getEntitys() const { return m_entitys; }
 
+    // Auth user for SMTP AUTH (optional). If empty, SmtpClient will extract auth from from address.
+    const std::string& getAuthUser() const { return m_auth_user; }
+    void setAuthUser(const std::string& v) { m_auth_user = v; }
+
    private:
-    std::string m_fromEMailAddress;              /// 发件人邮箱地址
+    std::string m_fromEMailAddress;              /// 发件人邮箱地址（显示名称或纯地址）
     std::string m_fromEMailPasswd;               /// 发件人邮箱密码
+    std::string m_auth_user;                     /// SMTP AUTH username (optional)
     std::string m_title;                         /// 邮件标题
     std::string m_body;                          /// 邮件正文
     std::vector<std::string> m_toEMailAddress;   /// 收件人邮箱地址列表

@@ -1,9 +1,13 @@
 #include "app/common_service.hpp"
 
-#include "config/config.hpp"
-#include "dao/sms_code_dao.hpp"
-#include "io/iomanager.hpp"
+#include <algorithm>
+
 #include "base/macro.hpp"
+#include "config/config.hpp"
+#include "dao/email_verify_code_dao.hpp"
+#include "dao/sms_verify_code_dao.hpp"
+#include "email/smtp.hpp"
+#include "io/iomanager.hpp"
 
 namespace IM::app {
 
@@ -16,6 +20,25 @@ static auto g_sms_code_ttl_secs =
     IM::Config::Lookup<uint32_t>("sms.code_ttl_secs", 60, "sms code time to live in seconds");
 static auto g_sms_code_cleanup_interval = IM::Config::Lookup<uint32_t>(
     "sms.code_cleanup_interval", 60, "sms code cleanup interval in seconds");
+
+static auto g_email_enabled =
+    IM::Config::Lookup<bool>("email.enabled", false, "enable email sending");
+static auto g_smtp_host = IM::Config::Lookup<std::string>("smtp.host", "", "smtp host");
+static auto g_smtp_port = IM::Config::Lookup<uint32_t>("smtp.port", 25, "smtp port");
+static auto g_smtp_ssl = IM::Config::Lookup<bool>("smtp.ssl", false, "smtp ssl");
+static auto g_smtp_debug = IM::Config::Lookup<bool>("smtp.debug", false, "smtp debug mode");
+static auto g_smtp_auth_user =
+    IM::Config::Lookup<std::string>("smtp.auth.user", "", "smtp auth user");
+static auto g_smtp_auth_pass =
+    IM::Config::Lookup<std::string>("smtp.auth.pass", "", "smtp auth pass");
+static auto g_smtp_from_name =
+    IM::Config::Lookup<std::string>("smtp.from.name", "", "smtp from display name");
+static auto g_smtp_from_address =
+    IM::Config::Lookup<std::string>("smtp.from.address", "", "smtp from address");
+static auto g_email_code_ttl_secs =
+    IM::Config::Lookup<uint32_t>("email.code_ttl_secs", 300, "email code time to live in seconds");
+static auto g_email_code_cleanup_interval = IM::Config::Lookup<uint32_t>(
+    "email.code_cleanup_interval", 3600, "email code cleanup interval in seconds");
 
 // 验证码失效认证定时器
 static IM::Timer::ptr g_cleanup_timer;
@@ -83,6 +106,135 @@ SmsCodeResult CommonService::VerifySmsCode(const std::string& mobile, const std:
     return result;
 }
 
+SmsCodeResult CommonService::SendEmailCode(const std::string& email, const std::string& channel,
+                                           IM::http::HttpSession::ptr session) {
+    SmsCodeResult result;
+    std::string err;
+
+    /* 生成6位数字验证码 */
+    std::string code = IM::random_string(6, "0123456789");
+    if (code.size() != 6) {
+        result.code = 500;
+        result.err = "验证码生成失败";
+        return result;
+    }
+
+    /* 根据配置决定是否发送真实邮件 */
+    if (g_email_enabled->getValue()) {
+        std::string title = "【简讯IM】验证码";
+        std::string body =
+            "尊敬的用户：\r\n\r\n您好！\r\n\r\n您正在进行邮箱验证操作，本次验证码为：" + code +
+            "，请在5分钟内完成验证。\r\n\r\n如非本人操作，请忽略此邮件。\r\n\r\nIM即时通讯团队";
+        if (!SendRealEmail(email, title, body, &err)) {
+            IM_LOG_ERROR(g_logger) << "发送邮件失败: " << err;
+            result.code = 500;
+            result.err = "邮件发送失败";
+            return result;
+        }
+    } else {
+        // 模拟模式：仅记录日志
+        IM_LOG_INFO(g_logger) << "模拟发送邮件验证码到 " << email << ": " << code;
+    }
+
+    /*保存验证码*/
+    IM::dao::EmailVerifyCode email_code;
+    email_code.email = email;
+    email_code.channel = channel;
+    email_code.code = code;
+    email_code.sent_ip = session->getRemoteAddressString();
+    email_code.expire_at = TimeUtil::NowToS() + g_email_code_ttl_secs->getValue();
+
+    if (!IM::dao::EmailVerifyCodeDAO::Create(email_code, &err)) {
+        IM_LOG_ERROR(g_logger) << "保存邮件验证码失败: " << err;
+        result.code = 500;
+        result.err = "保存验证码失败";
+        return result;
+    }
+
+    result.data.code = code;  // For testing/mocking purposes, or remove if strict security
+    result.ok = true;
+    return result;
+}
+
+SmsCodeResult CommonService::VerifyEmailCode(const std::string& email, const std::string& code,
+                                             const std::string& channel) {
+    SmsCodeResult result;
+    std::string err;
+
+    if (!IM::dao::EmailVerifyCodeDAO::Verify(email, code, channel, &err)) {
+        if (!err.empty()) {
+            IM_LOG_WARN(g_logger) << "邮箱验证码校验失败: " << err;
+            result.code = 400;
+            result.err = "验证码不正确";
+            return result;
+        }
+    }
+    result.ok = true;
+    return result;
+}
+
+bool CommonService::SendRealEmail(const std::string& email_addr, const std::string& title,
+                                  const std::string& body, std::string* err) {
+    auto smtp_host = g_smtp_host->getValue();
+    auto smtp_port = g_smtp_port->getValue();
+    auto smtp_ssl = g_smtp_ssl->getValue();
+    auto smtp_user = g_smtp_auth_user->getValue();
+    auto smtp_pass = g_smtp_auth_pass->getValue();
+    auto smtp_from_addr = g_smtp_from_address->getValue();
+    auto smtp_from_name = g_smtp_from_name->getValue();
+    // If new keys not set, try parsing old smtp_from into name and address
+    if (smtp_from_addr.empty()) {
+        // fallback to auth user
+        smtp_from_addr = smtp_user;
+    }
+    if (smtp_from_name.empty()) {
+        // leave empty if not provided
+    }
+    std::string display_from;
+    if (!smtp_from_name.empty()) {
+        display_from = smtp_from_name + " <" + smtp_from_addr + ">";
+    } else {
+        display_from = smtp_from_addr;
+    }
+    auto smtp_debug = g_smtp_debug->getValue();
+
+    if (smtp_host.empty()) {
+        if (err) *err = "SMTP host is not configured";
+        IM_LOG_ERROR(g_logger) << "SMTP host is not configured";
+        return false;
+    }
+
+    // No fallback to old config. Use auth user/address explicitly set in new config.
+
+    IM::EMail::ptr mail = IM::EMail::Create(display_from, smtp_pass, title, body, {email_addr});
+    // Set explicit auth user if provided (used by SmtpClient for AUTH); fallback to empty
+    if (!smtp_user.empty()) {
+        mail->setAuthUser(smtp_user);
+    }
+    if (!mail) {
+        if (err) *err = "create email object failed";
+        return false;
+    }
+
+    auto smtp = IM::SmtpClient::Create(smtp_host, smtp_port, smtp_ssl);
+    if (!smtp) {
+        if (err) *err = "create smtp client failed";
+        return false;
+    }
+
+    auto r = smtp->send(mail, 10000, smtp_debug);
+    if (!r || r->result != 0) {
+        std::string error_msg = r ? r->msg : "unknown error";
+        if (err) *err = error_msg;
+        IM_LOG_ERROR(g_logger) << "smtp send fail: " << error_msg;
+        if (smtp_debug) {
+            IM_LOG_ERROR(g_logger) << "smtp debug info: " << smtp->getDebugInfo();
+        }
+        return false;
+    }
+    return true;
+}
+
 // 实际发送短信（根据提供商调用相应API）
 bool CommonService::SendRealSms(const std::string& mobile, const std::string& sms_code,
                                 const std::string& channel, std::string* err) {
@@ -125,15 +277,18 @@ void CommonService::InitCleanupTimer() {
     if (g_cleanup_timer) {
         return;
     }
-    // 每1分钟将过期验证码标记为失效
+    // 定期将过期验证码标记为失效（取短信与邮箱中较小的 TTL，以保证及时处理）
+    uint32_t cleanup_timer_secs =
+        std::min(g_sms_code_ttl_secs->getValue(), g_email_code_ttl_secs->getValue());
     g_cleanup_timer = IM::IOManager::GetThis()->addTimer(
-        g_sms_code_ttl_secs->getValue() * 1000,
+        cleanup_timer_secs * 1000,
         []() {
             std::string err;
             if (!IM::dao::SmsCodeDAO::MarkExpiredAsInvalid(&err)) {
-                IM_LOG_ERROR(IM_LOG_ROOT()) << "处理过期验证码失败: " << err;
-            } else {
-                IM_LOG_INFO(IM_LOG_ROOT()) << "成功处理过期验证码";
+                IM_LOG_ERROR(IM_LOG_ROOT()) << "处理过期短信验证码失败: " << err;
+            }
+            if (!IM::dao::EmailVerifyCodeDAO::MarkExpiredAsInvalid(&err)) {
+                IM_LOG_ERROR(IM_LOG_ROOT()) << "处理过期邮箱验证码失败: " << err;
             }
         },
         true);  // 周期性执行
@@ -144,15 +299,18 @@ void CommonService::InitInvalidCodeCleanupTimer() {
     if (g_invalid_code_cleanup_timer) {
         return;
     }
-    // 每1小时删除失效验证码
+    // 删除失效验证码（取短信/邮件中较小的清理间隔）
+    uint32_t invalid_cleanup_secs = std::min(g_sms_code_cleanup_interval->getValue(),
+                                             g_email_code_cleanup_interval->getValue());
     g_invalid_code_cleanup_timer = IM::IOManager::GetThis()->addTimer(
-        g_sms_code_cleanup_interval->getValue() * 1000,
+        invalid_cleanup_secs * 1000,
         []() {
             std::string err;
             if (!IM::dao::SmsCodeDAO::DeleteInvalidCodes(&err)) {
-                IM_LOG_ERROR(IM_LOG_ROOT()) << "处理失效验证码失败: " << err;
-            } else {
-                IM_LOG_INFO(IM_LOG_ROOT()) << "成功处理失效验证码";
+                IM_LOG_ERROR(IM_LOG_ROOT()) << "处理失效短信验证码失败: " << err;
+            }
+            if (!IM::dao::EmailVerifyCodeDAO::DeleteInvalidCodes(&err)) {
+                IM_LOG_ERROR(IM_LOG_ROOT()) << "处理失效邮箱验证码失败: " << err;
             }
         },
         true);  // 周期性执行

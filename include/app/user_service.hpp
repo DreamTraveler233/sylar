@@ -27,8 +27,15 @@ class UserService {
     static VoidResult UpdateMobile(const uint64_t uid, const std::string& password,
                                    const std::string& new_mobile);
 
+    // 更新邮箱
+    static VoidResult UpdateEmail(const uint64_t uid, const std::string& password,
+                                  const std::string& new_email);
+
     // 判断手机号是否已注册
     static UserResult GetUserByMobile(const std::string& mobile, const std::string& channel);
+
+    // 判断邮箱是否已注册
+    static UserResult GetUserByEmail(const std::string& email, const std::string& channel);
 
     // 用户下线
     static VoidResult Offline(const uint64_t id);

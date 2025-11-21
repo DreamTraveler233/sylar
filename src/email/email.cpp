@@ -9,17 +9,27 @@ namespace IM {
 EMailEntity::ptr EMailEntity::CreateAttach(const std::string& filename) {
     std::ifstream ifs(filename, std::ios::binary);
     std::string buf;
-    buf.resize(1024);
+    buf.resize(4096);
     EMailEntity::ptr entity(new EMailEntity);
     while (!ifs.eof()) {
         ifs.read(&buf[0], buf.size());
         entity->m_content.append(buf.c_str(), ifs.gcount());
     }
     entity->m_content = base64encode(entity->m_content);
+
+    // Wrap base64 at 76 chars
+    std::string wrapped;
+    wrapped.reserve(entity->m_content.size() + entity->m_content.size() / 76 * 2 + 2);
+    for (size_t i = 0; i < entity->m_content.size(); i += 76) {
+        wrapped += entity->m_content.substr(i, 76);
+        wrapped += "\r\n";
+    }
+    entity->m_content = wrapped;
+
     entity->addHeader("Content-Transfer-Encoding", "base64");
-    entity->addHeader("Content-Disposition", "attachment");
-    entity->addHeader("Content-Type",
-                      "application/octet-stream;name=" + FSUtil::Basename(filename));
+    std::string basename = FSUtil::Basename(filename);
+    entity->addHeader("Content-Disposition", "attachment; filename=\"" + basename + "\"");
+    entity->addHeader("Content-Type", "application/octet-stream; name=\"" + basename + "\"");
     return entity;
 }
 

@@ -48,6 +48,9 @@ class UserDAO {
     // 根据手机号获取用户信息
     static bool GetByMobile(const std::string& mobile, User& out, std::string* err = nullptr);
 
+    // 根据邮箱获取用户信息
+    static bool GetByEmail(const std::string& email, User& out, std::string* err = nullptr);
+
     // 根据用户ID获取用户信息
     static bool GetById(const uint64_t id, User& out, std::string* err = nullptr);
 
@@ -64,6 +67,10 @@ class UserDAO {
     // 更新用户手机号
     static bool UpdateMobile(const uint64_t id, const std::string& new_mobile,
                              std::string* err = nullptr);
+
+    // 更新用户邮箱
+    static bool UpdateEmail(const uint64_t id, const std::string& new_email,
+                            std::string* err = nullptr);
 
     // 用户上线
     static bool UpdateOnlineStatus(const uint64_t id, std::string* err = nullptr);

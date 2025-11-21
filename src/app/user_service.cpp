@@ -1,24 +1,23 @@
 #include "app/user_service.hpp"
 
+#include "base/macro.hpp"
 #include "common/common.hpp"
-#include "other/crypto_module.hpp"
 #include "dao/user_auth_dao.hpp"
 #include "dao/user_dao.hpp"
-#include "base/macro.hpp"
+#include "other/crypto_module.hpp"
 #include "util/hash_util.hpp"
 #include "util/password.hpp"
 
 namespace IM::app {
 
-static auto g_logger = IM_LOG_NAME("root");
+static auto g_logger = IM_LOG_NAME("system");
 UserResult UserService::LoadUserInfo(const uint64_t uid) {
     UserResult result;
     std::string err;
 
     if (!IM::dao::UserDAO::GetById(uid, result.data, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "LoadUserInfo GetById failed, uid=" << uid << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "LoadUserInfo GetById failed, uid=" << uid << ", err=" << err;
             result.code = 500;
             result.err = "加载用户信息失败";
             return result;
@@ -64,8 +63,7 @@ VoidResult UserService::UpdateMobile(const uint64_t uid, const std::string& pass
     IM::dao::User user;
     if (!IM::dao::UserDAO::GetById(uid, user, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "UpdateMobile GetById failed, uid=" << uid << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "UpdateMobile GetById failed, uid=" << uid << ", err=" << err;
             result.code = 404;
             result.err = "加载用户信息失败";
             return result;
@@ -112,6 +110,79 @@ VoidResult UserService::UpdateMobile(const uint64_t uid, const std::string& pass
                 << "UpdateMobile UpdateMobile failed, uid=" << uid << ", err=" << err;
             result.code = 500;
             result.err = "更新手机号失败";
+            return result;
+        }
+    }
+
+    result.ok = true;
+    return result;
+}
+
+VoidResult UserService::UpdateEmail(const uint64_t uid, const std::string& password,
+                                    const std::string& new_email) {
+    VoidResult result;
+    std::string err;
+
+    // 解密前端传入的登录密码
+    std::string decrypted_password;
+    auto dec_res = IM::DecryptPassword(password, decrypted_password);
+    if (!dec_res.ok) {
+        result.code = dec_res.code;
+        result.err = dec_res.err;
+        return result;
+    }
+
+    // 加载当前用户信息用于校验
+    IM::dao::User user;
+    if (!IM::dao::UserDAO::GetById(uid, user, &err)) {
+        if (!err.empty()) {
+            IM_LOG_ERROR(g_logger) << "UpdateEmail GetById failed, uid=" << uid << ", err=" << err;
+            result.code = 404;
+            result.err = "加载用户信息失败";
+            return result;
+        }
+    }
+
+    // 加载用户密码并验证
+    IM::dao::UserAuth ua;
+    if (!IM::dao::UserAuthDao::GetByUserId(uid, ua, &err)) {
+        if (!err.empty()) {
+            IM_LOG_ERROR(g_logger)
+                << "UpdateEmail GetByUserId failed, uid=" << uid << ", err=" << err;
+            result.code = 500;
+            result.err = "加载用户认证信息失败";
+            return result;
+        }
+    }
+
+    if (!IM::util::Password::Verify(decrypted_password, ua.password_hash)) {
+        result.code = 403;
+        result.err = "密码错误";
+        return result;
+    }
+
+    if (user.email == new_email) {
+        result.code = 400;
+        result.err = "新邮箱不能与原邮箱相同";
+        return result;
+    }
+
+    // 检查新邮箱是否已被其他账户使用
+    IM::dao::User other_user;
+    if (IM::dao::UserDAO::GetByEmail(new_email, other_user, &err)) {
+        if (other_user.id != uid) {
+            result.code = 400;
+            result.err = "新邮箱已被使用";
+            return result;
+        }
+    }
+
+    if (!IM::dao::UserDAO::UpdateEmail(uid, new_email, &err)) {
+        if (!err.empty()) {
+            IM_LOG_ERROR(g_logger)
+                << "UpdateEmail UpdateEmail failed, uid=" << uid << ", err=" << err;
+            result.code = 500;
+            result.err = "更新邮箱失败";
             return result;
         }
     }
@@ -199,6 +270,31 @@ UserResult UserService::GetUserByMobile(const std::string& mobile, const std::st
                 << "GetUserByMobile failed, mobile=" << mobile << ", err=" << err;
             result.code = 400;
             result.err = "手机号未注册!";
+            return result;
+        }
+    }
+    result.ok = true;
+    return result;
+}
+
+UserResult UserService::GetUserByEmail(const std::string& email, const std::string& channel) {
+    UserResult result;
+    std::string err;
+    if (channel == "register" || channel == "update_email") {
+        if (IM::dao::UserDAO::GetByEmail(email, result.data, &err)) {
+            if(!err.empty()) {
+                IM_LOG_ERROR(g_logger)
+                    << "GetUserByEmail failed, email=" << email << ", err=" << err;
+                result.code = 500;
+                result.err = "查询邮箱失败!";
+                return result;
+            }
+        }
+    } else if (channel == "forget_account") {
+        if (!IM::dao::UserDAO::GetByEmail(email, result.data, &err)) {
+            IM_LOG_ERROR(g_logger) << "GetUserByEmail failed, email=" << email << ", err=" << err;
+            result.code = 400;
+            result.err = "邮箱未注册!";
             return result;
         }
     }

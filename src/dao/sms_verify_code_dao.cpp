@@ -1,4 +1,4 @@
-#include "dao/sms_code_dao.hpp"
+#include "dao/sms_verify_code_dao.hpp"
 
 #include <mysql/mysql.h>
 
