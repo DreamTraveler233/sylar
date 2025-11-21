@@ -133,32 +133,10 @@ target_link_libraries(IM
         /usr/lib/x86_64-linux-gnu/libzookeeper_mt.so
 )
 
-# 定义测试可执行文件列表
-set(TEST_LIST
-    test_log_basic
-)
-
-set(EXAMPLES_LIST
-    echo_server
-)
-
-# 业务服务可执行文件（暂保持原文件名）
+# 业务服务可执行文件
 add_executable(im_server src/bootstrap/im_server.cpp)
 add_dependencies(im_server IM)
 target_link_libraries(im_server PRIVATE IM)
-
-# 循环创建测试可执行文件
-foreach(TEST ${TEST_LIST})
-    add_executable(${TEST} tests/${TEST}.cpp)    # 生成可执行文件
-    add_dependencies(${TEST} IM)                # 指定test依赖 IM库，先编译库再编译
-    target_link_libraries(${TEST} PRIVATE IM)   # 链接库文件
-endforeach()
-
-foreach(EXAMPLE ${EXAMPLES_LIST})
-    add_executable(${EXAMPLE} examples/${EXAMPLE}.cpp)
-    add_dependencies(${EXAMPLE} IM)
-    target_link_libraries(${EXAMPLE} PRIVATE IM)
-endforeach()
 
 # ==================== 输出目录 ====================
 # 指定可执行文件输出目录

@@ -1,9 +1,11 @@
+#include "base/macro.hpp"
 #include "config/config.hpp"
 #include "log/logger_manager.hpp"
-#include "base/macro.hpp"
+#include "system/env.hpp"
+#include "util/util.hpp"
 
 namespace IM {
-static auto g_logger = IM_LOG_NAME("system");
+static auto g_logger = IM_LOG_NAME("root");
 // 用于存储所有的日志定义
 auto g_log_defines = IM::Config::Lookup("logs", std::set<LogDefine>(), "logs config");
 
@@ -46,7 +48,9 @@ struct LogInit {
 
                     // 根据类型创建对应的日志输出器
                     if (j.type == 1) {
-                        ap = std::make_shared<FileLogAppender>(j.path);
+                        auto env = IM::EnvMgr::GetInstance();
+                        std::string abs_path = env->getAbsolutePath(j.path);
+                        ap = std::make_shared<FileLogAppender>(abs_path);
                     } else if (j.type == 2) {
                         ap = std::make_shared<StdoutLogAppender>();
                     } else {

@@ -32,8 +32,16 @@ bool LogFile::openFile() {
         */
     int fd = ::open(m_filePath.c_str(), O_CREAT | O_APPEND | O_WRONLY, DEFFILEMODE);
     if (fd < 0) {
-        std::cout << "open file log error.path!" << m_filePath << std::endl;
-        return false;
+        // 可能目录不存在，尝试创建目录后重试
+        std::string dir = IM::FSUtil::Dirname(m_filePath);
+        if (!dir.empty() && dir != ".") {
+            IM::FSUtil::Mkdir(dir);
+            fd = ::open(m_filePath.c_str(), O_CREAT | O_APPEND | O_WRONLY, DEFFILEMODE);
+        }
+        if (fd < 0) {
+            std::cout << "open file log error.path!" << m_filePath << std::endl;
+            return false;
+        }
     }
 
     if (m_fd != -1) {
