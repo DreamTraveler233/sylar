@@ -9,8 +9,8 @@
 #include "net/fd_manager.hpp"
 #include "base/macro.hpp"
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
 
 IOManager::IOManager(size_t threads, bool use_caller, const std::string& name)
     : Scheduler(threads, use_caller, name) {
@@ -19,7 +19,7 @@ IOManager::IOManager(size_t threads, bool use_caller, const std::string& name)
     FileDescriptor epfd(epoll_create1(EPOLL_CLOEXEC));  // 避免在子进程中继承文件描述符
     if (!epfd.isValid()) {
         saved_errno = errno;
-        CIM_LOG_ERROR(g_logger) << "epoll_create1 failed: " << strerror(saved_errno);
+        IM_LOG_ERROR(g_logger) << "epoll_create1 failed: " << strerror(saved_errno);
         throw std::runtime_error("IOManager initialization failed");
     }
 
@@ -28,7 +28,7 @@ IOManager::IOManager(size_t threads, bool use_caller, const std::string& name)
     int rt = pipe(pipe_fd);
     if (-1 == rt) {
         saved_errno = errno;
-        CIM_LOG_ERROR(g_logger) << "pipe failed: " << strerror(saved_errno);
+        IM_LOG_ERROR(g_logger) << "pipe failed: " << strerror(saved_errno);
         throw std::runtime_error("IOManager initialization failed");
     }
 
@@ -43,7 +43,7 @@ IOManager::IOManager(size_t threads, bool use_caller, const std::string& name)
     rt = fcntl(pipe_read_fd.get(), F_SETFL, O_NONBLOCK);
     if (-1 == rt) {
         saved_errno = errno;
-        CIM_LOG_ERROR(g_logger) << "fcntl failed: " << strerror(saved_errno);
+        IM_LOG_ERROR(g_logger) << "fcntl failed: " << strerror(saved_errno);
         throw std::runtime_error("IOManager initialization failed");
     }
 
@@ -51,7 +51,7 @@ IOManager::IOManager(size_t threads, bool use_caller, const std::string& name)
     rt = epoll_ctl(epfd.get(), EPOLL_CTL_ADD, pipe_read_fd.get(), &ev);
     if (-1 == rt) {
         saved_errno = errno;
-        CIM_LOG_ERROR(g_logger) << "epoll_ctl failed: " << strerror(saved_errno);
+        IM_LOG_ERROR(g_logger) << "epoll_ctl failed: " << strerror(saved_errno);
         throw std::runtime_error("IOManager initialization failed");
     }
 
@@ -84,9 +84,9 @@ IOManager::~IOManager() {
 }
 
 bool IOManager::addEvent(int fd, Event event, std::function<void()> cb) {
-    CIM_ASSERT(fd >= 0)
-    CIM_ASSERT(event == READ || event == WRITE);
-    CIM_ASSERT(cb || Coroutine::GetThis());
+    IM_ASSERT(fd >= 0)
+    IM_ASSERT(event == READ || event == WRITE);
+    IM_ASSERT(cb || Coroutine::GetThis());
 
     FdContext* fd_ctx = nullptr;
 
@@ -109,7 +109,7 @@ bool IOManager::addEvent(int fd, Event event, std::function<void()> cb) {
     FdContext::MutexType::Lock lock2(fd_ctx->mutex);
     if (fd_ctx->events & event) {
         // 如果事件已经存在，则直接返回true，避免重复添加相同的事件类型
-        CIM_LOG_DEBUG(g_logger) << "addEvent assert fd=" << fd << " event=" << event
+        IM_LOG_DEBUG(g_logger) << "addEvent assert fd=" << fd << " event=" << event
                                 << " fd_ctx.event=" << fd_ctx->events;
         return true;
     }
@@ -126,7 +126,7 @@ bool IOManager::addEvent(int fd, Event event, std::function<void()> cb) {
     if (rt) {
         saved_errno = errno;
         // 如果 epoll_ctl 失败，记录错误日志并返回失败
-        CIM_LOG_ERROR(g_logger) << "epoll_ctl(" << m_epfd << ", " << op << ", " << fd << ", "
+        IM_LOG_ERROR(g_logger) << "epoll_ctl(" << m_epfd << ", " << op << ", " << fd << ", "
                                 << ev.events << "): " << rt << " (" << saved_errno << ") ("
                                 << strerror(saved_errno) << ")";
         return false;
@@ -140,7 +140,7 @@ bool IOManager::addEvent(int fd, Event event, std::function<void()> cb) {
     // 初始化事件上下文
     FdContext::EventContext& event_ctx = fd_ctx->getContext(event);
     if (event_ctx.scheduler || event_ctx.coroutine || event_ctx.cb) {
-        CIM_LOG_WARN(g_logger) << "addEvent warning fd=" << fd << " event=" << event
+        IM_LOG_WARN(g_logger) << "addEvent warning fd=" << fd << " event=" << event
                                << " event_ctx.scheduler="
                                << (event_ctx.scheduler ? "not null" : "null")
                                << " event_ctx.coroutine="
@@ -155,15 +155,15 @@ bool IOManager::addEvent(int fd, Event event, std::function<void()> cb) {
     } else {
         // 否则使用当前协程作为事件处理逻辑
         event_ctx.coroutine = Coroutine::GetThis();
-        CIM_ASSERT(event_ctx.coroutine->getState() == Coroutine::EXEC);
+        IM_ASSERT(event_ctx.coroutine->getState() == Coroutine::EXEC);
     }
 
     return true;
 }
 
 bool IOManager::delEvent(int fd, Event event) {
-    CIM_ASSERT(fd >= 0)
-    CIM_ASSERT(event == READ || event == WRITE);
+    IM_ASSERT(fd >= 0)
+    IM_ASSERT(event == READ || event == WRITE);
 
     FdContext* fd_ctx = nullptr;
 
@@ -172,7 +172,7 @@ bool IOManager::delEvent(int fd, Event event) {
         // 加读锁以保护 m_fdContexts 的并发访问
         RWMutexType::ReadLock lock(m_mutex);
         if ((int)m_fdContexts.size() <= fd) {
-            CIM_LOG_ERROR(g_logger) << "delEvent: fd=" << fd
+            IM_LOG_ERROR(g_logger) << "delEvent: fd=" << fd
                                     << " out of range, m_fdContexts.size()=" << m_fdContexts.size();
             return false;  // 文件描述符超出范围，直接返回失败
         }
@@ -201,7 +201,7 @@ bool IOManager::delEvent(int fd, Event event) {
     if (rt) {
         saved_errno = errno;
         // 如果 epoll_ctl 失败，记录错误日志并返回失败
-        CIM_LOG_ERROR(g_logger) << "epoll_ctl(" << m_epfd << ", " << op << ", " << fd << ", "
+        IM_LOG_ERROR(g_logger) << "epoll_ctl(" << m_epfd << ", " << op << ", " << fd << ", "
                                 << ev.events << "): " << rt << " (" << saved_errno << ") ("
                                 << strerror(saved_errno) << ")";
         return false;
@@ -218,15 +218,15 @@ bool IOManager::delEvent(int fd, Event event) {
 }
 
 bool IOManager::cancelEvent(int fd, Event event) {
-    CIM_ASSERT(fd >= 0)
-    CIM_ASSERT(event == READ || event == WRITE);
+    IM_ASSERT(fd >= 0)
+    IM_ASSERT(event == READ || event == WRITE);
 
     FdContext* fd_ctx = nullptr;
     {
         // 加读锁以保护m_fdContexts容器的并发访问
         RWMutexType::ReadLock lock(m_mutex);
         if ((int)m_fdContexts.size() <= fd) {
-            CIM_LOG_ERROR(g_logger) << "cancelEvent: fd=" << fd
+            IM_LOG_ERROR(g_logger) << "cancelEvent: fd=" << fd
                                     << " out of range, m_fdContexts.size()=" << m_fdContexts.size();
             return false;  // 文件描述符超出范围，直接返回false
         }
@@ -252,7 +252,7 @@ bool IOManager::cancelEvent(int fd, Event event) {
     int rt = epoll_ctl(m_epfd, op, fd, &ev);
     if (rt) {
         saved_errno = errno;
-        CIM_LOG_ERROR(g_logger) << "epoll_ctl(" << m_epfd << ", " << op << ", " << fd << ", "
+        IM_LOG_ERROR(g_logger) << "epoll_ctl(" << m_epfd << ", " << op << ", " << fd << ", "
                                 << ev.events << "): " << rt << " (" << saved_errno << ") ("
                                 << strerror(saved_errno) << ")";
         return false;  // epoll_ctl调用失败时记录错误日志并返回false
@@ -266,14 +266,14 @@ bool IOManager::cancelEvent(int fd, Event event) {
 }
 
 bool IOManager::cancelAll(int fd) {
-    CIM_ASSERT(fd >= 0)
+    IM_ASSERT(fd >= 0)
 
     FdContext* fd_ctx = nullptr;
     {
         RWMutexType::ReadLock lock(m_mutex);
         // 检查 fd 是否在合法范围内
         if ((int)m_fdContexts.size() <= fd) {
-            CIM_LOG_ERROR(g_logger) << "cancelAll: fd=" << fd
+            IM_LOG_ERROR(g_logger) << "cancelAll: fd=" << fd
                                     << " out of range, m_fdContexts.size()=" << m_fdContexts.size();
             return false;
         }
@@ -297,7 +297,7 @@ bool IOManager::cancelAll(int fd) {
     int rt = epoll_ctl(m_epfd, op, fd, &ev);
     if (rt) {
         saved_errno = errno;
-        CIM_LOG_ERROR(g_logger) << "epoll_ctl(" << m_epfd << ", " << op << ", " << fd << ", "
+        IM_LOG_ERROR(g_logger) << "epoll_ctl(" << m_epfd << ", " << op << ", " << fd << ", "
                                 << ev.events << "): " << rt << " (" << saved_errno << ") ("
                                 << strerror(saved_errno) << ")";
         return false;
@@ -316,7 +316,7 @@ bool IOManager::cancelAll(int fd) {
     }
 
     // 确保所有事件都已被正确清理
-    CIM_ASSERT(fd_ctx->events == 0)
+    IM_ASSERT(fd_ctx->events == 0)
     return true;
 }
 
@@ -331,7 +331,7 @@ void IOManager::tickle() {
     }
     // 通过管道写入一个字节 "T" 以触发调度器
     int rt = write(m_tickleFds[1], "T", 1);
-    CIM_ASSERT(rt == 1)
+    IM_ASSERT(rt == 1)
 }
 
 bool IOManager::stopping(uint64_t& timeout) {
@@ -347,7 +347,7 @@ bool IOManager::stopping() {
 
 void IOManager::idle() {
     // ==========初始化阶段==========
-    CIM_LOG_DEBUG(g_logger) << "idle";
+    IM_LOG_DEBUG(g_logger) << "idle";
 
     // 分配 epoll_event 数组并使用智能指针管理内存，用于存储 epoll 等待到的事件
     epoll_event* events = new epoll_event[64]();
@@ -359,7 +359,7 @@ void IOManager::idle() {
         // 检查是否应该停止，并获取下一个定时器超时时间
         uint64_t next_timeout = 0;
         if (stopping(next_timeout)) {
-            CIM_LOG_INFO(g_logger) << "name=" << getName() << " idle stopping exit";
+            IM_LOG_INFO(g_logger) << "name=" << getName() << " idle stopping exit";
             break;
         }
 
@@ -433,7 +433,7 @@ void IOManager::idle() {
             int rt2 = epoll_ctl(m_epfd, op, fd_ctx->fd, &event);
             if (rt2) {
                 int saved_errno = errno;
-                CIM_LOG_ERROR(g_logger)
+                IM_LOG_ERROR(g_logger)
                     << "epoll_ctl(" << m_epfd << ", " << op << ", " << fd_ctx->fd << ", "
                     << event.events << "): " << rt2 << " (" << saved_errno << ") ("
                     << strerror(saved_errno) << ")";
@@ -488,7 +488,7 @@ IOManager::FdContext::EventContext& IOManager::FdContext::getContext(Event event
             // 返回写事件上下文
             return write;
         default:
-            CIM_ASSERT2(false, "getContext");
+            IM_ASSERT2(false, "getContext");
     }
     throw std::invalid_argument("getContext invalid event");
 }
@@ -501,7 +501,7 @@ void IOManager::FdContext::resetContext(EventContext& event) {
 
 void IOManager::FdContext::triggerEvent(Event event) {
     // 确保传入的事件是当前已注册的事件之一
-    CIM_ASSERT(events & event);
+    IM_ASSERT(events & event);
 
     // 清除已触发事件的标志位
     events = (Event)(events & ~event);
@@ -524,4 +524,4 @@ void IOManager::FdContext::triggerEvent(Event event) {
 
     return;
 }
-}  // namespace CIM
+}  // namespace IM

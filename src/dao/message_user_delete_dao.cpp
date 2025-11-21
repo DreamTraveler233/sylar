@@ -2,11 +2,11 @@
 
 #include "db/mysql.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 static constexpr const char* kDBName = "default";
 
-bool MessageUserDeleteDao::MarkUserDelete(const std::shared_ptr<CIM::MySQL>& db,
+bool MessageUserDeleteDao::MarkUserDelete(const std::shared_ptr<IM::MySQL>& db,
                                           const std::string& msg_id, const uint64_t user_id,
                                           std::string* err) {
     if (!db) {
@@ -29,7 +29,7 @@ bool MessageUserDeleteDao::MarkUserDelete(const std::shared_ptr<CIM::MySQL>& db,
     return true;
 }
 
-bool MessageUserDeleteDao::MarkAllMessagesDeletedByUserInTalk(const std::shared_ptr<CIM::MySQL>& db, const uint64_t talk_id,
+bool MessageUserDeleteDao::MarkAllMessagesDeletedByUserInTalk(const std::shared_ptr<IM::MySQL>& db, const uint64_t talk_id,
                                                               const uint64_t user_id,
                                                               std::string* err) {
     if (!db) {
@@ -54,4 +54,4 @@ bool MessageUserDeleteDao::MarkAllMessagesDeletedByUserInTalk(const std::shared_
     }
     return true;
 }
-}  // namespace CIM::dao
+}  // namespace IM::dao

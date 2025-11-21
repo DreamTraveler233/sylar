@@ -1,7 +1,7 @@
 #include "http/uri.hpp"
 #include <sstream>
 
-namespace CIM {
+namespace IM {
 %%{
     # See RFC 3986: http://www.ietf.org/rfc/rfc3986.txt
 

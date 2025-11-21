@@ -1,15 +1,15 @@
 /**
  * @file log_appender.hpp
  * @brief 日志追加器定义文件
- * @author CIM
+ * @author IM
  * @date 2025-10-21
  *
  * 该文件定义了日志系统的核心组件——日志追加器(LogAppender)基类及其派生类，
  * 包括标准输出追加器和文件追加器，用于控制日志的输出目标和格式化方式。
  */
 
-#ifndef __CIM_LOG_LOG_APPENDER_HPP__
-#define __CIM_LOG_LOG_APPENDER_HPP__
+#ifndef __IM_LOG_LOG_APPENDER_HPP__
+#define __IM_LOG_LOG_APPENDER_HPP__
 
 #include <fstream>
 #include <string>
@@ -20,7 +20,7 @@
 #include "log_file_manager.hpp"
 #include "log_formatter.hpp"
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 日志追加器基类
      *
@@ -142,6 +142,6 @@ class FileLogAppender : public LogAppender {
    private:
     LogFile::ptr m_logFile;  ///< 文件对象
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_LOG_LOG_APPENDER_HPP__
+#endif // __IM_LOG_LOG_APPENDER_HPP__

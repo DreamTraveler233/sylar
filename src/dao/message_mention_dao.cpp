@@ -2,11 +2,11 @@
 
 #include "db/mysql.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 static constexpr const char* kDBName = "default";
 
-bool MessageMentionDao::AddMentions(const std::shared_ptr<CIM::MySQL>& db,
+bool MessageMentionDao::AddMentions(const std::shared_ptr<IM::MySQL>& db,
                                     const std::string& msg_id,
                                     const std::vector<uint64_t>& mentioned_user_ids,
                                     std::string* err) {
@@ -36,7 +36,7 @@ bool MessageMentionDao::AddMentions(const std::shared_ptr<CIM::MySQL>& db,
 bool MessageMentionDao::GetMentions(const std::string& msg_id, std::vector<uint64_t>& out,
                                     std::string* err) {
     out.clear();
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -58,4 +58,4 @@ bool MessageMentionDao::GetMentions(const std::string& msg_id, std::vector<uint6
     }
     return true;
 }
-}  // namespace CIM::dao
+}  // namespace IM::dao

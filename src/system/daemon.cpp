@@ -10,10 +10,10 @@
 #include "base/macro.hpp"
 #include "util/util.hpp"
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
 static auto g_daemon_restart_interval =
-    CIM::Config::Lookup("daemon.restart_interval", (uint32_t)5, "daemon restart interval");
+    IM::Config::Lookup("daemon.restart_interval", (uint32_t)5, "daemon restart interval");
 
 std::string ProcessInfo::toString() const {
     std::stringstream ss;
@@ -64,13 +64,13 @@ static int real_daemon(int argc, char** argv, std::function<int(int argc, char**
             // 记录子进程ID和启动时间
             ProcessInfoMgr::GetInstance()->main_id = getpid();
             ProcessInfoMgr::GetInstance()->main_start_time = time(0);
-            CIM_LOG_INFO(g_logger) << "process start pid=" << getpid();
+            IM_LOG_INFO(g_logger) << "process start pid=" << getpid();
 
             // 执行实际应用程序
             return real_start(argc, argv, main_cb);
         } else if (pid < 0) {
             // fork失败处理
-            CIM_LOG_ERROR(g_logger) << "fork fail return=" << pid << " errno=" << errno
+            IM_LOG_ERROR(g_logger) << "fork fail return=" << pid << " errno=" << errno
                                     << " errstr=" << strerror(errno);
             return -1;
         } else {
@@ -82,15 +82,15 @@ static int real_daemon(int argc, char** argv, std::function<int(int argc, char**
                 // 子进程异常退出
                 if (WIFSIGNALED(status) && WTERMSIG(status) == SIGKILL) {
                     // 子进程被kill，跳出循环，不再重启
-                    CIM_LOG_INFO(g_logger) << "killed";
+                    IM_LOG_INFO(g_logger) << "killed";
                     break;
                 } else {
                     // 子进程崩溃，如段错误、其他信号等
-                    CIM_LOG_ERROR(g_logger) << "child crash pid=" << pid << " status=" << status;
+                    IM_LOG_ERROR(g_logger) << "child crash pid=" << pid << " status=" << status;
                 }
             } else {
                 // 子进程正常退出，跳出循环，不再重启
-                CIM_LOG_INFO(g_logger) << "child finished pid=" << pid;
+                IM_LOG_INFO(g_logger) << "child finished pid=" << pid;
                 break;
             }
             // 增加重启计数并等待指定时间后重新启动（用于等待上一次进程的资源释放）
@@ -113,4 +113,4 @@ int start_daemon(int argc, char** argv, std::function<int(int argc, char** argv)
     return real_daemon(argc, argv, main_cb);
 }
 
-}  // namespace CIM
+}  // namespace IM

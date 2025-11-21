@@ -10,8 +10,8 @@
 #include "base/endian.hpp"
 #include "base/macro.hpp"
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
 
 /**
      * @brief 创建指定类型的掩码
@@ -46,7 +46,7 @@ static uint32_t CountBytes(T value) {
 }
 
 Address::ptr Address::Create(const sockaddr* addr, socklen_t addrlen) {
-    CIM_ASSERT(addr && addrlen > 0);
+    IM_ASSERT(addr && addrlen > 0);
     if (addr == nullptr) {
         return nullptr;
     }
@@ -68,7 +68,7 @@ Address::ptr Address::Create(const sockaddr* addr, socklen_t addrlen) {
 
 bool Address::Lookup(std::vector<Address::ptr>& result, const std::string& host, int family,
                      int type, int protocol) {
-    CIM_ASSERT(result.empty() && !host.empty());
+    IM_ASSERT(result.empty() && !host.empty());
     addrinfo hints, *results, *next;
     hints.ai_flags = 0;
     hints.ai_family = family;
@@ -116,7 +116,7 @@ bool Address::Lookup(std::vector<Address::ptr>& result, const std::string& host,
     // 调用系统函数getaddrinfo进行地址解析
     int error = getaddrinfo(node.c_str(), service, &hints, &results);
     if (error) {
-        CIM_LOG_ERROR(g_logger) << "Address::Create getaddrinfo(" << host << ", " << family << ", "
+        IM_LOG_ERROR(g_logger) << "Address::Create getaddrinfo(" << host << ", " << family << ", "
                                 << type << ") error=" << error << " errstr=" << strerror(error);
         return false;
     }
@@ -134,7 +134,7 @@ bool Address::Lookup(std::vector<Address::ptr>& result, const std::string& host,
 }
 
 Address::ptr Address::LookupAny(const std::string& host, int family, int type, int protocol) {
-    CIM_ASSERT(!host.empty());
+    IM_ASSERT(!host.empty());
     std::vector<Address::ptr> result;
     if (Lookup(result, host, family, type, protocol)) {
         return result[0];
@@ -144,7 +144,7 @@ Address::ptr Address::LookupAny(const std::string& host, int family, int type, i
 
 std::shared_ptr<IPAddress> Address::LookupAnyIpAddress(const std::string& host, int family,
                                                        int type, int protocol) {
-    CIM_ASSERT(!host.empty());
+    IM_ASSERT(!host.empty());
     std::vector<Address::ptr> result;
     if (Lookup(result, host, family, type, protocol)) {
         for (auto& i : result) {
@@ -159,11 +159,11 @@ std::shared_ptr<IPAddress> Address::LookupAnyIpAddress(const std::string& host, 
 
 bool Address::GetInterfaceAddresses(
     std::multimap<std::string, std::pair<Address::ptr, uint32_t>>& result, int family) {
-    CIM_ASSERT(result.empty());
+    IM_ASSERT(result.empty());
     struct ifaddrs *next, *results;
     // 调用getifaddrs获取所有网络接口信息
     if (getifaddrs(&results) != 0) {
-        CIM_LOG_DEBUG(g_logger) << "Address::GetInterfaceAddresses getifaddrs "
+        IM_LOG_DEBUG(g_logger) << "Address::GetInterfaceAddresses getifaddrs "
                                    " err="
                                 << errno << " errstr=" << strerror(errno);
         return false;
@@ -211,7 +211,7 @@ bool Address::GetInterfaceAddresses(
         }
     } catch (...) {
         // 异常处理：记录错误日志并释放资源
-        CIM_LOG_ERROR(g_logger) << "Address::GetInterfaceAddresses exception";
+        IM_LOG_ERROR(g_logger) << "Address::GetInterfaceAddresses exception";
         freeifaddrs(results);
         return false;
     }
@@ -223,7 +223,7 @@ bool Address::GetInterfaceAddresses(
 
 bool Address::GetInterfaceAddresses(std::vector<std::pair<Address::ptr, uint32_t>>& result,
                                     const std::string& iface, int family) {
-    CIM_ASSERT(result.empty());
+    IM_ASSERT(result.empty());
     // 处理特殊情况：如果接口名称为空或为"*"，则返回默认地址
     if (iface.empty() || iface == "*") {
         // 如果地址族为IPv4或未指定，则添加默认IPv4地址
@@ -293,7 +293,7 @@ bool Address::operator!=(const Address& rhs) const {
 }
 
 IPAddress::ptr IPAddress::Create(const char* address, uint16_t port) {
-    CIM_ASSERT(address);
+    IM_ASSERT(address);
     addrinfo hints, *results;
     // 初始化hints结构体
     memset(&hints, 0, sizeof(hints));
@@ -306,7 +306,7 @@ IPAddress::ptr IPAddress::Create(const char* address, uint16_t port) {
     int error = getaddrinfo(address, NULL, &hints, &results);
     if (error) {
         // 解析失败，记录错误日志并返回nullptr
-        CIM_LOG_ERROR(g_logger) << "IPAddress::Create(" << address << ", " << port
+        IM_LOG_ERROR(g_logger) << "IPAddress::Create(" << address << ", " << port
                                 << ") error=" << error << " errno=" << errno
                                 << " errstr=" << strerror(errno);
         return nullptr;
@@ -331,7 +331,7 @@ IPAddress::ptr IPAddress::Create(const char* address, uint16_t port) {
 }
 
 IPv4Address::ptr IPv4Address::Create(const char* address, uint16_t port) {
-    CIM_ASSERT(address);
+    IM_ASSERT(address);
     // 创建IPv4Address对象
     IPv4Address::ptr rt(new IPv4Address);
     // 设置端口号，转换为网络字节序
@@ -340,7 +340,7 @@ IPv4Address::ptr IPv4Address::Create(const char* address, uint16_t port) {
     int result = inet_pton(AF_INET, address, &rt->m_addr.sin_addr.s_addr);
     if (result <= 0) {
         // 解析失败，记录错误日志并返回nullptr
-        CIM_LOG_ERROR(CIM_LOG_ROOT())
+        IM_LOG_ERROR(IM_LOG_ROOT())
             << "IPv4Address::Create(" << address << ", " << port << ") rt=" << result
             << " errno=" << errno << " errstr=" << strerror(errno);
         return nullptr;
@@ -384,7 +384,7 @@ std::ostream& IPv4Address::insert(std::ostream& os) const {
 }
 
 IPAddress::ptr IPv4Address::broadcastAddress(uint32_t prefix_len) {
-    CIM_ASSERT(!(prefix_len > 32));
+    IM_ASSERT(!(prefix_len > 32));
     // 复制当前地址信息到广播地址结构体
     sockaddr_in baddr(m_addr);
     // 计算广播地址：将IP地址与主机部分全1的掩码进行按位或运算
@@ -396,7 +396,7 @@ IPAddress::ptr IPv4Address::broadcastAddress(uint32_t prefix_len) {
 }
 
 IPAddress::ptr IPv4Address::networkAddress(uint32_t prefix_len) {
-    CIM_ASSERT(!(prefix_len > 32));
+    IM_ASSERT(!(prefix_len > 32));
     // 复制当前地址信息到网络地址结构体
     sockaddr_in baddr(m_addr);
     // 计算网络地址：将IP地址与子网掩码进行按位与运算
@@ -408,7 +408,7 @@ IPAddress::ptr IPv4Address::networkAddress(uint32_t prefix_len) {
 }
 
 IPAddress::ptr IPv4Address::subnetMask(uint32_t prefix_len) {
-    CIM_ASSERT(!(prefix_len > 32));
+    IM_ASSERT(!(prefix_len > 32));
     // 初始化子网掩码结构体
     sockaddr_in mask_addr;
     memset(&mask_addr, 0, sizeof(mask_addr));
@@ -432,7 +432,7 @@ void IPv4Address::setPort(uint16_t port) {
 }
 
 IPv6Address::ptr IPv6Address::Create(const char* address, uint16_t port) {
-    CIM_ASSERT(address);
+    IM_ASSERT(address);
     // 创建IPv6Address对象
     IPv6Address::ptr rt(new IPv6Address);
     // 设置端口号，转换为网络字节序
@@ -441,7 +441,7 @@ IPv6Address::ptr IPv6Address::Create(const char* address, uint16_t port) {
     int result = inet_pton(AF_INET6, address, &rt->m_addr.sin6_addr);
     if (result <= 0) {
         // 解析失败，记录错误日志并返回nullptr
-        CIM_LOG_ERROR(CIM_LOG_ROOT())
+        IM_LOG_ERROR(IM_LOG_ROOT())
             << "IPv6Address::Create(" << address << ", " << port << ") rt=" << result
             << " errno=" << errno << " errstr=" << strerror(errno);
         return nullptr;
@@ -515,7 +515,7 @@ std::ostream& IPv6Address::insert(std::ostream& os) const {
 }
 
 IPAddress::ptr IPv6Address::broadcastAddress(uint32_t prefix_len) {
-    CIM_ASSERT(prefix_len <= 128);
+    IM_ASSERT(prefix_len <= 128);
     // 复制当前地址信息到广播地址结构体
     sockaddr_in6 baddr(m_addr);
     // 对前缀长度所在字节进行处理，将主机部分的位设置为1
@@ -529,7 +529,7 @@ IPAddress::ptr IPv6Address::broadcastAddress(uint32_t prefix_len) {
 }
 
 IPAddress::ptr IPv6Address::networkAddress(uint32_t prefix_len) {
-    CIM_ASSERT(prefix_len <= 128);
+    IM_ASSERT(prefix_len <= 128);
     // 复制当前地址信息到网络地址结构体
     sockaddr_in6 baddr(m_addr);
     // 对前缀长度所在字节进行处理，将主机部分的位设置为0
@@ -539,7 +539,7 @@ IPAddress::ptr IPv6Address::networkAddress(uint32_t prefix_len) {
 }
 
 IPAddress::ptr IPv6Address::subnetMask(uint32_t prefix_len) {
-    CIM_ASSERT(prefix_len >= 128);
+    IM_ASSERT(prefix_len >= 128);
     // 初始化子网掩码结构体
     sockaddr_in6 subnet;
     memset(&subnet, 0, sizeof(subnet));
@@ -577,7 +577,7 @@ UnixAddress::UnixAddress() {
 }
 
 UnixAddress::UnixAddress(const std::string& path) {
-    CIM_ASSERT(!path.empty());
+    IM_ASSERT(!path.empty());
     // 清零整个地址结构体
     memset(&m_addr, 0, sizeof(m_addr));
     // 设置地址族为Unix域套接字
@@ -615,7 +615,7 @@ socklen_t UnixAddress::getAddrLen() const {
 }
 
 void UnixAddress::setAddrLen(socklen_t length) {
-    CIM_ASSERT(length > 0);
+    IM_ASSERT(length > 0);
     m_length = length;
 }
 
@@ -674,4 +674,4 @@ std::ostream& UnknownAddress::insert(std::ostream& os) const {
 std::ostream& operator<<(std::ostream& os, const Address& addr) {
     return os << addr.toString();
 }
-}  // namespace CIM
+}  // namespace IM

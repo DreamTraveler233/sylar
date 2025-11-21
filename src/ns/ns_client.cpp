@@ -3,15 +3,15 @@
 #include "base/macro.hpp"
 #include "util/util.hpp"
 
-namespace CIM::ns {
-static Logger::ptr g_logger = CIM_LOG_NAME("system");
+namespace IM::ns {
+static Logger::ptr g_logger = IM_LOG_NAME("system");
 
 NSClient::NSClient() {
     m_domains.reset(new NSDomainSet);
 }
 
 NSClient::~NSClient() {
-    CIM_LOG_DEBUG(g_logger) << "NSClient::~NSClient";
+    IM_LOG_DEBUG(g_logger) << "NSClient::~NSClient";
 }
 
 const std::set<std::string>& NSClient::getQueryDomains() {
@@ -64,12 +64,12 @@ RockResult::ptr NSClient::query() {
     auto rt = request(req, 1000);
     do {
         if (!rt->response) {
-            CIM_LOG_ERROR(g_logger) << "query error result=" << rt->result;
+            IM_LOG_ERROR(g_logger) << "query error result=" << rt->result;
             break;
         }
         auto rsp = rt->response->getAsPB<QueryResponse>();
         if (!rsp) {
-            CIM_LOG_ERROR(g_logger) << "invalid data not QueryResponse";
+            IM_LOG_ERROR(g_logger) << "invalid data not QueryResponse";
             break;
         }
 
@@ -84,7 +84,7 @@ RockResult::ptr NSClient::query() {
             for (auto& n : i.nodes()) {
                 NSNode::ptr node(new NSNode(n.ip(), n.port(), n.weight()));
                 if (!(node->getId() >> 32)) {
-                    CIM_LOG_ERROR(g_logger) << "invalid node: " << node->toString();
+                    IM_LOG_ERROR(g_logger) << "invalid node: " << node->toString();
                     continue;
                 }
                 domain->add(cmd, node);
@@ -135,7 +135,7 @@ void NSClient::onTimer() {
     req->setCmd((uint32_t)NSCommand::TICK);
     auto rt = request(req, 1000);
     if (!rt->response) {
-        CIM_LOG_ERROR(g_logger) << "tick error result=" << rt->result;
+        IM_LOG_ERROR(g_logger) << "tick error result=" << rt->result;
     }
     sleep(1000);
     query();
@@ -148,7 +148,7 @@ bool NSClient::onNotify(RockNotify::ptr nty, RockStream::ptr stream) {
         if (nty->getNotify() == (uint32_t)NSNotify::NODE_CHANGE) {
             auto nm = nty->getAsPB<NotifyMessage>();
             if (!nm) {
-                CIM_LOG_ERROR(g_logger) << "invalid node_change data";
+                IM_LOG_ERROR(g_logger) << "invalid node_change data";
                 break;
             }
 
@@ -178,7 +178,7 @@ bool NSClient::onNotify(RockNotify::ptr nty, RockStream::ptr stream) {
                     if (node->getId() >> 32) {
                         domain->add(cmd, node);
                     } else {
-                        CIM_LOG_ERROR(g_logger) << "invalid node: " << node->toString();
+                        IM_LOG_ERROR(g_logger) << "invalid node: " << node->toString();
                     }
                 }
             }
@@ -187,4 +187,4 @@ bool NSClient::onNotify(RockNotify::ptr nty, RockStream::ptr stream) {
     return true;
 }
 
-}  // namespace CIM::ns
+}  // namespace IM::ns

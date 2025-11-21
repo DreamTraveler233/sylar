@@ -1,5 +1,5 @@
-#ifndef __CIM_DB_MYSQL_HPP__
-#define __CIM_DB_MYSQL_HPP__
+#ifndef __IM_DB_MYSQL_HPP__
+#define __IM_DB_MYSQL_HPP__
 
 #include <mysql/mysql.h>
 
@@ -12,7 +12,7 @@
 #include "io/lock.hpp"
 #include "base/singleton.hpp"
 
-namespace CIM {
+namespace IM {
 
 class MySQL;
 class MySQLStmt;
@@ -399,6 +399,6 @@ XX(float, float&);
 XX(double, double&);
 #undef XX
 }  // namespace
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_DB_MYSQL_HPP__
+#endif // __IM_DB_MYSQL_HPP__

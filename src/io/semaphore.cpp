@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-namespace CIM {
+namespace IM {
 Semaphore::Semaphore(uint32_t count) {
     if (sem_init(&m_semaphore, 0, count)) {
         throw std::logic_error("sem_init error");
@@ -24,4 +24,4 @@ void Semaphore::notify() {
         throw std::logic_error("sem_post error");
     }
 }
-}  // namespace CIM
+}  // namespace IM

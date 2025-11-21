@@ -5,8 +5,8 @@
 #include "util/string_util.hpp"
 #include "util/time_util.hpp"
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
 static auto g_mysql_dbs = Config::Lookup(
     "mysql.dbs", std::map<std::string, std::map<std::string, std::string>>(), "mysql dbs");
 
@@ -53,7 +53,7 @@ static MYSQL* mysql_init(std::map<std::string, std::string>& params, const int& 
 
     MYSQL* mysql = ::mysql_init(nullptr);
     if (mysql == nullptr) {
-        CIM_LOG_ERROR(g_logger) << "mysql_init error";
+        IM_LOG_ERROR(g_logger) << "mysql_init error";
         return nullptr;
     }
 
@@ -70,7 +70,7 @@ static MYSQL* mysql_init(std::map<std::string, std::string>& params, const int& 
 
     if (mysql_real_connect(mysql, host.c_str(), user.c_str(), passwd.c_str(), dbname.c_str(), port,
                            NULL, 0) == nullptr) {
-        CIM_LOG_ERROR(g_logger) << "mysql_real_connect(" << host << ", " << port << ", " << dbname
+        IM_LOG_ERROR(g_logger) << "mysql_real_connect(" << host << ", " << port << ", " << dbname
                                 << ") error: " << mysql_error(mysql);
         mysql_close(mysql);
         return nullptr;
@@ -140,7 +140,7 @@ int MySQL::execute(const char* format, va_list ap) {
     m_cmd = StringUtil::Formatv(format, ap);
     int r = ::mysql_query(m_mysql.get(), m_cmd.c_str());
     if (r) {
-        CIM_LOG_ERROR(g_logger) << "cmd=" << cmd() << ", error: " << getErrStr();
+        IM_LOG_ERROR(g_logger) << "cmd=" << cmd() << ", error: " << getErrStr();
         m_hasError = true;
     } else {
         m_hasError = false;
@@ -152,7 +152,7 @@ int MySQL::execute(const std::string& sql) {
     m_cmd = sql;
     int r = ::mysql_query(m_mysql.get(), m_cmd.c_str());
     if (r) {
-        CIM_LOG_ERROR(g_logger) << "cmd=" << cmd() << ", error: " << getErrStr();
+        IM_LOG_ERROR(g_logger) << "cmd=" << cmd() << ", error: " << getErrStr();
         m_hasError = true;
     } else {
         m_hasError = false;
@@ -177,23 +177,23 @@ uint64_t MySQL::getAffectedRows() {
 
 static MYSQL_RES* my_mysql_query(MYSQL* mysql, const char* sql) {
     if (mysql == nullptr) {
-        CIM_LOG_ERROR(g_logger) << "mysql_query mysql is null";
+        IM_LOG_ERROR(g_logger) << "mysql_query mysql is null";
         return nullptr;
     }
 
     if (sql == nullptr) {
-        CIM_LOG_ERROR(g_logger) << "mysql_query sql is null";
+        IM_LOG_ERROR(g_logger) << "mysql_query sql is null";
         return nullptr;
     }
 
     if (::mysql_query(mysql, sql)) {
-        CIM_LOG_ERROR(g_logger) << "mysql_query(" << sql << ") error:" << mysql_error(mysql);
+        IM_LOG_ERROR(g_logger) << "mysql_query(" << sql << ") error:" << mysql_error(mysql);
         return nullptr;
     }
 
     MYSQL_RES* res = mysql_store_result(mysql);
     if (res == nullptr) {
-        CIM_LOG_ERROR(g_logger) << "mysql_store_result() error:" << mysql_error(mysql);
+        IM_LOG_ERROR(g_logger) << "mysql_store_result() error:" << mysql_error(mysql);
     }
     return res;
 }
@@ -204,7 +204,7 @@ MySQLStmt::ptr MySQLStmt::Create(MySQL::ptr db, const std::string& stmt) {
         return nullptr;
     }
     if (mysql_stmt_prepare(st, stmt.c_str(), stmt.size())) {
-        CIM_LOG_ERROR(g_logger) << "stmt=" << stmt << " errno=" << mysql_stmt_errno(st)
+        IM_LOG_ERROR(g_logger) << "stmt=" << stmt << " errno=" << mysql_stmt_errno(st)
                                 << " errstr=" << mysql_stmt_error(st);
         mysql_stmt_close(st);
         return nullptr;
@@ -934,7 +934,7 @@ int MySQLTransaction::execute(const char* format, ...) {
 
 int MySQLTransaction::execute(const char* format, va_list ap) {
     if (m_isFinished) {
-        CIM_LOG_ERROR(g_logger) << "transaction is finished, format=" << format;
+        IM_LOG_ERROR(g_logger) << "transaction is finished, format=" << format;
         return -1;
     }
     int rt = m_mysql->execute(format, ap);
@@ -946,7 +946,7 @@ int MySQLTransaction::execute(const char* format, va_list ap) {
 
 int MySQLTransaction::execute(const std::string& sql) {
     if (m_isFinished) {
-        CIM_LOG_ERROR(g_logger) << "transaction is finished, sql=" << sql;
+        IM_LOG_ERROR(g_logger) << "transaction is finished, sql=" << sql;
         return -1;
     }
     int rt = m_mysql->execute(sql);
@@ -998,7 +998,7 @@ MySQL::ptr MySQLManager::get(const std::string& name) {
                 return MySQL::ptr(
                     rt, std::bind(&MySQLManager::freeMySQL, this, name, std::placeholders::_1));
             } else {
-                CIM_LOG_WARN(g_logger) << "reconnect " << name << " fail";
+                IM_LOG_WARN(g_logger) << "reconnect " << name << " fail";
                 return nullptr;
             }
         }
@@ -1066,7 +1066,7 @@ int MySQLManager::execute(const std::string& name, const char* format, ...) {
 int MySQLManager::execute(const std::string& name, const char* format, va_list ap) {
     auto conn = get(name);
     if (!conn) {
-        CIM_LOG_ERROR(g_logger) << "MySQLManager::execute, get(" << name
+        IM_LOG_ERROR(g_logger) << "MySQLManager::execute, get(" << name
                                 << ") fail, format=" << format;
         return -1;
     }
@@ -1076,7 +1076,7 @@ int MySQLManager::execute(const std::string& name, const char* format, va_list a
 int MySQLManager::execute(const std::string& name, const std::string& sql) {
     auto conn = get(name);
     if (!conn) {
-        CIM_LOG_ERROR(g_logger) << "MySQLManager::execute, get(" << name << ") fail, sql=" << sql;
+        IM_LOG_ERROR(g_logger) << "MySQLManager::execute, get(" << name << ") fail, sql=" << sql;
         return -1;
     }
     return conn->execute(sql);
@@ -1093,7 +1093,7 @@ ISQLData::ptr MySQLManager::query(const std::string& name, const char* format, .
 ISQLData::ptr MySQLManager::query(const std::string& name, const char* format, va_list ap) {
     auto conn = get(name);
     if (!conn) {
-        CIM_LOG_ERROR(g_logger) << "MySQLManager::query, get(" << name
+        IM_LOG_ERROR(g_logger) << "MySQLManager::query, get(" << name
                                 << ") fail, format=" << format;
         return nullptr;
     }
@@ -1103,7 +1103,7 @@ ISQLData::ptr MySQLManager::query(const std::string& name, const char* format, v
 ISQLData::ptr MySQLManager::query(const std::string& name, const std::string& sql) {
     auto conn = get(name);
     if (!conn) {
-        CIM_LOG_ERROR(g_logger) << "MySQLManager::query, get(" << name << ") fail, sql=" << sql;
+        IM_LOG_ERROR(g_logger) << "MySQLManager::query, get(" << name << ") fail, sql=" << sql;
         return nullptr;
     }
     return conn->query(sql);
@@ -1112,7 +1112,7 @@ ISQLData::ptr MySQLManager::query(const std::string& name, const std::string& sq
 MySQLTransaction::ptr MySQLManager::openTransaction(const std::string& name, bool auto_commit) {
     auto conn = get(name);
     if (!conn) {
-        CIM_LOG_ERROR(g_logger) << "MySQLManager::openTransaction, get(" << name << ") fail";
+        IM_LOG_ERROR(g_logger) << "MySQLManager::openTransaction, get(" << name << ") fail";
         return nullptr;
     }
     MySQLTransaction::ptr trans(MySQLTransaction::Create(conn, auto_commit));
@@ -1227,4 +1227,4 @@ int MySQLUtil::TryExecute(const std::string& name, uint32_t count, const std::st
     return rpy;
 }
 
-}  // namespace CIM
+}  // namespace IM

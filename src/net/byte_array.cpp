@@ -5,8 +5,8 @@
 #include "base/endian.hpp"
 #include "base/macro.hpp"
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
 
 ByteArray::Node::Node(size_t s) : ptr(new char[s]), next(nullptr), size(s) {}
 
@@ -23,7 +23,7 @@ ByteArray::ByteArray(size_t base_size)
       m_position(0),
       m_capacity(base_size),
       m_data_size(0),
-      m_endian(CIM_BIG_ENDIAN),
+      m_endian(IM_BIG_ENDIAN),
       m_root_node(new Node(base_size)),
       m_cur_node(m_root_node) {}
 
@@ -45,7 +45,7 @@ void ByteArray::writeFuint8(uint8_t value) {
 }
 
 #define XX(value)                     \
-    if (CIM_BYTE_ORDER != m_endian) { \
+    if (IM_BYTE_ORDER != m_endian) { \
         value = byteswap(value);      \
     }                                 \
     write(&value, sizeof(value));
@@ -266,7 +266,7 @@ uint8_t ByteArray::readFuint8() {
 #define XX(type)                      \
     type v;                           \
     read(&v, sizeof(v));              \
-    if (CIM_BYTE_ORDER != m_endian) { \
+    if (IM_BYTE_ORDER != m_endian) { \
         return byteswap(v);           \
     }                                 \
     return v;
@@ -606,7 +606,7 @@ bool ByteArray::writeToFile(const std::string& path) const {
     // 以二进制模式和截断模式（如果文件已存在，则清空文件内容）打开文件
     ofs.open(path, std::ios::trunc | std::ios::binary);
     if (!ofs) {
-        CIM_LOG_ERROR(g_logger) << "ByteArray::writeToFile path=" << path << " error=" << errno
+        IM_LOG_ERROR(g_logger) << "ByteArray::writeToFile path=" << path << " error=" << errno
                                 << " errstr=" << strerror(errno);
         return false;
     }
@@ -645,7 +645,7 @@ bool ByteArray::readFromFile(const std::string& path) {
     // 以二进制模式和读取模式打开文件
     ifs.open(path, std::ios::in | std::ios::binary);
     if (!ifs) {
-        CIM_LOG_ERROR(g_logger) << "ByteArray::readFromFile path=" << path << " error=" << errno
+        IM_LOG_ERROR(g_logger) << "ByteArray::readFromFile path=" << path << " error=" << errno
                                 << " errstr=" << strerror(errno);
         return false;
     }
@@ -664,9 +664,9 @@ bool ByteArray::readFromFile(const std::string& path) {
 
 void ByteArray::setIsLittleEndian(bool val) {
     if (val) {
-        m_endian = CIM_LITTLE_ENDIAN;
+        m_endian = IM_LITTLE_ENDIAN;
     } else {
-        m_endian = CIM_BIG_ENDIAN;
+        m_endian = IM_BIG_ENDIAN;
     }
 }
 
@@ -908,6 +908,6 @@ size_t ByteArray::getReadSize() const {
 }
 
 bool ByteArray::isLittleEndian() const {
-    return m_endian == CIM_LITTLE_ENDIAN;
+    return m_endian == IM_LITTLE_ENDIAN;
 }
-}  // namespace CIM
+}  // namespace IM

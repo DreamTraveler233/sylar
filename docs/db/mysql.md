@@ -10,12 +10,12 @@
 
 仓库提供了一个对 MySQL C API（libmysqlclient）的轻量封装：
 
-- `CIM::MySQL`：表示单个连接封装，提供 `execute` / `query` / `prepare` / `openTransaction` 等方法。
-- `CIM::MySQLStmt`：准备语句（prepared statement），支持多种类型绑定并执行。
-- `CIM::MySQLRes`：普通 SQL 查询返回（`mysql_store_result`）的封装，支持 `next()` 与按类型读取列。
-- `CIM::MySQLStmtRes`：Prepared Statement 的结果封装（绑定返回列缓冲并 fetch）。
-- `CIM::MySQLManager`：连接池管理器（按名字分配连接），并封装库初始化与回收。
-- `CIM::MySQLUtil`：工具静态方法，快捷访问 `MySQLManager` 的查询/执行接口。
+- `IM::MySQL`：表示单个连接封装，提供 `execute` / `query` / `prepare` / `openTransaction` 等方法。
+- `IM::MySQLStmt`：准备语句（prepared statement），支持多种类型绑定并执行。
+- `IM::MySQLRes`：普通 SQL 查询返回（`mysql_store_result`）的封装，支持 `next()` 与按类型读取列。
+- `IM::MySQLStmtRes`：Prepared Statement 的结果封装（绑定返回列缓冲并 fetch）。
+- `IM::MySQLManager`：连接池管理器（按名字分配连接），并封装库初始化与回收。
+- `IM::MySQLUtil`：工具静态方法，快捷访问 `MySQLManager` 的查询/执行接口。
 
 该封装会在 `MySQLManager` 构造时调用 `mysql_library_init`，并在析构时调用 `mysql_library_end`。
 

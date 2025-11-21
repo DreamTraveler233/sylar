@@ -1,5 +1,5 @@
-#ifndef __CIM_APP_USER_SERVICE_HPP__
-#define __CIM_APP_USER_SERVICE_HPP__
+#ifndef __IM_APP_USER_SERVICE_HPP__
+#define __IM_APP_USER_SERVICE_HPP__
 
 #include <cstdint>
 #include <optional>
@@ -7,7 +7,7 @@
 
 #include "result.hpp"
 
-namespace CIM::app {
+namespace IM::app {
 
 class UserService {
    public:
@@ -50,6 +50,6 @@ class UserService {
     static UserInfoResult LoadUserInfoSimple(const uint64_t uid);
 };
 
-}  // namespace CIM::app
+}  // namespace IM::app
 
-#endif // __CIM_APP_USER_SERVICE_HPP__
+#endif // __IM_APP_USER_SERVICE_HPP__

@@ -1,5 +1,5 @@
-#ifndef __CIM_APP_MESSAGE_SERVICE_HPP__
-#define __CIM_APP_MESSAGE_SERVICE_HPP__
+#ifndef __IM_APP_MESSAGE_SERVICE_HPP__
+#define __IM_APP_MESSAGE_SERVICE_HPP__
 
 #include <cstdint>
 #include <string>
@@ -7,7 +7,7 @@
 
 #include "app/result.hpp"
 
-namespace CIM::app {
+namespace IM::app {
 
 // 消息服务：提供消息列表/历史/转发/删除/撤回等业务操作。
 // 说明：
@@ -76,10 +76,10 @@ class MessageService {
     static uint64_t resolveTalkId(const uint8_t talk_mode, const uint64_t to_from_id);
 
     // 将 DAO Message 转换为前端需要的记录结构（补充用户昵称头像、引用）。
-    static bool buildRecord(const CIM::dao::Message& msg, CIM::dao::MessageRecord& out,
+    static bool buildRecord(const IM::dao::Message& msg, IM::dao::MessageRecord& out,
                             std::string* err);
 };
 
-}  // namespace CIM::app
+}  // namespace IM::app
 
-#endif  // __CIM_APP_MESSAGE_SERVICE_HPP__
+#endif  // __IM_APP_MESSAGE_SERVICE_HPP__

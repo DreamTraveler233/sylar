@@ -1,10 +1,10 @@
-#ifndef __CIM_UTIL_STRING_UTIL_HPP__
-#define __CIM_UTIL_STRING_UTIL_HPP__
+#ifndef __IM_UTIL_STRING_UTIL_HPP__
+#define __IM_UTIL_STRING_UTIL_HPP__
 
 #include <string>
 #include <vector>
 
-namespace CIM {
+namespace IM {
 class StringUtil {
    public:
     /**
@@ -109,6 +109,6 @@ class StringUtil {
     static std::string WStringToString(const std::wstring& ws);
     static std::wstring StringToWString(const std::string& s);
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_UTIL_STRING_UTIL_HPP__
+#endif // __IM_UTIL_STRING_UTIL_HPP__

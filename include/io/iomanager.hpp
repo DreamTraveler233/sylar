@@ -1,7 +1,7 @@
 /**
  * @file iomanager.hpp
  * @brief 基于epoll的IO事件管理器实现
- * @author CIM
+ * @author IM
  *
  * 该文件定义了IOManager类，它是一个基于epoll的异步IO事件管理器，
  * 继承自Scheduler（协程调度器）和TimerManager（定时器管理器）。
@@ -9,13 +9,13 @@
  * 相应的协程或回调函数执行，从而实现高效的异步IO编程。
  */
 
-#ifndef __CIM_IO_IOMANAGER_HPP__
-#define __CIM_IO_IOMANAGER_HPP__
+#ifndef __IM_IO_IOMANAGER_HPP__
+#define __IM_IO_IOMANAGER_HPP__
 
 #include "scheduler.hpp"
 #include "timer.hpp"
 
-namespace CIM {
+namespace IM {
 /**
      * @brief IO事件管理器
      * @details IOManager是一个基于epoll的I/O多路复用事件管理器，继承自Scheduler和TimerManager。
@@ -175,6 +175,6 @@ class IOManager : public Scheduler, public TimerManager {
     RWMutexType m_mutex;                            /// 保护文件描述符上下文数组的读写锁
     std::vector<FdContext*> m_fdContexts;           /// 文件描述符上下文数组
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_IO_IOMANAGER_HPP__
+#endif // __IM_IO_IOMANAGER_HPP__

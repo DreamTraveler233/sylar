@@ -1,10 +1,10 @@
 #include "dao/message_forward_map_dao.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 static constexpr const char* kDBName = "default";
 
-bool MessageForwardMapDao::AddForwardMap(const std::shared_ptr<CIM::MySQL>& db,
+bool MessageForwardMapDao::AddForwardMap(const std::shared_ptr<IM::MySQL>& db,
                                          const std::string& forward_msg_id,
                                          const std::vector<ForwardSrc>& sources, std::string* err) {
     if (!db) {
@@ -32,4 +32,4 @@ bool MessageForwardMapDao::AddForwardMap(const std::shared_ptr<CIM::MySQL>& db,
     }
     return true;
 }
-}  // namespace CIM::dao
+}  // namespace IM::dao

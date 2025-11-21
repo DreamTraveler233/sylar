@@ -1,5 +1,5 @@
-#ifndef __CIM_DS_TIMED_LRU_CACHE_HPP__
-#define __CIM_DS_TIMED_LRU_CACHE_HPP__
+#ifndef __IM_DS_TIMED_LRU_CACHE_HPP__
+#define __IM_DS_TIMED_LRU_CACHE_HPP__
 
 #include <list>
 #include <set>
@@ -9,7 +9,7 @@
 #include "lock.hpp"
 #include "util.hpp"
 
-namespace CIM::ds {
+namespace IM::ds {
 template <class K, class V, class MutexType = Mutex>
 class TimedLruCache {
    private:
@@ -353,6 +353,6 @@ class HashTimedLruCache {
     CacheStatus m_status;
 };
 
-}  // namespace CIM::ds
+}  // namespace IM::ds
 
-#endif // __CIM_DS_TIMED_LRU_CACHE_HPP__
+#endif // __IM_DS_TIMED_LRU_CACHE_HPP__

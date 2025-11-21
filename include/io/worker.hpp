@@ -6,15 +6,15 @@
  * @note    提供WorkerGroup与WorkerManager等核心调度组件。
  */
 
-#ifndef __CIM_IO_WORKER_HPP__
-#define __CIM_IO_WORKER_HPP__
+#ifndef __IM_IO_WORKER_HPP__
+#define __IM_IO_WORKER_HPP__
 
 #include "base/macro.hpp"
 #include "base/singleton.hpp"
 #include "io/iomanager.hpp"
 #include "io/lock.hpp"
 
-namespace CIM {
+namespace IM {
 
 /**
      * @class   WorkerGroup
@@ -127,8 +127,8 @@ class WorkerManager {
         if (s) {
             s->schedule(fc, thread);
         } else {
-            static Logger::ptr s_logger = CIM_LOG_NAME("system");
-            CIM_LOG_ERROR(s_logger) << "schedule name=" << name << " not exists";
+            static Logger::ptr s_logger = IM_LOG_NAME("system");
+            IM_LOG_ERROR(s_logger) << "schedule name=" << name << " not exists";
         }
     }
 
@@ -146,8 +146,8 @@ class WorkerManager {
         if (s) {
             s->schedule(begin, end);
         } else {
-            static Logger::ptr s_logger = CIM_LOG_NAME("system");
-            CIM_LOG_ERROR(s_logger) << "schedule name=" << name << " not exists";
+            static Logger::ptr s_logger = IM_LOG_NAME("system");
+            IM_LOG_ERROR(s_logger) << "schedule name=" << name << " not exists";
         }
     }
 
@@ -200,6 +200,6 @@ class WorkerManager {
      */
 using WorkerMgr = Singleton<WorkerManager>;
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_IO_WORKER_HPP__
+#endif // __IM_IO_WORKER_HPP__

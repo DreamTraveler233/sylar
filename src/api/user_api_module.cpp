@@ -9,28 +9,28 @@
 #include "system/application.hpp"
 #include "util/util.hpp"
 
-namespace CIM::api {
+namespace IM::api {
 
-static auto g_logger = CIM_LOG_NAME("root");
+static auto g_logger = IM_LOG_NAME("root");
 
 UserApiModule::UserApiModule() : Module("api.user", "0.1.0", "builtin") {}
 
 bool UserApiModule::onServerReady() {
-    std::vector<CIM::TcpServer::ptr> httpServers;
-    if (!CIM::Application::GetInstance()->getServer("http", httpServers)) {
-        CIM_LOG_WARN(g_logger) << "no http servers found when registering user routes";
+    std::vector<IM::TcpServer::ptr> httpServers;
+    if (!IM::Application::GetInstance()->getServer("http", httpServers)) {
+        IM_LOG_WARN(g_logger) << "no http servers found when registering user routes";
         return true;
     }
 
     for (auto& s : httpServers) {
-        auto http = std::dynamic_pointer_cast<CIM::http::HttpServer>(s);
+        auto http = std::dynamic_pointer_cast<IM::http::HttpServer>(s);
         if (!http) continue;
         auto dispatch = http->getServletDispatch();
 
         /*用户相关接口*/
         dispatch->addServlet("/api/v1/user/detail",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  auto uid_result = GetUidFromToken(req, res);
@@ -41,7 +41,7 @@ bool UserApiModule::onServerReady() {
                                  }
 
                                  /*根据用户 ID 加载用户信息*/
-                                 auto result = CIM::app::UserService::LoadUserInfo(uid_result.data);
+                                 auto result = IM::app::UserService::LoadUserInfo(uid_result.data);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -64,8 +64,8 @@ bool UserApiModule::onServerReady() {
 
         /*用户信息更新接口*/
         dispatch->addServlet("/api/v1/user/detail-update",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  auto uid_result = GetUidFromToken(req, res);
@@ -79,16 +79,16 @@ bool UserApiModule::onServerReady() {
                                  std::string nickname, avatar, motto, birthday;
                                  uint32_t gender;
                                  Json::Value body;
-                                 if (CIM::ParseBody(req->getBody(), body)) {
-                                     nickname = CIM::JsonUtil::GetString(body, "nickname");
-                                     avatar = CIM::JsonUtil::GetString(body, "avatar");
-                                     motto = CIM::JsonUtil::GetString(body, "motto");
-                                     gender = CIM::JsonUtil::GetUint32(body, "gender");
-                                     birthday = CIM::JsonUtil::GetString(body, "birthday");
+                                 if (IM::ParseBody(req->getBody(), body)) {
+                                     nickname = IM::JsonUtil::GetString(body, "nickname");
+                                     avatar = IM::JsonUtil::GetString(body, "avatar");
+                                     motto = IM::JsonUtil::GetString(body, "motto");
+                                     gender = IM::JsonUtil::GetUint32(body, "gender");
+                                     birthday = IM::JsonUtil::GetString(body, "birthday");
                                  }
 
                                  /*更新用户信息*/
-                                 auto result = CIM::app::UserService::UpdateUserInfo(
+                                 auto result = IM::app::UserService::UpdateUserInfo(
                                      uid_result.data, nickname, avatar, motto, gender, birthday);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
@@ -102,17 +102,17 @@ bool UserApiModule::onServerReady() {
 
         /*用户邮箱更新接口*/
         dispatch->addServlet("/api/v1/user/email-update",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr) {
                                  res->setHeader("Content-Type", "application/json");
                                  res->setBody(Ok());
                                  return 0;
                              });
 
         /*用户手机更新接口*/
-        dispatch->addServlet("/api/v1/user/mobile-update", [](CIM::http::HttpRequest::ptr req,
-                                                              CIM::http::HttpResponse::ptr res,
-                                                              CIM::http::HttpSession::ptr) {
+        dispatch->addServlet("/api/v1/user/mobile-update", [](IM::http::HttpRequest::ptr req,
+                                                              IM::http::HttpResponse::ptr res,
+                                                              IM::http::HttpSession::ptr) {
             res->setHeader("Content-Type", "application/json");
 
             auto uid_result = GetUidFromToken(req, res);
@@ -124,14 +124,14 @@ bool UserApiModule::onServerReady() {
 
             std::string new_mobile, password, sms_code;
             Json::Value body;
-            if (CIM::ParseBody(req->getBody(), body)) {
-                new_mobile = CIM::JsonUtil::GetString(body, "mobile");
-                password = CIM::JsonUtil::GetString(body, "password");
-                sms_code = CIM::JsonUtil::GetString(body, "sms_code");
+            if (IM::ParseBody(req->getBody(), body)) {
+                new_mobile = IM::JsonUtil::GetString(body, "mobile");
+                password = IM::JsonUtil::GetString(body, "password");
+                sms_code = IM::JsonUtil::GetString(body, "sms_code");
             }
 
             auto sms_result =
-                CIM::app::CommonService::VerifySmsCode(new_mobile, sms_code, "mobile_update");
+                IM::app::CommonService::VerifySmsCode(new_mobile, sms_code, "mobile_update");
             if (!sms_result.ok) {
                 res->setStatus(ToHttpStatus(sms_result.code));
                 res->setBody(Error(sms_result.code, sms_result.err));
@@ -139,7 +139,7 @@ bool UserApiModule::onServerReady() {
             }
 
             auto update_result =
-                CIM::app::UserService::UpdateMobile(uid_result.data, password, new_mobile);
+                IM::app::UserService::UpdateMobile(uid_result.data, password, new_mobile);
             if (!update_result.ok) {
                 res->setStatus(ToHttpStatus(update_result.code));
                 res->setBody(Error(update_result.code, update_result.err));
@@ -151,16 +151,16 @@ bool UserApiModule::onServerReady() {
         });
 
         /*用户密码更新接口*/
-        dispatch->addServlet("/api/v1/user/password-update", [](CIM::http::HttpRequest::ptr req,
-                                                                CIM::http::HttpResponse::ptr res,
-                                                                CIM::http::HttpSession::ptr) {
+        dispatch->addServlet("/api/v1/user/password-update", [](IM::http::HttpRequest::ptr req,
+                                                                IM::http::HttpResponse::ptr res,
+                                                                IM::http::HttpSession::ptr) {
             res->setHeader("Content-Type", "application/json");
 
             std::string old_password, new_password;
             Json::Value body;
-            if (CIM::ParseBody(req->getBody(), body)) {
-                old_password = CIM::JsonUtil::GetString(body, "old_password");
-                new_password = CIM::JsonUtil::GetString(body, "new_password");
+            if (IM::ParseBody(req->getBody(), body)) {
+                old_password = IM::JsonUtil::GetString(body, "old_password");
+                new_password = IM::JsonUtil::GetString(body, "new_password");
             }
 
             auto uid_result = GetUidFromToken(req, res);
@@ -171,7 +171,7 @@ bool UserApiModule::onServerReady() {
             }
 
             auto result =
-                CIM::app::UserService::UpdatePassword(uid_result.data, old_password, new_password);
+                IM::app::UserService::UpdatePassword(uid_result.data, old_password, new_password);
             if (!result.ok) {
                 res->setStatus(ToHttpStatus(result.code));
                 res->setBody(Error(result.code, result.err));
@@ -182,20 +182,20 @@ bool UserApiModule::onServerReady() {
             return 0;
         });
 
-        dispatch->addServlet("/api/v1/user/setting/save", [](CIM::http::HttpRequest::ptr req,
-                                                             CIM::http::HttpResponse::ptr res,
-                                                             CIM::http::HttpSession::ptr) {
+        dispatch->addServlet("/api/v1/user/setting/save", [](IM::http::HttpRequest::ptr req,
+                                                             IM::http::HttpResponse::ptr res,
+                                                             IM::http::HttpSession::ptr) {
             res->setHeader("Content-Type", "application/json");
 
             std::string theme_mode, theme_bag_img, theme_color, notify_cue_tone,
                 keyboard_event_notify;
             Json::Value body;
-            if (CIM::ParseBody(req->getBody(), body)) {
-                theme_mode = CIM::JsonUtil::GetString(body, "theme_mode");
-                theme_bag_img = CIM::JsonUtil::GetString(body, "theme_bag_img");
-                theme_color = CIM::JsonUtil::GetString(body, "theme_color");
-                notify_cue_tone = CIM::JsonUtil::GetString(body, "notify_cue_tone");
-                keyboard_event_notify = CIM::JsonUtil::GetString(body, "keyboard_event_notify");
+            if (IM::ParseBody(req->getBody(), body)) {
+                theme_mode = IM::JsonUtil::GetString(body, "theme_mode");
+                theme_bag_img = IM::JsonUtil::GetString(body, "theme_bag_img");
+                theme_color = IM::JsonUtil::GetString(body, "theme_color");
+                notify_cue_tone = IM::JsonUtil::GetString(body, "notify_cue_tone");
+                keyboard_event_notify = IM::JsonUtil::GetString(body, "keyboard_event_notify");
             }
 
             auto uid_result = GetUidFromToken(req, res);
@@ -205,7 +205,7 @@ bool UserApiModule::onServerReady() {
                 return 0;
             }
 
-            auto save_result = CIM::app::UserService::SaveConfigInfo(
+            auto save_result = IM::app::UserService::SaveConfigInfo(
                 uid_result.data, theme_mode, theme_bag_img, theme_color, notify_cue_tone,
                 keyboard_event_notify);
             if (!save_result.ok) {
@@ -219,9 +219,9 @@ bool UserApiModule::onServerReady() {
         });
 
         /*用户设置接口*/
-        dispatch->addServlet("/api/v1/user/setting", [](CIM::http::HttpRequest::ptr req,
-                                                        CIM::http::HttpResponse::ptr res,
-                                                        CIM::http::HttpSession::ptr) {
+        dispatch->addServlet("/api/v1/user/setting", [](IM::http::HttpRequest::ptr req,
+                                                        IM::http::HttpResponse::ptr res,
+                                                        IM::http::HttpSession::ptr) {
             res->setHeader("Content-Type", "application/json");
 
             auto uid_result = GetUidFromToken(req, res);
@@ -232,7 +232,7 @@ bool UserApiModule::onServerReady() {
             }
 
             // 加载用户信息简版
-            auto user_info_result = CIM::app::UserService::LoadUserInfoSimple(uid_result.data);
+            auto user_info_result = IM::app::UserService::LoadUserInfoSimple(uid_result.data);
             if (!user_info_result.ok) {
                 res->setStatus(ToHttpStatus(user_info_result.code));
                 res->setBody(Error(user_info_result.code, user_info_result.err));
@@ -240,7 +240,7 @@ bool UserApiModule::onServerReady() {
             }
 
             // 加载用户设置
-            auto config_info_result = CIM::app::UserService::LoadConfigInfo(uid_result.data);
+            auto config_info_result = IM::app::UserService::LoadConfigInfo(uid_result.data);
             if (!config_info_result.ok) {
                 res->setStatus(ToHttpStatus(config_info_result.code));
                 res->setBody(Error(config_info_result.code, config_info_result.err));
@@ -272,4 +272,4 @@ bool UserApiModule::onServerReady() {
     return true;
 }
 
-}  // namespace CIM::api
+}  // namespace IM::api

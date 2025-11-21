@@ -3,8 +3,8 @@
 #include "base/macro.hpp"
 #include "orm/orm_util.hpp"
 
-namespace CIM::orm {
-static Logger::ptr g_logger = CIM_LOG_NAME("orm");
+namespace IM::orm {
+static Logger::ptr g_logger = IM_LOG_NAME("orm");
 
 Column::Type Column::ParseType(const std::string& v) {
 #define XX(a, b, c)       \
@@ -166,7 +166,7 @@ std::string Column::getDefaultValueString() {
     if (m_default == "current_timestamp") {
         return "time(0)";
     }
-    return "CIM::Str2Time(\"" + m_default + "\")";
+    return "IM::Str2Time(\"" + m_default + "\")";
 }
 
 std::string Column::getSQLite3Default() {
@@ -190,19 +190,19 @@ std::string Column::getSQLite3Default() {
 
 bool Column::init(const tinyxml2::XMLElement& node) {
     if (!node.Attribute("name")) {
-        CIM_LOG_ERROR(g_logger) << "column name not exists";
+        IM_LOG_ERROR(g_logger) << "column name not exists";
         return false;
     }
     m_name = node.Attribute("name");
 
     if (!node.Attribute("type")) {
-        CIM_LOG_ERROR(g_logger) << "column name=" << m_name << " type is null";
+        IM_LOG_ERROR(g_logger) << "column name=" << m_name << " type is null";
         return false;
     }
     m_type = node.Attribute("type");
     m_dtype = ParseType(m_type);
     if (m_dtype == TYPE_NULL) {
-        CIM_LOG_ERROR(g_logger) << "column name=" << m_name << " type=" << m_type
+        IM_LOG_ERROR(g_logger) << "column name=" << m_name << " type=" << m_type
                                 << " type is invalid";
         return false;
     }
@@ -257,4 +257,4 @@ std::string Column::getSetFunDefine() const {
     return ss.str();
 }
 
-}  // namespace CIM::orm
+}  // namespace IM::orm

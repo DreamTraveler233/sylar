@@ -3,7 +3,7 @@
 
 void test(const std::string &str)
 {
-    CIM::Uri::ptr uri = CIM::Uri::Create(str);
+    IM::Uri::ptr uri = IM::Uri::Create(str);
     std::cout << uri->toString() << std::endl;
     auto addr = uri->createAddress();
     std::cout << *addr << std::endl;
@@ -11,9 +11,9 @@ void test(const std::string &str)
 
 int main(int argc, char **argv)
 {
-    test("http://www.CIM.top/test/uri?id=100&name=CIM#frg");
-    test("http://admin@www.CIM.top/test/中文/uri?id=100&name=CIM&vv=中文#frg中文");
-    test("http://admin@www.CIM.top");
+    test("http://www.IM.top/test/uri?id=100&name=IM#frg");
+    test("http://admin@www.IM.top/test/中文/uri?id=100&name=IM&vv=中文#frg中文");
+    test("http://admin@www.IM.top");
     test("https://www.baidu.com");
     return 0;
 }

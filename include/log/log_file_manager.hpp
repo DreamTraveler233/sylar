@@ -14,8 +14,8 @@
  * 通过getSingleton获取单例对象，然后使用getLogFile获取或创建日志文件对象。
  */
 
-#ifndef __CIM_LOG_LOG_FILE_MANAGER_HPP__
-#define __CIM_LOG_LOG_FILE_MANAGER_HPP__
+#ifndef __IM_LOG_LOG_FILE_MANAGER_HPP__
+#define __IM_LOG_LOG_FILE_MANAGER_HPP__
 
 #include <memory>
 #include <string>
@@ -27,7 +27,7 @@
 #include "base/singleton.hpp"
 #include "io/timer.hpp"
 
-namespace CIM {
+namespace IM {
 class LogFileManager : public Singleton<LogFileManager> {
    public:
     using ptr = std::shared_ptr<LogFileManager>;
@@ -110,6 +110,6 @@ class LogFileManager : public Singleton<LogFileManager> {
     Timer::ptr m_timer;                                    //!< 定时器，用于定时检查是否需要轮转
     bool m_isInit;                                         //!< 是否已初始化标志
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_LOG_LOG_FILE_MANAGER_HPP__
+#endif // __IM_LOG_LOG_FILE_MANAGER_HPP__

@@ -1,5 +1,5 @@
-#ifndef __CIM_APP_CONTACT_SERVICE_HPP__
-#define __CIM_APP_CONTACT_SERVICE_HPP__
+#ifndef __IM_APP_CONTACT_SERVICE_HPP__
+#define __IM_APP_CONTACT_SERVICE_HPP__
 
 #include "dao/contact_apply_dao.hpp"
 #include "dao/contact_dao.hpp"
@@ -7,7 +7,7 @@
 #include "dao/user_dao.hpp"
 #include "result.hpp"
 
-namespace CIM::app {
+namespace IM::app {
 
 class ContactService {
    public:
@@ -57,6 +57,6 @@ class ContactService {
                                          const uint64_t group_id);
 };
 
-}  // namespace CIM::app
+}  // namespace IM::app
 
-#endif  // __CIM_APP_CONTACT_SERVICE_HPP__
+#endif  // __IM_APP_CONTACT_SERVICE_HPP__

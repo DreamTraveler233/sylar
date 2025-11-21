@@ -4,13 +4,13 @@
 #include "net/byte_array.hpp"
 #include "net/address.hpp"
 
-static CIM::Logger::ptr g_logger = CIM_LOG_ROOT();
+static IM::Logger::ptr g_logger = IM_LOG_ROOT();
 
-class EchoServer : public CIM::TcpServer
+class EchoServer : public IM::TcpServer
 {
 public:
     EchoServer(int type);
-    void handleClient(CIM::Socket::ptr client);
+    void handleClient(IM::Socket::ptr client);
 
 private:
     int m_type = 0;
@@ -21,10 +21,10 @@ EchoServer::EchoServer(int type)
 {
 }
 
-void EchoServer::handleClient(CIM::Socket::ptr client)
+void EchoServer::handleClient(IM::Socket::ptr client)
 {
-    CIM_LOG_INFO(g_logger) << "handleClient " << *client;
-    CIM::ByteArray::ptr ba(new CIM::ByteArray);
+    IM_LOG_INFO(g_logger) << "handleClient " << *client;
+    IM::ByteArray::ptr ba(new IM::ByteArray);
     while (true)
     {
         ba->clear();
@@ -34,19 +34,19 @@ void EchoServer::handleClient(CIM::Socket::ptr client)
         int rt = client->recv(&iovs[0], iovs.size());
         if (rt == 0)
         {
-            CIM_LOG_INFO(g_logger) << "client close: " << *client;
+            IM_LOG_INFO(g_logger) << "client close: " << *client;
             break;
         }
         else if (rt < 0)
         {
-            CIM_LOG_INFO(g_logger) << "client error rt=" << rt
+            IM_LOG_INFO(g_logger) << "client error rt=" << rt
                                      << " errno=" << errno << " errstr=" << strerror(errno);
             break;
         }
         // 更新实际数据
         ba->setPosition(ba->getPosition() + rt);
         ba->setPosition(0);
-        // CIM_LOG_INFO(g_logger) << "recv rt=" << rt << " data=" << std::string((char *)iovs[0].iov_base, rt);
+        // IM_LOG_INFO(g_logger) << "recv rt=" << rt << " data=" << std::string((char *)iovs[0].iov_base, rt);
         if (m_type == 1)
         { // text
             std::cout << ba->toString() << std::endl;
@@ -62,9 +62,9 @@ int type = 1;
 
 void run()
 {
-    CIM_LOG_INFO(g_logger) << "server type=" << type;
+    IM_LOG_INFO(g_logger) << "server type=" << type;
     EchoServer::ptr es(new EchoServer(type));
-    auto addr = CIM::Address::LookupAny("0.0.0.0:8020");
+    auto addr = IM::Address::LookupAny("0.0.0.0:8020");
     while (!es->bind(addr))
     {
         sleep(2);
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
 {
     if (argc < 2)
     {
-        CIM_LOG_INFO(g_logger) << "used as[" << argv[0] << " -t] or [" << argv[0] << " -b]";
+        IM_LOG_INFO(g_logger) << "used as[" << argv[0] << " -t] or [" << argv[0] << " -b]";
         return 0;
     }
 
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
         type = 2;
     }
 
-    CIM::IOManager iom(2);
+    IM::IOManager iom(2);
     iom.schedule(run);
     return 0;
 }

@@ -1,5 +1,5 @@
-#ifndef __CIM_COMMON_COMMON_HPP__
-#define __CIM_COMMON_COMMON_HPP__
+#ifndef __IM_COMMON_COMMON_HPP__
+#define __IM_COMMON_COMMON_HPP__
 
 #include <jsoncpp/json/json.h>
 
@@ -8,11 +8,11 @@
 #include "app/result.hpp"
 #include "http/http.hpp"
 
-namespace CIM {
+namespace IM {
 
-using TokenResult = CIM::app::Result<std::string>;
-using UidResult = CIM::app::Result<uint64_t>;
-using PasswordResult = CIM::app::Result<std::string>;
+using TokenResult = IM::app::Result<std::string>;
+using UidResult = IM::app::Result<uint64_t>;
+using PasswordResult = IM::app::Result<std::string>;
 
 /* 构造成功响应的JSON字符串 */
 std::string Ok(const Json::Value& data = Json::Value(Json::objectValue));
@@ -33,14 +33,14 @@ bool VerifyJwt(const std::string& token, std::string* out_uid = nullptr);
 bool IsJwtExpired(const std::string& token);
 
 // 从请求中提取 uid
-UidResult GetUidFromToken(CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res);
+UidResult GetUidFromToken(IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res);
 
 // 将密码解密成明文
 PasswordResult DecryptPassword(const std::string& encrypted_password, std::string& out_plaintext);
 
 // 根据错误码返回对应的 HTTP 状态码
-CIM::http::HttpStatus ToHttpStatus(const int code);
+IM::http::HttpStatus ToHttpStatus(const int code);
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif  // __CIM_COMMON_COMMON_HPP__
+#endif  // __IM_COMMON_COMMON_HPP__

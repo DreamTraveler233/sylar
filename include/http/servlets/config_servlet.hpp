@@ -1,9 +1,9 @@
-#ifndef __CIM_HTTP_SERVLETS_CONFIG_SERVLET_HPP__
-#define __CIM_HTTP_SERVLETS_CONFIG_SERVLET_HPP__
+#ifndef __IM_HTTP_SERVLETS_CONFIG_SERVLET_HPP__
+#define __IM_HTTP_SERVLETS_CONFIG_SERVLET_HPP__
 
 #include "http/http_servlet.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 
 class ConfigServlet : public Servlet {
    public:
@@ -12,6 +12,6 @@ class ConfigServlet : public Servlet {
                            HttpSession::ptr session) override;
 };
 
-}  // namespace CIM::http
+}  // namespace IM::http
 
-#endif // __CIM_HTTP_SERVLETS_CONFIG_SERVLET_HPP__
+#endif // __IM_HTTP_SERVLETS_CONFIG_SERVLET_HPP__

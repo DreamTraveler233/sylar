@@ -1,5 +1,5 @@
-#ifndef __CIM_DAO_MESSAGE_DAO_HPP__
-#define __CIM_DAO_MESSAGE_DAO_HPP__
+#ifndef __IM_DAO_MESSAGE_DAO_HPP__
+#define __IM_DAO_MESSAGE_DAO_HPP__
 
 #include <cstdint>
 #include <ctime>
@@ -9,7 +9,7 @@
 
 #include "db/mysql.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 // 消息主表实体（im_message）
 struct Message {
@@ -55,7 +55,7 @@ class MessageDao {
    public:
     // 创建消息（写入 im_message）；不包含转发/已读/提及等附表逻辑。
     // 说明：sequence 需由 TalkSequenceDao 保证递增并在外层事务中调用本方法。
-    static bool Create(const std::shared_ptr<CIM::MySQL>& db, const Message& m,
+    static bool Create(const std::shared_ptr<IM::MySQL>& db, const Message& m,
                        std::string* err = nullptr);
 
     // 根据消息ID查询。
@@ -75,7 +75,7 @@ class MessageDao {
                                          std::string* err = nullptr);
 
     // 与 ListRecentDesc 功能类似
-    static bool ListRecentDescWithFilter(const std::shared_ptr<CIM::MySQL>& db,
+    static bool ListRecentDescWithFilter(const std::shared_ptr<IM::MySQL>& db,
                                          const uint64_t talk_id, const uint64_t anchor_seq,
                                          const size_t limit, const uint64_t user_id,
                                          const uint16_t msg_type, std::vector<Message>& out,
@@ -94,17 +94,17 @@ class MessageDao {
                                    std::vector<Message>& out, std::string* err = nullptr);
 
     // 撤回消息（状态置 1），仅当当前状态为正常(2)。
-    static bool Revoke(const std::shared_ptr<CIM::MySQL>& db, const std::string& msg_id,
+    static bool Revoke(const std::shared_ptr<IM::MySQL>& db, const std::string& msg_id,
                        const uint64_t user_id, std::string* err = nullptr);
 
     // 硬删除会话下的所有消息
-    static bool DeleteByTalkId(const std::shared_ptr<CIM::MySQL>& db, const uint64_t talk_id,
+    static bool DeleteByTalkId(const std::shared_ptr<IM::MySQL>& db, const uint64_t talk_id,
                                std::string* err = nullptr);
     // 更新消息的发送状态（用于标记失败/成功等）
-    static bool SetStatus(const std::shared_ptr<CIM::MySQL>& db, const std::string& msg_id,
+    static bool SetStatus(const std::shared_ptr<IM::MySQL>& db, const std::string& msg_id,
                           uint8_t status, std::string* err = nullptr);
 };
 
-}  // namespace CIM::dao
+}  // namespace IM::dao
 
-#endif  // __CIM_DAO_MESSAGE_DAO_HPP__
+#endif  // __IM_DAO_MESSAGE_DAO_HPP__

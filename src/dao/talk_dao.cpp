@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-namespace CIM::dao {
+namespace IM::dao {
 
 static constexpr const char* kDBName = "default";
 
@@ -18,7 +18,7 @@ inline void order_pair(uint64_t a, uint64_t b, uint64_t& mn, uint64_t& mx) {
 }
 }  // namespace
 
-bool TalkDao::findOrCreateSingleTalk(const std::shared_ptr<CIM::MySQL>& db, uint64_t uid1,
+bool TalkDao::findOrCreateSingleTalk(const std::shared_ptr<IM::MySQL>& db, uint64_t uid1,
                                      uint64_t uid2, uint64_t& out_talk_id, std::string* err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
@@ -45,7 +45,7 @@ bool TalkDao::findOrCreateSingleTalk(const std::shared_ptr<CIM::MySQL>& db, uint
     return true;
 }
 
-bool TalkDao::findOrCreateGroupTalk(const std::shared_ptr<CIM::MySQL>& db, uint64_t group_id,
+bool TalkDao::findOrCreateGroupTalk(const std::shared_ptr<IM::MySQL>& db, uint64_t group_id,
                                     uint64_t& out_talk_id, std::string* err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
@@ -71,7 +71,7 @@ bool TalkDao::findOrCreateGroupTalk(const std::shared_ptr<CIM::MySQL>& db, uint6
 
 bool TalkDao::getSingleTalkId(const uint64_t uid1, const uint64_t uid2, uint64_t& out_talk_id,
                               std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -102,7 +102,7 @@ bool TalkDao::getSingleTalkId(const uint64_t uid1, const uint64_t uid2, uint64_t
 }
 
 bool TalkDao::getGroupTalkId(const uint64_t group_id, uint64_t& out_talk_id, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -128,4 +128,4 @@ bool TalkDao::getGroupTalkId(const uint64_t group_id, uint64_t& out_talk_id, std
     return true;
 }
 
-}  // namespace CIM::dao
+}  // namespace IM::dao

@@ -2,12 +2,12 @@
 
 #include "db/mysql.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 static constexpr const char* kDBName = "default";
 
 bool MessageReadDao::MarkRead(const std::string& msg_id, const uint64_t user_id, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -30,7 +30,7 @@ bool MessageReadDao::MarkRead(const std::string& msg_id, const uint64_t user_id,
 
 bool MessageReadDao::MarkReadByTalk(const uint64_t talk_id, const uint64_t user_id,
                                     std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -52,4 +52,4 @@ bool MessageReadDao::MarkReadByTalk(const uint64_t talk_id, const uint64_t user_
     }
     return true;
 }
-}  // namespace CIM::dao
+}  // namespace IM::dao

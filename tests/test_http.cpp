@@ -2,21 +2,21 @@
 #include "base/macro.hpp"
 #include <iostream>
 
-static auto g_logger = CIM_LOG_ROOT();
+static auto g_logger = IM_LOG_ROOT();
 
 void test_request()
 {
-    CIM::http::HttpRequest::ptr req(new CIM::http::HttpRequest);
+    IM::http::HttpRequest::ptr req(new IM::http::HttpRequest);
     req->setHeader("host", "www.baidu.com");
     std::cout << req->toString() << std::endl;
 }
 
 void test_response()
 {
-    CIM::http::HttpResponse::ptr req(new CIM::http::HttpResponse);
-    req->setHeader("X-X", "CIM");
+    IM::http::HttpResponse::ptr req(new IM::http::HttpResponse);
+    req->setHeader("X-X", "IM");
     req->setBody("hello world");
-    req->setStatus((CIM::http::HttpStatus)404);
+    req->setStatus((IM::http::HttpStatus)404);
     req->setClose(false);
     std::cout << req->toString() << std::endl;
 }

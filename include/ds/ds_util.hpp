@@ -1,5 +1,5 @@
-#ifndef __CIM_DS_DS_UTIL_HPP__
-#define __CIM_DS_DS_UTIL_HPP__
+#ifndef __IM_DS_DS_UTIL_HPP__
+#define __IM_DS_DS_UTIL_HPP__
 
 #include <math.h>
 
@@ -8,7 +8,7 @@
 #include "util/hash_util.hpp"
 #include "util/util.hpp"
 
-namespace CIM::ds {
+namespace IM::ds {
 template <class T, uint32_t seed = 1009150517>
 class Murmur3Hash {
    public:
@@ -218,6 +218,6 @@ void SortLast(const T& data, const int& size) {
     }
 }
 
-}  // namespace CIM::ds
+}  // namespace IM::ds
 
-#endif // __CIM_DS_DS_UTIL_HPP__
+#endif // __IM_DS_DS_UTIL_HPP__

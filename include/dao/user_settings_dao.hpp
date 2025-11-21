@@ -1,11 +1,11 @@
-#ifndef __CIM_DAO_USER_SETTINGS_DAO_HPP__
-#define __CIM_DAO_USER_SETTINGS_DAO_HPP__
+#ifndef __IM_DAO_USER_SETTINGS_DAO_HPP__
+#define __IM_DAO_USER_SETTINGS_DAO_HPP__
 
 #include <cstdint>
 #include <ctime>
 #include <string>
 
-namespace CIM::dao {
+namespace IM::dao {
 
 struct UserSettings {
     uint64_t user_id = 0;                     // 用户ID，外键关联users.id
@@ -35,6 +35,6 @@ class UserSettingsDAO {
     static bool GetConfigInfo(uint64_t user_id, ConfigInfo& out, std::string* err = nullptr);
 };
 
-}  // namespace CIM::dao
+}  // namespace IM::dao
 
-#endif // __CIM_DAO_USER_SETTINGS_DAO_HPP__
+#endif // __IM_DAO_USER_SETTINGS_DAO_HPP__

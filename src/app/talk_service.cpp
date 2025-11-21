@@ -6,9 +6,9 @@
 #include "dao/talk_session_dao.hpp"
 #include "dao/user_dao.hpp"
 
-namespace CIM::app {
+namespace IM::app {
 
-static auto g_logger = CIM_LOG_NAME("root");
+static auto g_logger = IM_LOG_NAME("root");
 static constexpr const char* kDBName = "default";
 
 TalkSessionListResult TalkService::getSessionListByUserId(const uint64_t user_id) {
@@ -17,7 +17,7 @@ TalkSessionListResult TalkService::getSessionListByUserId(const uint64_t user_id
 
     if (!dao::TalkSessionDAO::getSessionListByUserId(user_id, result.data, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "TalkService::getSessionListByUserId failed, user_id=" << user_id
                 << ", err=" << err;
             result.code = 500;
@@ -37,7 +37,7 @@ VoidResult TalkService::setSessionTop(const uint64_t user_id, const uint64_t to_
 
     if (!dao::TalkSessionDAO::setSessionTop(user_id, to_from_id, talk_mode, action, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "TalkService::setSessionTop failed, to_from_id=" << to_from_id
                 << ", talk_mode=" << talk_mode << ", action=" << action << ", err=" << err;
             result.code = 500;
@@ -57,7 +57,7 @@ VoidResult TalkService::setSessionDisturb(const uint64_t user_id, const uint64_t
 
     if (!dao::TalkSessionDAO::setSessionDisturb(user_id, to_from_id, talk_mode, action, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "TalkService::setSessionDisturb failed, to_from_id=" << to_from_id
                 << ", talk_mode=" << talk_mode << ", action=" << action << ", err=" << err;
             result.code = 500;
@@ -76,9 +76,9 @@ TalkSessionResult TalkService::createSession(const uint64_t user_id, const uint6
     std::string err;
 
     // 1. 开启数据库事务，保证后续操作的原子性
-    auto trans = CIM::MySQLMgr::GetInstance()->openTransaction(kDBName, false);
+    auto trans = IM::MySQLMgr::GetInstance()->openTransaction(kDBName, false);
     if (!trans) {
-        CIM_LOG_ERROR(g_logger) << "createSession openTransaction failed, user_id=" << user_id;
+        IM_LOG_ERROR(g_logger) << "createSession openTransaction failed, user_id=" << user_id;
         result.code = 500;
         result.err = "创建会话失败";
         return result;
@@ -87,7 +87,7 @@ TalkSessionResult TalkService::createSession(const uint64_t user_id, const uint6
     // 2. 获取事务绑定的数据库连接
     auto db = trans->getMySQL();
     if (!db) {
-        CIM_LOG_ERROR(g_logger) << "createSession get transaction connection failed, user_id="
+        IM_LOG_ERROR(g_logger) << "createSession get transaction connection failed, user_id="
                                 << user_id;
         result.code = 500;
         result.err = "创建会话失败";
@@ -102,9 +102,9 @@ TalkSessionResult TalkService::createSession(const uint64_t user_id, const uint6
             result.err = "不能与自己创建单聊会话";
             return result;
         }
-        if (!CIM::dao::TalkDao::findOrCreateSingleTalk(db, user_id, to_from_id, talk_id, &err)) {
+        if (!IM::dao::TalkDao::findOrCreateSingleTalk(db, user_id, to_from_id, talk_id, &err)) {
             trans->rollback();
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "createSession findOrCreateSingleTalk failed, user_id=" << user_id
                 << ", to_from_id=" << to_from_id << ", err=" << err;
             result.code = 500;
@@ -112,9 +112,9 @@ TalkSessionResult TalkService::createSession(const uint64_t user_id, const uint6
             return result;
         }
     } else if (talk_mode == 2) {  // 群聊
-        if (!CIM::dao::TalkDao::findOrCreateGroupTalk(db, to_from_id, talk_id, &err)) {
+        if (!IM::dao::TalkDao::findOrCreateGroupTalk(db, to_from_id, talk_id, &err)) {
             trans->rollback();
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "createSession findOrCreateGroupTalk failed, user_id=" << user_id
                 << ", group_id=" << to_from_id << ", err=" << err;
             result.code = 500;
@@ -128,10 +128,10 @@ TalkSessionResult TalkService::createSession(const uint64_t user_id, const uint6
     }
 
     // 4. 创建/恢复个人会话视图（upsert）
-    CIM::dao::ContactDetails cd;
-    if (!CIM::dao::ContactDAO::GetByOwnerAndTargetWithConn(db, user_id, to_from_id, cd, &err)) {
+    IM::dao::ContactDetails cd;
+    if (!IM::dao::ContactDAO::GetByOwnerAndTargetWithConn(db, user_id, to_from_id, cd, &err)) {
         trans->rollback();  // 回滚事务
-        CIM_LOG_ERROR(g_logger)
+        IM_LOG_ERROR(g_logger)
             << "TalkService::createSession GetByOwnerAndTargetWithConn failed, user_id=" << user_id
             << ", to_from_id=" << to_from_id << ", talk_mode=" << static_cast<int>(talk_mode)
             << ", err=" << err;
@@ -140,7 +140,7 @@ TalkSessionResult TalkService::createSession(const uint64_t user_id, const uint6
         return result;
     }
 
-    CIM::dao::TalkSession session;
+    IM::dao::TalkSession session;
     session.user_id = user_id;
     session.talk_id = talk_id;
     session.to_from_id = to_from_id;
@@ -153,7 +153,7 @@ TalkSessionResult TalkService::createSession(const uint64_t user_id, const uint6
     if (!dao::TalkSessionDAO::createSession(db, session, &err)) {
         trans->rollback();  // 回滚事务
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "TalkService::createSession failed, user_id=" << user_id
                 << ", to_from_id=" << to_from_id << ", talk_mode=" << static_cast<int>(talk_mode)
                 << ", err=" << err;
@@ -167,7 +167,7 @@ TalkSessionResult TalkService::createSession(const uint64_t user_id, const uint6
                                                  &err)) {
         trans->rollback();  // 回滚事务
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "TalkService::createSession getSessionByUserId failed, user_id=" << user_id
                 << ", to_from_id=" << to_from_id << ", talk_mode=" << static_cast<int>(talk_mode)
                 << ", err=" << err;
@@ -181,7 +181,7 @@ TalkSessionResult TalkService::createSession(const uint64_t user_id, const uint6
         // 提交失败也要回滚，保证数据一致性
         const auto commit_err = db->getErrStr();
         trans->rollback();
-        CIM_LOG_ERROR(g_logger) << "TalkService::createSession commit transaction failed, user_id="
+        IM_LOG_ERROR(g_logger) << "TalkService::createSession commit transaction failed, user_id="
                                 << user_id << ", err=" << commit_err;
         result.code = 500;
         result.err = "创建会话失败";
@@ -199,7 +199,7 @@ VoidResult TalkService::deleteSession(const uint64_t user_id, const uint64_t to_
 
     if (!dao::TalkSessionDAO::deleteSession(user_id, to_from_id, talk_mode, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "TalkService::deleteSession failed, user_id=" << user_id
                 << ", to_from_id=" << to_from_id << ", talk_mode=" << talk_mode << ", err=" << err;
             result.code = 500;
@@ -219,7 +219,7 @@ VoidResult TalkService::clearSessionUnreadNum(const uint64_t user_id, const uint
 
     if (!dao::TalkSessionDAO::clearSessionUnreadNum(user_id, to_from_id, talk_mode, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "TalkService::clearSessionUnreadNum failed, user_id=" << user_id
                 << ", to_from_id=" << to_from_id << ", talk_mode=" << talk_mode << ", err=" << err;
             result.code = 500;
@@ -243,4 +243,4 @@ VoidResult TalkService::clearSessionUnreadNum(const uint64_t user_id, const uint
     return result;
 }
 
-}  // namespace CIM::app
+}  // namespace IM::app

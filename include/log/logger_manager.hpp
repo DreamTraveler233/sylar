@@ -1,15 +1,15 @@
 /**
  * @file logger_manager.hpp
  * @brief 日志管理器定义文件
- * @author CIM
+ * @author IM
  * @date 2025-10-21
  *
  * 该文件定义了日志管理器(LoggerManager)及相关配置结构体，
  * 用于统一管理和配置系统中的所有日志记录器(Logger)实例。
  */
 
-#ifndef __CIM_LOG_LOGGER_MANAGER_HPP__
-#define __CIM_LOG_LOGGER_MANAGER_HPP__
+#ifndef __IM_LOG_LOGGER_MANAGER_HPP__
+#define __IM_LOG_LOGGER_MANAGER_HPP__
 
 #include <cstdint>
 #include <map>
@@ -22,7 +22,7 @@
 #include "log_level.hpp"
 #include "base/singleton.hpp"
 
-namespace CIM {
+namespace IM {
 class Logger;
 
 /**
@@ -65,7 +65,7 @@ class LoggerManager {
     MutexType m_mutex;                                         ///< 互斥锁，保证线程安全
 };
 
-using LoggerMgr = CIM::Singleton<LoggerManager>;  ///< 日志管理器单例模式别名
+using LoggerMgr = IM::Singleton<LoggerManager>;  ///< 日志管理器单例模式别名
 
 /**
      * @brief 日志追加器配置项
@@ -120,6 +120,6 @@ struct LogDefine {
          */
     bool operator<(const LogDefine& other) const { return name < other.name; }
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_LOG_LOGGER_MANAGER_HPP__
+#endif // __IM_LOG_LOGGER_MANAGER_HPP__

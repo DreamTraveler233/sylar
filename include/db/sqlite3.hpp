@@ -1,5 +1,5 @@
-#ifndef __CIM_DB_SQLITE3_HPP__
-#define __CIM_DB_SQLITE3_HPP__
+#ifndef __IM_DB_SQLITE3_HPP__
+#define __IM_DB_SQLITE3_HPP__
 
 #include <sqlite3.h>
 
@@ -13,7 +13,7 @@
 #include "base/noncopyable.hpp"
 #include "base/singleton.hpp"
 
-namespace CIM {
+namespace IM {
 class SQLite3Stmt;
 
 namespace {
@@ -305,6 +305,6 @@ XX(double, double);
 #undef XX
 }  // namespace
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_DB_SQLITE3_HPP__
+#endif // __IM_DB_SQLITE3_HPP__

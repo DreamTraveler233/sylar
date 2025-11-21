@@ -4,9 +4,9 @@
 #include "base/macro.hpp"
 #include "http/servlets/status_servlet.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 
-static auto g_logger = CIM_LOG_NAME("system");
+static auto g_logger = IM_LOG_NAME("system");
 
 HttpServer::HttpServer(bool keepalive, IOManager* worker, IOManager* io_worker,
                        IOManager* accept_worker)
@@ -24,15 +24,15 @@ void HttpServer::setName(const std::string& v) {
 }
 
 void HttpServer::handleClient(Socket::ptr client) {
-    CIM_LOG_DEBUG(g_logger) << "handleClient " << *client;
+    IM_LOG_DEBUG(g_logger) << "handleClient " << *client;
     /* 创建 HTTP 会话 */
     HttpSession::ptr session(new HttpSession(client));
     do {
         /* 接收 HTTP 请求 */
-        CIM_LOG_DEBUG(g_logger) << "waiting for http request from " << *client;
+        IM_LOG_DEBUG(g_logger) << "waiting for http request from " << *client;
         auto req = session->recvRequest();
         if (!req) {
-            CIM_LOG_DEBUG(g_logger)
+            IM_LOG_DEBUG(g_logger)
                 << "recv http request fail, errno=" << errno << " errstr=" << strerror(errno)
                 << " cliet:" << *client << " keep_alive=" << m_isKeepalive;
             break;
@@ -53,4 +53,4 @@ void HttpServer::handleClient(Socket::ptr client) {
     session->close();
 }
 
-}  // namespace CIM::http
+}  // namespace IM::http

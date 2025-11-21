@@ -3,8 +3,8 @@
 #include "net/hook.hpp"
 #include "base/macro.hpp"
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
 
 // 当前线程的调度器对象
 static thread_local Scheduler* t_scheduler = nullptr;
@@ -12,14 +12,14 @@ static thread_local Scheduler* t_scheduler = nullptr;
 static thread_local Coroutine* t_coroutine = nullptr;
 
 Scheduler::Scheduler(size_t threads, bool use_caller, const std::string& name) : m_name(name) {
-    CIM_ASSERT(threads > 0);
+    IM_ASSERT(threads > 0);
 
     // 如果使用调用线程，则将当前线程作为调度线程之一
     if (use_caller) {
         Coroutine::GetThis();  // 初始化当前线程的主协程
         --threads;
 
-        CIM_ASSERT(GetThis() == nullptr);  // 当前线程的调度器实例为空
+        IM_ASSERT(GetThis() == nullptr);  // 当前线程的调度器实例为空
         t_scheduler = this;                // 设置当前线程的调度器
 
         // 创建根协程并绑定到当前调度器的run方法
@@ -35,7 +35,7 @@ Scheduler::Scheduler(size_t threads, bool use_caller, const std::string& name) :
 }
 
 Scheduler::~Scheduler() {
-    CIM_ASSERT(!m_isRunning);
+    IM_ASSERT(!m_isRunning);
     if (GetThis() == this) {
         t_scheduler = nullptr;
     }
@@ -69,7 +69,7 @@ void Scheduler::start() {
     }
     m_isRunning = true;
 
-    CIM_ASSERT(m_threads.empty());
+    IM_ASSERT(m_threads.empty());
     m_threads.resize(m_threadCount);  // 提前分配内存
     for (size_t i = 0; i < m_threadCount; ++i) {
         // 创建工作线程，绑定调度器的run方法作为线程执行函数
@@ -88,7 +88,7 @@ void Scheduler::stop() {
     if (m_threadCount == 0 && m_rootCoroutine &&
         (m_rootCoroutine->getState() == Coroutine::State::TERM ||
          m_rootCoroutine->getState() == Coroutine::State::INIT)) {
-        CIM_LOG_INFO(g_logger) << "quick stopped";
+        IM_LOG_INFO(g_logger) << "quick stopped";
         m_isRunning = false;
 
         // 再次确认是否应该停止
@@ -99,9 +99,9 @@ void Scheduler::stop() {
 
     // 根据是否使用调用线程进行断言检查
     if (m_rootThreadId != -1) {
-        CIM_ASSERT(GetThis() == this);
+        IM_ASSERT(GetThis() == this);
     } else {
-        CIM_ASSERT(GetThis() != this);
+        IM_ASSERT(GetThis() != this);
     }
 
     m_isRunning = false;
@@ -110,14 +110,14 @@ void Scheduler::stop() {
     {
         MutexType::Lock lock(m_mutex);
         for (size_t i = 0; i < m_threadCount; ++i) {
-            CIM_LOG_DEBUG(g_logger) << "worker thread tickle";
+            IM_LOG_DEBUG(g_logger) << "worker thread tickle";
             tickle();
         }
     }
 
     // 处理根协程
     if (m_rootCoroutine) {
-        CIM_LOG_DEBUG(g_logger) << "m_rootCoroutine tickle";
+        IM_LOG_DEBUG(g_logger) << "m_rootCoroutine tickle";
         tickle();
 
         // 在调用根协程之前再次检查是否应该停止
@@ -140,9 +140,9 @@ void Scheduler::stop() {
 }
 
 void Scheduler::switchTo(int thread) {
-    CIM_ASSERT(Scheduler::GetThis() != nullptr);
+    IM_ASSERT(Scheduler::GetThis() != nullptr);
     if (Scheduler::GetThis() == this) {
-        if (thread == -1 || thread == CIM::GetThreadId()) {
+        if (thread == -1 || thread == IM::GetThreadId()) {
             return;
         }
     }
@@ -151,7 +151,7 @@ void Scheduler::switchTo(int thread) {
 }
 
 void Scheduler::tickle() {
-    CIM_LOG_INFO(g_logger) << "tickle";
+    IM_LOG_INFO(g_logger) << "tickle";
 }
 
 bool Scheduler::stopping() {
@@ -160,7 +160,7 @@ bool Scheduler::stopping() {
 }
 
 void Scheduler::idle() {
-    CIM_LOG_INFO(g_logger) << "thread idle";
+    IM_LOG_INFO(g_logger) << "thread idle";
     while (!stopping()) {
         Coroutine::YieldToHold();
     }
@@ -168,7 +168,7 @@ void Scheduler::idle() {
 
 void Scheduler::run() {
     // 启动HOOK
-    CIM::set_hook_enable(true);
+    IM::set_hook_enable(true);
 
     setThis();  // 设置当前线程的调度器实例
 
@@ -204,7 +204,7 @@ void Scheduler::run() {
                     continue;
                 }
 
-                CIM_ASSERT(it->coroutine || it->cb);
+                IM_ASSERT(it->coroutine || it->cb);
 
                 // 如果it中保存的是协程，并且正在执行中，则跳过
                 if (it->coroutine && it->coroutine->getState() == Coroutine::State::EXEC) {
@@ -282,7 +282,7 @@ void Scheduler::run() {
 
             // 空闲协程已经执行完毕
             if (idle_coroutine->getState() == Coroutine::State::TERM) {
-                CIM_LOG_INFO(g_logger) << "idle coroutine over";
+                IM_LOG_INFO(g_logger) << "idle coroutine over";
                 break;
             }
 
@@ -325,4 +325,4 @@ std::ostream& Scheduler::dump(std::ostream& os) {
     }
     return os;
 }
-}  // namespace CIM
+}  // namespace IM

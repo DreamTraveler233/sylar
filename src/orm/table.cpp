@@ -5,8 +5,8 @@
 #include "base/macro.hpp"
 #include "orm/orm_util.hpp"
 
-namespace CIM::orm {
-static Logger::ptr g_logger = CIM_LOG_NAME("orm");
+namespace IM::orm {
+static Logger::ptr g_logger = IM_LOG_NAME("orm");
 
 std::string Table::getFilename() const {
     return ToLower(m_name + m_subfix);
@@ -14,13 +14,13 @@ std::string Table::getFilename() const {
 
 bool Table::init(const tinyxml2::XMLElement& node) {
     if (!node.Attribute("name")) {
-        CIM_LOG_ERROR(g_logger) << "table name is null";
+        IM_LOG_ERROR(g_logger) << "table name is null";
         return false;
     }
 
     m_name = node.Attribute("name");
     if (!node.Attribute("namespace")) {
-        CIM_LOG_ERROR(g_logger) << "table namespace is null";
+        IM_LOG_ERROR(g_logger) << "table namespace is null";
         return false;
     }
     m_namespace = node.Attribute("namespace");
@@ -31,13 +31,13 @@ bool Table::init(const tinyxml2::XMLElement& node) {
 
     const tinyxml2::XMLElement* cols = node.FirstChildElement("columns");
     if (!cols) {
-        CIM_LOG_ERROR(g_logger) << "table name=" << m_name << " columns is null";
+        IM_LOG_ERROR(g_logger) << "table name=" << m_name << " columns is null";
         return false;
     }
 
     const tinyxml2::XMLElement* col = cols->FirstChildElement("column");
     if (!col) {
-        CIM_LOG_ERROR(g_logger) << "table name=" << m_name << " column is null";
+        IM_LOG_ERROR(g_logger) << "table name=" << m_name << " column is null";
         return false;
     }
 
@@ -46,11 +46,11 @@ bool Table::init(const tinyxml2::XMLElement& node) {
     do {
         Column::ptr col_ptr(new Column);
         if (!col_ptr->init(*col)) {
-            CIM_LOG_ERROR(g_logger) << "table name=" << m_name << " init column error";
+            IM_LOG_ERROR(g_logger) << "table name=" << m_name << " init column error";
             return false;
         }
         if (col_names.insert(col_ptr->getName()).second == false) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "table name=" << m_name << " column name=" << col_ptr->getName() << " exists";
             return false;
         }
@@ -61,13 +61,13 @@ bool Table::init(const tinyxml2::XMLElement& node) {
 
     const tinyxml2::XMLElement* idxs = node.FirstChildElement("indexs");
     if (!idxs) {
-        CIM_LOG_ERROR(g_logger) << "table name=" << m_name << " indexs is null";
+        IM_LOG_ERROR(g_logger) << "table name=" << m_name << " indexs is null";
         return false;
     }
 
     const tinyxml2::XMLElement* idx = idxs->FirstChildElement("index");
     if (!idx) {
-        CIM_LOG_ERROR(g_logger) << "table name=" << m_name << " index is null";
+        IM_LOG_ERROR(g_logger) << "table name=" << m_name << " index is null";
         return false;
     }
 
@@ -76,18 +76,18 @@ bool Table::init(const tinyxml2::XMLElement& node) {
     do {
         Index::ptr idx_ptr(new Index);
         if (!idx_ptr->init(*idx)) {
-            CIM_LOG_ERROR(g_logger) << "table name=" << m_name << " index init error";
+            IM_LOG_ERROR(g_logger) << "table name=" << m_name << " index init error";
             return false;
         }
         if (idx_names.insert(idx_ptr->getName()).second == false) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "table name=" << m_name << " index name=" << idx_ptr->getName() << " exists";
             return false;
         }
 
         if (idx_ptr->isPK()) {
             if (has_pk) {
-                CIM_LOG_ERROR(g_logger) << "table name=" << m_name << " more than one pk";
+                IM_LOG_ERROR(g_logger) << "table name=" << m_name << " more than one pk";
                 return false;
             }
             has_pk = true;
@@ -96,7 +96,7 @@ bool Table::init(const tinyxml2::XMLElement& node) {
         auto& cnames = idx_ptr->getCols();
         for (auto& x : cnames) {
             if (col_names.count(x) == 0) {
-                CIM_LOG_ERROR(g_logger) << "table name=" << m_name << " idx=" << idx_ptr->getName()
+                IM_LOG_ERROR(g_logger) << "table name=" << m_name << " idx=" << idx_ptr->getName()
                                         << " col=" << x << " not exists";
                 return false;
             }
@@ -232,7 +232,7 @@ void Table::gen_src(const std::string& path) {
     }
 
     ofs << std::endl;
-    ofs << "static Logger::ptr g_logger = CIM_LOG_NAME(\"orm\");" << std::endl;
+    ofs << "static Logger::ptr g_logger = IM_LOG_NAME(\"orm\");" << std::endl;
 
     ofs << std::endl;
     ofs << GetAsClassName(class_name) << "::" << GetAsClassName(class_name) << "()" << std::endl;
@@ -516,7 +516,7 @@ void Table::gen_dao_src(std::ofstream& ofs) {
 #define CHECK_STMT(v)                                                         \
     ofs << "    auto stmt = conn->prepare(sql);" << std::endl;                \
     ofs << "    if(!stmt) {" << std::endl;                                    \
-    ofs << "        CIM_LOG_ERROR(g_logger) << \"stmt=\" << sql" << std::endl \
+    ofs << "        IM_LOG_ERROR(g_logger) << \"stmt=\" << sql" << std::endl \
         << "                 << \" errno=\""                                  \
            " << conn->getErrno() << \" errstr=\" << conn->getErrStr();"       \
         << std::endl                                                          \
@@ -1015,4 +1015,4 @@ void Table::gen_dao_src(std::ofstream& ofs) {
     ofs << "}";
 }
 
-}  // namespace CIM::orm
+}  // namespace IM::orm

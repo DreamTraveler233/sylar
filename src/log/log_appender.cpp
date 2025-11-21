@@ -5,10 +5,10 @@
 #include "base/macro.hpp"
 #include "yaml-cpp/yaml.h"
 
-namespace CIM {
+namespace IM {
 LogAppender::~LogAppender() {}
 void LogAppender::setFormatter(LogFormatter::ptr formatter) {
-    CIM_ASSERT(formatter);
+    IM_ASSERT(formatter);
     MutexType::Lock lock(m_mutex);
     m_formatter = formatter;
 }
@@ -17,7 +17,7 @@ LogFormatter::ptr LogAppender::getFormatter() const {
     return m_formatter;
 }
 void LogAppender::setLevel(Level level) {
-    CIM_ASSERT(level != Level::UNKNOWN);
+    IM_ASSERT(level != Level::UNKNOWN);
     MutexType::Lock lock(m_mutex);
     m_level = level;
 }
@@ -27,7 +27,7 @@ Level LogAppender::getLevel() const {
 }
 
 void StdoutLogAppender::log(LogEvent::ptr event) {
-    CIM_ASSERT(event);
+    IM_ASSERT(event);
     if (event->getLevel() >= m_level) {
         MutexType::Lock lock(m_mutex);
         // 将日志事件（event）格式化后输出到标准输出（cout）
@@ -49,13 +49,13 @@ std::string StdoutLogAppender::toYamlString() {
 }
 
 FileLogAppender::FileLogAppender(const std::string& fileName) {
-    CIM_ASSERT(!fileName.empty())
+    IM_ASSERT(!fileName.empty())
     m_logFile = LogFileManager::GetInstance()->getLogFile(fileName);
     m_logFile->openFile();
 }
 
 void FileLogAppender::log(LogEvent::ptr event) {
-    CIM_ASSERT(event);
+    IM_ASSERT(event);
     if (event->getLevel() >= m_level) {
         MutexType::Lock lock(m_mutex);
         if (m_logFile) {
@@ -99,4 +99,4 @@ std::string FileLogAppender::toYamlString() {
 LogFile::ptr FileLogAppender::getLogFile() const {
     return m_logFile;
 }
-}  // namespace CIM
+}  // namespace IM

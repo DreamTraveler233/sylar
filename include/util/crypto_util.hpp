@@ -1,5 +1,5 @@
-#ifndef __CIM_UTIL_CRYPTO_UTIL_HPP__
-#define __CIM_UTIL_CRYPTO_UTIL_HPP__
+#ifndef __IM_UTIL_CRYPTO_UTIL_HPP__
+#define __IM_UTIL_CRYPTO_UTIL_HPP__
 
 /**
  * @file crypto_util.hpp
@@ -30,7 +30,7 @@
 #include <memory>
 #include <string>
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 对称加密工具（AES 封装）。
      */
@@ -242,6 +242,6 @@ class RSACipher {
     std::string m_prikeyStr;
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_UTIL_CRYPTO_UTIL_HPP__
+#endif // __IM_UTIL_CRYPTO_UTIL_HPP__

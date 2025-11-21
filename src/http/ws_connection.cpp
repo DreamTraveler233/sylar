@@ -2,7 +2,7 @@
 
 #include "util/util.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 WSConnection::WSConnection(Socket::ptr sock, bool owner) : HttpConnection(sock, owner) {}
 
 std::pair<HttpResult::ptr, WSConnection::ptr> WSConnection::Create(
@@ -66,7 +66,7 @@ std::pair<HttpResult::ptr, WSConnection::ptr> WSConnection::Create(
     }
     req->setHeader("Upgrade", "websocket");
     req->setHeader("Sec-webSocket-Version", "13");
-    req->setHeader("Sec-webSocket-Key", CIM::base64encode(random_string(16)));
+    req->setHeader("Sec-webSocket-Key", IM::base64encode(random_string(16)));
     if (!has_host) {
         req->setHeader("Host", uri->getHost());
     }
@@ -122,4 +122,4 @@ int32_t WSConnection::ping() {
 int32_t WSConnection::pong() {
     return WSPong(this);
 }
-}  // namespace CIM::http
+}  // namespace IM::http

@@ -5,8 +5,8 @@
 #include "base/macro.hpp"
 #include "streams/zlib_stream.hpp"
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
 
 static auto g_rock_protocol_max_length = Config::Lookup(
     "rock.protocol.max_length", (uint32_t)(1024 * 1024 * 64), "rock protocol max length");
@@ -53,7 +53,7 @@ bool RockRequest::serializeToByteArray(ByteArray::ptr bytearray) {
         v &= RockBody::serializeToByteArray(bytearray);
         return v;
     } catch (...) {
-        CIM_LOG_ERROR(g_logger) << "RockRequest serializeToByteArray error";
+        IM_LOG_ERROR(g_logger) << "RockRequest serializeToByteArray error";
     }
     return false;
 }
@@ -65,7 +65,7 @@ bool RockRequest::parseFromByteArray(ByteArray::ptr bytearray) {
         v &= RockBody::parseFromByteArray(bytearray);
         return v;
     } catch (...) {
-        CIM_LOG_ERROR(g_logger) << "RockRequest parseFromByteArray error";
+        IM_LOG_ERROR(g_logger) << "RockRequest parseFromByteArray error";
     }
     return false;
 }
@@ -93,7 +93,7 @@ bool RockResponse::serializeToByteArray(ByteArray::ptr bytearray) {
         v &= RockBody::serializeToByteArray(bytearray);
         return v;
     } catch (...) {
-        CIM_LOG_ERROR(g_logger) << "RockResponse serializeToByteArray error";
+        IM_LOG_ERROR(g_logger) << "RockResponse serializeToByteArray error";
     }
     return false;
 }
@@ -105,7 +105,7 @@ bool RockResponse::parseFromByteArray(ByteArray::ptr bytearray) {
         v &= RockBody::parseFromByteArray(bytearray);
         return v;
     } catch (...) {
-        CIM_LOG_ERROR(g_logger) << "RockResponse parseFromByteArray error";
+        IM_LOG_ERROR(g_logger) << "RockResponse parseFromByteArray error";
     }
     return false;
 }
@@ -132,7 +132,7 @@ bool RockNotify::serializeToByteArray(ByteArray::ptr bytearray) {
         v &= RockBody::serializeToByteArray(bytearray);
         return v;
     } catch (...) {
-        CIM_LOG_ERROR(g_logger) << "RockNotify serializeToByteArray error";
+        IM_LOG_ERROR(g_logger) << "RockNotify serializeToByteArray error";
     }
     return false;
 }
@@ -144,7 +144,7 @@ bool RockNotify::parseFromByteArray(ByteArray::ptr bytearray) {
         v &= RockBody::parseFromByteArray(bytearray);
         return v;
     } catch (...) {
-        CIM_LOG_ERROR(g_logger) << "RockNotify parseFromByteArray error";
+        IM_LOG_ERROR(g_logger) << "RockNotify parseFromByteArray error";
     }
     return false;
 }
@@ -157,29 +157,29 @@ Message::ptr RockMessageDecoder::parseFrom(Stream::ptr stream) {
     try {
         RockMsgHeader header;
         if (stream->readFixSize(&header, sizeof(header)) <= 0) {
-            CIM_LOG_ERROR(g_logger) << "RockMessageDecoder decode head error";
+            IM_LOG_ERROR(g_logger) << "RockMessageDecoder decode head error";
             return nullptr;
         }
 
         if (memcmp(header.magic, s_rock_magic, sizeof(s_rock_magic))) {
-            CIM_LOG_ERROR(g_logger) << "RockMessageDecoder head.magic error";
+            IM_LOG_ERROR(g_logger) << "RockMessageDecoder head.magic error";
             return nullptr;
         }
 
         if (header.version != 0x1) {
-            CIM_LOG_ERROR(g_logger) << "RockMessageDecoder head.version != 0x1";
+            IM_LOG_ERROR(g_logger) << "RockMessageDecoder head.version != 0x1";
             return nullptr;
         }
 
         header.length = ntoh(header.length);
         if ((uint32_t)header.length >= g_rock_protocol_max_length->getValue()) {
-            CIM_LOG_ERROR(g_logger) << "RockMessageDecoder head.length(" << header.length
+            IM_LOG_ERROR(g_logger) << "RockMessageDecoder head.length(" << header.length
                                     << ") >=" << g_rock_protocol_max_length->getValue();
             return nullptr;
         }
         ByteArray::ptr ba(new ByteArray);
         if (stream->readFixSize(ba, header.length) <= 0) {
-            CIM_LOG_ERROR(g_logger) << "RockMessageDecoder read body fail length=" << header.length;
+            IM_LOG_ERROR(g_logger) << "RockMessageDecoder read body fail length=" << header.length;
             return nullptr;
         }
 
@@ -187,11 +187,11 @@ Message::ptr RockMessageDecoder::parseFrom(Stream::ptr stream) {
         if (header.flag & 0x1) {  // gizp
             auto zstream = ZlibStream::CreateGzip(false);
             if (zstream->write(ba, -1) != Z_OK) {
-                CIM_LOG_ERROR(g_logger) << "RockMessageDecoder ungzip error";
+                IM_LOG_ERROR(g_logger) << "RockMessageDecoder ungzip error";
                 return nullptr;
             }
             if (zstream->flush() != Z_OK) {
-                CIM_LOG_ERROR(g_logger) << "RockMessageDecoder ungzip flush error";
+                IM_LOG_ERROR(g_logger) << "RockMessageDecoder ungzip flush error";
                 return nullptr;
             }
             ba = zstream->getByteArray();
@@ -209,20 +209,20 @@ Message::ptr RockMessageDecoder::parseFrom(Stream::ptr stream) {
                 msg.reset(new RockNotify);
                 break;
             default:
-                CIM_LOG_ERROR(g_logger) << "RockMessageDecoder invalid type=" << (int)type;
+                IM_LOG_ERROR(g_logger) << "RockMessageDecoder invalid type=" << (int)type;
                 return nullptr;
         }
 
         if (!msg->parseFromByteArray(ba)) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "RockMessageDecoder parseFromByteArray fail type=" << (int)type;
             return nullptr;
         }
         return msg;
     } catch (std::exception& e) {
-        CIM_LOG_ERROR(g_logger) << "RockMessageDecoder except:" << e.what();
+        IM_LOG_ERROR(g_logger) << "RockMessageDecoder except:" << e.what();
     } catch (...) {
-        CIM_LOG_ERROR(g_logger) << "RockMessageDecoder except";
+        IM_LOG_ERROR(g_logger) << "RockMessageDecoder except";
     }
     return nullptr;
 }
@@ -235,11 +235,11 @@ int32_t RockMessageDecoder::serializeTo(Stream::ptr stream, Message::ptr msg) {
     if ((uint32_t)header.length >= g_rock_protocol_gzip_min_length->getValue()) {
         auto zstream = ZlibStream::CreateGzip(true);
         if (zstream->write(ba, -1) != Z_OK) {
-            CIM_LOG_ERROR(g_logger) << "RockMessageDecoder serializeTo gizp error";
+            IM_LOG_ERROR(g_logger) << "RockMessageDecoder serializeTo gizp error";
             return -1;
         }
         if (zstream->flush() != Z_OK) {
-            CIM_LOG_ERROR(g_logger) << "RockMessageDecoder serializeTo gizp flush error";
+            IM_LOG_ERROR(g_logger) << "RockMessageDecoder serializeTo gizp flush error";
             return -2;
         }
 
@@ -249,14 +249,14 @@ int32_t RockMessageDecoder::serializeTo(Stream::ptr stream, Message::ptr msg) {
     }
     header.length = ntoh(header.length);
     if (stream->writeFixSize(&header, sizeof(header)) <= 0) {
-        CIM_LOG_ERROR(g_logger) << "RockMessageDecoder serializeTo write header fail";
+        IM_LOG_ERROR(g_logger) << "RockMessageDecoder serializeTo write header fail";
         return -3;
     }
     if (stream->writeFixSize(ba, ba->getReadSize()) <= 0) {
-        CIM_LOG_ERROR(g_logger) << "RockMessageDecoder serializeTo write body fail";
+        IM_LOG_ERROR(g_logger) << "RockMessageDecoder serializeTo write body fail";
         return -4;
     }
     return sizeof(header) + ba->getDataSize();
 }
 
-}  // namespace CIM
+}  // namespace IM

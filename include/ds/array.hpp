@@ -1,5 +1,5 @@
-#ifndef __CIM_DS_ARRAY_HPP__
-#define __CIM_DS_ARRAY_HPP__
+#ifndef __IM_DS_ARRAY_HPP__
+#define __IM_DS_ARRAY_HPP__
 
 #include <stdint.h>
 
@@ -8,7 +8,7 @@
 
 #include "util.hpp"
 
-namespace CIM::ds {
+namespace IM::ds {
 template <class T>
 class Array {
    public:
@@ -209,6 +209,6 @@ class Array {
     T* m_data;
 };
 
-}  // namespace CIM::ds
+}  // namespace IM::ds
 
-#endif // __CIM_DS_ARRAY_HPP__
+#endif // __IM_DS_ARRAY_HPP__

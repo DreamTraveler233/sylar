@@ -5,7 +5,7 @@
 
 #include "util/string_util.hpp"
 
-namespace CIM {
+namespace IM {
 bool StringUtil::StartsWith(const std::string& str, const std::string& sub) {
     // 如果字串为空，直接返回 true
     if (sub.empty()) {
@@ -520,4 +520,4 @@ std::wstring StringUtil::StringToWString(const std::string& s) {
     setlocale(LC_ALL, str_locale.c_str());
     return wstr_result;
 }
-}  // namespace CIM
+}  // namespace IM

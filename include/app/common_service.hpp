@@ -1,5 +1,5 @@
-#ifndef __CIM_APP_COMMON_SERVICE_HPP__
-#define __CIM_APP_COMMON_SERVICE_HPP__
+#ifndef __IM_APP_COMMON_SERVICE_HPP__
+#define __IM_APP_COMMON_SERVICE_HPP__
 
 #include <string>
 
@@ -7,13 +7,13 @@
 #include "http/http_session.hpp"
 #include "result.hpp"
 
-namespace CIM::app {
+namespace IM::app {
 
 class CommonService {
    public:
     // 发送短信验证码
     static SmsCodeResult SendSmsCode(const std::string& mobile, const std::string& channel,
-                                     CIM::http::HttpSession::ptr session);
+                                     IM::http::HttpSession::ptr session);
 
     // 验证短信验证码
     static SmsCodeResult VerifySmsCode(const std::string& mobile, const std::string& code,
@@ -39,6 +39,6 @@ class CommonService {
                                   const std::string& channel, std::string* err);
 };
 
-}  // namespace CIM::app
+}  // namespace IM::app
 
-#endif // __CIM_APP_COMMON_SERVICE_HPP__
+#endif // __IM_APP_COMMON_SERVICE_HPP__

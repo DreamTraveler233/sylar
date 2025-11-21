@@ -5,8 +5,8 @@
 #include "system/env.hpp"
 #include "util/time_util.hpp"
 
-namespace CIM {
-static Logger::ptr g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static Logger::ptr g_logger = IM_LOG_NAME("system");
 
 static ConfigVar<std::map<std::string, std::map<std::string, std::string>>>::ptr g_sqlite3_dbs =
     Config::Lookup("sqlite3.dbs", std::map<std::string, std::map<std::string, std::string>>(),
@@ -429,7 +429,7 @@ SQLite3Transaction::~SQLite3Transaction() {
         }
 
         if (m_status == 1) {
-            CIM_LOG_ERROR(g_logger) << m_db << " auto_commit=" << m_autoCommit << " fail";
+            IM_LOG_ERROR(g_logger) << m_db << " auto_commit=" << m_autoCommit << " fail";
         }
     }
 }
@@ -527,7 +527,7 @@ SQLite3::ptr SQLite3Manager::get(const std::string& name) {
     lock.unlock();
     std::string path = GetParamValue<std::string>(args, "path");
     if (path.empty()) {
-        CIM_LOG_ERROR(g_logger) << "open db name=" << name << " path is null";
+        IM_LOG_ERROR(g_logger) << "open db name=" << name << " path is null";
         return nullptr;
     }
 
@@ -537,7 +537,7 @@ SQLite3::ptr SQLite3Manager::get(const std::string& name) {
 
     sqlite3* db;
     if (sqlite3_open_v2(path.c_str(), &db, SQLite3::CREATE | SQLite3::READWRITE, nullptr)) {
-        CIM_LOG_ERROR(g_logger) << "open db name=" << name << " path=" << path << " fail";
+        IM_LOG_ERROR(g_logger) << "open db name=" << name << " path=" << path << " fail";
         return nullptr;
     }
 
@@ -545,7 +545,7 @@ SQLite3::ptr SQLite3Manager::get(const std::string& name) {
     std::string sql = GetParamValue<std::string>(args, "sql");
     if (!sql.empty()) {
         if (rt->execute(sql)) {
-            CIM_LOG_ERROR(g_logger) << "execute sql=" << sql << " errno=" << rt->getErrno()
+            IM_LOG_ERROR(g_logger) << "execute sql=" << sql << " errno=" << rt->getErrno()
                                     << " errstr=" << rt->getErrStr();
             delete rt;
             return nullptr;
@@ -594,7 +594,7 @@ int SQLite3Manager::execute(const std::string& name, const char* format, ...) {
 int SQLite3Manager::execute(const std::string& name, const char* format, va_list ap) {
     auto conn = get(name);
     if (!conn) {
-        CIM_LOG_ERROR(g_logger) << "SQLite3Manager::execute, get(" << name
+        IM_LOG_ERROR(g_logger) << "SQLite3Manager::execute, get(" << name
                                 << ") fail, format=" << format;
         return -1;
     }
@@ -604,7 +604,7 @@ int SQLite3Manager::execute(const std::string& name, const char* format, va_list
 int SQLite3Manager::execute(const std::string& name, const std::string& sql) {
     auto conn = get(name);
     if (!conn) {
-        CIM_LOG_ERROR(g_logger) << "SQLite3Manager::execute, get(" << name << ") fail, sql=" << sql;
+        IM_LOG_ERROR(g_logger) << "SQLite3Manager::execute, get(" << name << ") fail, sql=" << sql;
         return -1;
     }
     return conn->execute(sql);
@@ -621,7 +621,7 @@ ISQLData::ptr SQLite3Manager::query(const std::string& name, const char* format,
 ISQLData::ptr SQLite3Manager::query(const std::string& name, const char* format, va_list ap) {
     auto conn = get(name);
     if (!conn) {
-        CIM_LOG_ERROR(g_logger) << "SQLite3Manager::query, get(" << name
+        IM_LOG_ERROR(g_logger) << "SQLite3Manager::query, get(" << name
                                 << ") fail, format=" << format;
         return nullptr;
     }
@@ -631,7 +631,7 @@ ISQLData::ptr SQLite3Manager::query(const std::string& name, const char* format,
 ISQLData::ptr SQLite3Manager::query(const std::string& name, const std::string& sql) {
     auto conn = get(name);
     if (!conn) {
-        CIM_LOG_ERROR(g_logger) << "SQLite3Manager::query, get(" << name << ") fail, sql=" << sql;
+        IM_LOG_ERROR(g_logger) << "SQLite3Manager::query, get(" << name << ") fail, sql=" << sql;
         return nullptr;
     }
     return conn->query(sql);
@@ -640,7 +640,7 @@ ISQLData::ptr SQLite3Manager::query(const std::string& name, const std::string& 
 SQLite3Transaction::ptr SQLite3Manager::openTransaction(const std::string& name, bool auto_commit) {
     auto conn = get(name);
     if (!conn) {
-        CIM_LOG_ERROR(g_logger) << "SQLite3Manager::openTransaction, get(" << name << ") fail";
+        IM_LOG_ERROR(g_logger) << "SQLite3Manager::openTransaction, get(" << name << ") fail";
         return nullptr;
     }
     SQLite3Transaction::ptr trans(new SQLite3Transaction(conn, auto_commit));
@@ -658,4 +658,4 @@ void SQLite3Manager::freeSQLite3(const std::string& name, SQLite3* m) {
     delete m;
 }
 
-}  // namespace CIM
+}  // namespace IM

@@ -12,8 +12,8 @@
 #include "base/macro.hpp"
 #include "io/scheduler.hpp"
 
-namespace CIM {
-Logger::ptr g_logger = CIM_LOG_NAME("system");
+namespace IM {
+Logger::ptr g_logger = IM_LOG_NAME("system");
 
 // TCP 超时时间
 static auto g_tcp_connect_timeout =
@@ -73,7 +73,7 @@ struct HookIniter {
         s_connect_timeout = g_tcp_connect_timeout->getValue();
 
         g_tcp_connect_timeout->addListener([](const int& old_value, const int& new_value) {
-            CIM_LOG_INFO(g_logger)
+            IM_LOG_INFO(g_logger)
                 << "tcp connect timeout changed from " << old_value << " to " << new_value;
             s_connect_timeout = new_value;
         });
@@ -190,7 +190,7 @@ retry:
         bool rt = iom->addEvent(fd, (IOManager::Event)event);
         if (!rt) {
             // 添加事件失败，记录日志并返回错误
-            CIM_LOG_ERROR(g_logger) << hook_fun_name << " addEvent (" << fd << ", " << event << ")";
+            IM_LOG_ERROR(g_logger) << hook_fun_name << " addEvent (" << fd << ", " << event << ")";
             if (timer) {
                 timer->cancel();
             }
@@ -413,7 +413,7 @@ int connect_with_timeout(int fd, const struct sockaddr* addr, socklen_t addrlen,
         if (timer) {
             timer->cancel();
         }
-        CIM_LOG_ERROR(g_logger) << "connect addEvent(" << fd << ", WRITE) error";
+        IM_LOG_ERROR(g_logger) << "connect addEvent(" << fd << ", WRITE) error";
     } else {
         // 事件添加成功，让出协程控制权
         Coroutine::YieldToHold();
@@ -832,4 +832,4 @@ int setsockopt(int sockfd, int level, int optname, const void* optval, socklen_t
     }
     return setsockopt_f(sockfd, level, optname, optval, optlen);
 }
-}  // namespace CIM
+}  // namespace IM

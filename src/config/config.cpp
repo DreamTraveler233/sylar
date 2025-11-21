@@ -4,8 +4,8 @@
 
 #include "system/env.hpp"
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
 
 /**
      * @brief 递归遍历YAML节点，将所有配置项的名称和节点存入输出列表
@@ -21,7 +21,7 @@ static void ListAllMember(const std::string& prefix, const YAML::Node& node,
                           std::list<std::pair<std::string, const YAML::Node>>& output) {
     // 检查配置项名称是否合法，只能包含字母、数字、下划线和点号
     if (prefix.find_first_not_of("abcdefghijklmnopqrstuvwxyz0123456789._") != std::string::npos) {
-        CIM_LOG_ERROR(g_logger) << "Config invalid name " << prefix << " : " << node;
+        IM_LOG_ERROR(g_logger) << "Config invalid name " << prefix << " : " << node;
         return;
     }
     // 将当前节点添加到输出列表
@@ -44,7 +44,7 @@ ConfigVariableBase::ptr Config::LookupBase(const std::string& name) {
 
 // 文件修改时间
 static std::map<std::string, uint64_t> s_file2modifytime;
-static CIM::Mutex s_mutex;
+static IM::Mutex s_mutex;
 
 /**
      * @brief 从指定目录加载配置文件
@@ -56,7 +56,7 @@ static CIM::Mutex s_mutex;
      * 加载成功后会通过LoadFromYaml函数将配置项注册到系统中。
      */
 void Config::LoadFromConfigDir(const std::string& path, bool force) {
-    CIM_ASSERT(!path.empty());
+    IM_ASSERT(!path.empty());
     // 获取绝对路径
     std::string absoulte_path = EnvMgr::GetInstance()->getAbsolutePath(path);
     // 存储找到的配置文件列表
@@ -82,9 +82,9 @@ void Config::LoadFromConfigDir(const std::string& path, bool force) {
             // 加载配置文件
             YAML::Node root = YAML::LoadFile(i);
             LoadFromYaml(root);
-            CIM_LOG_INFO(g_logger) << "LoadConfigFile file=" << i << " ok";
+            IM_LOG_INFO(g_logger) << "LoadConfigFile file=" << i << " ok";
         } catch (...) {
-            CIM_LOG_ERROR(g_logger) << "LoadConfigFile file=" << i << " failed";
+            IM_LOG_ERROR(g_logger) << "LoadConfigFile file=" << i << " failed";
         }
     }
 }
@@ -98,7 +98,7 @@ void Config::LoadFromConfigDir(const std::string& path, bool force) {
      * 然后使用fromString方法更新配置项的值。
      */
 void Config::LoadFromYaml(const YAML::Node& root) {
-    CIM_ASSERT(root);
+    IM_ASSERT(root);
 
     std::list<std::pair<std::string, const YAML::Node>> all_nodes;
     // 递归遍历YAML节点树，将所有配置项的名称和值存入列表
@@ -127,17 +127,17 @@ void Config::LoadFromYaml(const YAML::Node& root) {
                 var->fromString(ss.str());  // 转换为字符串后赋值给配置变量
             }
         }
-        // CIM_LOG_DEBUG(g_logger) << std::endl
+        // IM_LOG_DEBUG(g_logger) << std::endl
         //                         << LoggerMgr::GetInstance()->toYamlString();
     }
 }
 
 void Config::Visit(std::function<void(ConfigVariableBase::ptr)> cb) {
-    CIM_ASSERT(cb);
+    IM_ASSERT(cb);
     RWMutexType::ReadLock lock(GetMutex());
     ConfigVarMap& m = GetDatas();
     for (auto it = m.begin(); it != m.end(); ++it) {
         cb(it->second);
     }
 }
-}  // namespace CIM
+}  // namespace IM

@@ -5,7 +5,7 @@
 #include "config/config.hpp"
 #include "util/json_util.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 ConfigServlet::ConfigServlet() : Servlet("ConfigServlet") {}
 
 int32_t ConfigServlet::handle(HttpRequest::ptr request, HttpResponse::ptr response,
@@ -40,4 +40,4 @@ int32_t ConfigServlet::handle(HttpRequest::ptr request, HttpResponse::ptr respon
     return 0;
 }
 
-}  // namespace CIM::http
+}  // namespace IM::http

@@ -1,5 +1,5 @@
-#ifndef __CIM_DB_FOX_THREAD_HPP__
-#define __CIM_DB_FOX_THREAD_HPP__
+#ifndef __IM_DB_FOX_THREAD_HPP__
+#define __IM_DB_FOX_THREAD_HPP__
 
 #include <event2/buffer.h>
 #include <event2/bufferevent.h>
@@ -14,7 +14,7 @@
 #include "io/lock.hpp"
 #include "base/singleton.hpp"
 
-namespace CIM {
+namespace IM {
 class FoxThread;
 class IFoxThread {
    public:
@@ -167,5 +167,5 @@ class FoxThreadManager {
 
 using FoxThreadMgr = Singleton<FoxThreadManager>;
 
-}  // namespace CIM
-#endif // __CIM_DB_FOX_THREAD_HPP__
+}  // namespace IM
+#endif // __IM_DB_FOX_THREAD_HPP__

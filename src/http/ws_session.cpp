@@ -6,15 +6,15 @@
 #include "base/macro.hpp"
 #include "util/hash_util.hpp"
 
-namespace CIM::http {
-static CIM::Logger::ptr g_logger = CIM_LOG_NAME("system");
+namespace IM::http {
+static IM::Logger::ptr g_logger = IM_LOG_NAME("system");
 
 // 是否允许客户端未掩码帧（仅用于兼容非标准客户端，默认关闭）
-static CIM::ConfigVar<uint32_t>::ptr g_ws_allow_unmasked_client_frames =
-    CIM::Config::Lookup("websocket.allow_unmasked_client_frames", (uint32_t)0,
+static IM::ConfigVar<uint32_t>::ptr g_ws_allow_unmasked_client_frames =
+    IM::Config::Lookup("websocket.allow_unmasked_client_frames", (uint32_t)0,
                         "allow unmasked websocket frames from client side");
 
-CIM::ConfigVar<uint32_t>::ptr g_websocket_message_max_size = CIM::Config::Lookup(
+IM::ConfigVar<uint32_t>::ptr g_websocket_message_max_size = IM::Config::Lookup(
     "websocket.message.max_size", (uint32_t)1024 * 1024 * 32, "websocket message max size");
 
 WSSession::WSSession(Socket::ptr sock, bool owner) : HttpSession(sock, owner) {}
@@ -24,12 +24,12 @@ HttpRequest::ptr WSSession::handleShake() {
     do {
         req = recvRequest();
         if (!req) {
-            CIM_LOG_INFO(g_logger) << "invalid http request";
+            IM_LOG_INFO(g_logger) << "invalid http request";
             break;
         }
         // Upgrade: websocket（大小写不敏感）
         if (strcasecmp(req->getHeader("Upgrade").c_str(), "websocket")) {
-            CIM_LOG_INFO(g_logger) << "http header Upgrade != websocket";
+            IM_LOG_INFO(g_logger) << "http header Upgrade != websocket";
             break;
         }
         // Connection 头可能包含多值，如 "keep-alive, Upgrade"，这里放宽为包含 Upgrade 即可
@@ -38,23 +38,23 @@ HttpRequest::ptr WSSession::handleShake() {
             std::string conn_lc = conn;
             for (auto& c : conn_lc) c = ::tolower(c);
             if (conn_lc.find("upgrade") == std::string::npos) {
-                CIM_LOG_INFO(g_logger)
+                IM_LOG_INFO(g_logger)
                     << "http header Connection not contains Upgrade, got: " << conn;
                 break;
             }
         }
         if (req->getHeaderAs<int>("Sec-webSocket-Version") != 13) {
-            CIM_LOG_INFO(g_logger) << "http header Sec-webSocket-Version != 13";
+            IM_LOG_INFO(g_logger) << "http header Sec-webSocket-Version != 13";
             break;
         }
         std::string key = req->getHeader("Sec-WebSocket-Key");
         if (key.empty()) {
-            CIM_LOG_INFO(g_logger) << "http header Sec-WebSocket-Key = null";
+            IM_LOG_INFO(g_logger) << "http header Sec-WebSocket-Key = null";
             break;
         }
 
         std::string v = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-        v = CIM::base64encode(CIM::sha1sum(v));
+        v = IM::base64encode(IM::sha1sum(v));
         req->setWebsocket(true);
 
         auto rsp = req->createResponse();
@@ -66,12 +66,12 @@ HttpRequest::ptr WSSession::handleShake() {
         rsp->setHeader("Sec-WebSocket-Accept", v);
 
         sendResponse(rsp);
-        CIM_LOG_DEBUG(g_logger) << *req;
-        CIM_LOG_DEBUG(g_logger) << *rsp;
+        IM_LOG_DEBUG(g_logger) << *req;
+        IM_LOG_DEBUG(g_logger) << *rsp;
         return req;
     } while (false);
     if (req) {
-        CIM_LOG_INFO(g_logger) << *req;
+        IM_LOG_INFO(g_logger) << *req;
     }
     return nullptr;
 }
@@ -121,25 +121,25 @@ WSFrameMessage::ptr WSRecvMessage(Stream* stream, bool client) {
         ws_head.mask = (b2 & 0x80) != 0;
         ws_head.payload = (b2 & 0x7F);
 
-        CIM_LOG_DEBUG(g_logger) << "WSFrameHead " << ws_head.toString();
+        IM_LOG_DEBUG(g_logger) << "WSFrameHead " << ws_head.toString();
 
         // 读取Payload长度
         uint64_t length = 0;
         if (ws_head.payload == 126) {
             uint16_t len = 0;
             if (stream->readFixSize(&len, sizeof(len)) <= 0) break;
-            length = CIM::byteswap(len);
+            length = IM::byteswap(len);
         } else if (ws_head.payload == 127) {
             uint64_t len = 0;
             if (stream->readFixSize(&len, sizeof(len)) <= 0) break;
-            length = CIM::byteswap(len);
+            length = IM::byteswap(len);
         } else {
             length = ws_head.payload;
         }
 
         // 检查最大长度限制
         if ((cur_len + length) >= g_websocket_message_max_size->getValue()) {
-            CIM_LOG_WARN(g_logger)
+            IM_LOG_WARN(g_logger)
                 << "WSFrameMessage length > " << g_websocket_message_max_size->getValue() << " ("
                 << (cur_len + length) << ")";
             break;
@@ -165,14 +165,14 @@ WSFrameMessage::ptr WSRecvMessage(Stream* stream, bool client) {
 
         // 处理控制帧
         if (ws_head.opcode == WSFrameHead::PING) {
-            CIM_LOG_INFO(g_logger) << "PING";
+            IM_LOG_INFO(g_logger) << "PING";
             if (WSPong(stream) <= 0) break;
             continue;
         } else if (ws_head.opcode == WSFrameHead::PONG) {
             // 忽略
             continue;
         } else if (ws_head.opcode == WSFrameHead::CLOSE) {
-            CIM_LOG_INFO(g_logger) << "CLOSE";
+            IM_LOG_INFO(g_logger) << "CLOSE";
             // 可以在此解析状态码和原因
             WSClose(stream, 1000, "");  // 回复CLOSE
             break;
@@ -183,12 +183,12 @@ WSFrameMessage::ptr WSRecvMessage(Stream* stream, bool client) {
             ws_head.opcode == WSFrameHead::BIN_FRAME) {
             if (!client && !ws_head.mask) {
                 if (!g_ws_allow_unmasked_client_frames->getValue()) {
-                    CIM_LOG_WARN(g_logger) << "Unmasked WebSocket frame from client, closing "
+                    IM_LOG_WARN(g_logger) << "Unmasked WebSocket frame from client, closing "
                                               "connection (enforce RFC6455)";
                     WSClose(stream, 1002, "Client must mask frames");
                     break;
                 } else {
-                    CIM_LOG_DEBUG(g_logger)
+                    IM_LOG_DEBUG(g_logger)
                         << "Unmasked WebSocket frame from client, allowed by config (compat mode)";
                 }
             }
@@ -201,11 +201,11 @@ WSFrameMessage::ptr WSRecvMessage(Stream* stream, bool client) {
             }
 
             if (ws_head.fin) {
-                CIM_LOG_DEBUG(g_logger) << data;
+                IM_LOG_DEBUG(g_logger) << data;
                 return WSFrameMessage::ptr(new WSFrameMessage(opcode, std::move(data)));
             }
         } else {
-            CIM_LOG_DEBUG(g_logger) << "invalid opcode=" << ws_head.opcode;
+            IM_LOG_DEBUG(g_logger) << "invalid opcode=" << ws_head.opcode;
         }
     } while (true);
     stream->close();
@@ -240,10 +240,10 @@ int32_t WSSendMessage(Stream* stream, WSFrameMessage::ptr msg, bool client, bool
 
         if (len_indicator == 126) {
             uint16_t len = (uint16_t)size;
-            len = CIM::byteswap(len);
+            len = IM::byteswap(len);
             if (stream->writeFixSize(&len, sizeof(len)) <= 0) break;
         } else if (len_indicator == 127) {
-            uint64_t len = CIM::byteswap(size);
+            uint64_t len = IM::byteswap(size);
             if (stream->writeFixSize(&len, sizeof(len)) <= 0) break;
         }
 
@@ -329,14 +329,14 @@ int32_t WSClose(Stream* stream, uint16_t code, const std::string& reason) {
         b2 |= (len_indicator & 0x7F);
         if (stream->writeFixSize(&b1, 1) <= 0) goto fail;
         if (stream->writeFixSize(&b2, 1) <= 0) goto fail;
-        uint16_t len = CIM::byteswap((uint16_t)size);
+        uint16_t len = IM::byteswap((uint16_t)size);
         if (stream->writeFixSize(&len, sizeof(len)) <= 0) goto fail;
     } else {
         len_indicator = 127;
         b2 |= (len_indicator & 0x7F);
         if (stream->writeFixSize(&b1, 1) <= 0) goto fail;
         if (stream->writeFixSize(&b2, 1) <= 0) goto fail;
-        uint64_t len = CIM::byteswap((uint64_t)size);
+        uint64_t len = IM::byteswap((uint64_t)size);
         if (stream->writeFixSize(&len, sizeof(len)) <= 0) goto fail;
     }
     if (size > 0) {
@@ -348,4 +348,4 @@ fail:
     stream->close();
     return -1;
 }
-}  // namespace CIM::http
+}  // namespace IM::http

@@ -9,8 +9,8 @@
  * Timer类表示单个定时器实例，TimerManager类负责管理多个定时器。
  */
 
-#ifndef __CIM_IO_TIMER_HPP__
-#define __CIM_IO_TIMER_HPP__
+#ifndef __IM_IO_TIMER_HPP__
+#define __IM_IO_TIMER_HPP__
 
 #include <functional>
 #include <memory>
@@ -19,7 +19,7 @@
 
 #include "lock.hpp"
 
-namespace CIM {
+namespace IM {
 class TimerManager;
 
 /**
@@ -237,6 +237,6 @@ class TimerManager : public Noncopyable {
     /// 上次检查时间，用于检测系统时钟回退
     uint64_t m_previouseTime = 0;
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_IO_TIMER_HPP__
+#endif // __IM_IO_TIMER_HPP__

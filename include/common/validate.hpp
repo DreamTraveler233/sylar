@@ -1,12 +1,12 @@
-#ifndef __CIM_COMMON_VALIDATE_HPP__
-#define __CIM_COMMON_VALIDATE_HPP__
+#ifndef __IM_COMMON_VALIDATE_HPP__
+#define __IM_COMMON_VALIDATE_HPP__
 
 #include <json/json.h>
 
 #include <string>
 #include <vector>
 
-namespace CIM::common {
+namespace IM::common {
 
 // 判断字符串是否为 32 字符十六进制 (hex)
 inline bool isHex32(const std::string& s) {
@@ -50,6 +50,6 @@ inline bool parseMsgIdsFromJson(const Json::Value& v, std::vector<std::string>& 
     return true;
 }
 
-}  // namespace CIM::common
+}  // namespace IM::common
 
-#endif  // __CIM_COMMON_VALIDATE_HPP__
+#endif  // __IM_COMMON_VALIDATE_HPP__

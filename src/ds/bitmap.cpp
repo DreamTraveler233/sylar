@@ -8,7 +8,7 @@
 
 #include "base/macro.hpp"
 
-namespace CIM::ds {
+namespace IM::ds {
     
 Bitmap::base_type Bitmap::POS[sizeof(base_type) * 8];
 Bitmap::base_type Bitmap::NPOS[sizeof(base_type) * 8];
@@ -335,8 +335,8 @@ Bitmap::ptr Bitmap::compress() const {
         }
 
         if ((cur_count / VALUE_SIZE) > 1) {
-            CIM_ASSERT(cur_count % VALUE_SIZE == 0);
-            // CIM_ASSERT(cur_count < (1ul << VALUE_SIZE));
+            IM_ASSERT(cur_count % VALUE_SIZE == 0);
+            // IM_ASSERT(cur_count < (1ul << VALUE_SIZE));
             while (cur_count) {
                 data[dst_cur_pos++] = cur_value
                                           ? (COMPRESS_MASK | VALUE_MASK | (cur_count & COUNT_MASK))
@@ -798,8 +798,8 @@ void Bitmap::set(uint32_t from, uint32_t size, bool v) {
     uint32_t cur_to = (from + size) / VALUE_SIZE;
     uint32_t pos_to = (from + size) % VALUE_SIZE;
 
-    CIM_ASSERT(pos_from == 0);
-    CIM_ASSERT(pos_to == 0);
+    IM_ASSERT(pos_from == 0);
+    IM_ASSERT(pos_to == 0);
 
     for (uint32_t i = cur_from; i < cur_to; ++i) {
         m_data[i] = v ? (COUNT_MASK) : (0);
@@ -815,8 +815,8 @@ bool Bitmap::get(uint32_t from, uint32_t size, bool v) const {
     uint32_t cur_to = (from + size) / VALUE_SIZE;
     uint32_t pos_to = (from + size) % VALUE_SIZE;
 
-    CIM_ASSERT(pos_from == 0);
-    CIM_ASSERT(pos_to == 0);
+    IM_ASSERT(pos_from == 0);
+    IM_ASSERT(pos_to == 0);
 
     for (uint32_t i = cur_from; i < cur_to; ++i) {
         if (v) {
@@ -886,4 +886,4 @@ uint32_t Bitmap::getCount() const {
         return count;
     }
 }
-}  // namespace CIM::ds
+}  // namespace IM::ds

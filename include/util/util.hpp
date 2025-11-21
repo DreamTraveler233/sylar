@@ -1,5 +1,5 @@
-#ifndef __CIM_UTIL_UTIL_HPP__
-#define __CIM_UTIL_UTIL_HPP__
+#ifndef __IM_UTIL_UTIL_HPP__
+#define __IM_UTIL_UTIL_HPP__
 
 #include <cxxabi.h>
 #include <jsoncpp/json/json.h>
@@ -22,7 +22,7 @@
 #include "string_util.hpp"
 #include "time_util.hpp"
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 获取当前线程的真实线程ID
      * @return 当前线程的系统线程ID（TID）
@@ -487,6 +487,6 @@ class SharedArray {
     uint64_t m_size;
     std::shared_ptr<T> m_ptr;
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_UTIL_UTIL_HPP__
+#endif // __IM_UTIL_UTIL_HPP__

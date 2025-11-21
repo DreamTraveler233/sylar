@@ -7,15 +7,15 @@
 #include "io/iomanager.hpp"
 #include "base/macro.hpp"
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
 
-Socket::ptr Socket::CreateTCP(CIM::Address::ptr address) {
+Socket::ptr Socket::CreateTCP(IM::Address::ptr address) {
     Socket::ptr sock(new Socket(address->getFamily(), TCP, 0));
     return sock;
 }
 
-Socket::ptr Socket::CreateUDP(CIM::Address::ptr address) {
+Socket::ptr Socket::CreateUDP(IM::Address::ptr address) {
     Socket::ptr sock(new Socket(address->getFamily(), UDP, 0));
     sock->newSock();
     sock->m_isConnected = true;
@@ -92,7 +92,7 @@ void Socket::setRecvTimeout(int64_t v) {
 bool Socket::getOption(int level, int option, void* result, socklen_t* len) {
     int rt = getsockopt(m_sock, level, option, result, (socklen_t*)len);
     if (rt) {
-        CIM_LOG_DEBUG(g_logger) << "getOption sock=" << m_sock << " level=" << level
+        IM_LOG_DEBUG(g_logger) << "getOption sock=" << m_sock << " level=" << level
                                 << " option=" << option << " errno=" << errno
                                 << " errstr=" << strerror(errno);
         return false;
@@ -102,7 +102,7 @@ bool Socket::getOption(int level, int option, void* result, socklen_t* len) {
 
 bool Socket::setOption(int level, int option, const void* result, socklen_t len) {
     if (setsockopt(m_sock, level, option, result, (socklen_t)len)) {
-        CIM_LOG_DEBUG(g_logger) << "setOption sock=" << m_sock << " level=" << level
+        IM_LOG_DEBUG(g_logger) << "setOption sock=" << m_sock << " level=" << level
                                 << " option=" << option << " errno=" << errno
                                 << " errstr=" << strerror(errno);
         return false;
@@ -117,7 +117,7 @@ Socket::ptr Socket::accept() {
     // 接受新连接，使用 hook 后的 accept
     int newsock = ::accept(m_sock, nullptr, nullptr);
     if (newsock == -1) {
-        CIM_LOG_ERROR(g_logger) << "accept(" << m_sock << ") errno=" << errno
+        IM_LOG_ERROR(g_logger) << "accept(" << m_sock << ") errno=" << errno
                                 << " errstr=" << strerror(errno);
         return nullptr;
     }
@@ -132,13 +132,13 @@ Socket::ptr Socket::accept() {
 bool Socket::bind(const Address::ptr addr) {
     if (!isValid()) {
         newSock();
-        if (CIM_UNLIKELY(!isValid())) {
+        if (IM_UNLIKELY(!isValid())) {
             return false;
         }
     }
 
-    if (CIM_UNLIKELY(addr->getFamily() != m_family)) {
-        CIM_LOG_ERROR(g_logger) << "bind sock.family(" << m_family << ") addr.family("
+    if (IM_UNLIKELY(addr->getFamily() != m_family)) {
+        IM_LOG_ERROR(g_logger) << "bind sock.family(" << m_family << ") addr.family("
                                 << addr->getFamily() << ") not equal, addr=" << addr->toString();
         return false;
     }
@@ -150,13 +150,13 @@ bool Socket::bind(const Address::ptr addr) {
         if (sock->connect(uaddr)) {
             return false;
         } else {
-            CIM::FSUtil::Unlink(uaddr->getPath(), true);
+            IM::FSUtil::Unlink(uaddr->getPath(), true);
         }
     }
 
     // 绑定地址
     if (::bind(m_sock, addr->getAddr(), addr->getAddrLen())) {
-        CIM_LOG_ERROR(g_logger) << "bind error errrno=" << errno << " errstr=" << strerror(errno);
+        IM_LOG_ERROR(g_logger) << "bind error errrno=" << errno << " errstr=" << strerror(errno);
         return false;
     }
 
@@ -166,7 +166,7 @@ bool Socket::bind(const Address::ptr addr) {
 
 bool Socket::reconnect(uint64_t timeout_ms) {
     if (!m_remoteAddress) {
-        CIM_LOG_ERROR(g_logger) << "reconnect m_remoteAddress is null";
+        IM_LOG_ERROR(g_logger) << "reconnect m_remoteAddress is null";
         return false;
     }
     m_localAddress.reset();
@@ -177,27 +177,27 @@ bool Socket::connect(const Address::ptr addr, uint64_t timeout_ms) {
     m_remoteAddress = addr;
     if (!isValid()) {
         newSock();
-        if (CIM_UNLIKELY(!isValid())) {
+        if (IM_UNLIKELY(!isValid())) {
             return false;
         }
     }
 
-    if (CIM_UNLIKELY(addr->getFamily() != m_family)) {
-        CIM_LOG_ERROR(g_logger) << "connect sock.family(" << m_family << ") addr.family("
+    if (IM_UNLIKELY(addr->getFamily() != m_family)) {
+        IM_LOG_ERROR(g_logger) << "connect sock.family(" << m_family << ") addr.family("
                                 << addr->getFamily() << ") not equal, addr=" << addr->toString();
         return false;
     }
 
     if (timeout_ms == (uint64_t)-1) {
         if (::connect(m_sock, addr->getAddr(), addr->getAddrLen())) {
-            CIM_LOG_ERROR(g_logger) << "sock=" << m_sock << " connect(" << addr->toString()
+            IM_LOG_ERROR(g_logger) << "sock=" << m_sock << " connect(" << addr->toString()
                                     << ") error errno=" << errno << " errstr=" << strerror(errno);
             close();
             return false;
         }
     } else {
         if (::connect_with_timeout(m_sock, addr->getAddr(), addr->getAddrLen(), timeout_ms)) {
-            CIM_LOG_ERROR(g_logger) << "sock=" << m_sock << " connect(" << addr->toString()
+            IM_LOG_ERROR(g_logger) << "sock=" << m_sock << " connect(" << addr->toString()
                                     << ") timeout=" << timeout_ms << " error errno=" << errno
                                     << " errstr=" << strerror(errno);
             close();
@@ -212,11 +212,11 @@ bool Socket::connect(const Address::ptr addr, uint64_t timeout_ms) {
 
 bool Socket::listen(int backlog) {
     if (!isValid()) {
-        CIM_LOG_ERROR(g_logger) << "listen error sock=-1";
+        IM_LOG_ERROR(g_logger) << "listen error sock=-1";
         return false;
     }
     if (::listen(m_sock, backlog)) {
-        CIM_LOG_ERROR(g_logger) << "listen error errno=" << errno << " errstr=" << strerror(errno);
+        IM_LOG_ERROR(g_logger) << "listen error errno=" << errno << " errstr=" << strerror(errno);
         return false;
     }
     return true;
@@ -276,7 +276,7 @@ Address::ptr Socket::getRemoteAddress() {
     // 获取远端地址
     socklen_t addrlen = result->getAddrLen();
     if (getpeername(m_sock, result->getAddr(), &addrlen)) {
-        CIM_LOG_ERROR(g_logger) << "getpeername error sock=" << m_sock << " errno=" << errno
+        IM_LOG_ERROR(g_logger) << "getpeername error sock=" << m_sock << " errno=" << errno
                                 << " errstr=" << strerror(errno);
         return Address::ptr(new UnknownAddress(m_family));
     }
@@ -316,7 +316,7 @@ Address::ptr Socket::getLocalAddress() {
     // 获取本地地址
     socklen_t addrlen = result->getAddrLen();
     if (getsockname(m_sock, result->getAddr(), &addrlen)) {
-        CIM_LOG_ERROR(g_logger) << "getsockname error sock=" << m_sock << " errno=" << errno
+        IM_LOG_ERROR(g_logger) << "getsockname error sock=" << m_sock << " errno=" << errno
                                 << " errstr=" << strerror(errno);
         return Address::ptr(new UnknownAddress(m_family));
     }
@@ -473,15 +473,15 @@ int Socket::getSocket() const {
 }
 
 bool Socket::cancelRead() {
-    return IOManager::GetThis()->cancelEvent(m_sock, CIM::IOManager::READ);
+    return IOManager::GetThis()->cancelEvent(m_sock, IM::IOManager::READ);
 }
 
 bool Socket::cancelWrite() {
-    return IOManager::GetThis()->cancelEvent(m_sock, CIM::IOManager::WRITE);
+    return IOManager::GetThis()->cancelEvent(m_sock, IM::IOManager::WRITE);
 }
 
 bool Socket::cancelAccept() {
-    return IOManager::GetThis()->cancelEvent(m_sock, CIM::IOManager::READ);
+    return IOManager::GetThis()->cancelEvent(m_sock, IM::IOManager::READ);
 }
 
 bool Socket::cancelAll() {
@@ -490,10 +490,10 @@ bool Socket::cancelAll() {
 
 void Socket::newSock() {
     m_sock = socket(m_family, m_type, m_protocol);
-    if (CIM_LIKELY(m_sock != -1)) {
+    if (IM_LIKELY(m_sock != -1)) {
         setDefaultOptions();
     } else {
-        CIM_LOG_ERROR(g_logger) << "socket(" << m_family << ", " << m_type << ", " << m_protocol
+        IM_LOG_ERROR(g_logger) << "socket(" << m_family << ", " << m_type << ", " << m_protocol
                                 << ") errno=" << errno << " errstr=" << strerror(errno);
     }
 }
@@ -518,7 +518,7 @@ Socket::ptr SSLSocket::accept() {
     SSLSocket::ptr sock(new SSLSocket(m_family, m_type, m_protocol));
     int newsock = ::accept(m_sock, nullptr, nullptr);
     if (newsock == -1) {
-        CIM_LOG_ERROR(g_logger) << "accept(" << m_sock << ") errno=" << errno
+        IM_LOG_ERROR(g_logger) << "accept(" << m_sock << ") errno=" << errno
                                 << " errstr=" << strerror(errno);
         return nullptr;
     }
@@ -578,12 +578,12 @@ int SSLSocket::send(const iovec* buffers, size_t length, int flags) {
 }
 
 int SSLSocket::sendTo(const void* buffer, size_t length, const Address::ptr to, int flags) {
-    CIM_ASSERT(false);
+    IM_ASSERT(false);
     return -1;
 }
 
 int SSLSocket::sendTo(const iovec* buffers, size_t length, const Address::ptr to, int flags) {
-    CIM_ASSERT(false);
+    IM_ASSERT(false);
     return -1;
 }
 
@@ -613,12 +613,12 @@ int SSLSocket::recv(iovec* buffers, size_t length, int flags) {
 }
 
 int SSLSocket::recvFrom(void* buffer, size_t length, Address::ptr from, int flags) {
-    CIM_ASSERT(false);
+    IM_ASSERT(false);
     return -1;
 }
 
 int SSLSocket::recvFrom(iovec* buffers, size_t length, Address::ptr from, int flags) {
-    CIM_ASSERT(false);
+    IM_ASSERT(false);
     return -1;
 }
 
@@ -635,22 +635,22 @@ bool SSLSocket::init(int sock) {
 bool SSLSocket::loadCertificates(const std::string& cert_file, const std::string& key_file) {
     m_ctx.reset(SSL_CTX_new(SSLv23_server_method()), SSL_CTX_free);
     if (SSL_CTX_use_certificate_chain_file(m_ctx.get(), cert_file.c_str()) != 1) {
-        CIM_LOG_ERROR(g_logger) << "SSL_CTX_use_certificate_chain_file(" << cert_file << ") error";
+        IM_LOG_ERROR(g_logger) << "SSL_CTX_use_certificate_chain_file(" << cert_file << ") error";
         return false;
     }
     if (SSL_CTX_use_PrivateKey_file(m_ctx.get(), key_file.c_str(), SSL_FILETYPE_PEM) != 1) {
-        CIM_LOG_ERROR(g_logger) << "SSL_CTX_use_PrivateKey_file(" << key_file << ") error";
+        IM_LOG_ERROR(g_logger) << "SSL_CTX_use_PrivateKey_file(" << key_file << ") error";
         return false;
     }
     if (SSL_CTX_check_private_key(m_ctx.get()) != 1) {
-        CIM_LOG_ERROR(g_logger) << "SSL_CTX_check_private_key cert_file=" << cert_file
+        IM_LOG_ERROR(g_logger) << "SSL_CTX_check_private_key cert_file=" << cert_file
                                 << " key_file=" << key_file;
         return false;
     }
     return true;
 }
 
-SSLSocket::ptr SSLSocket::CreateTCP(CIM::Address::ptr address) {
+SSLSocket::ptr SSLSocket::CreateTCP(IM::Address::ptr address) {
     SSLSocket::ptr sock(new SSLSocket(address->getFamily(), TCP, 0));
     return sock;
 }
@@ -682,4 +682,4 @@ std::ostream& operator<<(std::ostream& os, const Socket& sock) {
     return sock.dump(os);
 }
 
-}  // namespace CIM
+}  // namespace IM

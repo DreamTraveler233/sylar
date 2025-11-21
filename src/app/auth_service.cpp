@@ -8,9 +8,9 @@
 #include "util/password.hpp"
 #include "util/util.hpp"
 
-namespace CIM::app {
+namespace IM::app {
 
-static auto g_logger = CIM_LOG_NAME("root");
+static auto g_logger = IM_LOG_NAME("root");
 static constexpr const char* kDBName = "default";
 
 UserResult AuthService::Authenticate(const std::string& mobile, const std::string& password,
@@ -20,7 +20,7 @@ UserResult AuthService::Authenticate(const std::string& mobile, const std::strin
 
     // 密码解密
     std::string decrypted_pwd;
-    auto dec_res = CIM::DecryptPassword(password, decrypted_pwd);
+    auto dec_res = IM::DecryptPassword(password, decrypted_pwd);
     if (!dec_res.ok) {
         result.code = dec_res.code;
         result.err = dec_res.err;
@@ -28,9 +28,9 @@ UserResult AuthService::Authenticate(const std::string& mobile, const std::strin
     }
 
     // 获取用户信息
-    if (!CIM::dao::UserDAO::GetByMobile(mobile, result.data, &err)) {
+    if (!IM::dao::UserDAO::GetByMobile(mobile, result.data, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "Authenticate GetByMobile failed, mobile=" << mobile << ", err=" << err;
             result.code = 500;
             result.err = "获取用户信息失败";
@@ -49,10 +49,10 @@ UserResult AuthService::Authenticate(const std::string& mobile, const std::strin
     }
 
     // 获取用户认证信息
-    CIM::dao::UserAuth ua;
-    if (!CIM::dao::UserAuthDao::GetByUserId(result.data.id, ua, &err)) {
+    IM::dao::UserAuth ua;
+    if (!IM::dao::UserAuthDao::GetByUserId(result.data.id, ua, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "Authenticate GetByUserId failed, user_id=" << result.data.id << ", err=" << err;
             result.code = 500;
             result.err = "获取用户认证信息失败";
@@ -64,7 +64,7 @@ UserResult AuthService::Authenticate(const std::string& mobile, const std::strin
     }
 
     // 验证密码
-    if (!CIM::util::Password::Verify(decrypted_pwd, ua.password_hash)) {
+    if (!IM::util::Password::Verify(decrypted_pwd, ua.password_hash)) {
         result.err = "手机号或密码错误";
         return result;
     }
@@ -74,11 +74,11 @@ UserResult AuthService::Authenticate(const std::string& mobile, const std::strin
 }
 
 VoidResult AuthService::LogLogin(const UserResult& user_result, const std::string& platform,
-                                 CIM::http::HttpSession::ptr session) {
+                                 IM::http::HttpSession::ptr session) {
     VoidResult result;
     std::string err;
 
-    CIM::dao::UserLoginLog log;
+    IM::dao::UserLoginLog log;
     log.user_id = user_result.data.id;
     log.mobile = user_result.data.mobile;
     log.platform = platform;
@@ -88,8 +88,8 @@ VoidResult AuthService::LogLogin(const UserResult& user_result, const std::strin
     log.reason = user_result.ok ? "" : user_result.err;
     log.created_at = TimeUtil::NowToS();
 
-    if (!CIM::dao::UserLoginLogDAO::Create(log, &err)) {
-        CIM_LOG_ERROR(g_logger) << "LogLogin Create UserLoginLog failed, user_id="
+    if (!IM::dao::UserLoginLogDAO::Create(log, &err)) {
+        IM_LOG_ERROR(g_logger) << "LogLogin Create UserLoginLog failed, user_id="
                                 << user_result.data.id << ", err=" << err;
         result.code = 500;
         result.err = "记录登录日志失败";
@@ -104,8 +104,8 @@ VoidResult AuthService::GoOnline(const uint64_t id) {
     VoidResult result;
     std::string err;
 
-    if (!CIM::dao::UserDAO::UpdateOnlineStatus(id, &err)) {
-        CIM_LOG_ERROR(g_logger) << "UpdateOnlineStatus failed, user_id=" << id << ", err=" << err;
+    if (!IM::dao::UserDAO::UpdateOnlineStatus(id, &err)) {
+        IM_LOG_ERROR(g_logger) << "UpdateOnlineStatus failed, user_id=" << id << ", err=" << err;
         result.code = 500;
         result.err = "更新在线状态失败";
         return result;
@@ -122,7 +122,7 @@ UserResult AuthService::Register(const std::string& nickname, const std::string&
 
     // 密码解密
     std::string decrypted_pwd;
-    auto dec_res = CIM::DecryptPassword(password, decrypted_pwd);
+    auto dec_res = IM::DecryptPassword(password, decrypted_pwd);
     if (!dec_res.ok) {
         result.code = dec_res.code;
         result.err = dec_res.err;
@@ -130,16 +130,16 @@ UserResult AuthService::Register(const std::string& nickname, const std::string&
     }
 
     // 生成密码哈希
-    auto ph = CIM::util::Password::Hash(decrypted_pwd);
+    auto ph = IM::util::Password::Hash(decrypted_pwd);
     if (ph.empty()) {
         result.err = "密码哈希生成失败";
         return result;
     }
 
     // 开启事务
-    auto trans = CIM::MySQLMgr::GetInstance()->openTransaction(kDBName, false);
+    auto trans = IM::MySQLMgr::GetInstance()->openTransaction(kDBName, false);
     if (!trans) {
-        CIM_LOG_ERROR(g_logger) << "Register openTransaction failed";
+        IM_LOG_ERROR(g_logger) << "Register openTransaction failed";
         result.code = 500;
         result.err = "创建账号失败";
         return result;
@@ -148,19 +148,19 @@ UserResult AuthService::Register(const std::string& nickname, const std::string&
     // 获取事务绑定的数据库连接
     auto db = trans->getMySQL();
     if (!db) {
-        CIM_LOG_ERROR(g_logger) << "Register getMySQL failed";
+        IM_LOG_ERROR(g_logger) << "Register getMySQL failed";
         result.code = 500;
         result.err = "创建账号失败";
         return result;
     }
 
     // 创建用户
-    CIM::dao::User u;
+    IM::dao::User u;
     u.nickname = nickname;
     u.mobile = mobile;
 
-    if (!CIM::dao::UserDAO::Create(db, u, u.id, &err)) {
-        CIM_LOG_ERROR(g_logger) << "Register Create user failed, mobile=" << mobile
+    if (!IM::dao::UserDAO::Create(db, u, u.id, &err)) {
+        IM_LOG_ERROR(g_logger) << "Register Create user failed, mobile=" << mobile
                                 << ", err=" << err;
         trans->rollback();  // 回滚事务
         result.code = 500;
@@ -169,12 +169,12 @@ UserResult AuthService::Register(const std::string& nickname, const std::string&
     }
 
     // 创建密码认证记录
-    CIM::dao::UserAuth ua;
+    IM::dao::UserAuth ua;
     ua.user_id = u.id;
     ua.password_hash = ph;
 
-    if (!CIM::dao::UserAuthDao::Create(db, ua, &err)) {
-        CIM_LOG_ERROR(g_logger) << "Register Create user_auth failed, user_id=" << u.id
+    if (!IM::dao::UserAuthDao::Create(db, ua, &err)) {
+        IM_LOG_ERROR(g_logger) << "Register Create user_auth failed, user_id=" << u.id
                                 << ", err=" << err;
         trans->rollback();  // 回滚事务
         result.code = 500;
@@ -186,7 +186,7 @@ UserResult AuthService::Register(const std::string& nickname, const std::string&
         // 提交失败也要回滚，保证数据一致性
         const auto commit_err = db->getErrStr();
         trans->rollback();
-        CIM_LOG_ERROR(g_logger) << "Register commit transaction failed, mobile=" << mobile
+        IM_LOG_ERROR(g_logger) << "Register commit transaction failed, mobile=" << mobile
                                 << ", err=" << commit_err;
         result.code = 500;
         result.err = "处理好友申请失败";
@@ -204,7 +204,7 @@ UserResult AuthService::Forget(const std::string& mobile, const std::string& new
 
     // 密码解密
     std::string decrypted_pwd;
-    auto dec_res = CIM::DecryptPassword(new_password, decrypted_pwd);
+    auto dec_res = IM::DecryptPassword(new_password, decrypted_pwd);
     if (!dec_res.ok) {
         result.code = dec_res.code;
         result.err = dec_res.err;
@@ -212,8 +212,8 @@ UserResult AuthService::Forget(const std::string& mobile, const std::string& new
     }
 
     /*检查手机号是否存在*/
-    if (!CIM::dao::UserDAO::GetByMobile(mobile, result.data, &err)) {
-        CIM_LOG_ERROR(g_logger) << "Forget GetByMobile failed, mobile=" << mobile
+    if (!IM::dao::UserDAO::GetByMobile(mobile, result.data, &err)) {
+        IM_LOG_ERROR(g_logger) << "Forget GetByMobile failed, mobile=" << mobile
                                 << ", err=" << err;
         result.code = 404;
         result.err = "手机号不存在";
@@ -221,15 +221,15 @@ UserResult AuthService::Forget(const std::string& mobile, const std::string& new
     }
 
     /*生成新密码哈希*/
-    auto password_hash = CIM::util::Password::Hash(decrypted_pwd);
+    auto password_hash = IM::util::Password::Hash(decrypted_pwd);
     if (password_hash.empty()) {
         result.err = "密码哈希生成失败";
         return result;
     }
 
     /*更新用户密码*/
-    if (!CIM::dao::UserAuthDao::UpdatePasswordHash(result.data.id, password_hash, &err)) {
-        CIM_LOG_ERROR(g_logger) << "Forget UpdatePasswordHash failed, mobile=" << mobile
+    if (!IM::dao::UserAuthDao::UpdatePasswordHash(result.data.id, password_hash, &err)) {
+        IM_LOG_ERROR(g_logger) << "Forget UpdatePasswordHash failed, mobile=" << mobile
                                 << ", err=" << err;
         result.code = 500;
         result.err = "更新密码失败";
@@ -240,4 +240,4 @@ UserResult AuthService::Forget(const std::string& mobile, const std::string& new
     return result;
 }
 
-}  // namespace CIM::app
+}  // namespace IM::app

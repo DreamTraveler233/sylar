@@ -2,7 +2,7 @@
 
 int main(int argc, char **argv)
 {
-    CIM::Application app;
+    IM::Application app;
     if (app.init(argc, argv))
     {
         return app.run();

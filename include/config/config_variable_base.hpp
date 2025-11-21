@@ -1,20 +1,20 @@
 /**
  * @file config_variable_base.hpp
  * @brief 配置变量基类定义文件
- * @author CIM
+ * @author IM
  *
  * 该文件定义了配置系统的基类 ConfigVariableBase，所有具体的配置变量类都需要继承自该类。
  * ConfigVariableBase 提供了配置项的基本属性（名称、描述）以及序列化/反序列化接口，
  * 是整个配置系统的核心基础类。
  */
 
-#ifndef __CIM_CONFIG_CONFIG_VARIABLE_BASE_HPP__
-#define __CIM_CONFIG_CONFIG_VARIABLE_BASE_HPP__
+#ifndef __IM_CONFIG_CONFIG_VARIABLE_BASE_HPP__
+#define __IM_CONFIG_CONFIG_VARIABLE_BASE_HPP__
 
 #include <memory>
 #include <string>
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 配置变量基类
      *
@@ -74,6 +74,6 @@ class ConfigVariableBase {
     std::string m_name;         // 配置项名称
     std::string m_description;  // 配置项描述
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_CONFIG_CONFIG_VARIABLE_BASE_HPP__
+#endif // __IM_CONFIG_CONFIG_VARIABLE_BASE_HPP__

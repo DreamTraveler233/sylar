@@ -1,5 +1,5 @@
-#ifndef __CIM_HTTP_SESSION_DATA_HPP__
-#define __CIM_HTTP_SESSION_DATA_HPP__
+#ifndef __IM_HTTP_SESSION_DATA_HPP__
+#define __IM_HTTP_SESSION_DATA_HPP__
 
 #include <boost/any.hpp>
 #include <unordered_map>
@@ -7,7 +7,7 @@
 #include "io/lock.hpp"
 #include "base/singleton.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 class SessionData {
    public:
     typedef std::shared_ptr<SessionData> ptr;
@@ -65,6 +65,6 @@ class SessionDataManager {
 
 typedef Singleton<SessionDataManager> SessionDataMgr;
 
-}  // namespace CIM::http
+}  // namespace IM::http
 
-#endif // __CIM_HTTP_SESSION_DATA_HPP__
+#endif // __IM_HTTP_SESSION_DATA_HPP__

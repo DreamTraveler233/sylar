@@ -6,7 +6,7 @@
 
 #include "net/hook.hpp"
 
-namespace CIM {
+namespace IM {
 FdCtx::FdCtx(int fd)
     : m_isInit(false),
       m_isSocket(false),
@@ -190,4 +190,4 @@ FileDescriptor& FileDescriptor::operator=(FileDescriptor&& other) noexcept {
     }
     return *this;
 }
-}  // namespace CIM
+}  // namespace IM

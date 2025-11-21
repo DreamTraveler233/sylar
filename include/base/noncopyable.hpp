@@ -1,7 +1,7 @@
-#ifndef __CIM_BASE_NONCOPYABLE_HPP__
-#define __CIM_BASE_NONCOPYABLE_HPP__
+#ifndef __IM_BASE_NONCOPYABLE_HPP__
+#define __IM_BASE_NONCOPYABLE_HPP__
 
-namespace CIM {
+namespace IM {
 class Noncopyable {
    public:
     Noncopyable(const Noncopyable&) = delete;
@@ -11,6 +11,6 @@ class Noncopyable {
     Noncopyable() = default;
     ~Noncopyable() = default;
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_BASE_NONCOPYABLE_HPP__
+#endif // __IM_BASE_NONCOPYABLE_HPP__

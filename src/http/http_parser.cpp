@@ -5,17 +5,17 @@
 #include "config/config.hpp"
 #include "base/macro.hpp"
 
-namespace CIM::http {
-static CIM::Logger::ptr g_logger = CIM_LOG_NAME("system");
+namespace IM::http {
+static IM::Logger::ptr g_logger = IM_LOG_NAME("system");
 
 // 加载http协议解析器的配置项
-static auto g_http_request_buffer_size = CIM::Config::Lookup(
+static auto g_http_request_buffer_size = IM::Config::Lookup(
     "http.request.buffer_size", (uint64_t)(4 * 1024), "http request buffer size");
-static auto g_http_request_max_body_size = CIM::Config::Lookup(
+static auto g_http_request_max_body_size = IM::Config::Lookup(
     "http.request.max_body_size", (uint64_t)(64 * 1024 * 1024), "http request max body size");
-static auto g_http_response_buffer_size = CIM::Config::Lookup(
+static auto g_http_response_buffer_size = IM::Config::Lookup(
     "http.response.buffer_size", (uint64_t)(4 * 1024), "http response buffer size");
-static auto g_http_response_max_body_size = CIM::Config::Lookup(
+static auto g_http_response_max_body_size = IM::Config::Lookup(
     "http.response.max_body_size", (uint64_t)(64 * 1024 * 1024), "http response max body size");
 
 // 用于保存配置值，提升性能
@@ -89,7 +89,7 @@ void on_request_method(void* data, const char* at, size_t length) {
     HttpMethod m = CharsToHttpMethod(at);
 
     if (m == HttpMethod::INVALID_METHOD) {
-        CIM_LOG_WARN(g_logger) << "invalid http request method: " << std::string(at, length);
+        IM_LOG_WARN(g_logger) << "invalid http request method: " << std::string(at, length);
         parser->setError(1000);
         return;
     }
@@ -108,7 +108,7 @@ void on_request_uri(void* data, const char* at, size_t length) {}
      * 并将其设置到对应的HttpRequest对象中
      */
 void on_request_fragment(void* data, const char* at, size_t length) {
-    // CIM_LOG_INFO(g_logger) << "on_request_fragment:" << std::string(at, length);
+    // IM_LOG_INFO(g_logger) << "on_request_fragment:" << std::string(at, length);
     HttpRequestParser* parser = static_cast<HttpRequestParser*>(data);
     parser->getData()->setFragment(std::string(at, length));
 }
@@ -158,7 +158,7 @@ void on_request_version(void* data, const char* at, size_t length) {
     } else if (strncmp(at, "HTTP/1.0", length) == 0) {
         v = 0x10;
     } else {
-        CIM_LOG_WARN(g_logger) << "invalid http request version: " << std::string(at, length);
+        IM_LOG_WARN(g_logger) << "invalid http request version: " << std::string(at, length);
         parser->setError(1001);
         return;
     }
@@ -184,7 +184,7 @@ void on_request_http_field(void* data, const char* field, size_t flen, const cha
                            size_t vlen) {
     HttpRequestParser* parser = static_cast<HttpRequestParser*>(data);
     if (flen == 0) {
-        CIM_LOG_WARN(g_logger) << "invalid http request field length == 0";
+        IM_LOG_WARN(g_logger) << "invalid http request field length == 0";
         // parser->setError(1002);
         return;
     }
@@ -192,7 +192,7 @@ void on_request_http_field(void* data, const char* field, size_t flen, const cha
 }
 
 HttpRequestParser::HttpRequestParser() : m_error(0) {
-    m_data.reset(new CIM::http::HttpRequest);
+    m_data.reset(new IM::http::HttpRequest);
     http_parser_init(&m_parser);
     m_parser.request_method = on_request_method;
     m_parser.request_uri = on_request_uri;
@@ -295,7 +295,7 @@ void on_response_version(void* data, const char* at, size_t length) {
     } else if (strncmp(at, "HTTP/1.0", length) == 0) {
         v = 0x10;
     } else {
-        CIM_LOG_WARN(g_logger) << "invalid http response version: " << std::string(at, length);
+        IM_LOG_WARN(g_logger) << "invalid http response version: " << std::string(at, length);
         parser->setError(1001);
         return;
     }
@@ -322,7 +322,7 @@ void on_response_http_field(void* data, const char* field, size_t flen, const ch
                             size_t vlen) {
     HttpResponseParser* parser = static_cast<HttpResponseParser*>(data);
     if (flen == 0) {
-        CIM_LOG_WARN(g_logger) << "invalid http response field length == 0";
+        IM_LOG_WARN(g_logger) << "invalid http response field length == 0";
         // parser->setError(1002);
         return;
     }
@@ -330,7 +330,7 @@ void on_response_http_field(void* data, const char* field, size_t flen, const ch
 }
 
 HttpResponseParser::HttpResponseParser() : m_error(0) {
-    m_data.reset(new CIM::http::HttpResponse);
+    m_data.reset(new IM::http::HttpResponse);
     httpclient_parser_init(&m_parser);
     m_parser.reason_phrase = on_response_reason;
     m_parser.status_code = on_response_status;
@@ -397,4 +397,4 @@ uint64_t HttpResponseParser::getContentLength() {
 const httpclient_parser& HttpResponseParser::getParser() const {
     return m_parser;
 }
-}  // namespace CIM::http
+}  // namespace IM::http

@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-package CIM.ns;
+package IM.ns;
 
 message Node {
     optional string ip = 1;     //ip地址

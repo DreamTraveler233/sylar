@@ -4,7 +4,7 @@
  * @author your_name
  *
  * @details 该文件实现了TCP服务器的封装，提供了完整的TCP服务器功能，
- * 包括地址绑定、连接监听、客户端连接处理等。基于CIM框架的协程和IO管理器实现，
+ * 包括地址绑定、连接监听、客户端连接处理等。基于IM框架的协程和IO管理器实现，
  * 支持高并发的网络连接处理。
  *
  * 主要特性:
@@ -15,8 +15,8 @@
  * - 灵活的工作线程模型
  */
 
-#ifndef __CIM_NET_TCP_SERVER_HPP__
-#define __CIM_NET_TCP_SERVER_HPP__
+#ifndef __IM_NET_TCP_SERVER_HPP__
+#define __IM_NET_TCP_SERVER_HPP__
 
 #include <functional>
 #include <memory>
@@ -27,7 +27,7 @@
 #include "base/noncopyable.hpp"
 #include "socket.hpp"
 
-namespace CIM {
+namespace IM {
 /**
      * @brief TCP服务器配置结构体
      * @details 用于存储TCP服务器的各种配置参数
@@ -127,7 +127,7 @@ class LexicalCast<TcpServerConf, std::string> {
 /**
      * @brief TCP服务器封装类
      * @details 提供TCP服务器的基本功能，包括监听端口、接受连接、处理客户端请求等。
-     * 基于CIM框架的协程和IO管理器实现，能够处理大量并发连接。
+     * 基于IM框架的协程和IO管理器实现，能够处理大量并发连接。
      *
      * 核心组件:
      * - Socket管理: 管理监听套接字和客户端连接套接字
@@ -285,6 +285,6 @@ class TcpServer : public std::enable_shared_from_this<TcpServer>, Noncopyable {
     bool m_ssl = false;                /// 是否启用SSL
     TcpServerConf::ptr m_conf;         /// 服务器配置
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_NET_TCP_SERVER_HPP__
+#endif // __IM_NET_TCP_SERVER_HPP__

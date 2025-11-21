@@ -1,7 +1,7 @@
 /**
  * @file logger.hpp
  * @brief 日志器类定义
- * @author CIM
+ * @author IM
  * @date 2025-10-21
  *
  * 该文件定义了日志器(Logger)类，负责管理日志的输出目标和日志级别的控制。
@@ -9,8 +9,8 @@
  * 日志输出器(LogAppender)。每个Logger可以设置独立的日志级别和格式化器。
  */
 
-#ifndef __CIM_LOG_LOGGER_HPP__
-#define __CIM_LOG_LOGGER_HPP__
+#ifndef __IM_LOG_LOGGER_HPP__
+#define __IM_LOG_LOGGER_HPP__
 
 #include <list>
 #include <memory>
@@ -23,7 +23,7 @@
 #include "log_level.hpp"
 #include "base/macro.hpp"
 
-namespace CIM {
+namespace IM {
 
 class LoggerManager;
 
@@ -159,6 +159,6 @@ class Logger {
     Logger::ptr m_root;                       ///< 根日志器
     MutexType m_mutex;                        ///< 互斥锁
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_LOG_LOGGER_HPP__
+#endif // __IM_LOG_LOGGER_HPP__

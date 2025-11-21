@@ -1,6 +1,6 @@
 
-#ifndef __CIM_OTHER_ZK_CLIENT_HPP__
-#define __CIM_OTHER_ZK_CLIENT_HPP__
+#ifndef __IM_OTHER_ZK_CLIENT_HPP__
+#define __IM_OTHER_ZK_CLIENT_HPP__
 
 #include <stdint.h>
 
@@ -15,7 +15,7 @@
 
 #include <zookeeper/zookeeper.h>
 
-namespace CIM {
+namespace IM {
 class ZKClient : public std::enable_shared_from_this<ZKClient> {
    public:
     class EventType {
@@ -84,6 +84,6 @@ class ZKClient : public std::enable_shared_from_this<ZKClient> {
     int32_t m_recvTimeout;
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_OTHER_ZK_CLIENT_HPP__
+#endif // __IM_OTHER_ZK_CLIENT_HPP__

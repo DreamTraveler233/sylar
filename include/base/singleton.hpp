@@ -1,8 +1,8 @@
-#ifndef __CIM_BASE_SINGLETON_HPP__
-#define __CIM_BASE_SINGLETON_HPP__
+#ifndef __IM_BASE_SINGLETON_HPP__
+#define __IM_BASE_SINGLETON_HPP__
 #include <memory>
 
-namespace CIM {
+namespace IM {
 template <class T, class X = void, int N = 0>
 class Singleton {
    public:
@@ -20,6 +20,6 @@ class SingletonPtr {
         return v;
     }
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_BASE_SINGLETON_HPP__
+#endif // __IM_BASE_SINGLETON_HPP__

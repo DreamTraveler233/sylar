@@ -6,14 +6,14 @@
 #include "log/log_event.hpp"
 #include "log/logger.hpp"
 
-namespace CIM {
+namespace IM {
 LogFormatter::LogFormatter(const std::string& pattern) : m_pattern(pattern), m_isError(false) {
-    CIM_ASSERT(!pattern.empty());
+    IM_ASSERT(!pattern.empty());
     init();
 }
 
 std::string LogFormatter::format(std::shared_ptr<LogEvent> event) {
-    CIM_ASSERT(event);
+    IM_ASSERT(event);
     std::stringstream ss;
     for (auto& i : m_items) {
         i->format(ss, event);
@@ -197,4 +197,4 @@ void StringFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event)
 void ThreadNameFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event) {
     os << event->getThreadName();
 }
-}  // namespace CIM
+}  // namespace IM

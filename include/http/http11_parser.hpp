@@ -16,8 +16,8 @@
  * 头部字段等信息。解析器本身不存储解析结果，而是通过回调函数传递给调用者。
  */
 
-#ifndef __CIM_HTTP_HTTP11_PARSER_HPP__
-#define __CIM_HTTP_HTTP11_PARSER_HPP__
+#ifndef __IM_HTTP_HTTP11_PARSER_HPP__
+#define __IM_HTTP_HTTP11_PARSER_HPP__
 
 #include "http11_common.hpp"
 
@@ -98,4 +98,4 @@ int http_parser_is_finished(http_parser* parser);
  */
 #define http_parser_nread(parser) (parser)->nread
 
-#endif // __CIM_HTTP_HTTP11_PARSER_HPP__
+#endif // __IM_HTTP_HTTP11_PARSER_HPP__

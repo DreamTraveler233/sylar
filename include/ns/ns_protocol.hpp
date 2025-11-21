@@ -1,5 +1,5 @@
-#ifndef __CIM_NS_NS_PROTOCOL_HPP__
-#define __CIM_NS_NS_PROTOCOL_HPP__
+#ifndef __IM_NS_NS_PROTOCOL_HPP__
+#define __IM_NS_NS_PROTOCOL_HPP__
 
 #include <stdint.h>
 
@@ -11,7 +11,7 @@
 #include "io/lock.hpp"
 #include "ns_protobuf.pb.h"
 
-namespace CIM::ns {
+namespace IM::ns {
 enum class NSCommand {
     /// 注册节点信息
     REGISTER = 0x10001,
@@ -125,6 +125,6 @@ class NSDomainSet {
     std::map<std::string, NSDomain::ptr> m_datas;
 };
 
-}  // namespace CIM::ns
+}  // namespace IM::ns
 
-#endif // __CIM_NS_NS_PROTOCOL_HPP__
+#endif // __IM_NS_NS_PROTOCOL_HPP__

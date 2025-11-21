@@ -15,8 +15,8 @@
 #include "io/coroutine.hpp"
 #include "base/macro.hpp"
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
 
 pid_t GetThreadId() {
     return syscall(SYS_gettid);
@@ -35,7 +35,7 @@ void Backtrace(std::vector<std::string>& bt, int size, int skip) {
     // 将地址转换为可读的符号字符串
     char** strings = backtrace_symbols(array, s);
     if (NULL == strings) {
-        CIM_LOG_ERROR(g_logger) << "backtrace_symbols error";
+        IM_LOG_ERROR(g_logger) << "backtrace_symbols error";
         free(array);
         return;
     }
@@ -338,7 +338,7 @@ in_addr_t GetIPv4Inet() {
 
     in_addr_t localhost = inet_addr("127.0.0.1");
     if (getifaddrs(&ifas)) {
-        CIM_LOG_ERROR(g_logger) << "getifaddrs errno=" << errno << " errstr=" << strerror(errno);
+        IM_LOG_ERROR(g_logger) << "getifaddrs errno=" << errno << " errstr=" << strerror(errno);
         return localhost;
     }
 
@@ -428,4 +428,4 @@ double TypeUtil::Atof(const char* str) {
     }
     return atof(str);
 }
-}  // namespace CIM
+}  // namespace IM

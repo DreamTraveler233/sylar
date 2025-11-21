@@ -3,7 +3,7 @@
 #include "base/macro.hpp"
 #include "util/time_util.hpp"
 
-namespace CIM {
+namespace IM {
 Timer::Timer(uint64_t ms, std::function<void()> cb, bool recurring, TimerManager* manager)
     : m_recurring(recurring),
       m_ms(ms),
@@ -103,7 +103,7 @@ TimerManager::TimerManager() {
 }
 
 Timer::ptr TimerManager::addTimer(uint64_t ms, std::function<void()> cb, bool recurring) {
-    //CIM_ASSERT(ms && cb);
+    //IM_ASSERT(ms && cb);
     Timer::ptr timer(new Timer(ms, cb, recurring, this));
     RWMutex::WriteLock lock(m_mutex);
     addTimer(timer, lock);
@@ -225,4 +225,4 @@ bool TimerManager::detectClockRollover(uint64_t now_ms) {
     m_previouseTime = now_ms;
     return rollover;
 }
-}  // namespace CIM
+}  // namespace IM

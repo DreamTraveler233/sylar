@@ -10,35 +10,35 @@
 #include "system/application.hpp"
 #include "util/util.hpp"
 
-namespace CIM::api {
+namespace IM::api {
 
-static auto g_logger = CIM_LOG_NAME("root");
+static auto g_logger = IM_LOG_NAME("root");
 
 TalkApiModule::TalkApiModule() : Module("api.talk", "0.1.0", "builtin") {}
 
 bool TalkApiModule::onServerReady() {
-    std::vector<CIM::TcpServer::ptr> httpServers;
-    if (!CIM::Application::GetInstance()->getServer("http", httpServers)) {
-        CIM_LOG_WARN(g_logger) << "no http servers found when registering talk routes";
+    std::vector<IM::TcpServer::ptr> httpServers;
+    if (!IM::Application::GetInstance()->getServer("http", httpServers)) {
+        IM_LOG_WARN(g_logger) << "no http servers found when registering talk routes";
         return true;
     }
 
     for (auto& s : httpServers) {
-        auto http = std::dynamic_pointer_cast<CIM::http::HttpServer>(s);
+        auto http = std::dynamic_pointer_cast<IM::http::HttpServer>(s);
         if (!http) continue;
         auto dispatch = http->getServletDispatch();
 
         dispatch->addServlet("/api/v1/talk/session-clear-unread-num",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  uint64_t to_from_id;
                                  uint8_t talk_mode;
                                  Json::Value body;
                                  if (ParseBody(req->getBody(), body)) {
-                                     to_from_id = CIM::JsonUtil::GetUint64(body, "to_from_id");
-                                     talk_mode = CIM::JsonUtil::GetUint8(body, "talk_mode");
+                                     to_from_id = IM::JsonUtil::GetUint64(body, "to_from_id");
+                                     talk_mode = IM::JsonUtil::GetUint8(body, "talk_mode");
                                  }
 
                                  auto uid_result = GetUidFromToken(req, res);
@@ -49,7 +49,7 @@ bool TalkApiModule::onServerReady() {
                                  }
 
                                  // 清除未读消息数
-                                 auto result = CIM::app::TalkService::clearSessionUnreadNum(
+                                 auto result = IM::app::TalkService::clearSessionUnreadNum(
                                      uid_result.data, to_from_id, talk_mode);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
@@ -62,16 +62,16 @@ bool TalkApiModule::onServerReady() {
                              });
 
         dispatch->addServlet("/api/v1/talk/session-clear-records",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  uint64_t to_from_id;
                                  uint8_t talk_mode;
                                  Json::Value body;
                                  if (ParseBody(req->getBody(), body)) {
-                                     to_from_id = CIM::JsonUtil::GetUint64(body, "to_from_id");
-                                     talk_mode = CIM::JsonUtil::GetUint8(body, "talk_mode");
+                                     to_from_id = IM::JsonUtil::GetUint64(body, "to_from_id");
+                                     talk_mode = IM::JsonUtil::GetUint8(body, "talk_mode");
                                  }
 
                                  auto uid_result = GetUidFromToken(req, res);
@@ -82,7 +82,7 @@ bool TalkApiModule::onServerReady() {
                                  }
 
                                  // 清空聊天记录（硬删除）
-                                 auto result = CIM::app::MessageService::ClearTalkRecords(
+                                 auto result = IM::app::MessageService::ClearTalkRecords(
                                      uid_result.data, talk_mode, to_from_id);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
@@ -94,17 +94,17 @@ bool TalkApiModule::onServerReady() {
                                  return 0;
                              });
 
-        dispatch->addServlet("/api/v1/talk/session-create", [](CIM::http::HttpRequest::ptr req,
-                                                               CIM::http::HttpResponse::ptr res,
-                                                               CIM::http::HttpSession::ptr) {
+        dispatch->addServlet("/api/v1/talk/session-create", [](IM::http::HttpRequest::ptr req,
+                                                               IM::http::HttpResponse::ptr res,
+                                                               IM::http::HttpSession::ptr) {
             res->setHeader("Content-Type", "application/json");
 
             uint64_t to_from_id;
             uint8_t talk_mode;
             Json::Value body;
             if (ParseBody(req->getBody(), body)) {
-                to_from_id = CIM::JsonUtil::GetUint64(body, "to_from_id");
-                talk_mode = CIM::JsonUtil::GetUint8(body, "talk_mode");
+                to_from_id = IM::JsonUtil::GetUint64(body, "to_from_id");
+                talk_mode = IM::JsonUtil::GetUint8(body, "talk_mode");
             }
 
             auto uid_result = GetUidFromToken(req, res);
@@ -116,7 +116,7 @@ bool TalkApiModule::onServerReady() {
 
             // 创建并获取会话信息
             auto result =
-                CIM::app::TalkService::createSession(uid_result.data, to_from_id, talk_mode);
+                IM::app::TalkService::createSession(uid_result.data, to_from_id, talk_mode);
             if (!result.ok) {
                 res->setStatus(ToHttpStatus(result.code));
                 res->setBody(Error(result.code, result.err));
@@ -124,7 +124,7 @@ bool TalkApiModule::onServerReady() {
             }
 
             // 获取用户在线状态
-            auto online_result = CIM::app::UserService::GetUserOnlineStatus(to_from_id);
+            auto online_result = IM::app::UserService::GetUserOnlineStatus(to_from_id);
             if (!online_result.ok) {
                 res->setStatus(ToHttpStatus(online_result.code));
                 res->setBody(Error(online_result.code, online_result.err));
@@ -150,17 +150,17 @@ bool TalkApiModule::onServerReady() {
             return 0;
         });
 
-        dispatch->addServlet("/api/v1/talk/session-delete", [](CIM::http::HttpRequest::ptr req,
-                                                               CIM::http::HttpResponse::ptr res,
-                                                               CIM::http::HttpSession::ptr) {
+        dispatch->addServlet("/api/v1/talk/session-delete", [](IM::http::HttpRequest::ptr req,
+                                                               IM::http::HttpResponse::ptr res,
+                                                               IM::http::HttpSession::ptr) {
             res->setHeader("Content-Type", "application/json");
 
             uint64_t to_from_id;
             uint8_t talk_mode;
             Json::Value body;
             if (ParseBody(req->getBody(), body)) {
-                to_from_id = CIM::JsonUtil::GetUint64(body, "to_from_id");
-                talk_mode = CIM::JsonUtil::GetUint8(body, "talk_mode");
+                to_from_id = IM::JsonUtil::GetUint64(body, "to_from_id");
+                talk_mode = IM::JsonUtil::GetUint8(body, "talk_mode");
             }
 
             auto uid_result = GetUidFromToken(req, res);
@@ -172,7 +172,7 @@ bool TalkApiModule::onServerReady() {
 
             // 删除会话
             auto result =
-                CIM::app::TalkService::deleteSession(uid_result.data, to_from_id, talk_mode);
+                IM::app::TalkService::deleteSession(uid_result.data, to_from_id, talk_mode);
             if (!result.ok) {
                 res->setStatus(ToHttpStatus(result.code));
                 res->setBody(Error(result.code, result.err));
@@ -185,17 +185,17 @@ bool TalkApiModule::onServerReady() {
 
         /*设置*/
         dispatch->addServlet("/api/v1/talk/session-disturb",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  uint64_t to_from_id;
                                  uint8_t talk_mode, action;
                                  Json::Value body;
                                  if (ParseBody(req->getBody(), body)) {
-                                     to_from_id = CIM::JsonUtil::GetUint64(body, "to_from_id");
-                                     talk_mode = CIM::JsonUtil::GetUint8(body, "talk_mode");
-                                     action = CIM::JsonUtil::GetUint8(body, "action");
+                                     to_from_id = IM::JsonUtil::GetUint64(body, "to_from_id");
+                                     talk_mode = IM::JsonUtil::GetUint8(body, "talk_mode");
+                                     action = IM::JsonUtil::GetUint8(body, "action");
                                  }
 
                                  auto uid_result = GetUidFromToken(req, res);
@@ -206,7 +206,7 @@ bool TalkApiModule::onServerReady() {
                                  }
 
                                  // 设置是否免打扰
-                                 auto result = CIM::app::TalkService::setSessionDisturb(
+                                 auto result = IM::app::TalkService::setSessionDisturb(
                                      uid_result.data, to_from_id, talk_mode, action);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
@@ -217,9 +217,9 @@ bool TalkApiModule::onServerReady() {
                                  res->setBody(Ok());
                                  return 0;
                              });
-        dispatch->addServlet("/api/v1/talk/session-list", [](CIM::http::HttpRequest::ptr req,
-                                                             CIM::http::HttpResponse::ptr res,
-                                                             CIM::http::HttpSession::ptr) {
+        dispatch->addServlet("/api/v1/talk/session-list", [](IM::http::HttpRequest::ptr req,
+                                                             IM::http::HttpResponse::ptr res,
+                                                             IM::http::HttpSession::ptr) {
             res->setHeader("Content-Type", "application/json");
 
             // 获取用户ID
@@ -231,7 +231,7 @@ bool TalkApiModule::onServerReady() {
             }
 
             // 获取会话列表
-            auto result = CIM::app::TalkService::getSessionListByUserId(uid_result.data);
+            auto result = IM::app::TalkService::getSessionListByUserId(uid_result.data);
             if (!result.ok) {
                 res->setStatus(ToHttpStatus(result.code));
                 res->setBody(Error(result.code, result.err));
@@ -262,17 +262,17 @@ bool TalkApiModule::onServerReady() {
         });
 
         dispatch->addServlet("/api/v1/talk/session-top",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  uint64_t to_from_id;
                                  uint8_t talk_mode, action;
                                  Json::Value body;
                                  if (ParseBody(req->getBody(), body)) {
-                                     to_from_id = CIM::JsonUtil::GetUint64(body, "to_from_id");
-                                     talk_mode = CIM::JsonUtil::GetUint8(body, "talk_mode");
-                                     action = CIM::JsonUtil::GetUint8(body, "action");
+                                     to_from_id = IM::JsonUtil::GetUint64(body, "to_from_id");
+                                     talk_mode = IM::JsonUtil::GetUint8(body, "talk_mode");
+                                     action = IM::JsonUtil::GetUint8(body, "action");
                                  }
 
                                  auto uid_result = GetUidFromToken(req, res);
@@ -283,7 +283,7 @@ bool TalkApiModule::onServerReady() {
                                  }
 
                                  // 设置是否置顶
-                                 auto result = CIM::app::TalkService::setSessionTop(
+                                 auto result = IM::app::TalkService::setSessionTop(
                                      uid_result.data, to_from_id, talk_mode, action);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
@@ -299,4 +299,4 @@ bool TalkApiModule::onServerReady() {
     return true;
 }
 
-}  // namespace CIM::api
+}  // namespace IM::api

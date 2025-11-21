@@ -20,7 +20,7 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::PROTOBUF_NAMESPACE_ID;
 namespace _pbi = _pb::internal;
 
-namespace CIM {
+namespace IM {
 namespace ns {
 PROTOBUF_CONSTEXPR Node::Node(
     ::_pbi::ConstantInitialized): _impl_{
@@ -124,115 +124,114 @@ struct NotifyMessageDefaultTypeInternal {
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 NotifyMessageDefaultTypeInternal _NotifyMessage_default_instance_;
 }  // namespace ns
-}  // namespace CIM
+}  // namespace IM
 static ::_pb::Metadata file_level_metadata_ns_5fprotobuf_2eproto[7];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_ns_5fprotobuf_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_ns_5fprotobuf_2eproto = nullptr;
 
 const uint32_t TableStruct_ns_5fprotobuf_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::Node, _impl_._has_bits_),
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::Node, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::Node, _impl_._has_bits_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::Node, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::Node, _impl_.ip_),
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::Node, _impl_.port_),
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::Node, _impl_.weight_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::Node, _impl_.ip_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::Node, _impl_.port_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::Node, _impl_.weight_),
   0,
   1,
   2,
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::RegisterInfo, _impl_._has_bits_),
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::RegisterInfo, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::RegisterInfo, _impl_._has_bits_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::RegisterInfo, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::RegisterInfo, _impl_.domain_),
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::RegisterInfo, _impl_.cmds_),
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::RegisterInfo, _impl_.node_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::RegisterInfo, _impl_.domain_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::RegisterInfo, _impl_.cmds_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::RegisterInfo, _impl_.node_),
   0,
   ~0u,
   1,
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::RegisterRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::RegisterRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::RegisterRequest, _impl_.infos_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::RegisterRequest, _impl_.infos_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::QueryRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::QueryRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::QueryRequest, _impl_.domains_),
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::NodeInfo, _impl_._has_bits_),
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::NodeInfo, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::QueryRequest, _impl_.domains_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::NodeInfo, _impl_._has_bits_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::NodeInfo, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::NodeInfo, _impl_.domain_),
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::NodeInfo, _impl_.cmd_),
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::NodeInfo, _impl_.nodes_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::NodeInfo, _impl_.domain_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::NodeInfo, _impl_.cmd_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::NodeInfo, _impl_.nodes_),
   0,
   1,
   ~0u,
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::QueryResponse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::QueryResponse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::QueryResponse, _impl_.infos_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::QueryResponse, _impl_.infos_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::NotifyMessage, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::NotifyMessage, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::NotifyMessage, _impl_.dels_),
-  PROTOBUF_FIELD_OFFSET(::CIM::ns::NotifyMessage, _impl_.updates_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::NotifyMessage, _impl_.dels_),
+  PROTOBUF_FIELD_OFFSET(::IM::ns::NotifyMessage, _impl_.updates_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, 9, -1, sizeof(::CIM::ns::Node)},
-  { 12, 21, -1, sizeof(::CIM::ns::RegisterInfo)},
-  { 24, -1, -1, sizeof(::CIM::ns::RegisterRequest)},
-  { 31, -1, -1, sizeof(::CIM::ns::QueryRequest)},
-  { 38, 47, -1, sizeof(::CIM::ns::NodeInfo)},
-  { 50, -1, -1, sizeof(::CIM::ns::QueryResponse)},
-  { 57, -1, -1, sizeof(::CIM::ns::NotifyMessage)},
+  { 0, 9, -1, sizeof(::IM::ns::Node)},
+  { 12, 21, -1, sizeof(::IM::ns::RegisterInfo)},
+  { 24, -1, -1, sizeof(::IM::ns::RegisterRequest)},
+  { 31, -1, -1, sizeof(::IM::ns::QueryRequest)},
+  { 38, 47, -1, sizeof(::IM::ns::NodeInfo)},
+  { 50, -1, -1, sizeof(::IM::ns::QueryResponse)},
+  { 57, -1, -1, sizeof(::IM::ns::NotifyMessage)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-  &::CIM::ns::_Node_default_instance_._instance,
-  &::CIM::ns::_RegisterInfo_default_instance_._instance,
-  &::CIM::ns::_RegisterRequest_default_instance_._instance,
-  &::CIM::ns::_QueryRequest_default_instance_._instance,
-  &::CIM::ns::_NodeInfo_default_instance_._instance,
-  &::CIM::ns::_QueryResponse_default_instance_._instance,
-  &::CIM::ns::_NotifyMessage_default_instance_._instance,
+  &::IM::ns::_Node_default_instance_._instance,
+  &::IM::ns::_RegisterInfo_default_instance_._instance,
+  &::IM::ns::_RegisterRequest_default_instance_._instance,
+  &::IM::ns::_QueryRequest_default_instance_._instance,
+  &::IM::ns::_NodeInfo_default_instance_._instance,
+  &::IM::ns::_QueryResponse_default_instance_._instance,
+  &::IM::ns::_NotifyMessage_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_ns_5fprotobuf_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\021ns_protobuf.proto\022\006CIM.ns\"0\n\004Node\022\n\n\002i"
-  "p\030\001 \001(\t\022\014\n\004port\030\002 \001(\r\022\016\n\006weight\030\003 \001(\r\"H\n"
-  "\014RegisterInfo\022\016\n\006domain\030\001 \001(\t\022\014\n\004cmds\030\002 "
-  "\003(\r\022\032\n\004node\030\003 \001(\0132\014.CIM.ns.Node\"6\n\017Regis"
-  "terRequest\022#\n\005infos\030\001 \003(\0132\024.CIM.ns.Regis"
-  "terInfo\"\037\n\014QueryRequest\022\017\n\007domains\030\001 \003(\t"
-  "\"D\n\010NodeInfo\022\016\n\006domain\030\001 \001(\t\022\013\n\003cmd\030\002 \001("
-  "\r\022\033\n\005nodes\030\003 \003(\0132\014.CIM.ns.Node\"0\n\rQueryR"
-  "esponse\022\037\n\005infos\030\001 \003(\0132\020.CIM.ns.NodeInfo"
-  "\"R\n\rNotifyMessage\022\036\n\004dels\030\001 \003(\0132\020.CIM.ns"
-  ".NodeInfo\022!\n\007updates\030\002 \003(\0132\020.CIM.ns.Node"
-  "Info"
+  "\n\021ns_protobuf.proto\022\005IM.ns\"0\n\004Node\022\n\n\002ip"
+  "\030\001 \001(\t\022\014\n\004port\030\002 \001(\r\022\016\n\006weight\030\003 \001(\r\"G\n\014"
+  "RegisterInfo\022\016\n\006domain\030\001 \001(\t\022\014\n\004cmds\030\002 \003"
+  "(\r\022\031\n\004node\030\003 \001(\0132\013.IM.ns.Node\"5\n\017Registe"
+  "rRequest\022\"\n\005infos\030\001 \003(\0132\023.IM.ns.Register"
+  "Info\"\037\n\014QueryRequest\022\017\n\007domains\030\001 \003(\t\"C\n"
+  "\010NodeInfo\022\016\n\006domain\030\001 \001(\t\022\013\n\003cmd\030\002 \001(\r\022\032"
+  "\n\005nodes\030\003 \003(\0132\013.IM.ns.Node\"/\n\rQueryRespo"
+  "nse\022\036\n\005infos\030\001 \003(\0132\017.IM.ns.NodeInfo\"P\n\rN"
+  "otifyMessage\022\035\n\004dels\030\001 \003(\0132\017.IM.ns.NodeI"
+  "nfo\022 \n\007updates\030\002 \003(\0132\017.IM.ns.NodeInfo"
   ;
 static ::_pbi::once_flag descriptor_table_ns_5fprotobuf_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_ns_5fprotobuf_2eproto = {
-    false, false, 444, descriptor_table_protodef_ns_5fprotobuf_2eproto,
+    false, false, 437, descriptor_table_protodef_ns_5fprotobuf_2eproto,
     "ns_protobuf.proto",
     &descriptor_table_ns_5fprotobuf_2eproto_once, nullptr, 0, 7,
     schemas, file_default_instances, TableStruct_ns_5fprotobuf_2eproto::offsets,
@@ -245,7 +244,7 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_ns_5fpro
 
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_ns_5fprotobuf_2eproto(&descriptor_table_ns_5fprotobuf_2eproto);
-namespace CIM {
+namespace IM {
 namespace ns {
 
 // ===================================================================
@@ -268,7 +267,7 @@ Node::Node(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:CIM.ns.Node)
+  // @@protoc_insertion_point(arena_constructor:IM.ns.Node)
 }
 Node::Node(const Node& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -292,7 +291,7 @@ Node::Node(const Node& from)
   ::memcpy(&_impl_.port_, &from._impl_.port_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.weight_) -
     reinterpret_cast<char*>(&_impl_.port_)) + sizeof(_impl_.weight_));
-  // @@protoc_insertion_point(copy_constructor:CIM.ns.Node)
+  // @@protoc_insertion_point(copy_constructor:IM.ns.Node)
 }
 
 inline void Node::SharedCtor(
@@ -313,7 +312,7 @@ inline void Node::SharedCtor(
 }
 
 Node::~Node() {
-  // @@protoc_insertion_point(destructor:CIM.ns.Node)
+  // @@protoc_insertion_point(destructor:IM.ns.Node)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -331,7 +330,7 @@ void Node::SetCachedSize(int size) const {
 }
 
 void Node::Clear() {
-// @@protoc_insertion_point(message_clear_start:CIM.ns.Node)
+// @@protoc_insertion_point(message_clear_start:IM.ns.Node)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -363,7 +362,7 @@ const char* Node::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
           #ifndef NDEBUG
-          ::_pbi::VerifyUTF8(str, "CIM.ns.Node.ip");
+          ::_pbi::VerifyUTF8(str, "IM.ns.Node.ip");
           #endif  // !NDEBUG
         } else
           goto handle_unusual;
@@ -412,7 +411,7 @@ failure:
 
 uint8_t* Node::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:CIM.ns.Node)
+  // @@protoc_insertion_point(serialize_to_array_start:IM.ns.Node)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -422,7 +421,7 @@ uint8_t* Node::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       this->_internal_ip().data(), static_cast<int>(this->_internal_ip().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
-      "CIM.ns.Node.ip");
+      "IM.ns.Node.ip");
     target = stream->WriteStringMaybeAliased(
         1, this->_internal_ip(), target);
   }
@@ -443,12 +442,12 @@ uint8_t* Node::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:CIM.ns.Node)
+  // @@protoc_insertion_point(serialize_to_array_end:IM.ns.Node)
   return target;
 }
 
 size_t Node::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:CIM.ns.Node)
+// @@protoc_insertion_point(message_byte_size_start:IM.ns.Node)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -488,7 +487,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Node::GetClassData() const { r
 void Node::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<Node*>(&to_msg);
   auto& from = static_cast<const Node&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:CIM.ns.Node)
+  // @@protoc_insertion_point(class_specific_merge_from_start:IM.ns.Node)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -510,7 +509,7 @@ void Node::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_
 }
 
 void Node::CopyFrom(const Node& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:CIM.ns.Node)
+// @@protoc_insertion_point(class_specific_copy_from_start:IM.ns.Node)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -552,13 +551,13 @@ class RegisterInfo::_Internal {
   static void set_has_domain(HasBits* has_bits) {
     (*has_bits)[0] |= 1u;
   }
-  static const ::CIM::ns::Node& node(const RegisterInfo* msg);
+  static const ::IM::ns::Node& node(const RegisterInfo* msg);
   static void set_has_node(HasBits* has_bits) {
     (*has_bits)[0] |= 2u;
   }
 };
 
-const ::CIM::ns::Node&
+const ::IM::ns::Node&
 RegisterInfo::_Internal::node(const RegisterInfo* msg) {
   return *msg->_impl_.node_;
 }
@@ -566,7 +565,7 @@ RegisterInfo::RegisterInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:CIM.ns.RegisterInfo)
+  // @@protoc_insertion_point(arena_constructor:IM.ns.RegisterInfo)
 }
 RegisterInfo::RegisterInfo(const RegisterInfo& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -588,9 +587,9 @@ RegisterInfo::RegisterInfo(const RegisterInfo& from)
       _this->GetArenaForAllocation());
   }
   if (from._internal_has_node()) {
-    _this->_impl_.node_ = new ::CIM::ns::Node(*from._impl_.node_);
+    _this->_impl_.node_ = new ::IM::ns::Node(*from._impl_.node_);
   }
-  // @@protoc_insertion_point(copy_constructor:CIM.ns.RegisterInfo)
+  // @@protoc_insertion_point(copy_constructor:IM.ns.RegisterInfo)
 }
 
 inline void RegisterInfo::SharedCtor(
@@ -611,7 +610,7 @@ inline void RegisterInfo::SharedCtor(
 }
 
 RegisterInfo::~RegisterInfo() {
-  // @@protoc_insertion_point(destructor:CIM.ns.RegisterInfo)
+  // @@protoc_insertion_point(destructor:IM.ns.RegisterInfo)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -631,7 +630,7 @@ void RegisterInfo::SetCachedSize(int size) const {
 }
 
 void RegisterInfo::Clear() {
-// @@protoc_insertion_point(message_clear_start:CIM.ns.RegisterInfo)
+// @@protoc_insertion_point(message_clear_start:IM.ns.RegisterInfo)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -665,7 +664,7 @@ const char* RegisterInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
           #ifndef NDEBUG
-          ::_pbi::VerifyUTF8(str, "CIM.ns.RegisterInfo.domain");
+          ::_pbi::VerifyUTF8(str, "IM.ns.RegisterInfo.domain");
           #endif  // !NDEBUG
         } else
           goto handle_unusual;
@@ -686,7 +685,7 @@ const char* RegisterInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
         } else
           goto handle_unusual;
         continue;
-      // optional .CIM.ns.Node node = 3;
+      // optional .IM.ns.Node node = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr = ctx->ParseMessage(_internal_mutable_node(), ptr);
@@ -720,7 +719,7 @@ failure:
 
 uint8_t* RegisterInfo::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:CIM.ns.RegisterInfo)
+  // @@protoc_insertion_point(serialize_to_array_start:IM.ns.RegisterInfo)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -730,7 +729,7 @@ uint8_t* RegisterInfo::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       this->_internal_domain().data(), static_cast<int>(this->_internal_domain().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
-      "CIM.ns.RegisterInfo.domain");
+      "IM.ns.RegisterInfo.domain");
     target = stream->WriteStringMaybeAliased(
         1, this->_internal_domain(), target);
   }
@@ -741,7 +740,7 @@ uint8_t* RegisterInfo::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteUInt32ToArray(2, this->_internal_cmds(i), target);
   }
 
-  // optional .CIM.ns.Node node = 3;
+  // optional .IM.ns.Node node = 3;
   if (cached_has_bits & 0x00000002u) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(3, _Internal::node(this),
@@ -752,12 +751,12 @@ uint8_t* RegisterInfo::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:CIM.ns.RegisterInfo)
+  // @@protoc_insertion_point(serialize_to_array_end:IM.ns.RegisterInfo)
   return target;
 }
 
 size_t RegisterInfo::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:CIM.ns.RegisterInfo)
+// @@protoc_insertion_point(message_byte_size_start:IM.ns.RegisterInfo)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -782,7 +781,7 @@ size_t RegisterInfo::ByteSizeLong() const {
           this->_internal_domain());
     }
 
-    // optional .CIM.ns.Node node = 3;
+    // optional .IM.ns.Node node = 3;
     if (cached_has_bits & 0x00000002u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
@@ -803,7 +802,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*RegisterInfo::GetClassData() c
 void RegisterInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<RegisterInfo*>(&to_msg);
   auto& from = static_cast<const RegisterInfo&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:CIM.ns.RegisterInfo)
+  // @@protoc_insertion_point(class_specific_merge_from_start:IM.ns.RegisterInfo)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -815,7 +814,7 @@ void RegisterInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::P
       _this->_internal_set_domain(from._internal_domain());
     }
     if (cached_has_bits & 0x00000002u) {
-      _this->_internal_mutable_node()->::CIM::ns::Node::MergeFrom(
+      _this->_internal_mutable_node()->::IM::ns::Node::MergeFrom(
           from._internal_node());
     }
   }
@@ -823,7 +822,7 @@ void RegisterInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::P
 }
 
 void RegisterInfo::CopyFrom(const RegisterInfo& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:CIM.ns.RegisterInfo)
+// @@protoc_insertion_point(class_specific_copy_from_start:IM.ns.RegisterInfo)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -863,7 +862,7 @@ RegisterRequest::RegisterRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:CIM.ns.RegisterRequest)
+  // @@protoc_insertion_point(arena_constructor:IM.ns.RegisterRequest)
 }
 RegisterRequest::RegisterRequest(const RegisterRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -873,7 +872,7 @@ RegisterRequest::RegisterRequest(const RegisterRequest& from)
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:CIM.ns.RegisterRequest)
+  // @@protoc_insertion_point(copy_constructor:IM.ns.RegisterRequest)
 }
 
 inline void RegisterRequest::SharedCtor(
@@ -887,7 +886,7 @@ inline void RegisterRequest::SharedCtor(
 }
 
 RegisterRequest::~RegisterRequest() {
-  // @@protoc_insertion_point(destructor:CIM.ns.RegisterRequest)
+  // @@protoc_insertion_point(destructor:IM.ns.RegisterRequest)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -905,7 +904,7 @@ void RegisterRequest::SetCachedSize(int size) const {
 }
 
 void RegisterRequest::Clear() {
-// @@protoc_insertion_point(message_clear_start:CIM.ns.RegisterRequest)
+// @@protoc_insertion_point(message_clear_start:IM.ns.RegisterRequest)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -920,7 +919,7 @@ const char* RegisterRequest::_InternalParse(const char* ptr, ::_pbi::ParseContex
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // repeated .CIM.ns.RegisterInfo infos = 1;
+      // repeated .IM.ns.RegisterInfo infos = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
@@ -958,11 +957,11 @@ failure:
 
 uint8_t* RegisterRequest::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:CIM.ns.RegisterRequest)
+  // @@protoc_insertion_point(serialize_to_array_start:IM.ns.RegisterRequest)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated .CIM.ns.RegisterInfo infos = 1;
+  // repeated .IM.ns.RegisterInfo infos = 1;
   for (unsigned i = 0,
       n = static_cast<unsigned>(this->_internal_infos_size()); i < n; i++) {
     const auto& repfield = this->_internal_infos(i);
@@ -974,19 +973,19 @@ uint8_t* RegisterRequest::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:CIM.ns.RegisterRequest)
+  // @@protoc_insertion_point(serialize_to_array_end:IM.ns.RegisterRequest)
   return target;
 }
 
 size_t RegisterRequest::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:CIM.ns.RegisterRequest)
+// @@protoc_insertion_point(message_byte_size_start:IM.ns.RegisterRequest)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .CIM.ns.RegisterInfo infos = 1;
+  // repeated .IM.ns.RegisterInfo infos = 1;
   total_size += 1UL * this->_internal_infos_size();
   for (const auto& msg : this->_impl_.infos_) {
     total_size +=
@@ -1006,7 +1005,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*RegisterRequest::GetClassData(
 void RegisterRequest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<RegisterRequest*>(&to_msg);
   auto& from = static_cast<const RegisterRequest&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:CIM.ns.RegisterRequest)
+  // @@protoc_insertion_point(class_specific_merge_from_start:IM.ns.RegisterRequest)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1016,7 +1015,7 @@ void RegisterRequest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const 
 }
 
 void RegisterRequest::CopyFrom(const RegisterRequest& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:CIM.ns.RegisterRequest)
+// @@protoc_insertion_point(class_specific_copy_from_start:IM.ns.RegisterRequest)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1048,7 +1047,7 @@ QueryRequest::QueryRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:CIM.ns.QueryRequest)
+  // @@protoc_insertion_point(arena_constructor:IM.ns.QueryRequest)
 }
 QueryRequest::QueryRequest(const QueryRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -1058,7 +1057,7 @@ QueryRequest::QueryRequest(const QueryRequest& from)
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:CIM.ns.QueryRequest)
+  // @@protoc_insertion_point(copy_constructor:IM.ns.QueryRequest)
 }
 
 inline void QueryRequest::SharedCtor(
@@ -1072,7 +1071,7 @@ inline void QueryRequest::SharedCtor(
 }
 
 QueryRequest::~QueryRequest() {
-  // @@protoc_insertion_point(destructor:CIM.ns.QueryRequest)
+  // @@protoc_insertion_point(destructor:IM.ns.QueryRequest)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -1090,7 +1089,7 @@ void QueryRequest::SetCachedSize(int size) const {
 }
 
 void QueryRequest::Clear() {
-// @@protoc_insertion_point(message_clear_start:CIM.ns.QueryRequest)
+// @@protoc_insertion_point(message_clear_start:IM.ns.QueryRequest)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -1115,7 +1114,7 @@ const char* QueryRequest::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
             ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
             CHK_(ptr);
             #ifndef NDEBUG
-            ::_pbi::VerifyUTF8(str, "CIM.ns.QueryRequest.domains");
+            ::_pbi::VerifyUTF8(str, "IM.ns.QueryRequest.domains");
             #endif  // !NDEBUG
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
@@ -1147,7 +1146,7 @@ failure:
 
 uint8_t* QueryRequest::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:CIM.ns.QueryRequest)
+  // @@protoc_insertion_point(serialize_to_array_start:IM.ns.QueryRequest)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -1157,7 +1156,7 @@ uint8_t* QueryRequest::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       s.data(), static_cast<int>(s.length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
-      "CIM.ns.QueryRequest.domains");
+      "IM.ns.QueryRequest.domains");
     target = stream->WriteString(1, s, target);
   }
 
@@ -1165,12 +1164,12 @@ uint8_t* QueryRequest::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:CIM.ns.QueryRequest)
+  // @@protoc_insertion_point(serialize_to_array_end:IM.ns.QueryRequest)
   return target;
 }
 
 size_t QueryRequest::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:CIM.ns.QueryRequest)
+// @@protoc_insertion_point(message_byte_size_start:IM.ns.QueryRequest)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -1198,7 +1197,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*QueryRequest::GetClassData() c
 void QueryRequest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<QueryRequest*>(&to_msg);
   auto& from = static_cast<const QueryRequest&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:CIM.ns.QueryRequest)
+  // @@protoc_insertion_point(class_specific_merge_from_start:IM.ns.QueryRequest)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1208,7 +1207,7 @@ void QueryRequest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::P
 }
 
 void QueryRequest::CopyFrom(const QueryRequest& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:CIM.ns.QueryRequest)
+// @@protoc_insertion_point(class_specific_copy_from_start:IM.ns.QueryRequest)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1247,7 +1246,7 @@ NodeInfo::NodeInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:CIM.ns.NodeInfo)
+  // @@protoc_insertion_point(arena_constructor:IM.ns.NodeInfo)
 }
 NodeInfo::NodeInfo(const NodeInfo& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -1269,7 +1268,7 @@ NodeInfo::NodeInfo(const NodeInfo& from)
       _this->GetArenaForAllocation());
   }
   _this->_impl_.cmd_ = from._impl_.cmd_;
-  // @@protoc_insertion_point(copy_constructor:CIM.ns.NodeInfo)
+  // @@protoc_insertion_point(copy_constructor:IM.ns.NodeInfo)
 }
 
 inline void NodeInfo::SharedCtor(
@@ -1290,7 +1289,7 @@ inline void NodeInfo::SharedCtor(
 }
 
 NodeInfo::~NodeInfo() {
-  // @@protoc_insertion_point(destructor:CIM.ns.NodeInfo)
+  // @@protoc_insertion_point(destructor:IM.ns.NodeInfo)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -1309,7 +1308,7 @@ void NodeInfo::SetCachedSize(int size) const {
 }
 
 void NodeInfo::Clear() {
-// @@protoc_insertion_point(message_clear_start:CIM.ns.NodeInfo)
+// @@protoc_insertion_point(message_clear_start:IM.ns.NodeInfo)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -1338,7 +1337,7 @@ const char* NodeInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx)
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
           #ifndef NDEBUG
-          ::_pbi::VerifyUTF8(str, "CIM.ns.NodeInfo.domain");
+          ::_pbi::VerifyUTF8(str, "IM.ns.NodeInfo.domain");
           #endif  // !NDEBUG
         } else
           goto handle_unusual;
@@ -1352,7 +1351,7 @@ const char* NodeInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx)
         } else
           goto handle_unusual;
         continue;
-      // repeated .CIM.ns.Node nodes = 3;
+      // repeated .IM.ns.Node nodes = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr -= 1;
@@ -1391,7 +1390,7 @@ failure:
 
 uint8_t* NodeInfo::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:CIM.ns.NodeInfo)
+  // @@protoc_insertion_point(serialize_to_array_start:IM.ns.NodeInfo)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -1401,7 +1400,7 @@ uint8_t* NodeInfo::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       this->_internal_domain().data(), static_cast<int>(this->_internal_domain().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
-      "CIM.ns.NodeInfo.domain");
+      "IM.ns.NodeInfo.domain");
     target = stream->WriteStringMaybeAliased(
         1, this->_internal_domain(), target);
   }
@@ -1412,7 +1411,7 @@ uint8_t* NodeInfo::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteUInt32ToArray(2, this->_internal_cmd(), target);
   }
 
-  // repeated .CIM.ns.Node nodes = 3;
+  // repeated .IM.ns.Node nodes = 3;
   for (unsigned i = 0,
       n = static_cast<unsigned>(this->_internal_nodes_size()); i < n; i++) {
     const auto& repfield = this->_internal_nodes(i);
@@ -1424,19 +1423,19 @@ uint8_t* NodeInfo::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:CIM.ns.NodeInfo)
+  // @@protoc_insertion_point(serialize_to_array_end:IM.ns.NodeInfo)
   return target;
 }
 
 size_t NodeInfo::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:CIM.ns.NodeInfo)
+// @@protoc_insertion_point(message_byte_size_start:IM.ns.NodeInfo)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .CIM.ns.Node nodes = 3;
+  // repeated .IM.ns.Node nodes = 3;
   total_size += 1UL * this->_internal_nodes_size();
   for (const auto& msg : this->_impl_.nodes_) {
     total_size +=
@@ -1471,7 +1470,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*NodeInfo::GetClassData() const
 void NodeInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<NodeInfo*>(&to_msg);
   auto& from = static_cast<const NodeInfo&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:CIM.ns.NodeInfo)
+  // @@protoc_insertion_point(class_specific_merge_from_start:IM.ns.NodeInfo)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1491,7 +1490,7 @@ void NodeInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTO
 }
 
 void NodeInfo::CopyFrom(const NodeInfo& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:CIM.ns.NodeInfo)
+// @@protoc_insertion_point(class_specific_copy_from_start:IM.ns.NodeInfo)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1531,7 +1530,7 @@ QueryResponse::QueryResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:CIM.ns.QueryResponse)
+  // @@protoc_insertion_point(arena_constructor:IM.ns.QueryResponse)
 }
 QueryResponse::QueryResponse(const QueryResponse& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -1541,7 +1540,7 @@ QueryResponse::QueryResponse(const QueryResponse& from)
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:CIM.ns.QueryResponse)
+  // @@protoc_insertion_point(copy_constructor:IM.ns.QueryResponse)
 }
 
 inline void QueryResponse::SharedCtor(
@@ -1555,7 +1554,7 @@ inline void QueryResponse::SharedCtor(
 }
 
 QueryResponse::~QueryResponse() {
-  // @@protoc_insertion_point(destructor:CIM.ns.QueryResponse)
+  // @@protoc_insertion_point(destructor:IM.ns.QueryResponse)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -1573,7 +1572,7 @@ void QueryResponse::SetCachedSize(int size) const {
 }
 
 void QueryResponse::Clear() {
-// @@protoc_insertion_point(message_clear_start:CIM.ns.QueryResponse)
+// @@protoc_insertion_point(message_clear_start:IM.ns.QueryResponse)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -1588,7 +1587,7 @@ const char* QueryResponse::_InternalParse(const char* ptr, ::_pbi::ParseContext*
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // repeated .CIM.ns.NodeInfo infos = 1;
+      // repeated .IM.ns.NodeInfo infos = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
@@ -1626,11 +1625,11 @@ failure:
 
 uint8_t* QueryResponse::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:CIM.ns.QueryResponse)
+  // @@protoc_insertion_point(serialize_to_array_start:IM.ns.QueryResponse)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated .CIM.ns.NodeInfo infos = 1;
+  // repeated .IM.ns.NodeInfo infos = 1;
   for (unsigned i = 0,
       n = static_cast<unsigned>(this->_internal_infos_size()); i < n; i++) {
     const auto& repfield = this->_internal_infos(i);
@@ -1642,19 +1641,19 @@ uint8_t* QueryResponse::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:CIM.ns.QueryResponse)
+  // @@protoc_insertion_point(serialize_to_array_end:IM.ns.QueryResponse)
   return target;
 }
 
 size_t QueryResponse::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:CIM.ns.QueryResponse)
+// @@protoc_insertion_point(message_byte_size_start:IM.ns.QueryResponse)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .CIM.ns.NodeInfo infos = 1;
+  // repeated .IM.ns.NodeInfo infos = 1;
   total_size += 1UL * this->_internal_infos_size();
   for (const auto& msg : this->_impl_.infos_) {
     total_size +=
@@ -1674,7 +1673,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*QueryResponse::GetClassData() 
 void QueryResponse::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<QueryResponse*>(&to_msg);
   auto& from = static_cast<const QueryResponse&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:CIM.ns.QueryResponse)
+  // @@protoc_insertion_point(class_specific_merge_from_start:IM.ns.QueryResponse)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1684,7 +1683,7 @@ void QueryResponse::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::
 }
 
 void QueryResponse::CopyFrom(const QueryResponse& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:CIM.ns.QueryResponse)
+// @@protoc_insertion_point(class_specific_copy_from_start:IM.ns.QueryResponse)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1716,7 +1715,7 @@ NotifyMessage::NotifyMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:CIM.ns.NotifyMessage)
+  // @@protoc_insertion_point(arena_constructor:IM.ns.NotifyMessage)
 }
 NotifyMessage::NotifyMessage(const NotifyMessage& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -1727,7 +1726,7 @@ NotifyMessage::NotifyMessage(const NotifyMessage& from)
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:CIM.ns.NotifyMessage)
+  // @@protoc_insertion_point(copy_constructor:IM.ns.NotifyMessage)
 }
 
 inline void NotifyMessage::SharedCtor(
@@ -1742,7 +1741,7 @@ inline void NotifyMessage::SharedCtor(
 }
 
 NotifyMessage::~NotifyMessage() {
-  // @@protoc_insertion_point(destructor:CIM.ns.NotifyMessage)
+  // @@protoc_insertion_point(destructor:IM.ns.NotifyMessage)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -1761,7 +1760,7 @@ void NotifyMessage::SetCachedSize(int size) const {
 }
 
 void NotifyMessage::Clear() {
-// @@protoc_insertion_point(message_clear_start:CIM.ns.NotifyMessage)
+// @@protoc_insertion_point(message_clear_start:IM.ns.NotifyMessage)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -1777,7 +1776,7 @@ const char* NotifyMessage::_InternalParse(const char* ptr, ::_pbi::ParseContext*
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // repeated .CIM.ns.NodeInfo dels = 1;
+      // repeated .IM.ns.NodeInfo dels = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
@@ -1790,7 +1789,7 @@ const char* NotifyMessage::_InternalParse(const char* ptr, ::_pbi::ParseContext*
         } else
           goto handle_unusual;
         continue;
-      // repeated .CIM.ns.NodeInfo updates = 2;
+      // repeated .IM.ns.NodeInfo updates = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr -= 1;
@@ -1828,11 +1827,11 @@ failure:
 
 uint8_t* NotifyMessage::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:CIM.ns.NotifyMessage)
+  // @@protoc_insertion_point(serialize_to_array_start:IM.ns.NotifyMessage)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated .CIM.ns.NodeInfo dels = 1;
+  // repeated .IM.ns.NodeInfo dels = 1;
   for (unsigned i = 0,
       n = static_cast<unsigned>(this->_internal_dels_size()); i < n; i++) {
     const auto& repfield = this->_internal_dels(i);
@@ -1840,7 +1839,7 @@ uint8_t* NotifyMessage::_InternalSerialize(
         InternalWriteMessage(1, repfield, repfield.GetCachedSize(), target, stream);
   }
 
-  // repeated .CIM.ns.NodeInfo updates = 2;
+  // repeated .IM.ns.NodeInfo updates = 2;
   for (unsigned i = 0,
       n = static_cast<unsigned>(this->_internal_updates_size()); i < n; i++) {
     const auto& repfield = this->_internal_updates(i);
@@ -1852,26 +1851,26 @@ uint8_t* NotifyMessage::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:CIM.ns.NotifyMessage)
+  // @@protoc_insertion_point(serialize_to_array_end:IM.ns.NotifyMessage)
   return target;
 }
 
 size_t NotifyMessage::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:CIM.ns.NotifyMessage)
+// @@protoc_insertion_point(message_byte_size_start:IM.ns.NotifyMessage)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .CIM.ns.NodeInfo dels = 1;
+  // repeated .IM.ns.NodeInfo dels = 1;
   total_size += 1UL * this->_internal_dels_size();
   for (const auto& msg : this->_impl_.dels_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // repeated .CIM.ns.NodeInfo updates = 2;
+  // repeated .IM.ns.NodeInfo updates = 2;
   total_size += 1UL * this->_internal_updates_size();
   for (const auto& msg : this->_impl_.updates_) {
     total_size +=
@@ -1891,7 +1890,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*NotifyMessage::GetClassData() 
 void NotifyMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<NotifyMessage*>(&to_msg);
   auto& from = static_cast<const NotifyMessage&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:CIM.ns.NotifyMessage)
+  // @@protoc_insertion_point(class_specific_merge_from_start:IM.ns.NotifyMessage)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1902,7 +1901,7 @@ void NotifyMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::
 }
 
 void NotifyMessage::CopyFrom(const NotifyMessage& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:CIM.ns.NotifyMessage)
+// @@protoc_insertion_point(class_specific_copy_from_start:IM.ns.NotifyMessage)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1927,35 +1926,35 @@ void NotifyMessage::InternalSwap(NotifyMessage* other) {
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace ns
-}  // namespace CIM
+}  // namespace IM
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::CIM::ns::Node*
-Arena::CreateMaybeMessage< ::CIM::ns::Node >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::CIM::ns::Node >(arena);
+template<> PROTOBUF_NOINLINE ::IM::ns::Node*
+Arena::CreateMaybeMessage< ::IM::ns::Node >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::IM::ns::Node >(arena);
 }
-template<> PROTOBUF_NOINLINE ::CIM::ns::RegisterInfo*
-Arena::CreateMaybeMessage< ::CIM::ns::RegisterInfo >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::CIM::ns::RegisterInfo >(arena);
+template<> PROTOBUF_NOINLINE ::IM::ns::RegisterInfo*
+Arena::CreateMaybeMessage< ::IM::ns::RegisterInfo >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::IM::ns::RegisterInfo >(arena);
 }
-template<> PROTOBUF_NOINLINE ::CIM::ns::RegisterRequest*
-Arena::CreateMaybeMessage< ::CIM::ns::RegisterRequest >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::CIM::ns::RegisterRequest >(arena);
+template<> PROTOBUF_NOINLINE ::IM::ns::RegisterRequest*
+Arena::CreateMaybeMessage< ::IM::ns::RegisterRequest >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::IM::ns::RegisterRequest >(arena);
 }
-template<> PROTOBUF_NOINLINE ::CIM::ns::QueryRequest*
-Arena::CreateMaybeMessage< ::CIM::ns::QueryRequest >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::CIM::ns::QueryRequest >(arena);
+template<> PROTOBUF_NOINLINE ::IM::ns::QueryRequest*
+Arena::CreateMaybeMessage< ::IM::ns::QueryRequest >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::IM::ns::QueryRequest >(arena);
 }
-template<> PROTOBUF_NOINLINE ::CIM::ns::NodeInfo*
-Arena::CreateMaybeMessage< ::CIM::ns::NodeInfo >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::CIM::ns::NodeInfo >(arena);
+template<> PROTOBUF_NOINLINE ::IM::ns::NodeInfo*
+Arena::CreateMaybeMessage< ::IM::ns::NodeInfo >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::IM::ns::NodeInfo >(arena);
 }
-template<> PROTOBUF_NOINLINE ::CIM::ns::QueryResponse*
-Arena::CreateMaybeMessage< ::CIM::ns::QueryResponse >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::CIM::ns::QueryResponse >(arena);
+template<> PROTOBUF_NOINLINE ::IM::ns::QueryResponse*
+Arena::CreateMaybeMessage< ::IM::ns::QueryResponse >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::IM::ns::QueryResponse >(arena);
 }
-template<> PROTOBUF_NOINLINE ::CIM::ns::NotifyMessage*
-Arena::CreateMaybeMessage< ::CIM::ns::NotifyMessage >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::CIM::ns::NotifyMessage >(arena);
+template<> PROTOBUF_NOINLINE ::IM::ns::NotifyMessage*
+Arena::CreateMaybeMessage< ::IM::ns::NotifyMessage >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::IM::ns::NotifyMessage >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

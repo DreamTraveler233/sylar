@@ -1,11 +1,11 @@
-#ifndef __CIM_API_CONTACT_API_MODULE_HPP__
-#define __CIM_API_CONTACT_API_MODULE_HPP__
+#ifndef __IM_API_CONTACT_API_MODULE_HPP__
+#define __IM_API_CONTACT_API_MODULE_HPP__
 
 #include "other/module.hpp"
 
-namespace CIM::api {
+namespace IM::api {
 
-class ContactApiModule : public CIM::Module {
+class ContactApiModule : public IM::Module {
    public:
     ContactApiModule();
     ~ContactApiModule() override = default;
@@ -13,6 +13,6 @@ class ContactApiModule : public CIM::Module {
     bool onServerReady() override;
 };
 
-}  // namespace CIM::api
+}  // namespace IM::api
 
-#endif // __CIM_API_CONTACT_API_MODULE_HPP__
+#endif // __IM_API_CONTACT_API_MODULE_HPP__

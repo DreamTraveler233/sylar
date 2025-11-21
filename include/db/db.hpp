@@ -1,10 +1,10 @@
-#ifndef __CIM_DB_DB_HPP__
-#define __CIM_DB_DB_HPP__
+#ifndef __IM_DB_DB_HPP__
+#define __IM_DB_DB_HPP__
 
 #include <memory>
 #include <string>
 
-namespace CIM {
+namespace IM {
 class ISQLData {
    public:
     typedef std::shared_ptr<ISQLData> ptr;
@@ -100,6 +100,6 @@ class IDB : public ISQLUpdate, public ISQLQuery {
     virtual ITransaction::ptr openTransaction(bool auto_commit = false) = 0;
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_DB_DB_HPP__
+#endif // __IM_DB_DB_HPP__

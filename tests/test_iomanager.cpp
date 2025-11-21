@@ -5,16 +5,16 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-auto g_logger = CIM_LOG_ROOT();
+auto g_logger = IM_LOG_ROOT();
 
 void test_coroutine()
 {
-    CIM_LOG_INFO(g_logger) << "test_coroutine";
+    IM_LOG_INFO(g_logger) << "test_coroutine";
 }
 
 void test1()
 {
-    CIM::IOManager iom(2, false, "test");
+    IM::IOManager iom(2, false, "test");
     iom.schedule(test_coroutine);
 
     int fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -26,21 +26,21 @@ void test1()
     inet_pton(AF_INET, "192.168.126.100", &addr.sin_addr.s_addr);
 
     connect(fd, (const sockaddr *)&addr, sizeof(addr));
-    iom.addEvent(fd, CIM::IOManager::WRITE, []()
-                 { CIM_LOG_INFO(g_logger) << "write callback"; });
-    iom.addEvent(fd, CIM::IOManager::READ, []()
-                 { CIM_LOG_INFO(g_logger) << "read callback"; });
+    iom.addEvent(fd, IM::IOManager::WRITE, []()
+                 { IM_LOG_INFO(g_logger) << "write callback"; });
+    iom.addEvent(fd, IM::IOManager::READ, []()
+                 { IM_LOG_INFO(g_logger) << "read callback"; });
 }
 
 void test_timer()
 {
-    static CIM::Timer::ptr timer;
-    CIM::IOManager iom(2, false, "test");
+    static IM::Timer::ptr timer;
+    IM::IOManager iom(2, false, "test");
     timer = iom.addTimer(
         1000, []()
         { 
             static int i=0;
-            CIM_LOG_INFO(g_logger) << "timeout i = " << i ;
+            IM_LOG_INFO(g_logger) << "timeout i = " << i ;
             if(++i == 5)
             {
                 //timer->cancel();

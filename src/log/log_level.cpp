@@ -2,7 +2,7 @@
 
 #include "base/macro.hpp"
 
-namespace CIM {
+namespace IM {
 const char* LogLevel::ToString(Level level) {
     switch (level) {
 // 宏定义
@@ -23,7 +23,7 @@ const char* LogLevel::ToString(Level level) {
 }
 
 Level LogLevel::FromString(const std::string& str) {
-    CIM_ASSERT(!str.empty());
+    IM_ASSERT(!str.empty());
 #define XX(name, level) \
     if (str == #name) return Level::level;
 
@@ -45,4 +45,4 @@ Level LogLevel::FromString(const std::string& str) {
 #undef XX
     return Level::UNKNOWN;
 }
-}  // namespace CIM
+}  // namespace IM

@@ -1,5 +1,5 @@
-#ifndef __CIM_HTTP_URI_HPP__
-#define __CIM_HTTP_URI_HPP__
+#ifndef __IM_HTTP_URI_HPP__
+#define __IM_HTTP_URI_HPP__
 
 #include <stdint.h>
 
@@ -8,9 +8,9 @@
 
 #include "net/address.hpp"
 
-namespace CIM {
+namespace IM {
 /*
-         foo://user@CIM.com:8042/over/there?name=ferret#nose
+         foo://user@IM.com:8042/over/there?name=ferret#nose
          \__/ \_____________/ \____________/ \_________/ \__/
           |           |            |             |        |
         scheme    authority       path         query   fragment
@@ -145,6 +145,6 @@ class Uri {
     std::string m_query;     /// 查询参数
     std::string m_fragment;  /// fragment
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_HTTP_URI_HPP__
+#endif // __IM_HTTP_URI_HPP__

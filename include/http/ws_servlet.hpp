@@ -6,14 +6,14 @@
  * @note    提供WebSocket消息、连接、关闭等事件的多路由分发与业务扩展能力。
  */
 
-#ifndef __CIM_HTTP_WS_SERVLET_HPP__
-#define __CIM_HTTP_WS_SERVLET_HPP__
+#ifndef __IM_HTTP_WS_SERVLET_HPP__
+#define __IM_HTTP_WS_SERVLET_HPP__
 
 #include "http_servlet.hpp"
 #include "io/thread.hpp"
 #include "ws_session.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 
 /**
  * @class   WSServlet
@@ -45,9 +45,9 @@ class WSServlet : public Servlet {
      * @param   session   HTTP会话对象
      * @return  固定返回0
      */
-    virtual int32_t handle(CIM::http::HttpRequest::ptr request,
-                           CIM::http::HttpResponse::ptr response,
-                           CIM::http::HttpSession::ptr session) override {
+    virtual int32_t handle(IM::http::HttpRequest::ptr request,
+                           IM::http::HttpResponse::ptr response,
+                           IM::http::HttpSession::ptr session) override {
         return 0;
     }
 
@@ -58,8 +58,8 @@ class WSServlet : public Servlet {
      * @return  0表示成功，非0表示拒绝连接
      * @note    返回非0将导致连接被关闭
      */
-    virtual int32_t onConnect(CIM::http::HttpRequest::ptr header,
-                              CIM::http::WSSession::ptr session) = 0;
+    virtual int32_t onConnect(IM::http::HttpRequest::ptr header,
+                              IM::http::WSSession::ptr session) = 0;
 
     /**
      * @brief   连接关闭事件回调（必须实现）
@@ -67,8 +67,8 @@ class WSServlet : public Servlet {
      * @param   session  WebSocket会话对象
      * @return  0表示正常
      */
-    virtual int32_t onClose(CIM::http::HttpRequest::ptr header,
-                            CIM::http::WSSession::ptr session) = 0;
+    virtual int32_t onClose(IM::http::HttpRequest::ptr header,
+                            IM::http::WSSession::ptr session) = 0;
 
     /**
      * @brief   消息处理事件回调（必须实现）
@@ -77,8 +77,8 @@ class WSServlet : public Servlet {
      * @param   session  WebSocket会话对象
      * @return  0表示正常，非0将关闭连接
      */
-    virtual int32_t handle(CIM::http::HttpRequest::ptr header, CIM::http::WSFrameMessage::ptr msg,
-                           CIM::http::WSSession::ptr session) = 0;
+    virtual int32_t handle(IM::http::HttpRequest::ptr header, IM::http::WSFrameMessage::ptr msg,
+                           IM::http::WSSession::ptr session) = 0;
 
     /**
      * @brief   获取Servlet名称
@@ -195,6 +195,6 @@ class WSServletDispatch : public ServletDispatch {
     WSServlet::ptr getWSServlet(const std::string& uri);
 };
 
-}  // namespace CIM::http
+}  // namespace IM::http
 
-#endif  // __CIM_HTTP_WS_SERVLET_HPP__
+#endif  // __IM_HTTP_WS_SERVLET_HPP__

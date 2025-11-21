@@ -15,44 +15,44 @@
 #include "other/module.hpp"
 #include "system/application.hpp"
 
-using namespace CIM;
+using namespace IM;
 
 int main(int argc, char** argv) {
     /* 创建并初始化应用程序实例 */
     Application app;
     if (!app.init(argc, argv)) {
-        CIM_LOG_ERROR(CIM_LOG_ROOT()) << "Application init failed";
+        IM_LOG_ERROR(IM_LOG_ROOT()) << "Application init failed";
         return 1;
     }
 
     std::srand(std::time(nullptr));  // 初始化随机数种子
 
     // 注册加解密模块
-    CIM::ModuleMgr::GetInstance()->add(std::make_shared<CIM::CryptoModule>());
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::CryptoModule>());
     // 注册登录鉴权模块
-    CIM::ModuleMgr::GetInstance()->add(std::make_shared<CIM::api::AuthApiModule>());
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::AuthApiModule>());
     // 注册通用 API 模块
-    CIM::ModuleMgr::GetInstance()->add(std::make_shared<CIM::api::CommonApiModule>());
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::CommonApiModule>());
 
     /* 注册最小化 API 模块 */
     // 文章模块占位
-    CIM::ModuleMgr::GetInstance()->add(std::make_shared<CIM::api::ArticleApiModule>());
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::ArticleApiModule>());
     // 联系人模块占位
-    CIM::ModuleMgr::GetInstance()->add(std::make_shared<CIM::api::ContactApiModule>());
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::ContactApiModule>());
     // 表情模块占位
-    CIM::ModuleMgr::GetInstance()->add(std::make_shared<CIM::api::EmoticonApiModule>());
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::EmoticonApiModule>());
     // 群组模块占位
-    CIM::ModuleMgr::GetInstance()->add(std::make_shared<CIM::api::GroupApiModule>());
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::GroupApiModule>());
     // 消息模块占位
-    CIM::ModuleMgr::GetInstance()->add(std::make_shared<CIM::api::MessageApiModule>());
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::MessageApiModule>());
     // 组织架构模块占位
-    CIM::ModuleMgr::GetInstance()->add(std::make_shared<CIM::api::OrganizeApiModule>());
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::OrganizeApiModule>());
     // 会话模块占位
-    CIM::ModuleMgr::GetInstance()->add(std::make_shared<CIM::api::TalkApiModule>());
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::TalkApiModule>());
     // 用户模块占位
-    CIM::ModuleMgr::GetInstance()->add(std::make_shared<CIM::api::UserApiModule>());
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::UserApiModule>());
     // WebSocket 网关模块
-    CIM::ModuleMgr::GetInstance()->add(std::make_shared<CIM::api::WsGatewayModule>());
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::WsGatewayModule>());
 
     return app.run() ? 0 : 2;
 }

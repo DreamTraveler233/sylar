@@ -1,15 +1,15 @@
-#ifndef __CIM_NET_STREAM_HPP__
-#define __CIM_NET_STREAM_HPP__
+#ifndef __IM_NET_STREAM_HPP__
+#define __IM_NET_STREAM_HPP__
 
 #include <memory>
 
 #include "byte_array.hpp"
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 抽象流接口类，定义了流的基本操作
      *
-     * Stream类是CIM网络库中所有流式数据传输的基类，
+     * Stream类是IM网络库中所有流式数据传输的基类，
      * 提供了读写数据的统一接口，可以用于文件、网络套接字等各种数据流。
      */
 class Stream {
@@ -112,6 +112,6 @@ class Stream {
          */
     virtual void close() = 0;
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_NET_STREAM_HPP__
+#endif // __IM_NET_STREAM_HPP__

@@ -2,7 +2,7 @@
 
 #include "util/util.hpp"
 
-namespace CIM {
+namespace IM {
 bool JsonUtil::NeedEscape(const std::string& v) {
     for (auto& c : v) {
         switch (c) {
@@ -222,4 +222,4 @@ std::string JsonUtil::ToString(const Json::Value& json) {
     return w.write(json);
 }
 
-}  // namespace CIM
+}  // namespace IM

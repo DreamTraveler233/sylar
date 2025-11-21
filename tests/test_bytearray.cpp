@@ -4,11 +4,11 @@
 #include <iostream>
 #include <fstream>
 
-static auto g_logger = CIM_LOG_ROOT();
+static auto g_logger = IM_LOG_ROOT();
 
 void test_basic_types()
 {
-    CIM_LOG_INFO(g_logger) << "Test basic types";
+    IM_LOG_INFO(g_logger) << "Test basic types";
 
 #define XX(type, len, write_fun, read_fun, base_len)                         \
     {                                                                        \
@@ -17,7 +17,7 @@ void test_basic_types()
         {                                                                    \
             vec.push_back(rand());                                           \
         }                                                                    \
-        CIM::ByteArray::ptr ba(new CIM::ByteArray(base_len));            \
+        IM::ByteArray::ptr ba(new IM::ByteArray(base_len));            \
         for (auto &it : vec)                                                 \
         {                                                                    \
             ba->write_fun(it);                                               \
@@ -26,10 +26,10 @@ void test_basic_types()
         for (size_t i = 0; i < vec.size(); ++i)                              \
         {                                                                    \
             type v = ba->read_fun();                                         \
-            CIM_ASSERT(v == vec[i]);                                       \
+            IM_ASSERT(v == vec[i]);                                       \
         }                                                                    \
-        CIM_ASSERT(ba->getReadSize() == 0);                                \
-        CIM_LOG_INFO(g_logger) << #write_fun "/" #read_fun " (" #type ") " \
+        IM_ASSERT(ba->getReadSize() == 0);                                \
+        IM_LOG_INFO(g_logger) << #write_fun "/" #read_fun " (" #type ") " \
                                  << len << " base_len=" << base_len          \
                                  << " size=" << ba->getDataSize();           \
     }
@@ -53,60 +53,60 @@ void test_basic_types()
 
 void test_float_types()
 {
-    CIM_LOG_INFO(g_logger) << "Test float types";
+    IM_LOG_INFO(g_logger) << "Test float types";
 
-    CIM::ByteArray::ptr ba(new CIM::ByteArray(1));
+    IM::ByteArray::ptr ba(new IM::ByteArray(1));
 
     // Test float
     float f = 3.1415926f;
     ba->writeFloat(f);
     ba->setPosition(0);
     float f2 = ba->readFloat();
-    CIM_ASSERT(f == f2);
+    IM_ASSERT(f == f2);
 
     // Test double
     double d = 3.141592653589793;
     ba->writeDouble(d);
     ba->setPosition(sizeof(f));
     double d2 = ba->readDouble();
-    CIM_ASSERT(d == d2);
+    IM_ASSERT(d == d2);
 
-    CIM_LOG_INFO(g_logger) << "Float types test passed";
+    IM_LOG_INFO(g_logger) << "Float types test passed";
 }
 
 void test_string_types()
 {
-    CIM_LOG_INFO(g_logger) << "Test string types";
+    IM_LOG_INFO(g_logger) << "Test string types";
 
-    CIM::ByteArray::ptr ba(new CIM::ByteArray(32));
+    IM::ByteArray::ptr ba(new IM::ByteArray(32));
     std::string str = "Hello, World! 你好世界！";
 
     // Test F16 string
     ba->writeStringF16(str);
     ba->setPosition(0);
     std::string str1 = ba->readString16();
-    CIM_ASSERT(str == str1);
+    IM_ASSERT(str == str1);
     size_t pos = ba->getPosition();
 
     // Test F32 string
     ba->writeStringF32(str);
     ba->setPosition(pos);
     std::string str2 = ba->readString32();
-    CIM_ASSERT(str == str2);
+    IM_ASSERT(str == str2);
     pos = ba->getPosition();
 
     // Test F64 string
     ba->writeStringF64(str);
     ba->setPosition(pos);
     std::string str3 = ba->readString64();
-    CIM_ASSERT(str == str3);
+    IM_ASSERT(str == str3);
     pos = ba->getPosition();
 
     // Test Vint string
     ba->writeStringVint(str);
     ba->setPosition(pos);
     std::string str4 = ba->readStringVint();
-    CIM_ASSERT(str == str4);
+    IM_ASSERT(str == str4);
     pos = ba->getPosition();
 
     // Test string without length
@@ -115,14 +115,14 @@ void test_string_types()
     std::string str5;
     str5.resize(str.length());
     ba->read(&str5[0], str.length());
-    CIM_ASSERT(str == str5);
+    IM_ASSERT(str == str5);
 
-    CIM_LOG_INFO(g_logger) << "String types test passed";
+    IM_LOG_INFO(g_logger) << "String types test passed";
 }
 
 void test_file_operations()
 {
-    CIM_LOG_INFO(g_logger) << "Test file operations";
+    IM_LOG_INFO(g_logger) << "Test file operations";
 
 #define XX(type, len, write_fun, read_fun, base_len)                                                           \
     {                                                                                                          \
@@ -131,7 +131,7 @@ void test_file_operations()
         {                                                                                                      \
             vec.push_back(rand());                                                                             \
         }                                                                                                      \
-        CIM::ByteArray::ptr ba(new CIM::ByteArray(base_len));                                              \
+        IM::ByteArray::ptr ba(new IM::ByteArray(base_len));                                              \
         for (auto &it : vec)                                                                                   \
         {                                                                                                      \
             ba->write_fun(it);                                                                                 \
@@ -140,17 +140,17 @@ void test_file_operations()
         for (size_t i = 0; i < vec.size(); ++i)                                                                \
         {                                                                                                      \
             type v = ba->read_fun();                                                                           \
-            CIM_ASSERT(v == vec[i]);                                                                         \
+            IM_ASSERT(v == vec[i]);                                                                         \
         }                                                                                                      \
-        CIM_ASSERT(ba->getReadSize() == 0);                                                                  \
+        IM_ASSERT(ba->getReadSize() == 0);                                                                  \
         ba->setPosition(0);                                                                                    \
-        CIM_ASSERT(ba->writeToFile("/home/szy/code/CIM/bin/log/" #type "_" #len "-" #read_fun ".data"));   \
-        CIM::ByteArray::ptr ba2(new CIM::ByteArray(base_len * 2));                                         \
-        CIM_ASSERT(ba2->readFromFile("/home/szy/code/CIM/bin/log/" #type "_" #len "-" #read_fun ".data")); \
+        IM_ASSERT(ba->writeToFile("/home/szy/code/CIM/CIM_B/bin/log/" #type "_" #len "-" #read_fun ".data"));   \
+        IM::ByteArray::ptr ba2(new IM::ByteArray(base_len * 2));                                         \
+        IM_ASSERT(ba2->readFromFile("/home/szy/code/CIM/CIM_B/bin/log/" #type "_" #len "-" #read_fun ".data")); \
         ba2->setPosition(0);                                                                                   \
-        CIM_ASSERT(ba->toString() == ba2->toString());                                                       \
-        CIM_ASSERT(ba->getPosition() == 0);                                                                  \
-        CIM_ASSERT(ba2->getPosition() == 0);                                                                 \
+        IM_ASSERT(ba->toString() == ba2->toString());                                                       \
+        IM_ASSERT(ba->getPosition() == 0);                                                                  \
+        IM_ASSERT(ba2->getPosition() == 0);                                                                 \
     }
 
     XX(int8_t, 100, writeFint8, readFint8, 1);
@@ -169,14 +169,14 @@ void test_file_operations()
 
 #undef XX
 
-    CIM_LOG_INFO(g_logger) << "file operations test passed";
+    IM_LOG_INFO(g_logger) << "file operations test passed";
 }
 
 void test_buffer_operations()
 {
-    CIM_LOG_INFO(g_logger) << "Test buffer operations";
+    IM_LOG_INFO(g_logger) << "Test buffer operations";
 
-    CIM::ByteArray::ptr ba(new CIM::ByteArray(16));
+    IM::ByteArray::ptr ba(new IM::ByteArray(16));
 
     // Write some data
     for (int i = 0; i < 100; ++i)
@@ -189,108 +189,108 @@ void test_buffer_operations()
     // Test getReadBuffers
     std::vector<iovec> read_buffers;
     uint64_t read_len = ba->getReadBuffers(read_buffers, 400);
-    CIM_ASSERT(read_len == 400);
-    CIM_ASSERT(!read_buffers.empty());
+    IM_ASSERT(read_len == 400);
+    IM_ASSERT(!read_buffers.empty());
 
     // Test getWriteBuffers
     std::vector<iovec> write_buffers;
     uint64_t write_len = ba->getWriteBuffers(write_buffers, 500);
-    CIM_ASSERT(write_len == 500);
-    CIM_ASSERT(!write_buffers.empty());
+    IM_ASSERT(write_len == 500);
+    IM_ASSERT(!write_buffers.empty());
 
-    CIM_LOG_INFO(g_logger) << "Buffer operations test passed";
+    IM_LOG_INFO(g_logger) << "Buffer operations test passed";
 }
 
 void test_edge_cases()
 {
-    CIM_LOG_INFO(g_logger) << "Test edge cases";
+    IM_LOG_INFO(g_logger) << "Test edge cases";
 
-    CIM::ByteArray::ptr ba(new CIM::ByteArray(1));
+    IM::ByteArray::ptr ba(new IM::ByteArray(1));
 
     // Test empty string
     ba->writeStringVint("");
     ba->setPosition(0);
     std::string empty = ba->readStringVint();
-    CIM_ASSERT(empty.empty());
+    IM_ASSERT(empty.empty());
 
     size_t pos = ba->getPosition();
 
     // Test zero values
     ba->writeFint32(0);
     ba->setPosition(pos);
-    CIM_ASSERT(ba->readFint32() == 0);
+    IM_ASSERT(ba->readFint32() == 0);
     pos = ba->getPosition();
 
     ba->writeFuint64(0);
     ba->setPosition(pos);
-    CIM_ASSERT(ba->readFuint64() == 0);
+    IM_ASSERT(ba->readFuint64() == 0);
     pos = ba->getPosition();
 
     ba->writeInt32(0);
     ba->setPosition(pos);
-    CIM_ASSERT(ba->readInt32() == 0);
+    IM_ASSERT(ba->readInt32() == 0);
     pos = ba->getPosition();
 
     ba->writeUint64(0);
     ba->setPosition(pos);
-    CIM_ASSERT(ba->readUint64() == 0);
+    IM_ASSERT(ba->readUint64() == 0);
     pos = ba->getPosition();
 
     // Test negative values
     ba->writeFint32(-1);
     ba->setPosition(pos);
-    CIM_ASSERT(ba->readFint32() == -1);
+    IM_ASSERT(ba->readFint32() == -1);
     pos = ba->getPosition();
 
     ba->writeInt32(-1);
     ba->setPosition(pos);
-    CIM_ASSERT(ba->readInt32() == -1);
+    IM_ASSERT(ba->readInt32() == -1);
     pos = ba->getPosition();
 
     ba->writeInt64(-10000000000LL);
     ba->setPosition(pos);
-    CIM_ASSERT(ba->readInt64() == -10000000000LL);
+    IM_ASSERT(ba->readInt64() == -10000000000LL);
     pos = ba->getPosition();
 
     // Test large values
     ba->writeFuint64(UINT64_MAX);
     ba->setPosition(pos);
-    CIM_ASSERT(ba->readFuint64() == UINT64_MAX);
+    IM_ASSERT(ba->readFuint64() == UINT64_MAX);
     pos = ba->getPosition();
 
     ba->writeUint64(UINT64_MAX);
     ba->setPosition(pos);
-    CIM_ASSERT(ba->readUint64() == UINT64_MAX);
+    IM_ASSERT(ba->readUint64() == UINT64_MAX);
 
-    CIM_LOG_INFO(g_logger) << "Edge cases test passed";
+    IM_LOG_INFO(g_logger) << "Edge cases test passed";
 }
 
 void test_byte_order()
 {
-    CIM_LOG_INFO(g_logger) << "Test byte order";
+    IM_LOG_INFO(g_logger) << "Test byte order";
 
-    CIM::ByteArray::ptr ba(new CIM::ByteArray(1));
+    IM::ByteArray::ptr ba(new IM::ByteArray(1));
 
     // Test big endian (default)
-    CIM_ASSERT(!ba->isLittleEndian());
+    IM_ASSERT(!ba->isLittleEndian());
 
     // Test little endian
     ba->setIsLittleEndian(true);
-    CIM_ASSERT(ba->isLittleEndian());
+    IM_ASSERT(ba->isLittleEndian());
 
     ba->writeFint32(0x12345678);
     ba->setPosition(0);
     int32_t value = ba->readFint32();
-    CIM_ASSERT(value == 0x12345678);
+    IM_ASSERT(value == 0x12345678);
 
-    CIM_LOG_INFO(g_logger) << "Byte order test passed";
+    IM_LOG_INFO(g_logger) << "Byte order test passed";
 }
 
 void test_clear_and_positions()
 {
-    CIM_LOG_INFO(g_logger) << "Test clear and positions";
+    IM_LOG_INFO(g_logger) << "Test clear and positions";
 
-    CIM::ByteArray::ptr ba(new CIM::ByteArray(16));
+    IM::ByteArray::ptr ba(new IM::ByteArray(16));
 
     // Add some data
     for (int i = 0; i < 10; ++i)
@@ -298,41 +298,41 @@ void test_clear_and_positions()
         ba->writeFint32(i);
     }
 
-    CIM_ASSERT(ba->getDataSize() == 40);
-    CIM_ASSERT(ba->getPosition() == 40);
-    CIM_ASSERT(ba->getReadSize() == 0);
+    IM_ASSERT(ba->getDataSize() == 40);
+    IM_ASSERT(ba->getPosition() == 40);
+    IM_ASSERT(ba->getReadSize() == 0);
 
     // Test setPosition
     ba->setPosition(8);
-    CIM_ASSERT(ba->getPosition() == 8);
-    CIM_ASSERT(ba->getReadSize() == 32);
+    IM_ASSERT(ba->getPosition() == 8);
+    IM_ASSERT(ba->getReadSize() == 32);
 
     // Test clear
     ba->clear();
-    CIM_ASSERT(ba->getDataSize() == 0);
-    CIM_ASSERT(ba->getPosition() == 0);
-    CIM_ASSERT(ba->getReadSize() == 0);
+    IM_ASSERT(ba->getDataSize() == 0);
+    IM_ASSERT(ba->getPosition() == 0);
+    IM_ASSERT(ba->getReadSize() == 0);
 
-    CIM_LOG_INFO(g_logger) << "Clear and positions test passed";
+    IM_LOG_INFO(g_logger) << "Clear and positions test passed";
 }
 
 void test_to_string_functions()
 {
-    CIM_LOG_INFO(g_logger) << "Test to string functions";
+    IM_LOG_INFO(g_logger) << "Test to string functions";
 
-    CIM::ByteArray::ptr ba(new CIM::ByteArray(16));
+    IM::ByteArray::ptr ba(new IM::ByteArray(16));
     std::string test_str = "ByteArray to string test";
 
     ba->writeStringWithoutLength(test_str);
     ba->setPosition(0);
 
     std::string str_result = ba->toString();
-    CIM_ASSERT(str_result == test_str);
+    IM_ASSERT(str_result == test_str);
 
     std::string hex_result = ba->toHexString();
-    CIM_ASSERT(!hex_result.empty());
+    IM_ASSERT(!hex_result.empty());
 
-    CIM_LOG_INFO(g_logger) << "To string functions test passed";
+    IM_LOG_INFO(g_logger) << "To string functions test passed";
 }
 
 int main(int argc, char **argv)
@@ -351,11 +351,11 @@ int main(int argc, char **argv)
         test_clear_and_positions();
         test_to_string_functions();
 
-        CIM_LOG_INFO(g_logger) << "All tests passed!";
+        IM_LOG_INFO(g_logger) << "All tests passed!";
     }
     catch (...)
     {
-        CIM_LOG_ERROR(g_logger) << "Test failed!";
+        IM_LOG_ERROR(g_logger) << "Test failed!";
         return 1;
     }
 

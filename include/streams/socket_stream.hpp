@@ -1,11 +1,11 @@
-#ifndef __CIM_STREAMS_SOCKET_STREAM_HPP__
-#define __CIM_STREAMS_SOCKET_STREAM_HPP__
+#ifndef __IM_STREAMS_SOCKET_STREAM_HPP__
+#define __IM_STREAMS_SOCKET_STREAM_HPP__
 
 #include "io/iomanager.hpp"
 #include "net/socket.hpp"
 #include "net/stream.hpp"
 
-namespace CIM {
+namespace IM {
 /**
      * @brief Socket流
      */
@@ -109,6 +109,6 @@ class SocketStream : public Stream {
     Socket::ptr m_socket;  /// Socket类
     bool m_owner;          /// 是否主控
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_STREAMS_SOCKET_STREAM_HPP__
+#endif // __IM_STREAMS_SOCKET_STREAM_HPP__

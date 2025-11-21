@@ -8,8 +8,8 @@
  * 命令行参数以及程序相关信息，提供了获取程序路径、工作目录、配置路径等功能。
  */
 
-#ifndef __CIM_SYSTEM_ENV_HPP__
-#define __CIM_SYSTEM_ENV_HPP__
+#ifndef __IM_SYSTEM_ENV_HPP__
+#define __IM_SYSTEM_ENV_HPP__
 
 #include <map>
 #include <vector>
@@ -18,7 +18,7 @@
 #include "base/singleton.hpp"
 #include "io/thread.hpp"
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 环境变量管理类
      *
@@ -144,6 +144,6 @@ class Env {
 /// 环境管理器单例
 using EnvMgr = Singleton<Env>;
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_SYSTEM_ENV_HPP__
+#endif // __IM_SYSTEM_ENV_HPP__

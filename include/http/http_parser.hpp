@@ -1,11 +1,11 @@
-#ifndef __CIM_HTTP_HTTP_PARSER_HPP__
-#define __CIM_HTTP_HTTP_PARSER_HPP__
+#ifndef __IM_HTTP_HTTP_PARSER_HPP__
+#define __IM_HTTP_HTTP_PARSER_HPP__
 
 #include "http.hpp"
 #include "http11_parser.hpp"
 #include "httpclient_parser.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 class HttpRequestParser {
    public:
     /// HTTP解析类的智能指针
@@ -151,6 +151,6 @@ class HttpResponseParser {
     /// 1002: invalid field
     int m_error;
 };
-}  // namespace CIM::http
+}  // namespace IM::http
 
-#endif // __CIM_HTTP_HTTP_PARSER_HPP__
+#endif // __IM_HTTP_HTTP_PARSER_HPP__

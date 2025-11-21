@@ -7,13 +7,13 @@
  * @note    依赖http_connection、ws_session等模块。
  */
 
-#ifndef __CIM_HTTP_WS_CONNECTION_HPP__
-#define __CIM_HTTP_WS_CONNECTION_HPP__
+#ifndef __IM_HTTP_WS_CONNECTION_HPP__
+#define __IM_HTTP_WS_CONNECTION_HPP__
 
 #include "http_connection.hpp"
 #include "ws_session.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 
 /**
  * @class   WSConnection
@@ -94,6 +94,6 @@ class WSConnection : public HttpConnection {
     int32_t pong();
 };
 
-}  // namespace CIM::http
+}  // namespace IM::http
 
-#endif  // __CIM_HTTP_WS_CONNECTION_HPP__
+#endif  // __IM_HTTP_WS_CONNECTION_HPP__

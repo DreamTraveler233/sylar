@@ -1,5 +1,5 @@
-#ifndef __CIM_DS_HASH_MAP_HPP__
-#define __CIM_DS_HASH_MAP_HPP__
+#ifndef __IM_DS_HASH_MAP_HPP__
+#define __IM_DS_HASH_MAP_HPP__
 
 #include <functional>
 #include <iostream>
@@ -10,7 +10,7 @@
 #include "base/macro.hpp"
 #include "util.hpp"
 
-namespace CIM::ds {
+namespace IM::ds {
 template <class K, class V, class PosHash = Murmur3Hash<K>>
 class HashMap {
    public:
@@ -299,6 +299,6 @@ class HashMap {
 template <class K, class V, class PosHash>
 RWMutex HashMap<K, V, PosHash>::s_mutex[MAX_MUTEX];
 
-}  // namespace CIM::ds
+}  // namespace IM::ds
 
-#endif // __CIM_DS_HASH_MAP_HPP__
+#endif // __IM_DS_HASH_MAP_HPP__

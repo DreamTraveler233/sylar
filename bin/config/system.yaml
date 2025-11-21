@@ -1,6 +1,6 @@
 server:
-    work_path: apps/work/CIM
-    pid_file: CIM.pid
+    work_path: apps/work/IM
+    pid_file: IM.pid
 
 # 认证与安全配置
 auth:

@@ -7,8 +7,8 @@
  * 这些回调函数用于在解析过程中通知上层应用解析到的数据。
  */
 
-#ifndef __CIM_HTTP_HTTP11_COMMON_HPP__
-#define __CIM_HTTP_HTTP11_COMMON_HPP__
+#ifndef __IM_HTTP_HTTP11_COMMON_HPP__
+#define __IM_HTTP_HTTP11_COMMON_HPP__
 
 #include <sys/types.h>
 
@@ -39,4 +39,4 @@ typedef void (*element_cb)(void* data, const char* at, size_t length);
 typedef void (*field_cb)(void* data, const char* field, size_t flen, const char* value,
                          size_t vlen);
 
-#endif // __CIM_HTTP_HTTP11_COMMON_HPP__
+#endif // __IM_HTTP_HTTP11_COMMON_HPP__

@@ -1,7 +1,7 @@
 #include "http/session_data.hpp"
 #include "util/util.hpp"
 
-namespace CIM::http
+namespace IM::http
 {
     SessionData::SessionData(bool auto_gen)
         : m_lastAccessTime(time(0))

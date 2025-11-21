@@ -1,5 +1,5 @@
-#ifndef __CIM_STREAMS_LOAD_BALANCE_HPP__
-#define __CIM_STREAMS_LOAD_BALANCE_HPP__
+#ifndef __IM_STREAMS_LOAD_BALANCE_HPP__
+#define __IM_STREAMS_LOAD_BALANCE_HPP__
 
 #include <unordered_map>
 #include <vector>
@@ -9,7 +9,7 @@
 #include "socket_stream.hpp"
 #include "util/util.hpp"
 
-namespace CIM {
+namespace IM {
 class HolderStatsSet;
 class HolderStats {
     friend class HolderStatsSet;
@@ -233,6 +233,6 @@ class SDLoadBalance {
     stream_callback m_cb;
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_STREAMS_LOAD_BALANCE_HPP__
+#endif // __IM_STREAMS_LOAD_BALANCE_HPP__

@@ -2,10 +2,10 @@
 #include "log/logger_manager.hpp"
 #include "base/macro.hpp"
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
 // 用于存储所有的日志定义
-auto g_log_defines = CIM::Config::Lookup("logs", std::set<LogDefine>(), "logs config");
+auto g_log_defines = IM::Config::Lookup("logs", std::set<LogDefine>(), "logs config");
 
 // 静态变量初始化在main函数之前
 struct LogInit {
@@ -21,12 +21,12 @@ struct LogInit {
     LogInit() {
         g_log_defines->addListener([](const std::set<LogDefine>& old_val,
                                       const std::set<LogDefine>& new_val) {
-            CIM_LOG_INFO(g_logger) << "logger config changed";
+            IM_LOG_INFO(g_logger) << "logger config changed";
 
             // 遍历新的日志配置，处理新增和修改的日志器
             for (auto& i : new_val) {
                 // 查找日志器，如果找不到则创建并添加到日志器管理器中
-                auto logger = CIM_LOG_NAME(i.name);
+                auto logger = IM_LOG_NAME(i.name);
 
                 // 设置该日志器的日志级别
                 logger->setLevel(i.level);
@@ -50,7 +50,7 @@ struct LogInit {
                     } else if (j.type == 2) {
                         ap = std::make_shared<StdoutLogAppender>();
                     } else {
-                        CIM_LOG_ERROR(g_logger) << "type not FileLogAppender or StdoutLogAppender";
+                        IM_LOG_ERROR(g_logger) << "type not FileLogAppender or StdoutLogAppender";
                     }
 
                     // 设置输出器的日志级别
@@ -87,7 +87,7 @@ struct LogInit {
                 auto it = new_val.find(i);
                 if (it == new_val.end()) {
                     // 如果在新配置中找不到当前旧配置项，说明这个配置项被删除了
-                    auto logger = CIM_LOG_NAME(i.name);
+                    auto logger = IM_LOG_NAME(i.name);
                     logger->setLevel((Level)100);  // 设置日志级别为100，表示关闭日志
                     logger->clearAppender();       // 清空所有appender
                 }
@@ -97,4 +97,4 @@ struct LogInit {
 };
 
 static LogInit __log_init;
-}  // namespace CIM
+}  // namespace IM

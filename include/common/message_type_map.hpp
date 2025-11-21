@@ -1,5 +1,5 @@
-#ifndef __CIM_COMMON_MESSAGE_TYPE_MAP_HPP__
-#define __CIM_COMMON_MESSAGE_TYPE_MAP_HPP__
+#ifndef __IM_COMMON_MESSAGE_TYPE_MAP_HPP__
+#define __IM_COMMON_MESSAGE_TYPE_MAP_HPP__
 
 #include <cstdint>
 #include <map>
@@ -7,10 +7,10 @@
 
 #include "common/message_type.hpp"
 
-namespace CIM::common {
+namespace IM::common {
 
 // 前端的 msgTypeMap 字符串 -> 后端 msg_type 数值 映射
-// NOTE: 一旦新增或修改，需要同时在前端 (CIM_F/src/store/modules/async-message.ts)
+// NOTE: 一旦新增或修改，需要同时在前端 (IM_F/src/store/modules/async-message.ts)
 //       的 msgTypeMap 与这里的映射保持一致。
 static const std::map<std::string, MessageType> kMessageTypeMap = {
     {"text", MessageType::Text},                // 文本消息
@@ -28,6 +28,6 @@ static const std::map<std::string, MessageType> kMessageTypeMap = {
     {"group_notice", MessageType::GroupNotice}  // 群公告
 };
 
-}  // namespace CIM::common
+}  // namespace IM::common
 
-#endif  // __CIM_COMMON_MESSAGE_TYPE_MAP_HPP__
+#endif  // __IM_COMMON_MESSAGE_TYPE_MAP_HPP__

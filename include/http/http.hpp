@@ -1,5 +1,5 @@
-#ifndef __CIM_HTTP_HTTP_HPP__
-#define __CIM_HTTP_HTTP_HPP__
+#ifndef __IM_HTTP_HTTP_HPP__
+#define __IM_HTTP_HTTP_HPP__
 
 #include <boost/lexical_cast.hpp>
 #include <map>
@@ -10,7 +10,7 @@
 #include "http11_parser.hpp"
 #include "httpclient_parser.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 // X-Macro技术（也称为"交叉宏"技术）
 /* Request Methods */
 #define HTTP_METHOD_MAP(XX)          \
@@ -744,6 +744,6 @@ std::ostream& operator<<(std::ostream& os, const HttpRequest& req);
      * @return 输出流
      */
 std::ostream& operator<<(std::ostream& os, const HttpResponse& rsp);
-}  // namespace CIM::http
+}  // namespace IM::http
 
-#endif // __CIM_HTTP_HTTP_HPP__
+#endif // __IM_HTTP_HTTP_HPP__

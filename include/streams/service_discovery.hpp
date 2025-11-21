@@ -1,5 +1,5 @@
-#ifndef __CIM_STREAMS_SERVICE_DISCOVERY_HPP__
-#define __CIM_STREAMS_SERVICE_DISCOVERY_HPP__
+#ifndef __IM_STREAMS_SERVICE_DISCOVERY_HPP__
+#define __IM_STREAMS_SERVICE_DISCOVERY_HPP__
 
 #include <memory>
 #include <string>
@@ -10,7 +10,7 @@
 #include "io/lock.hpp"
 #include "other/zk_client.hpp"
 
-namespace CIM {
+namespace IM {
 class ServiceItemInfo {
    public:
     typedef std::shared_ptr<ServiceItemInfo> ptr;
@@ -116,6 +116,6 @@ class ZKServiceDiscovery : public IServiceDiscovery,
     bool m_isOnTimer = false;
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_STREAMS_SERVICE_DISCOVERY_HPP__
+#endif // __IM_STREAMS_SERVICE_DISCOVERY_HPP__

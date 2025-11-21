@@ -5,8 +5,8 @@
 #include "util/time_util.hpp"
 #include "streams/zlib_stream.hpp"
 
-namespace CIM::http {
-static CIM::Logger::ptr g_logger = CIM_LOG_NAME("system");
+namespace IM::http {
+static IM::Logger::ptr g_logger = IM_LOG_NAME("system");
 
 HttpResult::HttpResult(int _result, HttpResponse::ptr _response, const std::string& _error)
     : result(_result), response(_response), error(_error) {}
@@ -23,7 +23,7 @@ HttpConnection::HttpConnection(Socket::ptr sock, bool owner) : SocketStream(sock
 }
 
 HttpConnection::~HttpConnection() {
-    CIM_LOG_DEBUG(g_logger) << "HttpConnection::~HttpConnection";
+    IM_LOG_DEBUG(g_logger) << "HttpConnection::~HttpConnection";
 }
 
 HttpResponse::ptr HttpConnection::recvResponse() {
@@ -109,7 +109,7 @@ HttpResponse::ptr HttpConnection::recvResponse() {
                 begin = false;
             } while (!parser->isFinished());
 
-            CIM_LOG_DEBUG(g_logger) << "content_len=" << client_parser.content_len;
+            IM_LOG_DEBUG(g_logger) << "content_len=" << client_parser.content_len;
             // 处理当前分块数据
             if (client_parser.content_len + 2 <= len) {
                 // 当前缓冲区中有完整的分块数据
@@ -172,7 +172,7 @@ HttpResponse::ptr HttpConnection::recvResponse() {
     if (!body.empty()) {
         // 获取内容编码类型
         auto content_encoding = parser->getData()->getHeader("content-encoding");
-        CIM_LOG_DEBUG(g_logger) << "content_encoding: " << content_encoding
+        IM_LOG_DEBUG(g_logger) << "content_encoding: " << content_encoding
                                 << " size=" << body.size();
         // 处理gzip编码
         if (strcasecmp(content_encoding.c_str(), "gzip") == 0) {
@@ -348,7 +348,7 @@ HttpConnectionPool::ptr HttpConnectionPool::Create(const std::string& uri, const
                                                    uint32_t max_request) {
     Uri::ptr turi = Uri::Create(uri);
     if (!turi) {
-        CIM_LOG_ERROR(g_logger) << "invalid uri=" << uri;
+        IM_LOG_ERROR(g_logger) << "invalid uri=" << uri;
     }
     return std::make_shared<HttpConnectionPool>(turi->getHost(), vhost, turi->getPort(),
                                                 turi->getScheme() == "https", max_size,
@@ -409,18 +409,18 @@ HttpConnection::ptr HttpConnectionPool::getConnection() {
     if (!ptr) {
         IPAddress::ptr addr = Address::LookupAnyIpAddress(m_host);
         if (!addr) {
-            CIM_LOG_ERROR(g_logger) << "get addr fail: " << m_host;
+            IM_LOG_ERROR(g_logger) << "get addr fail: " << m_host;
             return nullptr;
         }
         addr->setPort(m_port);
         // 根据是否使用HTTPS创建相应类型的Socket
         Socket::ptr sock = m_isHttps ? SSLSocket::CreateTCP(addr) : Socket::CreateTCP(addr);
         if (!sock) {
-            CIM_LOG_ERROR(g_logger) << "create sock fail: " << *addr;
+            IM_LOG_ERROR(g_logger) << "create sock fail: " << *addr;
             return nullptr;
         }
         if (!sock->connect(addr)) {
-            CIM_LOG_ERROR(g_logger) << "sock connect fail: " << *addr;
+            IM_LOG_ERROR(g_logger) << "sock connect fail: " << *addr;
             return nullptr;
         }
 
@@ -587,4 +587,4 @@ HttpResult::ptr HttpConnectionPool::doRequest(HttpRequest::ptr req, uint64_t tim
     // 返回成功结果
     return std::make_shared<HttpResult>((int)HttpResult::Error::OK, rsp, "ok");
 }
-}  // namespace CIM::http
+}  // namespace IM::http

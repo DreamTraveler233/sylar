@@ -1,12 +1,12 @@
-#ifndef __CIM_DAO_SMS_CODE_DAO_HPP__
-#define __CIM_DAO_SMS_CODE_DAO_HPP__
+#ifndef __IM_DAO_SMS_CODE_DAO_HPP__
+#define __IM_DAO_SMS_CODE_DAO_HPP__
 
 #include <cstdint>
 #include <ctime>
 #include <string>
 #include <vector>
 
-namespace CIM::dao {
+namespace IM::dao {
 
 struct SmsCode {
     uint64_t id = 0;             // 主键ID
@@ -40,6 +40,6 @@ class SmsCodeDAO {
     static bool DeleteInvalidCodes(std::string* err = nullptr);
 };
 
-}  // namespace CIM::dao
+}  // namespace IM::dao
 
-#endif // __CIM_DAO_SMS_CODE_DAO_HPP__
+#endif // __IM_DAO_SMS_CODE_DAO_HPP__

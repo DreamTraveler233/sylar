@@ -12,7 +12,7 @@
 #include "net/tcp_server.hpp"
 #include "util/time_util.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 StatusServlet::StatusServlet() : Servlet("StatusServlet") {}
 
 std::string format_used_time(int64_t ts) {
@@ -47,7 +47,7 @@ int32_t StatusServlet::handle(HttpRequest::ptr request, HttpResponse::ptr respon
 #define XX(key) ss << std::setw(30) << std::right << key ": "
     std::stringstream ss;
     ss << "===================================================" << std::endl;
-    XX("server_version") << "CIM/1.0.0" << std::endl;
+    XX("server_version") << "IM/1.0.0" << std::endl;
 
     std::vector<Module::ptr> ms;
     ModuleMgr::GetInstance()->listAll(ms);
@@ -138,4 +138,4 @@ int32_t StatusServlet::handle(HttpRequest::ptr request, HttpResponse::ptr respon
     return 0;
 }
 
-}  // namespace CIM::http
+}  // namespace IM::http

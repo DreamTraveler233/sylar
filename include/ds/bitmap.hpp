@@ -1,5 +1,5 @@
-#ifndef __CIM_DS_BITMAP_HPP__
-#define __CIM_DS_BITMAP_HPP__
+#ifndef __IM_DS_BITMAP_HPP__
+#define __IM_DS_BITMAP_HPP__
 
 #include <stdint.h>
 
@@ -10,7 +10,7 @@
 
 #include "net/byte_array.hpp"
 
-namespace CIM::ds {
+namespace IM::ds {
 
 #define BITMAP_TYPE_UINT8 1
 #define BITMAP_TYPE_UINT16 2
@@ -156,6 +156,6 @@ class Bitmap {
     static bool init();
 };
 
-}  // namespace CIM::ds
+}  // namespace IM::ds
 
-#endif // __CIM_DS_BITMAP_HPP__
+#endif // __IM_DS_BITMAP_HPP__

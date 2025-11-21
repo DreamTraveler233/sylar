@@ -1,10 +1,10 @@
-#ifndef __CIM_ROCK_ROCK_SERVER_HPP__
-#define __CIM_ROCK_ROCK_SERVER_HPP__
+#ifndef __IM_ROCK_ROCK_SERVER_HPP__
+#define __IM_ROCK_ROCK_SERVER_HPP__
 
 #include "rock_stream.hpp"
 #include "net/tcp_server.hpp"
 
-namespace CIM {
+namespace IM {
 class RockServer : public TcpServer {
    public:
     typedef std::shared_ptr<RockServer> ptr;
@@ -16,6 +16,6 @@ class RockServer : public TcpServer {
     virtual void handleClient(Socket::ptr client) override;
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_ROCK_ROCK_SERVER_HPP__
+#endif // __IM_ROCK_ROCK_SERVER_HPP__

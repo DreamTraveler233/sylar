@@ -7,27 +7,27 @@
 #include "system/application.hpp"
 #include "util/util.hpp"
 
-namespace CIM::api {
+namespace IM::api {
 
-static auto g_logger = CIM_LOG_NAME("root");
+static auto g_logger = IM_LOG_NAME("root");
 
 OrganizeApiModule::OrganizeApiModule() : Module("api.organize", "0.1.0", "builtin") {}
 
 bool OrganizeApiModule::onServerReady() {
-    std::vector<CIM::TcpServer::ptr> httpServers;
-    if (!CIM::Application::GetInstance()->getServer("http", httpServers)) {
-        CIM_LOG_WARN(g_logger) << "no http servers found when registering organize routes";
+    std::vector<IM::TcpServer::ptr> httpServers;
+    if (!IM::Application::GetInstance()->getServer("http", httpServers)) {
+        IM_LOG_WARN(g_logger) << "no http servers found when registering organize routes";
         return true;
     }
 
     for (auto& s : httpServers) {
-        auto http = std::dynamic_pointer_cast<CIM::http::HttpServer>(s);
+        auto http = std::dynamic_pointer_cast<IM::http::HttpServer>(s);
         if (!http) continue;
         auto dispatch = http->getServletDispatch();
 
         dispatch->addServlet("/api/v1/organize/department-list",
-                             [](CIM::http::HttpRequest::ptr, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr) {
+                             [](IM::http::HttpRequest::ptr, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr) {
                                  res->setHeader("Content-Type", "application/json");
                                  Json::Value d;
                                  d["list"] = Json::Value(Json::arrayValue);
@@ -35,8 +35,8 @@ bool OrganizeApiModule::onServerReady() {
                                  return 0;
                              });
         dispatch->addServlet("/api/v1/organize/personnel-list",
-                             [](CIM::http::HttpRequest::ptr, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr) {
+                             [](IM::http::HttpRequest::ptr, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr) {
                                  res->setHeader("Content-Type", "application/json");
                                  Json::Value d;
                                  d["list"] = Json::Value(Json::arrayValue);
@@ -47,4 +47,4 @@ bool OrganizeApiModule::onServerReady() {
     return true;
 }
 
-}  // namespace CIM::api
+}  // namespace IM::api

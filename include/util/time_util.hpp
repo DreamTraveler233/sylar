@@ -1,12 +1,12 @@
-#ifndef __CIM_UTIL_TIME_UTIL_HPP__
-#define __CIM_UTIL_TIME_UTIL_HPP__
+#ifndef __IM_UTIL_TIME_UTIL_HPP__
+#define __IM_UTIL_TIME_UTIL_HPP__
 
 #include <stdint.h>
 
 #include <ctime>
 #include <string>
 
-namespace CIM {
+namespace IM {
 class TimeUtil {
    public:
     /**
@@ -62,6 +62,6 @@ class TimeUtil {
 
     static time_t StrToTime(const char* str, const char* format = "%Y-%m-%d %H:%M:%S");
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_UTIL_TIME_UTIL_HPP__
+#endif // __IM_UTIL_TIME_UTIL_HPP__

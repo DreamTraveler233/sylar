@@ -1,12 +1,12 @@
-#ifndef __CIM_ORM_INDEX_HPP__
-#define __CIM_ORM_INDEX_HPP__
+#ifndef __IM_ORM_INDEX_HPP__
+#define __IM_ORM_INDEX_HPP__
 
 #include <memory>
 #include <string>
 #include <vector>
 #include "tinyxml2.h"
 
-namespace CIM::orm
+namespace IM::orm
 {
     class Index
     {
@@ -42,4 +42,4 @@ namespace CIM::orm
 
 }
 
-#endif // __CIM_ORM_INDEX_HPP__
+#endif // __IM_ORM_INDEX_HPP__

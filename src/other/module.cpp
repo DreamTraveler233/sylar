@@ -8,10 +8,10 @@
 #include "system/env.hpp"
 #include "util/util.hpp"
 
-namespace CIM {
+namespace IM {
 static auto g_module_path = Config::Lookup("module.path", std::string("module"), "module path");
 
-static auto g_logger = CIM_LOG_NAME("system");
+static auto g_logger = IM_LOG_NAME("system");
 
 Module::Module(const std::string& name, const std::string& version, const std::string& filename,
                uint32_t type)
@@ -26,13 +26,13 @@ void Module::onBeforeArgsParse(int argc, char** argv) {}
 void Module::onAfterArgsParse(int argc, char** argv) {}
 
 bool Module::handleRequest(Message::ptr req, Message::ptr rsp, Stream::ptr stream) {
-    CIM_LOG_DEBUG(g_logger) << "handleRequest req=" << req->toString() << " rsp=" << rsp->toString()
+    IM_LOG_DEBUG(g_logger) << "handleRequest req=" << req->toString() << " rsp=" << rsp->toString()
                             << " stream=" << stream;
     return true;
 }
 
 bool Module::handleNotify(Message::ptr notify, Stream::ptr stream) {
-    CIM_LOG_DEBUG(g_logger) << "handleNotify nty=" << notify->toString() << " stream=" << stream;
+    IM_LOG_DEBUG(g_logger) << "handleNotify nty=" << notify->toString() << " stream=" << stream;
     return true;
 }
 
@@ -245,4 +245,4 @@ uint32_t Module::getType() const {
     return m_type;
 }
 
-}  // namespace CIM
+}  // namespace IM

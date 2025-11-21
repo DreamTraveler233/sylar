@@ -2,7 +2,7 @@
 
 #include "util/util.hpp"
 
-namespace CIM {
+namespace IM {
 SocketStream::SocketStream(Socket::ptr sock, bool owner) : m_socket(sock), m_owner(owner) {}
 
 SocketStream::~SocketStream() {
@@ -98,4 +98,4 @@ std::string SocketStream::getLocalAddressString() {
     return "";
 }
 
-}  // namespace CIM
+}  // namespace IM

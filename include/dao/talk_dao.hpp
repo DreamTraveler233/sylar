@@ -1,5 +1,5 @@
-#ifndef __CIM_DAO_TALK_DAO_HPP__
-#define __CIM_DAO_TALK_DAO_HPP__
+#ifndef __IM_DAO_TALK_DAO_HPP__
+#define __IM_DAO_TALK_DAO_HPP__
 
 #include <cstdint>
 #include <memory>
@@ -7,7 +7,7 @@
 
 #include "db/mysql.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 // Talk 主实体（im_talk）的数据访问：保证单聊/群聊会话唯一性并提供查询。
 // 说明：
@@ -18,12 +18,12 @@ class TalkDao {
     // 单聊：根据两个用户ID（自动排序为 user_min_id/user_max_id）查找或创建 talk。
     // 入参：db 为事务绑定连接；uid1/uid2 为两个用户ID（无需事先排序）。
     // 出参：talk_id 返回 im_talk.id。
-    static bool findOrCreateSingleTalk(const std::shared_ptr<CIM::MySQL>& db, uint64_t uid1,
+    static bool findOrCreateSingleTalk(const std::shared_ptr<IM::MySQL>& db, uint64_t uid1,
                                        uint64_t uid2, uint64_t& out_talk_id,
                                        std::string* err = nullptr);
 
     // 群聊：根据 group_id 查找或创建 talk。
-    static bool findOrCreateGroupTalk(const std::shared_ptr<CIM::MySQL>& db, uint64_t group_id,
+    static bool findOrCreateGroupTalk(const std::shared_ptr<IM::MySQL>& db, uint64_t group_id,
                                       uint64_t& out_talk_id, std::string* err = nullptr);
 
     // 仅查询：获取单聊 talk_id（不存在返回 false 且不写 err 或写入说明）。
@@ -35,6 +35,6 @@ class TalkDao {
                         std::string* err = nullptr);
 };
 
-}  // namespace CIM::dao
+}  // namespace IM::dao
 
-#endif  // __CIM_DAO_TALK_DAO_HPP__
+#endif  // __IM_DAO_TALK_DAO_HPP__

@@ -1,5 +1,5 @@
-#ifndef __CIM_DS_DICH_HPP__
-#define __CIM_DS_DICH_HPP__
+#ifndef __IM_DS_DICH_HPP__
+#define __IM_DS_DICH_HPP__
 
 #include <functional>
 #include <iostream>
@@ -10,7 +10,7 @@
 #include "base/macro.hpp"
 #include "util.hpp"
 
-namespace CIM::ds {
+namespace IM::ds {
 class StringDict;
 template <class K, class V, class PosHash = Murmur3Hash<K>>
 class Dict {
@@ -426,6 +426,6 @@ class StringDict {
     Dict<uint64_t, char> m_dict;
 };
 
-}  // namespace CIM::ds
+}  // namespace IM::ds
 
-#endif // __CIM_DS_DICH_HPP__
+#endif // __IM_DS_DICH_HPP__

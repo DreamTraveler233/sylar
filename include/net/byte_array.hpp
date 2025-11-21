@@ -20,8 +20,8 @@
  * - 线程不安全，需要外部同步机制
  */
 
-#ifndef __CIM_NET_BYTE_ARRAY_HPP__
-#define __CIM_NET_BYTE_ARRAY_HPP__
+#ifndef __IM_NET_BYTE_ARRAY_HPP__
+#define __IM_NET_BYTE_ARRAY_HPP__
 
 #include <stdint.h>
 #include <sys/socket.h>
@@ -30,7 +30,7 @@
 #include <memory>
 #include <vector>
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 字节数组类
      * @details ByteArray是一个用于处理字节流数据的类，内部使用链表结构管理多个固定大小的内存块。
@@ -475,10 +475,10 @@ class ByteArray {
     size_t m_position;   //!< 当前读写位置
     size_t m_capacity;   //!< 总容量
     size_t m_data_size;  //!< 数据总大小
-    int8_t m_endian;     //!< 字节序（CIM_LITTLE_ENDIAN 或 CIM_BIG_ENDIAN）
+    int8_t m_endian;     //!< 字节序（IM_LITTLE_ENDIAN 或 IM_BIG_ENDIAN）
     Node* m_root_node;   //!< 根节点指针
     Node* m_cur_node;    //!< 当前节点指针
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_NET_BYTE_ARRAY_HPP__
+#endif // __IM_NET_BYTE_ARRAY_HPP__

@@ -3,7 +3,7 @@
 #include "config/config.hpp"
 #include "util/util.hpp"
 
-namespace CIM {
+namespace IM {
 static auto g_worker_config = Config::Lookup(
     "workers", std::map<std::string, std::map<std::string, std::string>>(), "worker config");
 
@@ -106,4 +106,4 @@ std::ostream& WorkerManager::dump(std::ostream& os) {
     return os;
 }
 
-}  // namespace CIM
+}  // namespace IM

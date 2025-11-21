@@ -1,11 +1,11 @@
-#ifndef __CIM_ROCK_ROCK_PROTOCOL_HPP__
-#define __CIM_ROCK_ROCK_PROTOCOL_HPP__
+#ifndef __IM_ROCK_ROCK_PROTOCOL_HPP__
+#define __IM_ROCK_ROCK_PROTOCOL_HPP__
 
 #include <google/protobuf/message.h>
 
 #include "other/protocol.hpp"
 
-namespace CIM {
+namespace IM {
 class RockBody {
    public:
     typedef std::shared_ptr<RockBody> ptr;
@@ -97,6 +97,6 @@ class RockMessageDecoder : public MessageDecoder {
     virtual int32_t serializeTo(Stream::ptr stream, Message::ptr msg) override;
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_ROCK_ROCK_PROTOCOL_HPP__
+#endif // __IM_ROCK_ROCK_PROTOCOL_HPP__

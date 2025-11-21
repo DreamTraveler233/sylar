@@ -3,7 +3,7 @@
 #include "base/macro.hpp"
 #include "io/scheduler.hpp"
 
-namespace CIM {
+namespace IM {
 Mutex::Mutex() {
     pthread_mutex_init(&m_mutex, nullptr);
 }
@@ -61,11 +61,11 @@ CoroutineSemaphore::CoroutineSemaphore(size_t initial_concurrency)
     : m_concurrency(initial_concurrency) {}
 
 CoroutineSemaphore::~CoroutineSemaphore() {
-    CIM_ASSERT(m_waiters.empty());
+    IM_ASSERT(m_waiters.empty());
 }
 
 bool CoroutineSemaphore::tryWait() {
-    CIM_ASSERT(Scheduler::GetThis());
+    IM_ASSERT(Scheduler::GetThis());
     {
         MutexType::Lock lock(m_mutex);
         if (m_concurrency > 0u) {
@@ -77,7 +77,7 @@ bool CoroutineSemaphore::tryWait() {
 }
 
 void CoroutineSemaphore::wait() {
-    CIM_ASSERT(Scheduler::GetThis());
+    IM_ASSERT(Scheduler::GetThis());
     {
         MutexType::Lock lock(m_mutex);
         if (m_concurrency > 0u) {
@@ -99,4 +99,4 @@ void CoroutineSemaphore::notify() {
         ++m_concurrency;
     }
 }
-}  // namespace CIM
+}  // namespace IM

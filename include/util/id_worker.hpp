@@ -1,11 +1,11 @@
-#ifndef __CIM_UTIL_ID_WORKER_HPP__
-#define __CIM_UTIL_ID_WORKER_HPP__
+#ifndef __IM_UTIL_ID_WORKER_HPP__
+#define __IM_UTIL_ID_WORKER_HPP__
 
 #include <atomic>
 #include <cstdint>
 #include <mutex>
 
-namespace CIM::util {
+namespace IM::util {
 
 // 轻量雪花ID生成器 (Twitter Snowflake 风格)
 // 注意：当前项目已改为使用数据库自增 ID，雪花ID生成器保留为可选/兼容实现。
@@ -47,6 +47,6 @@ class IdWorker {
     static const uint64_t kMaxSequence = (1ULL << kSequenceBits) - 1;
 };
 
-}  // namespace CIM::util
+}  // namespace IM::util
 
-#endif  // __CIM_UTIL_ID_WORKER_HPP__
+#endif  // __IM_UTIL_ID_WORKER_HPP__

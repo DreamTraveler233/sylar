@@ -4,7 +4,7 @@
 #include "log/logger.hpp"
 #include "yaml-cpp/yaml.h"
 
-namespace CIM {
+namespace IM {
 LoggerManager::LoggerManager() {
     // 创建默认的根日志器，name-root，level-DEBUG，formatter-"%d%T[thread-%t]%T[coroutine-%F]%T[%p]%T[name-%c]%T<%f:%l>%T%n%m%n"
     m_root = std::make_shared<Logger>();
@@ -15,7 +15,7 @@ LoggerManager::LoggerManager() {
 }
 
 std::shared_ptr<Logger> LoggerManager::getLogger(const std::string& name) {
-    CIM_ASSERT(!name.empty());
+    IM_ASSERT(!name.empty());
     MutexType::Lock lock(m_mutex);
     auto it = m_loggers.find(name);  // 查找指定名称的日志器
     if (it != m_loggers.end()) {
@@ -43,4 +43,4 @@ std::string LoggerManager::toYamlString() {
     ss << node;
     return ss.str();
 }
-}  // namespace CIM
+}  // namespace IM

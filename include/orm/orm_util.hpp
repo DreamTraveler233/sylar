@@ -1,10 +1,10 @@
-#ifndef __CIM_ORM_ORM_UTIL_HPP__
-#define __CIM_ORM_ORM_UTIL_HPP__
+#ifndef __IM_ORM_ORM_UTIL_HPP__
+#define __IM_ORM_ORM_UTIL_HPP__
 
 #include <tinyxml2.h>
 #include <string>
 
-namespace CIM::orm
+namespace IM::orm
 {
     std::string GetAsVariable(const std::string &v);
     std::string GetAsClassName(const std::string &v);
@@ -16,4 +16,4 @@ namespace CIM::orm
 
 }
 
-#endif // __CIM_ORM_ORM_UTIL_HPP__
+#endif // __IM_ORM_ORM_UTIL_HPP__

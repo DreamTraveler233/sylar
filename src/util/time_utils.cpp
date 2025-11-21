@@ -5,7 +5,7 @@
 
 #include "util/time_util.hpp"
 
-namespace CIM {
+namespace IM {
 uint64_t TimeUtil::NowToMS() {
     struct timeval tv;
     gettimeofday(&tv, nullptr);
@@ -66,4 +66,4 @@ std::string TimeUtil::TimeToStr(time_t timestamp, const std::string& format) {
     size_t n = strftime(buf, sizeof(buf), format.c_str(), &tm);
     return std::string(buf, n);  // 使用buf的前n个字符构造string对象
 }
-}  // namespace CIM
+}  // namespace IM

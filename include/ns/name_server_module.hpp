@@ -1,10 +1,10 @@
-#ifndef __CIM_NS_NAME_SERVER_MODULE_HPP__
-#define __CIM_NS_NAME_SERVER_MODULE_HPP__
+#ifndef __IM_NS_NAME_SERVER_MODULE_HPP__
+#define __IM_NS_NAME_SERVER_MODULE_HPP__
 
 #include "other/module.hpp"
 #include "ns_protocol.hpp"
 
-namespace CIM::ns {
+namespace IM::ns {
 
 class NameServerModule;
 class NSClientInfo {
@@ -58,6 +58,6 @@ class NameServerModule : public RockModule {
     std::map<std::string, std::set<RockStream::ptr>> m_domainToSessions;
 };
 
-}  // namespace CIM::ns
+}  // namespace IM::ns
 
-#endif // __CIM_NS_NAME_SERVER_MODULE_HPP__
+#endif // __IM_NS_NAME_SERVER_MODULE_HPP__

@@ -6,14 +6,14 @@
  * @note    依赖tcp_server、ws_servlet、ws_session等模块。
  */
 
-#ifndef __CIM_HTTP_WS_SERVER_HPP__
-#define __CIM_HTTP_WS_SERVER_HPP__
+#ifndef __IM_HTTP_WS_SERVER_HPP__
+#define __IM_HTTP_WS_SERVER_HPP__
 
 #include "net/tcp_server.hpp"
 #include "ws_servlet.hpp"
 #include "ws_session.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 
 /**
  * @class   WSServer
@@ -61,6 +61,6 @@ class WSServer : public TcpServer {
     WSServletDispatch::ptr m_dispatch;  ///< WebSocket业务分发器
 };
 
-}  // namespace CIM::http
+}  // namespace IM::http
 
-#endif  // __CIM_HTTP_WS_SERVER_HPP__
+#endif  // __IM_HTTP_WS_SERVER_HPP__

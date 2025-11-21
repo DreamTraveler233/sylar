@@ -1,5 +1,5 @@
-#ifndef __CIM_DS_ROARING_BITMAP_HPP__
-#define __CIM_DS_ROARING_BITMAP_HPP__
+#ifndef __IM_DS_ROARING_BITMAP_HPP__
+#define __IM_DS_ROARING_BITMAP_HPP__
 
 #include <stdint.h>
 
@@ -11,7 +11,7 @@
 #include "net/byte_array.hpp"
 #include "roaring.hh"
 
-namespace CIM::ds {
+namespace IM::ds {
 
 class RoaringBitmap {
    public:
@@ -84,6 +84,6 @@ class RoaringBitmap {
     Roaring m_bitmap;
 };
 
-}  // namespace CIM::ds
+}  // namespace IM::ds
 
-#endif // __CIM_DS_ROARING_BITMAP_HPP__
+#endif // __IM_DS_ROARING_BITMAP_HPP__

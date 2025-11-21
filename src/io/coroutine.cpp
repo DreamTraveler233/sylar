@@ -7,8 +7,8 @@
 #include "base/macro.hpp"
 #include "util/util.hpp"
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
 
 static std::atomic<uint64_t> s_coroutine_id = {0};     // 协程id
 static std::atomic<uint64_t> s_coroutine_count = {0};  // 全局协程计数器
@@ -39,19 +39,19 @@ using StackAllocator = MallocStackAllocator;
 Coroutine::Coroutine() : m_state(State::EXEC) {
     // 获取上下文，接管当前线程
     if (getcontext(&m_ctx)) {
-        CIM_ASSERT2(false, "getcontext");
+        IM_ASSERT2(false, "getcontext");
         return;  // 如果有适当的错误处理机制，应该在这里处理
     }
 
     // 设置线程局部变量
     SetThis(this);
     ++s_coroutine_count;
-    CIM_LOG_DEBUG(g_logger) << "Coroutine::Coroutine() id=" << m_id;
+    IM_LOG_DEBUG(g_logger) << "Coroutine::Coroutine() id=" << m_id;
 }
 
 Coroutine::Coroutine(std::function<void()> cb, size_t stack_size, bool use_caller)
     : m_id(++s_coroutine_id), m_cb(cb) {
-    CIM_ASSERT(cb);
+    IM_ASSERT(cb);
     ++s_coroutine_count;
 
     // 使用局部变量管理栈空间，确保异常安全性
@@ -71,7 +71,7 @@ Coroutine::Coroutine(std::function<void()> cb, size_t stack_size, bool use_calle
 
         // 获取当前线程上下文环境
         if (getcontext(&m_ctx)) {
-            CIM_ASSERT2(false, "getcontext");
+            IM_ASSERT2(false, "getcontext");
         }
 
         // 设置协程的入口函数
@@ -88,19 +88,19 @@ Coroutine::Coroutine(std::function<void()> cb, size_t stack_size, bool use_calle
         --s_coroutine_count;
         throw;  // 重新抛出异常
     }
-    CIM_LOG_DEBUG(g_logger) << "Coroutine::Coroutine()" << " id=" << m_id;
+    IM_LOG_DEBUG(g_logger) << "Coroutine::Coroutine()" << " id=" << m_id;
 }
 
 Coroutine::~Coroutine() {
-    CIM_LOG_DEBUG(g_logger) << "Coroutine::~Coroutine" << " id=" << m_id;
+    IM_LOG_DEBUG(g_logger) << "Coroutine::~Coroutine" << " id=" << m_id;
     if (m_stack)  // 说明为子协程
     {
-        CIM_ASSERT(m_state == State::TERM || m_state == State::INIT || m_state == State::EXCEPT);
+        IM_ASSERT(m_state == State::TERM || m_state == State::INIT || m_state == State::EXCEPT);
         StackAllocator::Dealloc(m_stack, m_stack_size);
     } else  // 说明为主协程
     {
-        CIM_ASSERT(!m_cb);
-        CIM_ASSERT(m_state == State::EXEC);
+        IM_ASSERT(!m_cb);
+        IM_ASSERT(m_state == State::EXEC);
 
         // 将主协程指针置空
         Coroutine* cur = t_coroutine;
@@ -112,13 +112,13 @@ Coroutine::~Coroutine() {
 }
 
 void Coroutine::reset(std::function<void()> cb) {
-    CIM_ASSERT(m_stack);
-    CIM_ASSERT(m_stack_size > 0);
-    CIM_ASSERT(m_state == State::TERM || m_state == State::INIT || m_state == State::EXCEPT);
+    IM_ASSERT(m_stack);
+    IM_ASSERT(m_stack_size > 0);
+    IM_ASSERT(m_state == State::TERM || m_state == State::INIT || m_state == State::EXCEPT);
     m_cb = cb;
     if (getcontext(&m_ctx))  // 获取当前上下文环境
     {
-        CIM_ASSERT2(false, "getcontext");
+        IM_ASSERT2(false, "getcontext");
     }
     m_ctx.uc_link = nullptr;
     m_ctx.uc_stack.ss_sp = m_stack;
@@ -131,12 +131,12 @@ void Coroutine::reset(std::function<void()> cb) {
 void Coroutine::swapIn() {
     // 把当前运行协程设置为该子协程
     SetThis(this);
-    CIM_ASSERT(m_state != State::EXEC && m_state != State::TERM && m_state != State::EXCEPT);
+    IM_ASSERT(m_state != State::EXEC && m_state != State::TERM && m_state != State::EXCEPT);
     m_state = State::EXEC;
 
     // 从主协程切换到当前线程（子协程）
     if (swapcontext(&Scheduler::GetMainCoroutine()->m_ctx, &m_ctx)) {
-        CIM_ASSERT2(false, "swapcontext");
+        IM_ASSERT2(false, "swapcontext");
     }
 }
 
@@ -144,23 +144,23 @@ void Coroutine::swapOut() {
     // 从当前线程（子协程）切换回主协程
     SetThis(Scheduler::GetMainCoroutine());
     if (swapcontext(&m_ctx, &Scheduler::GetMainCoroutine()->m_ctx)) {
-        CIM_ASSERT2(false, "swapcontext");
+        IM_ASSERT2(false, "swapcontext");
     }
 }
 
 void Coroutine::call() {
     SetThis(this);
-    CIM_ASSERT(m_state != State::EXEC && m_state != State::TERM && m_state != State::EXCEPT);
+    IM_ASSERT(m_state != State::EXEC && m_state != State::TERM && m_state != State::EXCEPT);
     m_state = State::EXEC;
     if (swapcontext(&t_thread_coroutine->m_ctx, &m_ctx)) {
-        CIM_ASSERT2(false, "swapcontext");
+        IM_ASSERT2(false, "swapcontext");
     }
 }
 
 void Coroutine::back() {
     SetThis(t_thread_coroutine.get());
     if (swapcontext(&m_ctx, &t_thread_coroutine->m_ctx)) {
-        CIM_ASSERT2(false, "swapcontext");
+        IM_ASSERT2(false, "swapcontext");
     }
 }
 
@@ -188,7 +188,7 @@ Coroutine::ptr Coroutine::GetThis() {
 
     // 当前协程为空，说明在当前线程还没有协程，则创建一个主协程
     Coroutine::ptr main_coroutine(new Coroutine);
-    CIM_ASSERT(t_coroutine == main_coroutine.get());
+    IM_ASSERT(t_coroutine == main_coroutine.get());
     // 设置主协程
     t_thread_coroutine = main_coroutine;
     return t_coroutine->shared_from_this();
@@ -196,14 +196,14 @@ Coroutine::ptr Coroutine::GetThis() {
 
 void Coroutine::YieldToReady() {
     Coroutine::ptr cur = GetThis();
-    CIM_ASSERT(cur->m_state == EXEC);
+    IM_ASSERT(cur->m_state == EXEC);
     cur->m_state = State::READY;
     cur->swapOut();
 }
 
 void Coroutine::YieldToHold() {
     Coroutine::ptr cur = GetThis();
-    CIM_ASSERT(cur->m_state == EXEC);
+    IM_ASSERT(cur->m_state == EXEC);
     cur->m_state = State::HOLD;
     cur->swapOut();
 }
@@ -215,7 +215,7 @@ uint64_t Coroutine::TotalCoroutines() {
 void Coroutine::MainFunc() {
     // 获取当前正在运行的协程
     Coroutine::ptr cur = GetThis();
-    CIM_ASSERT(cur);
+    IM_ASSERT(cur);
 
     try {
         cur->m_cb();  // 执行协程的回调函数
@@ -223,12 +223,12 @@ void Coroutine::MainFunc() {
         cur->m_state = State::TERM;
     } catch (std::exception& ex) {
         cur->m_state = State::EXCEPT;
-        CIM_LOG_ERROR(g_logger) << "coroutine exception: " << ex.what()
+        IM_LOG_ERROR(g_logger) << "coroutine exception: " << ex.what()
                                 << " coroutine id: " << cur->getId() << std::endl
                                 << BacktraceToString();
     } catch (...) {
         cur->m_state = State::EXCEPT;
-        CIM_LOG_ERROR(g_logger) << "Coroutine exception";
+        IM_LOG_ERROR(g_logger) << "Coroutine exception";
     }
 
     // 协程执行完毕后，需要将控制权交还给主协程
@@ -236,13 +236,13 @@ void Coroutine::MainFunc() {
     cur.reset();
     p->swapOut();
 
-    CIM_ASSERT2(false, "never reach coroutine id=" + std::to_string(p->getId()));
+    IM_ASSERT2(false, "never reach coroutine id=" + std::to_string(p->getId()));
 }
 
 void Coroutine::CallerMainFunc() {
     // 获取当前正在运行的协程
     Coroutine::ptr cur = GetThis();
-    CIM_ASSERT(cur);
+    IM_ASSERT(cur);
 
     try {
         cur->m_cb();  // 执行协程的回调函数
@@ -250,12 +250,12 @@ void Coroutine::CallerMainFunc() {
         cur->m_state = State::TERM;
     } catch (std::exception& ex) {
         cur->m_state = State::EXCEPT;
-        CIM_LOG_ERROR(g_logger) << "coroutine exception: " << ex.what()
+        IM_LOG_ERROR(g_logger) << "coroutine exception: " << ex.what()
                                 << " coroutine id: " << cur->getId() << std::endl
                                 << BacktraceToString();
     } catch (...) {
         cur->m_state = State::EXCEPT;
-        CIM_LOG_ERROR(g_logger) << "Coroutine exception";
+        IM_LOG_ERROR(g_logger) << "Coroutine exception";
     }
 
     // 协程执行完毕后，需要将控制权交还给主协程
@@ -263,7 +263,7 @@ void Coroutine::CallerMainFunc() {
     cur.reset();
     p->back();
 
-    CIM_ASSERT2(false, "never reach coroutine id=" + std::to_string(p->getId()));
+    IM_ASSERT2(false, "never reach coroutine id=" + std::to_string(p->getId()));
 }
 
 uint64_t Coroutine::GetCoroutineId() {
@@ -277,4 +277,4 @@ void* MallocStackAllocator::Alloc(size_t size) {
 void MallocStackAllocator::Dealloc(void* ptr, size_t size) {
     free(ptr);
 }
-}  // namespace CIM
+}  // namespace IM

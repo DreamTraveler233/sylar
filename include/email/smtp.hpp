@@ -1,12 +1,12 @@
-#ifndef __CIM_EMAIL_SMTP_HPP__
-#define __CIM_EMAIL_SMTP_HPP__
+#ifndef __IM_EMAIL_SMTP_HPP__
+#define __IM_EMAIL_SMTP_HPP__
 
 #include <sstream>
 
 #include "email.hpp"
 #include "streams/socket_stream.hpp"
 
-namespace CIM {
+namespace IM {
 
 /**
  * @brief SMTP结果类
@@ -88,6 +88,6 @@ class SmtpClient : public SocketStream {
     bool m_authed = false;   /// 是否已认证
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_EMAIL_SMTP_HPP__
+#endif // __IM_EMAIL_SMTP_HPP__

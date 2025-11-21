@@ -30,48 +30,48 @@ long long g_overall_duration_us = 0;           // 整体耗时
 std::map<std::string, PerformanceResult> g_test_results;
 
 // 测试不同日志级别的写入性能
-void testLogLevelPerformance(CIM::Logger::ptr logger, CIM::Level level,
+void testLogLevelPerformance(IM::Logger::ptr logger, IM::Level level,
                              int log_count, PerformanceResult &result)
 {
     auto start_time = std::chrono::high_resolution_clock::now();
 
     switch (level)
     {
-    case CIM::Level::DEBUG:
+    case IM::Level::DEBUG:
         for (int i = 0; i < log_count; ++i)
         {
-            CIM_LOG_DEBUG(logger) << "Debug message " << i << " for performance test";
+            IM_LOG_DEBUG(logger) << "Debug message " << i << " for performance test";
         }
         break;
-    case CIM::Level::INFO:
+    case IM::Level::INFO:
         for (int i = 0; i < log_count; ++i)
         {
-            CIM_LOG_INFO(logger) << "Info message " << i << " for performance test";
+            IM_LOG_INFO(logger) << "Info message " << i << " for performance test";
         }
         break;
-    case CIM::Level::WARN:
+    case IM::Level::WARN:
         for (int i = 0; i < log_count; ++i)
         {
-            CIM_LOG_WARN(logger) << "Warn message " << i << " for performance test";
+            IM_LOG_WARN(logger) << "Warn message " << i << " for performance test";
         }
         break;
-    case CIM::Level::ERROR:
+    case IM::Level::ERROR:
         for (int i = 0; i < log_count; ++i)
         {
-            CIM_LOG_ERROR(logger) << "Error message " << i << " for performance test";
+            IM_LOG_ERROR(logger) << "Error message " << i << " for performance test";
         }
         break;
-    case CIM::Level::FATAL:
+    case IM::Level::FATAL:
         for (int i = 0; i < log_count; ++i)
         {
-            CIM_LOG_FATAL(logger) << "Fatal message " << i << " for performance test";
+            IM_LOG_FATAL(logger) << "Fatal message " << i << " for performance test";
         }
         break;
-    case CIM::Level::UNKNOWN:
+    case IM::Level::UNKNOWN:
     default:
         for (int i = 0; i < log_count; ++i)
         {
-            CIM_LOG_INFO(logger) << "Unknown level message " << i << " for performance test";
+            IM_LOG_INFO(logger) << "Unknown level message " << i << " for performance test";
         }
         break;
     }
@@ -91,13 +91,13 @@ void testLogLevelPerformance(CIM::Logger::ptr logger, CIM::Level level,
 }
 
 // 测试格式化日志的性能
-void testFormattedLogPerformance(CIM::Logger::ptr logger, int log_count, PerformanceResult &result)
+void testFormattedLogPerformance(IM::Logger::ptr logger, int log_count, PerformanceResult &result)
 {
     auto start_time = std::chrono::high_resolution_clock::now();
 
     for (int i = 0; i < log_count; ++i)
     {
-        CIM_LOG_FMT_INFO(logger, "Formatted log message %d with value %f and string %s",
+        IM_LOG_FMT_INFO(logger, "Formatted log message %d with value %f and string %s",
                            i, 3.14159, "test");
     }
 
@@ -116,13 +116,13 @@ void testFormattedLogPerformance(CIM::Logger::ptr logger, int log_count, Perform
 }
 
 // 多线程性能测试函数
-void multiThreadPerformanceTest(CIM::Logger::ptr logger, int log_count)
+void multiThreadPerformanceTest(IM::Logger::ptr logger, int log_count)
 {
     auto start_time = std::chrono::high_resolution_clock::now();
 
     for (int i = 0; i < log_count; ++i)
     {
-        CIM_LOG_INFO(logger) << "Multithread log message " << i << " from thread "
+        IM_LOG_INFO(logger) << "Multithread log message " << i << " from thread "
                                << std::this_thread::get_id();
     }
 
@@ -178,15 +178,15 @@ int main(int argc, char **argv)
     std::cout << "========================" << std::endl;
 
     // 创建测试logger
-    auto logger = CIM_LOG_ROOT();
-    logger->setLevel(CIM::Level::DEBUG);
+    auto logger = IM_LOG_ROOT();
+    logger->setLevel(IM::Level::DEBUG);
 
     // 添加文件appender用于测试
-    auto file_appender = std::make_shared<CIM::FileLogAppender>("./log/performance_test.log");
+    auto file_appender = std::make_shared<IM::FileLogAppender>("./log/performance_test.log");
     logger->addAppender(file_appender);
 
     // 添加控制台appender
-    // auto console_appender = std::make_shared<CIM::StdoutLogAppender>();
+    // auto console_appender = std::make_shared<IM::StdoutLogAppender>();
     // logger->addAppender(console_appender);
 
     PerformanceResult result;
@@ -198,19 +198,19 @@ int main(int argc, char **argv)
     g_total_log_count = 0;
     g_total_duration_us = 0;
 
-    testLogLevelPerformance(logger, CIM::Level::DEBUG, 10000, result);
+    testLogLevelPerformance(logger, IM::Level::DEBUG, 10000, result);
     printPerformanceResult("DEBUG级别性能测试", result);
 
-    testLogLevelPerformance(logger, CIM::Level::INFO, 10000, result);
+    testLogLevelPerformance(logger, IM::Level::INFO, 10000, result);
     printPerformanceResult("INFO级别性能测试", result);
 
-    testLogLevelPerformance(logger, CIM::Level::WARN, 10000, result);
+    testLogLevelPerformance(logger, IM::Level::WARN, 10000, result);
     printPerformanceResult("WARN级别性能测试", result);
 
-    testLogLevelPerformance(logger, CIM::Level::ERROR, 10000, result);
+    testLogLevelPerformance(logger, IM::Level::ERROR, 10000, result);
     printPerformanceResult("ERROR级别性能测试", result);
 
-    testLogLevelPerformance(logger, CIM::Level::FATAL, 10000, result);
+    testLogLevelPerformance(logger, IM::Level::FATAL, 10000, result);
     printPerformanceResult("FATAL级别性能测试", result);
 
     g_overall_log_count += 50000;                        // 累计日志数
@@ -275,28 +275,28 @@ int main(int argc, char **argv)
               << std::endl;
 
     // 仅控制台appender
-    auto logger_console = CIM_LOG_NAME("console_only");
-    logger_console->addAppender(std::make_shared<CIM::StdoutLogAppender>());
+    auto logger_console = IM_LOG_NAME("console_only");
+    logger_console->addAppender(std::make_shared<IM::StdoutLogAppender>());
 
     g_total_log_count = 0;
     g_total_duration_us = 0;
 
-    testLogLevelPerformance(logger_console, CIM::Level::INFO, 10000, result);
+    testLogLevelPerformance(logger_console, IM::Level::INFO, 10000, result);
     printPerformanceResult("仅控制台Appender性能测试", result);
 
     // 仅文件appender
-    auto logger_file = CIM_LOG_NAME("file_only");
-    logger_file->addAppender(std::make_shared<CIM::FileLogAppender>("./log/file_only_test.log"));
+    auto logger_file = IM_LOG_NAME("file_only");
+    logger_file->addAppender(std::make_shared<IM::FileLogAppender>("./log/file_only_test.log"));
 
-    testLogLevelPerformance(logger_file, CIM::Level::INFO, 10000, result);
+    testLogLevelPerformance(logger_file, IM::Level::INFO, 10000, result);
     printPerformanceResult("仅文件Appender性能测试", result);
 
     // 混合appender
-    auto logger_mixed = CIM_LOG_NAME("mixed");
-    logger_mixed->addAppender(std::make_shared<CIM::StdoutLogAppender>());
-    logger_mixed->addAppender(std::make_shared<CIM::FileLogAppender>("./log/mixed_test.log"));
+    auto logger_mixed = IM_LOG_NAME("mixed");
+    logger_mixed->addAppender(std::make_shared<IM::StdoutLogAppender>());
+    logger_mixed->addAppender(std::make_shared<IM::FileLogAppender>("./log/mixed_test.log"));
 
-    testLogLevelPerformance(logger_mixed, CIM::Level::INFO, 10000, result);
+    testLogLevelPerformance(logger_mixed, IM::Level::INFO, 10000, result);
     printPerformanceResult("混合Appender性能测试", result);
 
     g_overall_log_count += 30000;                        // 累计日志数

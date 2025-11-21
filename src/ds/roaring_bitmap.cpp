@@ -8,7 +8,7 @@
 
 #include "base/macro.hpp"
 
-namespace CIM::ds {
+namespace IM::ds {
 RoaringBitmap::RoaringBitmap(const Roaring& b) : m_bitmap(b) {}
 
 RoaringBitmap::RoaringBitmap() {}
@@ -178,4 +178,4 @@ uint32_t RoaringBitmap::getCount() const {
     return m_bitmap.cardinality();
 }
 
-}  // namespace CIM::ds
+}  // namespace IM::ds

@@ -26,25 +26,25 @@ struct A
 int main(int argc, char **argv)
 {
     std::cout << "argc=" << argc << std::endl;
-    CIM::EnvMgr::GetInstance()->addHelp("s", "start with the terminal");
-    CIM::EnvMgr::GetInstance()->addHelp("d", "run as daemon");
-    CIM::EnvMgr::GetInstance()->addHelp("p", "print help");
-    if (!CIM::EnvMgr::GetInstance()->init(argc, argv))
+    IM::EnvMgr::GetInstance()->addHelp("s", "start with the terminal");
+    IM::EnvMgr::GetInstance()->addHelp("d", "run as daemon");
+    IM::EnvMgr::GetInstance()->addHelp("p", "print help");
+    if (!IM::EnvMgr::GetInstance()->init(argc, argv))
     {
-        CIM::EnvMgr::GetInstance()->printHelp();
+        IM::EnvMgr::GetInstance()->printHelp();
         return 0;
     }
 
-    std::cout << "exe=" << CIM::EnvMgr::GetInstance()->getExe() << std::endl;
-    std::cout << "cwd=" << CIM::EnvMgr::GetInstance()->getCwd() << std::endl;
+    std::cout << "exe=" << IM::EnvMgr::GetInstance()->getExe() << std::endl;
+    std::cout << "cwd=" << IM::EnvMgr::GetInstance()->getCwd() << std::endl;
 
-    std::cout << "path=" << CIM::EnvMgr::GetInstance()->getEnv("PATH", "xxx") << std::endl;
-    std::cout << "test=" << CIM::EnvMgr::GetInstance()->getEnv("TEST", "") << std::endl;
-    std::cout << "set env " << CIM::EnvMgr::GetInstance()->setEnv("TEST", "yy") << std::endl;
-    std::cout << "test=" << CIM::EnvMgr::GetInstance()->getEnv("TEST", "") << std::endl;
-    if (CIM::EnvMgr::GetInstance()->has("p"))
+    std::cout << "path=" << IM::EnvMgr::GetInstance()->getEnv("PATH", "xxx") << std::endl;
+    std::cout << "test=" << IM::EnvMgr::GetInstance()->getEnv("TEST", "") << std::endl;
+    std::cout << "set env " << IM::EnvMgr::GetInstance()->setEnv("TEST", "yy") << std::endl;
+    std::cout << "test=" << IM::EnvMgr::GetInstance()->getEnv("TEST", "") << std::endl;
+    if (IM::EnvMgr::GetInstance()->has("p"))
     {
-        CIM::EnvMgr::GetInstance()->printHelp();
+        IM::EnvMgr::GetInstance()->printHelp();
     }
     return 0;
 }

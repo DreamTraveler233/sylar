@@ -4,7 +4,7 @@
 
 #include "log/logger.hpp"
 
-namespace CIM {
+namespace IM {
 LogEvent::LogEvent(std::shared_ptr<Logger> logger, Level level, const char* file_name, int32_t line,
                    uint32_t elapse, uint32_t thread_id, uint32_t coroutine_id, uint64_t time,
                    const std::string& thread_name)
@@ -60,25 +60,25 @@ std::string LogEvent::getRelativeFileName() const {
     // 查找文件路径中最后一个'/'的位置
     size_t pos = file_name.find_last_of('/');
     if (pos != std::string::npos) {
-        // 查找 "CIM/" 子字符串
-        size_t CIM_pos = file_name.find("CIM/");
-        if (CIM_pos != std::string::npos) {
-            return file_name.substr(CIM_pos + 4);
+        // 查找 "IM/" 子字符串
+        size_t IM_pos = file_name.find("IM/");
+        if (IM_pos != std::string::npos) {
+            return file_name.substr(IM_pos + 3);
         }
-        // 如果没有找到 "CIM/"，则返回文件名部分
+        // 如果没有找到 "IM/"，则返回文件名部分
         return file_name.substr(pos + 1);
     }
     return file_name;
 }
 void LogEvent::format(const char* fmt, ...) {
-    CIM_ASSERT(fmt);
+    IM_ASSERT(fmt);
     va_list al;
     va_start(al, fmt);
     format(fmt, al);
     va_end(al);
 }
 void LogEvent::format(const char* fmt, va_list al) {
-    CIM_ASSERT(fmt);
+    IM_ASSERT(fmt);
     char* buf = nullptr;
     int len = vasprintf(&buf, fmt, al);
     if (len != -1) {
@@ -87,7 +87,7 @@ void LogEvent::format(const char* fmt, va_list al) {
     }
 }
 LogEventWrap::LogEventWrap(LogEvent::ptr event) : m_event(event) {
-    CIM_ASSERT(event);
+    IM_ASSERT(event);
 }
 
 LogEventWrap::~LogEventWrap() {
@@ -99,4 +99,4 @@ LogEvent::ptr LogEventWrap::getEvent() const {
 std::stringstream& LogEventWrap::getSS() {
     return m_event->getSS();
 }
-}  // namespace CIM
+}  // namespace IM

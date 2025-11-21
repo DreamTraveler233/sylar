@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(CIM)
+project(IM)
 
 # ==================== 依赖查找 ====================
 # 必需的系统依赖
@@ -97,10 +97,10 @@ list(APPEND LIB_SRC ${PROJECT_SOURCE_DIR}/src/ds/roaring.c)
 
 # ==================== 主库构建 ====================
 # 生成动态库（.so）
-add_library(CIM SHARED ${LIB_SRC})
+add_library(IM SHARED ${LIB_SRC})
 
 # 头文件搜索路径
-target_include_directories(CIM
+target_include_directories(IM
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include
     PRIVATE
@@ -114,7 +114,7 @@ target_include_directories(CIM
 
 # ==================== 依赖链接 ====================
 # 使用现代 CMake 目标链接方式
-target_link_libraries(CIM
+target_link_libraries(IM
     PUBLIC
         Threads::Threads
         OpenSSL::SSL
@@ -142,22 +142,22 @@ set(EXAMPLES_LIST
     echo_server
 )
 
-# 业务服务可执行文件
-add_executable(cim_server src/bootstrap/cim_server.cpp)
-add_dependencies(cim_server CIM)
-target_link_libraries(cim_server PRIVATE CIM)
+# 业务服务可执行文件（暂保持原文件名）
+add_executable(im_server src/bootstrap/im_server.cpp)
+add_dependencies(im_server IM)
+target_link_libraries(im_server PRIVATE IM)
 
 # 循环创建测试可执行文件
 foreach(TEST ${TEST_LIST})
     add_executable(${TEST} tests/${TEST}.cpp)    # 生成可执行文件
-    add_dependencies(${TEST} CIM)                # 指定test依赖 CIM库，先编译库再编译
-    target_link_libraries(${TEST} PRIVATE CIM)   # 链接库文件
+    add_dependencies(${TEST} IM)                # 指定test依赖 IM库，先编译库再编译
+    target_link_libraries(${TEST} PRIVATE IM)   # 链接库文件
 endforeach()
 
 foreach(EXAMPLE ${EXAMPLES_LIST})
     add_executable(${EXAMPLE} examples/${EXAMPLE}.cpp)
-    add_dependencies(${EXAMPLE} CIM)
-    target_link_libraries(${EXAMPLE} PRIVATE CIM)
+    add_dependencies(${EXAMPLE} IM)
+    target_link_libraries(${EXAMPLE} PRIVATE IM)
 endforeach()
 
 # ==================== 输出目录 ====================

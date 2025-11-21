@@ -1,6 +1,6 @@
 #include "other/memory_pool.hpp"
 
-namespace CIM {
+namespace IM {
 /**
      * @brief NgxMemPool 类的构造函数，用于初始化内存池。
      *
@@ -355,4 +355,4 @@ void NgxMemPool::pfree(void* p) {
         l = l->next;  // 移动到下一个节点
     }
 }
-}  // namespace CIM
+}  // namespace IM

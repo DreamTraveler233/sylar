@@ -1,35 +1,61 @@
 #include "system/application.hpp"
 
+#include <limits.h>
 #include <signal.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
+#include "base/macro.hpp"
 #include "config/config.hpp"
 #include "db/fox_thread.hpp"
-#include "util/id_worker.hpp"
-#include "base/macro.hpp"
-#include "other/module.hpp"
-#include "ns/name_server_module.hpp"
 #include "db/redis.hpp"
+#include "http/ws_server.hpp"
+#include "io/worker.hpp"
+#include "net/tcp_server.hpp"
+#include "ns/name_server_module.hpp"
+#include "other/module.hpp"
 #include "rock/rock_server.hpp"
 #include "rock/rock_stream.hpp"
 #include "system/daemon.hpp"
 #include "system/env.hpp"
-#include "net/tcp_server.hpp"
-#include "io/worker.hpp"
-#include "http/ws_server.hpp"
+#include "util/id_worker.hpp"
+#include <thread>
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
+
+// 用于在信号处理器中删除 PID 文件（以 C 字符串形式保存，信号处理安全）
+static char s_pidfile[PATH_MAX] = {0};
+
+// atexit handler
+static void at_exit_cleanup() {
+    if (Application::GetInstance()) {
+        Application::GetInstance()->cleanup();
+    }
+}
+
+/**
+ * @brief 信号处理器：删除 PID 文件并使信号以默认方式触发（重抛）
+ */
+static void sig_exit_handler(int sig) {
+    if (s_pidfile[0]) {
+        ::unlink(s_pidfile);
+    }
+    // 恢复默认信号处理并再次触发信号以终止进程
+    signal(sig, SIG_DFL);
+    raise(sig);
+}
 
 // 服务器工作目录配置项，决定服务运行时的工作目录路径。
-// 默认值："apps/work/CIM"
+// 默认值："apps/work/IM"
 static auto g_server_work_path =
-    Config::Lookup("server.work_path", std::string("apps/work/CIM"), "server work path");
+    Config::Lookup("server.work_path", std::string("apps/work/IM"), "server work path");
 
 // 服务器PID文件配置项，指定进程ID文件的名称。
-// 默认值："CIM.pid"
+// 默认值："IM.pid"
 static auto g_server_pid_file =
-    Config::Lookup("server.pid_file", std::string("CIM.pid"), "server pid file");
+    Config::Lookup("server.pid_file", std::string("IM.pid"), "server pid file");
 
 // 服务发现Zookeeper地址配置项，用于分布式服务注册与发现。
 // 默认值：空字符串（表示不启用）
@@ -48,6 +74,62 @@ Application* Application::s_instance = nullptr;
 
 Application::Application() {
     s_instance = this;
+}
+
+void Application::cleanup() {
+    if (!m_pidfile.empty()) {
+        // Only remove pidfile if it actually belongs to this process
+        bool removed = false;
+        {
+            std::ifstream ifs(m_pidfile);
+            int pid = -1;
+            if (ifs && (ifs >> pid)) {
+                if (pid == getpid()) {
+                    removed = FSUtil::Unlink(m_pidfile, true);
+                } else {
+                    IM_LOG_WARN(g_logger)
+                        << "pidfile " << m_pidfile << " not belong to current pid: " << pid
+                        << " currentpid=" << getpid();
+                }
+            } else {
+                // If cannot read pidfile, still attempt to unlink it
+                removed = FSUtil::Unlink(m_pidfile, true);
+            }
+        }
+        if (removed) {
+            IM_LOG_INFO(g_logger) << "pidfile removed: " << m_pidfile;
+        } else {
+            IM_LOG_ERROR(g_logger) << "failed to remove pidfile: " << m_pidfile;
+        }
+        // reset static c-string to avoid any further accidental uses
+        if (sizeof(s_pidfile) > 0) {
+            memset(s_pidfile, 0, sizeof(s_pidfile));
+        }
+    }
+    // Attempt to stop the main IO manager to initiate a graceful shutdown
+    if (m_mainIOManager) {
+        // If we're in the context of the main IOManager (i.e., cleanup called inside it),
+        // avoid directly calling stop() to prevent coroutine state assertions. Instead,
+        // call stop() from another thread so the main loop can shutdown safely.
+        IOManager* current = IOManager::GetThis();
+        if (current && current == m_mainIOManager.get()) {
+            std::thread([this]() {
+                if (m_mainIOManager) {
+                    m_mainIOManager->stop();
+                }
+            })
+                .detach();
+        } else {
+            m_mainIOManager->stop();
+        }
+    }
+}
+
+void Application::Exit(int code) {
+    if (GetInstance()) {
+        GetInstance()->cleanup();
+    }
+    _exit(code);
 }
 
 /**
@@ -73,7 +155,7 @@ bool Application::init(int argc, char** argv) {
     EnvMgr::GetInstance()->addHelp("s", "start with the terminal");
     EnvMgr::GetInstance()->addHelp("d", "run as daemon");
     EnvMgr::GetInstance()->addHelp("c", "conf path default: ./conf");
-    EnvMgr::GetInstance()->addHelp("p", "print help");
+    EnvMgr::GetInstance()->addHelp("h", "print help");
 
     bool is_print_help = false;
     if (!EnvMgr::GetInstance()->init(argc, argv)) {
@@ -86,7 +168,7 @@ bool Application::init(int argc, char** argv) {
 
     /*加载配置文件*/
     std::string conf_path = EnvMgr::GetInstance()->getConfigPath();
-    CIM_LOG_INFO(g_logger) << "load conf path:" << conf_path;
+    IM_LOG_INFO(g_logger) << "load conf path:" << conf_path;
     Config::LoadFromConfigDir(conf_path);
 
     /*初始化模块管理器并获取所有模块*/
@@ -128,15 +210,17 @@ bool Application::init(int argc, char** argv) {
 
     /*检查服务是否已经在运行*/
     std::string pidfile = g_server_work_path->getValue() + "/" + g_server_pid_file->getValue();
-    if (FSUtil::IsRunningPidfile(pidfile)) {
-        CIM_LOG_ERROR(g_logger) << "server is running:" << pidfile;
+    // 将 pidfile 路径保存到实例，以便后续清理
+    m_pidfile = pidfile;
+    if (FSUtil::IsRunningPidfile(m_pidfile)) {
+        IM_LOG_ERROR(g_logger) << "server is running:" << pidfile;
         return false;
     }
 
     /*创建工作目录*/
     if (!FSUtil::Mkdir(g_server_work_path->getValue())) {
-        CIM_LOG_FATAL(g_logger) << "create work path [" << g_server_work_path->getValue()
-                                << " errno=" << errno << " errstr=" << strerror(errno);
+        IM_LOG_FATAL(g_logger) << "create work path [" << g_server_work_path->getValue()
+                               << " errno=" << errno << " errstr=" << strerror(errno);
         return false;
     }
     return true;
@@ -165,8 +249,15 @@ bool Application::run() {
      */
 int Application::main(int argc, char** argv) {
     // 忽略SIGPIPE信号，避免socket连接断开时程序异常退出
-    signal(SIGPIPE, SIG_IGN);
-    CIM_LOG_INFO(g_logger) << "main";
+        {
+            struct sigaction sa_pipe;
+            memset(&sa_pipe, 0, sizeof(sa_pipe));
+            sa_pipe.sa_handler = SIG_IGN;
+            sigemptyset(&sa_pipe.sa_mask);
+            sa_pipe.sa_flags = 0;
+            sigaction(SIGPIPE, &sa_pipe, nullptr);
+        }
+    IM_LOG_INFO(g_logger) << "main";
 
     // 获取配置路径并重新加载配置
     std::string conf_path = EnvMgr::GetInstance()->getConfigPath();
@@ -177,10 +268,33 @@ int Application::main(int argc, char** argv) {
         std::string pidfile = g_server_work_path->getValue() + "/" + g_server_pid_file->getValue();
         std::ofstream ofs(pidfile);
         if (!ofs) {
-            CIM_LOG_ERROR(g_logger) << "open pidfile " << pidfile << " failed";
+            IM_LOG_ERROR(g_logger) << "open pidfile " << pidfile << " failed";
             return false;
         }
         ofs << getpid();
+    }
+    // 在写入 pidfile 后，设置全局静态 s_pidfile，注册退出回调和信号处理
+    {
+        std::string pidfile = g_server_work_path->getValue() + "/" + g_server_pid_file->getValue();
+        // 保存到实例
+        m_pidfile = pidfile;
+        // 保存到静态 C 字符串，供信号处理使用（确保长度不超过 PATH_MAX）
+        if (!pidfile.empty()) {
+            strncpy(s_pidfile, pidfile.c_str(), sizeof(s_pidfile) - 1);
+            s_pidfile[sizeof(s_pidfile) - 1] = '\0';
+        }
+        // 注册 atexit 清理函数
+        atexit(at_exit_cleanup);
+        // 注册信号处理器，确保在收到信号时仍然能清理 pid 文件
+            struct sigaction sa_exit;
+            memset(&sa_exit, 0, sizeof(sa_exit));
+            sa_exit.sa_handler = sig_exit_handler;
+            sigemptyset(&sa_exit.sa_mask);
+            sa_exit.sa_flags = 0;
+            sigaction(SIGINT, &sa_exit, nullptr);
+            sigaction(SIGTERM, &sa_exit, nullptr);
+            sigaction(SIGQUIT, &sa_exit, nullptr);
+            sigaction(SIGHUP, &sa_exit, nullptr);
     }
 
     // 创建主IO管理器并调度执行协程
@@ -191,7 +305,7 @@ int Application::main(int argc, char** argv) {
     m_mainIOManager->addTimer(
         2000,
         []() {
-            // CIM_LOG_INFO(g_logger) << "hello";
+            // IM_LOG_INFO(g_logger) << "hello";
         },
         true);
 
@@ -219,7 +333,7 @@ int Application::run_coroutine() {
     bool has_error = false;
     for (auto& i : modules) {
         if (!i->onLoad()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "module name=" << i->getName() << " version=" << i->getVersion()
                 << " filename=" << i->getFilename();
             has_error = true;
@@ -227,7 +341,7 @@ int Application::run_coroutine() {
     }
     // 如果模块加载出错，则直接退出程序
     if (has_error) {
-        _exit(0);
+        Application::Exit(0);
     }
 
     // 初始化工作线程管理器和Fox线程管理器
@@ -245,7 +359,7 @@ int Application::run_coroutine() {
     auto http_confs = g_servers_conf->getValue();
     std::vector<TcpServer::ptr> svrs;
     for (auto& i : http_confs) {
-        CIM_LOG_DEBUG(g_logger) << std::endl << LexicalCast<TcpServerConf, std::string>()(i);
+        IM_LOG_DEBUG(g_logger) << std::endl << LexicalCast<TcpServerConf, std::string>()(i);
 
         // 解析服务器地址配置
         std::vector<Address::ptr> address;
@@ -253,7 +367,7 @@ int Application::run_coroutine() {
             size_t pos = a.find(":");
             if (pos == std::string::npos) {
                 // 可能是UnixSocket地址
-                CIM_LOG_ERROR(g_logger) << "invalid address: " << a;
+                IM_LOG_ERROR(g_logger) << "invalid address: " << a;
                 address.push_back(UnixAddress::ptr(new UnixAddress(a)));
                 continue;
             }
@@ -286,8 +400,8 @@ int Application::run_coroutine() {
                 address.push_back(aaddr);
                 continue;
             }
-            CIM_LOG_ERROR(g_logger) << "invalid address: " << a;
-            _exit(0);
+            IM_LOG_ERROR(g_logger) << "invalid address: " << a;
+            Application::Exit(0);
         }
 
         // 获取IO管理器配置
@@ -300,22 +414,22 @@ int Application::run_coroutine() {
         if (!i.accept_worker.empty()) {
             accept_worker = WorkerMgr::GetInstance()->getAsIOManager(i.accept_worker).get();
             if (!accept_worker) {
-                CIM_LOG_ERROR(g_logger) << "accept_worker: " << i.accept_worker << " not exists";
-                _exit(0);
+                IM_LOG_ERROR(g_logger) << "accept_worker: " << i.accept_worker << " not exists";
+                Application::Exit(0);
             }
         }
         if (!i.io_worker.empty()) {
             io_worker = WorkerMgr::GetInstance()->getAsIOManager(i.io_worker).get();
             if (!io_worker) {
-                CIM_LOG_ERROR(g_logger) << "io_worker: " << i.io_worker << " not exists";
-                _exit(0);
+                IM_LOG_ERROR(g_logger) << "io_worker: " << i.io_worker << " not exists";
+                Application::Exit(0);
             }
         }
         if (!i.process_worker.empty()) {
             process_worker = WorkerMgr::GetInstance()->getAsIOManager(i.process_worker).get();
             if (!process_worker) {
-                CIM_LOG_ERROR(g_logger) << "process_worker: " << i.process_worker << " not exists";
-                _exit(0);
+                IM_LOG_ERROR(g_logger) << "process_worker: " << i.process_worker << " not exists";
+                Application::Exit(0);
             }
         }
 
@@ -323,18 +437,18 @@ int Application::run_coroutine() {
         TcpServer::ptr server;
         if (i.type == "http") {
             server.reset(
-                new CIM::http::HttpServer(i.keepalive, process_worker, io_worker, accept_worker));
+                new IM::http::HttpServer(i.keepalive, process_worker, io_worker, accept_worker));
         } else if (i.type == "ws") {
-            server.reset(new CIM::http::WSServer(process_worker, io_worker, accept_worker));
+            server.reset(new IM::http::WSServer(process_worker, io_worker, accept_worker));
         } else if (i.type == "rock") {
             server.reset(new RockServer("rock", process_worker, io_worker, accept_worker));
         } else if (i.type == "nameserver") {
             server.reset(new RockServer("nameserver", process_worker, io_worker, accept_worker));
             ModuleMgr::GetInstance()->add(std::make_shared<ns::NameServerModule>());
         } else {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "invalid server type=" << i.type << LexicalCast<TcpServerConf, std::string>()(i);
-            _exit(0);
+            Application::Exit(0);
         }
 
         // 设置服务器名称
@@ -346,16 +460,16 @@ int Application::run_coroutine() {
         std::vector<Address::ptr> fails;
         if (!server->bind(address, fails, i.ssl)) {
             for (auto& x : fails) {
-                CIM_LOG_ERROR(g_logger) << "bind address fail:" << *x;
+                IM_LOG_ERROR(g_logger) << "bind address fail:" << *x;
             }
-            _exit(0);
+            Application::Exit(0);
         }
 
         // 加载SSL证书
         if (i.ssl) {
             if (!server->loadCertificates(i.cert_file, i.key_file)) {
-                CIM_LOG_ERROR(g_logger) << "loadCertificates fail, cert_file=" << i.cert_file
-                                        << " key_file=" << i.key_file;
+                IM_LOG_ERROR(g_logger) << "loadCertificates fail, cert_file=" << i.cert_file
+                                       << " key_file=" << i.key_file;
             }
         }
 
@@ -448,4 +562,4 @@ RockSDLoadBalance::ptr Application::getRockSDLoadBalance() const {
     return m_rockSDLoadBalance;
 }
 
-}  // namespace CIM
+}  // namespace IM

@@ -1,5 +1,5 @@
-#ifndef __CIM_APP_RESULT_HPP__
-#define __CIM_APP_RESULT_HPP__
+#ifndef __IM_APP_RESULT_HPP__
+#define __IM_APP_RESULT_HPP__
 
 #include "dao/contact_apply_dao.hpp"
 #include "dao/contact_dao.hpp"
@@ -12,7 +12,7 @@
 #include "dao/user_settings_dao.hpp"
 #include "util/id_worker.hpp"
 
-namespace CIM::app {
+namespace IM::app {
 
 template <typename T>
 struct Result {
@@ -25,21 +25,21 @@ struct Result {
 using VoidResult = Result<int>;  // data 不用时可用占位
 using StatusResult = Result<std::string>;
 using ApplyCountResult = Result<uint64_t>;
-using UserResult = Result<CIM::dao::User>;
-using SmsCodeResult = Result<CIM::dao::SmsCode>;
-using UserInfoResult = Result<CIM::dao::UserInfo>;
-using ConfigInfoResult = Result<CIM::dao::ConfigInfo>;
-using ContactGroupResult = Result<CIM::dao::ContactGroup>;
-using TalkSessionResult = Result<CIM::dao::TalkSessionItem>;
-using ContactDetailsResult = Result<CIM::dao::ContactDetails>;
-using MessageRecordPageResult = Result<CIM::dao::MessagePage>;
-using MessageRecordResult = Result<CIM::dao::MessageRecord>; // 单条消息结果（发送返回）
-using ContactListResult = Result<std::vector<CIM::dao::ContactItem>>;
-using MessageRecordListResult = Result<std::vector<CIM::dao::MessageRecord>>;
-using TalkSessionListResult = Result<std::vector<CIM::dao::TalkSessionItem>>;
-using ContactApplyListResult = Result<std::vector<CIM::dao::ContactApplyItem>>;
-using ContactGroupListResult = Result<std::vector<CIM::dao::ContactGroupItem>>;
+using UserResult = Result<IM::dao::User>;
+using SmsCodeResult = Result<IM::dao::SmsCode>;
+using UserInfoResult = Result<IM::dao::UserInfo>;
+using ConfigInfoResult = Result<IM::dao::ConfigInfo>;
+using ContactGroupResult = Result<IM::dao::ContactGroup>;
+using TalkSessionResult = Result<IM::dao::TalkSessionItem>;
+using ContactDetailsResult = Result<IM::dao::ContactDetails>;
+using MessageRecordPageResult = Result<IM::dao::MessagePage>;
+using MessageRecordResult = Result<IM::dao::MessageRecord>; // 单条消息结果（发送返回）
+using ContactListResult = Result<std::vector<IM::dao::ContactItem>>;
+using MessageRecordListResult = Result<std::vector<IM::dao::MessageRecord>>;
+using TalkSessionListResult = Result<std::vector<IM::dao::TalkSessionItem>>;
+using ContactApplyListResult = Result<std::vector<IM::dao::ContactApplyItem>>;
+using ContactGroupListResult = Result<std::vector<IM::dao::ContactGroupItem>>;
 
-}  // namespace CIM::app
+}  // namespace IM::app
 
-#endif  // __CIM_APP_RESULT_HPP__
+#endif  // __IM_APP_RESULT_HPP__

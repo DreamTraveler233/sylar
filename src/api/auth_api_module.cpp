@@ -14,50 +14,50 @@
 #include "system/application.hpp"
 #include "util/util.hpp"
 
-namespace CIM::api {
+namespace IM::api {
 
-static auto g_logger = CIM_LOG_NAME("root");
+static auto g_logger = IM_LOG_NAME("root");
 
 // JWT过期时间(秒)
 static auto g_jwt_expires_in =
-    CIM::Config::Lookup<uint32_t>("auth.jwt.expires_in", 3600, "jwt expires in seconds");
+    IM::Config::Lookup<uint32_t>("auth.jwt.expires_in", 3600, "jwt expires in seconds");
 
 AuthApiModule::AuthApiModule() : Module("api.auth", "0.1.0", "builtin") {}
 
 /* 服务器准备就绪时注册认证相关路由 */
 bool AuthApiModule::onServerReady() {
-    std::vector<CIM::TcpServer::ptr> httpServers;
-    if (!CIM::Application::GetInstance()->getServer("http", httpServers)) {
-        CIM_LOG_WARN(g_logger) << "no http servers found when registering auth routes";
+    std::vector<IM::TcpServer::ptr> httpServers;
+    if (!IM::Application::GetInstance()->getServer("http", httpServers)) {
+        IM_LOG_WARN(g_logger) << "no http servers found when registering auth routes";
         return true;
     }
 
     for (auto& s : httpServers) {
-        auto http = std::dynamic_pointer_cast<CIM::http::HttpServer>(s);
+        auto http = std::dynamic_pointer_cast<IM::http::HttpServer>(s);
         if (!http) continue;
         auto dispatch = http->getServletDispatch();
 
         /*登录接口*/
-        dispatch->addServlet("/api/v1/auth/login", [](CIM::http::HttpRequest::ptr req,
-                                                      CIM::http::HttpResponse::ptr res,
-                                                      CIM::http::HttpSession::ptr session) {
+        dispatch->addServlet("/api/v1/auth/login", [](IM::http::HttpRequest::ptr req,
+                                                      IM::http::HttpResponse::ptr res,
+                                                      IM::http::HttpSession::ptr session) {
             res->setHeader("Content-Type", "application/json");
 
             std::string mobile, password, platform;
             Json::Value body;
             if (ParseBody(req->getBody(), body)) {
-                mobile = CIM::JsonUtil::GetString(body, "mobile");
-                password = CIM::JsonUtil::GetString(body, "password");
-                platform = CIM::JsonUtil::GetString(body, "platform");
+                mobile = IM::JsonUtil::GetString(body, "mobile");
+                password = IM::JsonUtil::GetString(body, "password");
+                platform = IM::JsonUtil::GetString(body, "platform");
             }
 
             // 执行登陆业务
-            auto result = CIM::app::AuthService::Authenticate(mobile, password, platform);
+            auto result = IM::app::AuthService::Authenticate(mobile, password, platform);
 
             /*只要用户存在，无论鉴权成功还是失败都要记录登录日志*/
             std::string err;
             if (result.data.id != 0) {
-                auto LogLogin_res = CIM::app::AuthService::LogLogin(result, platform, session);
+                auto LogLogin_res = IM::app::AuthService::LogLogin(result, platform, session);
                 if (!LogLogin_res.ok) {
                     res->setStatus(ToHttpStatus(LogLogin_res.code));
                     res->setBody(Error(LogLogin_res.code, LogLogin_res.err));
@@ -80,7 +80,7 @@ bool AuthApiModule::onServerReady() {
             }
 
             // 更新在线状态为在线
-            auto goOnline_res = CIM::app::AuthService::GoOnline(result.data.id);
+            auto goOnline_res = IM::app::AuthService::GoOnline(result.data.id);
             if (!goOnline_res.ok) {
                 res->setStatus(ToHttpStatus(goOnline_res.code));
                 res->setBody(Error(goOnline_res.code, goOnline_res.err));
@@ -97,24 +97,24 @@ bool AuthApiModule::onServerReady() {
         });
 
         /*注册接口*/
-        dispatch->addServlet("/api/v1/auth/register", [](CIM::http::HttpRequest::ptr req,
-                                                         CIM::http::HttpResponse::ptr res,
-                                                         CIM::http::HttpSession::ptr session) {
+        dispatch->addServlet("/api/v1/auth/register", [](IM::http::HttpRequest::ptr req,
+                                                         IM::http::HttpResponse::ptr res,
+                                                         IM::http::HttpSession::ptr session) {
             res->setHeader("Content-Type", "application/json");
 
             std::string nickname, mobile, password, sms_code, platform;
             Json::Value body;
             if (ParseBody(req->getBody(), body)) {
-                nickname = CIM::JsonUtil::GetString(body, "nickname");
-                mobile = CIM::JsonUtil::GetString(body, "mobile");
-                password = CIM::JsonUtil::GetString(body, "password");
-                sms_code = CIM::JsonUtil::GetString(body, "sms_code");
-                platform = CIM::JsonUtil::GetString(body, "platform");
+                nickname = IM::JsonUtil::GetString(body, "nickname");
+                mobile = IM::JsonUtil::GetString(body, "mobile");
+                password = IM::JsonUtil::GetString(body, "password");
+                sms_code = IM::JsonUtil::GetString(body, "sms_code");
+                platform = IM::JsonUtil::GetString(body, "platform");
             }
 
             /* 验证短信验证码 */
             auto verifyResult =
-                CIM::app::CommonService::VerifySmsCode(mobile, sms_code, "register");
+                IM::app::CommonService::VerifySmsCode(mobile, sms_code, "register");
             if (!verifyResult.ok) {
                 res->setStatus(ToHttpStatus(verifyResult.code));
                 res->setBody(Error(verifyResult.code, verifyResult.err));
@@ -122,12 +122,12 @@ bool AuthApiModule::onServerReady() {
             }
 
             /* 注册用户 */
-            auto result = CIM::app::AuthService::Register(nickname, mobile, password, platform);
+            auto result = IM::app::AuthService::Register(nickname, mobile, password, platform);
 
             /*只要创建用户成功就记录登录日志*/
             std::string err;
             if (result.data.id != 0) {
-                auto LogLogin_res = CIM::app::AuthService::LogLogin(result, platform, session);
+                auto LogLogin_res = IM::app::AuthService::LogLogin(result, platform, session);
                 if (!LogLogin_res.ok) {
                     res->setStatus(ToHttpStatus(LogLogin_res.code));
                     res->setBody(Error(LogLogin_res.code, LogLogin_res.err));
@@ -150,7 +150,7 @@ bool AuthApiModule::onServerReady() {
             }
 
             // 更新在线状态为在线
-            auto goOnline_res = CIM::app::AuthService::GoOnline(result.data.id);
+            auto goOnline_res = IM::app::AuthService::GoOnline(result.data.id);
             if (!goOnline_res.ok) {
                 res->setStatus(ToHttpStatus(goOnline_res.code));
                 res->setBody(Error(goOnline_res.code, goOnline_res.err));
@@ -166,22 +166,22 @@ bool AuthApiModule::onServerReady() {
         });
 
         /*找回密码接口*/
-        dispatch->addServlet("/api/v1/auth/forget", [](CIM::http::HttpRequest::ptr req,
-                                                       CIM::http::HttpResponse::ptr res,
-                                                       CIM::http::HttpSession::ptr session) {
+        dispatch->addServlet("/api/v1/auth/forget", [](IM::http::HttpRequest::ptr req,
+                                                       IM::http::HttpResponse::ptr res,
+                                                       IM::http::HttpSession::ptr session) {
             res->setHeader("Content-Type", "application/json");
 
             std::string mobile, password, sms_code;
             Json::Value body;
             if (ParseBody(req->getBody(), body)) {
-                mobile = CIM::JsonUtil::GetString(body, "mobile");
-                password = CIM::JsonUtil::GetString(body, "password");
-                sms_code = CIM::JsonUtil::GetString(body, "sms_code");
+                mobile = IM::JsonUtil::GetString(body, "mobile");
+                password = IM::JsonUtil::GetString(body, "password");
+                sms_code = IM::JsonUtil::GetString(body, "sms_code");
             }
 
             /* 验证短信验证码 */
             auto verifyResult =
-                CIM::app::CommonService::VerifySmsCode(mobile, sms_code, "forget_account");
+                IM::app::CommonService::VerifySmsCode(mobile, sms_code, "forget_account");
             if (!verifyResult.ok) {
                 res->setStatus(ToHttpStatus(verifyResult.code));
                 res->setBody(Error(verifyResult.code, verifyResult.err));
@@ -189,7 +189,7 @@ bool AuthApiModule::onServerReady() {
             }
 
             /* 找回密码 */
-            auto forgetResult = CIM::app::AuthService::Forget(mobile, password);
+            auto forgetResult = IM::app::AuthService::Forget(mobile, password);
             if (!forgetResult.ok) {
                 res->setStatus(ToHttpStatus(forgetResult.code));
                 res->setBody(Error(forgetResult.code, forgetResult.err));
@@ -201,9 +201,9 @@ bool AuthApiModule::onServerReady() {
         });
 
         /*获取 oauth2.0 跳转地址*/
-        dispatch->addServlet("/api/v1/auth/oauth", [](CIM::http::HttpRequest::ptr /*req*/,
-                                                      CIM::http::HttpResponse::ptr res,
-                                                      CIM::http::HttpSession::ptr /*session*/) {
+        dispatch->addServlet("/api/v1/auth/oauth", [](IM::http::HttpRequest::ptr /*req*/,
+                                                      IM::http::HttpResponse::ptr res,
+                                                      IM::http::HttpSession::ptr /*session*/) {
             res->setHeader("Content-Type", "application/json");
             res->setBody(Ok());
             return 0;
@@ -212,8 +212,8 @@ bool AuthApiModule::onServerReady() {
         /*绑定第三方登录接口*/
         dispatch->addServlet(
             "/api/v1/auth/oauth/bind",
-            [](CIM::http::HttpRequest::ptr /*req*/, CIM::http::HttpResponse::ptr res,
-               CIM::http::HttpSession::ptr /*session*/) {
+            [](IM::http::HttpRequest::ptr /*req*/, IM::http::HttpResponse::ptr res,
+               IM::http::HttpSession::ptr /*session*/) {
                 res->setHeader("Content-Type", "application/json");
                 res->setBody(Ok());
                 return 0;
@@ -222,8 +222,8 @@ bool AuthApiModule::onServerReady() {
         /*第三方登录接口*/
         dispatch->addServlet(
             "/api/v1/auth/oauth/login",
-            [](CIM::http::HttpRequest::ptr /*req*/, CIM::http::HttpResponse::ptr res,
-               CIM::http::HttpSession::ptr /*session*/) {
+            [](IM::http::HttpRequest::ptr /*req*/, IM::http::HttpResponse::ptr res,
+               IM::http::HttpSession::ptr /*session*/) {
                 res->setHeader("Content-Type", "application/json");
                 res->setBody(Ok());
                 return 0;
@@ -232,4 +232,4 @@ bool AuthApiModule::onServerReady() {
     return true;
 }
 
-}  // namespace CIM::api
+}  // namespace IM::api

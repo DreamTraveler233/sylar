@@ -13,8 +13,8 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("util");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("util");
 int32_t CryptoUtil::AES256Ecb(const void* key, const void* in, int32_t in_len, void* out,
                               bool encode) {
     int32_t len = 0;
@@ -132,7 +132,7 @@ RSACipher::ptr RSACipher::Create(const std::string& pubkey_file, const std::stri
         // 读取公钥：优先 PKCS#1 (BEGIN RSA PUBLIC KEY)，失败回退到 SubjectPublicKeyInfo (BEGIN PUBLIC KEY)
         fp = fopen(pubkey_file.c_str(), "r");
         if (!fp) {
-            CIM_LOG_ERROR(g_logger) << "CryptoModule: load RSA public key failed: " << pubkey_file;
+            IM_LOG_ERROR(g_logger) << "CryptoModule: load RSA public key failed: " << pubkey_file;
             break;
         }
         rt->m_pubkey = PEM_read_RSAPublicKey(fp, NULL, NULL, NULL);
@@ -160,7 +160,7 @@ RSACipher::ptr RSACipher::Create(const std::string& pubkey_file, const std::stri
         fclose(fp);
         fp = nullptr;
         if (!rt->m_pubkey) {
-            CIM_LOG_ERROR(g_logger) << "CryptoModule: load RSA public key failed: " << pubkey_file;
+            IM_LOG_ERROR(g_logger) << "CryptoModule: load RSA public key failed: " << pubkey_file;
             break;
         }
 
@@ -309,7 +309,7 @@ int32_t RSACipher::getPriRSASize() {
     return -1;
 }
 
-}  // namespace CIM
+}  // namespace IM
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop

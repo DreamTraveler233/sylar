@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <thread>
 
-namespace CIM::util {
+namespace IM::util {
 
 IdWorker::IdWorker() : worker_id_(0), last_ts_(0), sequence_(0) {}
 
@@ -68,4 +68,4 @@ uint64_t IdWorker::NextId() {
     return id;
 }
 
-}  // namespace CIM::util
+}  // namespace IM::util

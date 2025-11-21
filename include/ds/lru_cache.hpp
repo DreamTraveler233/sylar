@@ -1,5 +1,5 @@
-#ifndef __CIM_DS_LRU_CACHE_HPP__
-#define __CIM_DS_LRU_CACHE_HPP__
+#ifndef __IM_DS_LRU_CACHE_HPP__
+#define __IM_DS_LRU_CACHE_HPP__
 
 #include <algorithm>
 #include <atomic>
@@ -11,7 +11,7 @@
 #include "cache_status.hpp"
 #include "lock.hpp"
 
-namespace CIM::ds {
+namespace IM::ds {
 template <class K, class V, class MutexType = Mutex>
 class LruCache {
    public:
@@ -289,6 +289,6 @@ class HashLruCache {
     CacheStatus m_status;
 };
 
-}  // namespace CIM::ds
+}  // namespace IM::ds
 
-#endif // __CIM_DS_LRU_CACHE_HPP__
+#endif // __IM_DS_LRU_CACHE_HPP__

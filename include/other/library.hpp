@@ -1,16 +1,16 @@
-#ifndef __CIM_OTHER_LIBRARY_HPP__
-#define __CIM_OTHER_LIBRARY_HPP__
+#ifndef __IM_OTHER_LIBRARY_HPP__
+#define __IM_OTHER_LIBRARY_HPP__
 
 #include <memory>
 
 #include "module.hpp"
 
-namespace CIM {
+namespace IM {
 class Library {
    public:
     static Module::ptr GetModule(const std::string& path);
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_OTHER_LIBRARY_HPP__
+#endif // __IM_OTHER_LIBRARY_HPP__

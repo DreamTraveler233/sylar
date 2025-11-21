@@ -10,11 +10,11 @@
 
 #include "base/macro.hpp"
 
-namespace CIM {
+namespace IM {
 
 LogFile::LogFile(const std::string& filePath)
     : m_fd(-1), m_filePath(filePath), m_rotateType(RotateType::NONE), m_maxFileSize(0) {
-    CIM_ASSERT(!filePath.empty());
+    IM_ASSERT(!filePath.empty());
 }
 
 LogFile::~LogFile() {
@@ -44,13 +44,13 @@ bool LogFile::openFile() {
 }
 
 size_t LogFile::writeLog(const std::string& logMsg) {
-    CIM_ASSERT(!logMsg.empty());
+    IM_ASSERT(!logMsg.empty());
     int fd = m_fd == -1 ? 1 : m_fd;  // 如果未打开文件，则写到标准输出
     return ::write(fd, logMsg.data(), logMsg.size());
 }
 
 void LogFile::rotate(const std::string& newFilePath) {
-    CIM_ASSERT(!newFilePath.empty());
+    IM_ASSERT(!newFilePath.empty());
     // 如果旧文件未打开，则直接返回
     if (m_filePath.empty()) {
         return;
@@ -89,7 +89,7 @@ uint64_t LogFile::getMaxFileSize() const {
 }
 
 RotateType LogFile::rotateTypeFromString(const std::string& str) {
-    CIM_ASSERT(!str.empty());
+    IM_ASSERT(!str.empty());
 #define XX(name, rotateType) \
     if (str == #name) return RotateType::rotateType;
 
@@ -135,4 +135,4 @@ int64_t LogFile::getFileSize() const {
 const std::string& LogFile::getFilePath() const {
     return m_filePath;
 }
-}  // namespace CIM
+}  // namespace IM

@@ -6,33 +6,33 @@
 #include <iostream>
 #include <cstring>
 
-static auto g_logger = CIM_LOG_ROOT();
+static auto g_logger = IM_LOG_ROOT();
 
 void test_socket()
 {
     // 使用DNS解析将域名 "www.baidu.com" 转换为IP地址
-    CIM::IPAddress::ptr addr = CIM::Address::LookupAnyIpAddress("www.baidu.com");
+    IM::IPAddress::ptr addr = IM::Address::LookupAnyIpAddress("www.baidu.com");
     if (addr)
     {
-        CIM_LOG_INFO(g_logger) << "get address: " << addr->toString();
+        IM_LOG_INFO(g_logger) << "get address: " << addr->toString();
     }
     else
     {
-        CIM_LOG_INFO(g_logger) << "get address fail";
+        IM_LOG_INFO(g_logger) << "get address fail";
         return;
     }
 
     // 创建TCP套接字并连接到目标地址的80端口
-    CIM::Socket::ptr sock = CIM::Socket::CreateTCP(addr);
+    IM::Socket::ptr sock = IM::Socket::CreateTCP(addr);
     addr->setPort(80);
     if (!sock->connect(addr))
     {
-        CIM_LOG_INFO(g_logger) << "connect " << addr->toString() << " fail";
+        IM_LOG_INFO(g_logger) << "connect " << addr->toString() << " fail";
         return;
     }
     else
     {
-        CIM_LOG_INFO(g_logger) << "connect " << addr->toString() << " success";
+        IM_LOG_INFO(g_logger) << "connect " << addr->toString() << " success";
     }
 
     // 发送HTTP GET请求到服务器
@@ -40,12 +40,12 @@ void test_socket()
     int rt = sock->send(data, sizeof(data));
     if (rt <= 0)
     {
-        CIM_LOG_INFO(g_logger) << "send fail rt=" << rt;
+        IM_LOG_INFO(g_logger) << "send fail rt=" << rt;
         return;
     }
     else
     {
-        CIM_LOG_INFO(g_logger) << "send " << rt << " bytes data";
+        IM_LOG_INFO(g_logger) << "send " << rt << " bytes data";
     }
 
     // 接收并显示服务器的HTTP响应
@@ -54,12 +54,12 @@ void test_socket()
     rt = sock->recv(&buff[0], buff.size());
     if (rt <= 0)
     {
-        CIM_LOG_INFO(g_logger) << "recv fail rt=" << rt;
+        IM_LOG_INFO(g_logger) << "recv fail rt=" << rt;
         return;
     }
     else
     {
-        CIM_LOG_INFO(g_logger) << "recv " << rt << " bytes data";
+        IM_LOG_INFO(g_logger) << "recv " << rt << " bytes data";
         buff.resize(rt);
         std::cout << buff << std::endl;
     }
@@ -67,7 +67,7 @@ void test_socket()
 
 int main(int argc, char **argv)
 {
-    CIM::IOManager iom;
+    IM::IOManager iom;
     iom.schedule(test_socket);
     return 0;
 }

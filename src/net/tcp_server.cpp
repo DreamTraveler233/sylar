@@ -3,20 +3,20 @@
 #include "config/config.hpp"
 #include "base/macro.hpp"
 
-namespace CIM {
-static CIM::Logger::ptr g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static IM::Logger::ptr g_logger = IM_LOG_NAME("system");
 
 // 配置 TCP 读超时事件
-static auto g_tcp_server_read_timeout = CIM::Config::Lookup(
+static auto g_tcp_server_read_timeout = IM::Config::Lookup(
     "tcp_server.read_timeout", (uint64_t)(60 * 1000 * 2), "tcp server read timeout");
 
-TcpServer::TcpServer(CIM::IOManager* worker, CIM::IOManager* io_worker,
-                     CIM::IOManager* accept_worker)
+TcpServer::TcpServer(IM::IOManager* worker, IM::IOManager* io_worker,
+                     IM::IOManager* accept_worker)
     : m_worker(worker),
       m_ioWorker(io_worker),
       m_acceptWorker(accept_worker),
       m_recvTimeout(g_tcp_server_read_timeout->getValue()),
-      m_name("CIM/1.0.0"),
+      m_name("IM/1.0.0"),
       m_isRun(false) {}
 
 TcpServer::~TcpServer() {
@@ -30,7 +30,7 @@ void TcpServer::setConf(const TcpServerConf& v) {
     m_conf.reset(new TcpServerConf(v));
 }
 
-bool TcpServer::bind(CIM::Address::ptr addr, bool ssl) {
+bool TcpServer::bind(IM::Address::ptr addr, bool ssl) {
     std::vector<Address::ptr> addrs;
     std::vector<Address::ptr> fails;
     addrs.push_back(addr);
@@ -46,7 +46,7 @@ bool TcpServer::bind(const std::vector<Address::ptr>& addrs, std::vector<Address
 
         // 绑定地址
         if (!sock->bind(addr)) {
-            CIM_LOG_ERROR(g_logger) << "bind fail errno=" << errno << " errstr=" << strerror(errno)
+            IM_LOG_ERROR(g_logger) << "bind fail errno=" << errno << " errstr=" << strerror(errno)
                                     << " addr=[" << addr->toString() << "]";
             fails.push_back(addr);
             continue;
@@ -54,7 +54,7 @@ bool TcpServer::bind(const std::vector<Address::ptr>& addrs, std::vector<Address
 
         // 开启监听
         if (!sock->listen()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "listen fail errno=" << errno << " errstr=" << strerror(errno) << " addr=["
                 << addr->toString() << "]";
             fails.push_back(addr);
@@ -69,7 +69,7 @@ bool TcpServer::bind(const std::vector<Address::ptr>& addrs, std::vector<Address
     }
 
     for (auto& i : m_socks) {
-        CIM_LOG_INFO(g_logger) << "type=" << m_type << " name=" << m_name << " ssl=" << m_ssl
+        IM_LOG_INFO(g_logger) << "type=" << m_type << " name=" << m_name << " ssl=" << m_ssl
                                << " server bind success: " << *i;
     }
     return true;
@@ -97,13 +97,13 @@ void TcpServer::startAccept(Socket::ptr sock) {
             m_ioWorker->schedule(
                 std::bind(&TcpServer::handleClient, shared_from_this(), client_fd));
         } else {
-            CIM_LOG_ERROR(g_logger) << "accept errno=" << errno << " errstr=" << strerror(errno);
+            IM_LOG_ERROR(g_logger) << "accept errno=" << errno << " errstr=" << strerror(errno);
         }
     }
 }
 
 void TcpServer::handleClient(Socket::ptr client) {
-    CIM_LOG_INFO(g_logger) << "handleClient: " << *client;
+    IM_LOG_INFO(g_logger) << "handleClient: " << *client;
 }
 
 void TcpServer::stop() {
@@ -174,4 +174,4 @@ std::string TcpServer::toString(const std::string& prefix) {
 std::vector<Socket::ptr> TcpServer::getSocks() const {
     return m_socks;
 }
-}  // namespace CIM
+}  // namespace IM

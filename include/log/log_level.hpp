@@ -1,7 +1,7 @@
 /**
  * @file log_level.hpp
  * @brief 日志等级定义及转换接口
- * @author CIM
+ * @author IM
  * @date 2025-10-21
  * 
  * 该文件定义了日志系统的日志等级枚举和相关转换函数，
@@ -9,12 +9,12 @@
  * 日志等级从低到高依次为: DEBUG, INFO, WARN, ERROR, FATAL
  */
 
-#ifndef __CIM_LOG_LOG_LEVEL_HPP__
-#define __CIM_LOG_LOG_LEVEL_HPP__
+#ifndef __IM_LOG_LOG_LEVEL_HPP__
+#define __IM_LOG_LOG_LEVEL_HPP__
 
 #include <string>
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 日志等级枚举
      *
@@ -53,6 +53,6 @@ class LogLevel {
     static Level FromString(const std::string& str);
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_LOG_LOG_LEVEL_HPP__
+#endif // __IM_LOG_LOG_LEVEL_HPP__

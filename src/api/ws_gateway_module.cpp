@@ -14,9 +14,9 @@
 #include "system/application.hpp"
 #include "util/util.hpp"
 
-namespace CIM::api {
+namespace IM::api {
 
-static auto g_logger = CIM_LOG_NAME("root");
+static auto g_logger = IM_LOG_NAME("root");
 
 WsGatewayModule::WsGatewayModule() : Module("ws.gateway", "0.1.0", "builtin") {}
 
@@ -51,29 +51,29 @@ struct ConnCtx {
 };
 
 static std::atomic<uint64_t> s_conn_seq{1};
-static CIM::RWMutex s_ws_mutex;  // 保护会话表
+static IM::RWMutex s_ws_mutex;  // 保护会话表
 // 记录连接与上下文、会话弱引用，key: WSSession* 原始地址
 struct ConnItem {
     ConnCtx ctx;
-    std::weak_ptr<CIM::http::WSSession> weak;
+    std::weak_ptr<IM::http::WSSession> weak;
 };
 static std::unordered_map<void*, ConnItem> s_ws_conns;
 
 // 发送下行统一封装：{"event":"...","payload":{...},"ackid":"..."}
-static void SendEvent(CIM::http::WSSession::ptr session, const std::string& event,
+static void SendEvent(IM::http::WSSession::ptr session, const std::string& event,
                       const Json::Value& payload, const std::string& ackid = "") {
     Json::Value root;
     root["event"] = event;
     root["payload"] = payload.isNull() ? Json::Value(Json::objectValue) : payload;
     if (!ackid.empty()) root["ackid"] = ackid;
-    session->sendMessage(CIM::JsonUtil::ToString(root));
+    session->sendMessage(IM::JsonUtil::ToString(root));
 }
 
 // 根据 uid 收集当前在线的会话（强引用），避免长时间持锁
-static std::vector<CIM::http::WSSession::ptr> CollectSessions(uint64_t uid) {
-    std::vector<CIM::http::WSSession::ptr> out;
+static std::vector<IM::http::WSSession::ptr> CollectSessions(uint64_t uid) {
+    std::vector<IM::http::WSSession::ptr> out;
     {
-        CIM::RWMutex::ReadLock lock(s_ws_mutex);
+        IM::RWMutex::ReadLock lock(s_ws_mutex);
         out.reserve(s_ws_conns.size());
         for (auto& kv : s_ws_conns) {
             const auto& item = kv.second;
@@ -89,28 +89,28 @@ static std::vector<CIM::http::WSSession::ptr> CollectSessions(uint64_t uid) {
 }
 
 bool WsGatewayModule::onServerReady() {
-    std::vector<CIM::TcpServer::ptr> wsServers;
+    std::vector<IM::TcpServer::ptr> wsServers;
     // 1. 获取所有已注册的WebSocket服务器实例
-    if (!CIM::Application::GetInstance()->getServer("ws", wsServers)) {
-        CIM_LOG_WARN(g_logger) << "no ws servers found when registering ws routes";
+    if (!IM::Application::GetInstance()->getServer("ws", wsServers)) {
+        IM_LOG_WARN(g_logger) << "no ws servers found when registering ws routes";
         return true;
     }
 
     // 2. 遍历每个WebSocket服务器，注册路由与事件回调
     for (auto& s : wsServers) {
-        auto ws = std::dynamic_pointer_cast<CIM::http::WSServer>(s);
+        auto ws = std::dynamic_pointer_cast<IM::http::WSServer>(s);
         if (!ws) continue;
         auto dispatch = ws->getWSServletDispatch();
 
         /* 注册 WebSocket 路由回调 */
         // 2.1 连接建立回调：鉴权、会话登记、欢迎包
-        auto on_connect = [](CIM::http::HttpRequest::ptr header,
-                             CIM::http::WSSession::ptr session) -> int32_t {
+        auto on_connect = [](IM::http::HttpRequest::ptr header,
+                             IM::http::WSSession::ptr session) -> int32_t {
             // 读取查询串 ?token=...&platform=...
             const std::string query = header->getQuery();
             auto kv = ParseQueryKV(query);
-            const std::string token = CIM::GetParamValue<std::string>(kv, "token", "");
-            std::string platform = CIM::GetParamValue<std::string>(kv, "platform", "web");
+            const std::string token = IM::GetParamValue<std::string>(kv, "token", "");
+            std::string platform = IM::GetParamValue<std::string>(kv, "platform", "web");
             std::string suid;
 
             // 1) 校验token（JWT），失败则发错误事件并关闭
@@ -144,7 +144,7 @@ bool WsGatewayModule::onServerReady() {
             ctx.conn_id = std::to_string(s_conn_seq.fetch_add(1));
 
             {
-                CIM::RWMutex::WriteLock lock(s_ws_mutex);
+                IM::RWMutex::WriteLock lock(s_ws_mutex);
                 ConnItem item;
                 item.ctx = ctx;
                 item.weak = session;
@@ -155,18 +155,18 @@ bool WsGatewayModule::onServerReady() {
             Json::Value payload;
             payload["uid"] = Json::UInt64(uid);
             payload["platform"] = ctx.platform;
-            payload["ts"] = (Json::UInt64)CIM::TimeUtil::NowToMS();
+            payload["ts"] = (Json::UInt64)IM::TimeUtil::NowToMS();
             SendEvent(session, "connect", payload);
             return 0;
         };
 
         // 2.2 连接关闭回调：移除会话表
-        auto on_close = [](CIM::http::HttpRequest::ptr /*header*/,
-                           CIM::http::WSSession::ptr session) -> int32_t {
+        auto on_close = [](IM::http::HttpRequest::ptr /*header*/,
+                           IM::http::WSSession::ptr session) -> int32_t {
             // 获取连接上下文
             ConnCtx ctx;
             {
-                CIM::RWMutex::ReadLock lock(s_ws_mutex);
+                IM::RWMutex::ReadLock lock(s_ws_mutex);
                 auto it = s_ws_conns.find((void*)session.get());
                 if (it != s_ws_conns.end()) {
                     ctx = it->second.ctx;
@@ -175,37 +175,37 @@ bool WsGatewayModule::onServerReady() {
 
             // 执行下线操作：更新用户在线状态为离线
             if (ctx.uid != 0) {
-                auto offline_result = CIM::app::UserService::Offline(ctx.uid);
+                auto offline_result = IM::app::UserService::Offline(ctx.uid);
                 if (!offline_result.ok) {
-                    CIM_LOG_ERROR(g_logger)
+                    IM_LOG_ERROR(g_logger)
                         << "Offline failed for uid=" << ctx.uid << ", err=" << offline_result.err;
                 }
             }
 
             // 移除会话表
             {
-                CIM::RWMutex::WriteLock lock(s_ws_mutex);
+                IM::RWMutex::WriteLock lock(s_ws_mutex);
                 s_ws_conns.erase((void*)session.get());
             }
             return 0;
         };
 
         // 2.3 消息处理回调：事件分发、心跳、回显等
-        auto on_message = [](CIM::http::HttpRequest::ptr /*header*/,
-                             CIM::http::WSFrameMessage::ptr msg,
-                             CIM::http::WSSession::ptr session) -> int32_t {
+        auto on_message = [](IM::http::HttpRequest::ptr /*header*/,
+                             IM::http::WSFrameMessage::ptr msg,
+                             IM::http::WSSession::ptr session) -> int32_t {
             // 仅处理文本帧，忽略二进制和控制帧
-            if (!msg || msg->getOpcode() != CIM::http::WSFrameHead::TEXT_FRAME) {
+            if (!msg || msg->getOpcode() != IM::http::WSFrameHead::TEXT_FRAME) {
                 return 0;
             }
             const std::string& data = msg->getData();
             Json::Value root;
             // 1) 解析JSON消息体，非对象型忽略
-            if (!CIM::JsonUtil::FromString(root, data) || !root.isObject()) {
+            if (!IM::JsonUtil::FromString(root, data) || !root.isObject()) {
                 return 0;  // 非JSON忽略
             }
             // 前端封装为 {"event": event, "payload": payload}
-            const std::string event = CIM::JsonUtil::GetString(root, "event");
+            const std::string event = IM::JsonUtil::GetString(root, "event");
             const Json::Value payload =
                 root.isMember("payload") ? root["payload"] : Json::Value(Json::objectValue);
 
@@ -213,7 +213,7 @@ bool WsGatewayModule::onServerReady() {
             if (event == "ping") {
                 // 应用层心跳，回复pong
                 Json::Value p;
-                p["ts"] = (Json::UInt64)CIM::TimeUtil::NowToMS();
+                p["ts"] = (Json::UInt64)IM::TimeUtil::NowToMS();
                 SendEvent(session, "pong", p);
                 return 0;
             }
@@ -241,7 +241,7 @@ bool WsGatewayModule::onServerReady() {
                     // 获取当前发送者ID
                     ConnCtx ctx;
                     {
-                        CIM::RWMutex::ReadLock lock(s_ws_mutex);
+                        IM::RWMutex::ReadLock lock(s_ws_mutex);
                         auto it = s_ws_conns.find((void*)session.get());
                         if (it != s_ws_conns.end()) {
                             ctx = it->second.ctx;
@@ -263,7 +263,7 @@ bool WsGatewayModule::onServerReady() {
             }
 
             // 3) 其他事件留给后续业务模块拓展，这里仅记录日志
-            CIM_LOG_DEBUG(g_logger) << "unhandled ws event: " << event;
+            IM_LOG_DEBUG(g_logger) << "unhandled ws event: " << event;
             return 0;
         };
 
@@ -304,4 +304,4 @@ void WsGatewayModule::PushImMessage(uint8_t talk_mode, uint64_t to_from_id, uint
     }
 }
 
-}  // namespace CIM::api
+}  // namespace IM::api

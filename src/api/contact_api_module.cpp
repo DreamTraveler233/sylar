@@ -12,36 +12,36 @@
 #include "system/application.hpp"
 #include "util/util.hpp"
 
-namespace CIM::api {
+namespace IM::api {
 
-static auto g_logger = CIM_LOG_NAME("root");
+static auto g_logger = IM_LOG_NAME("root");
 
 ContactApiModule::ContactApiModule() : Module("api.contact", "0.1.0", "builtin") {}
 
 bool ContactApiModule::onServerReady() {
-    std::vector<CIM::TcpServer::ptr> httpServers;
-    if (!CIM::Application::GetInstance()->getServer("http", httpServers)) {
-        CIM_LOG_WARN(g_logger) << "no http servers found when registering contact routes";
+    std::vector<IM::TcpServer::ptr> httpServers;
+    if (!IM::Application::GetInstance()->getServer("http", httpServers)) {
+        IM_LOG_WARN(g_logger) << "no http servers found when registering contact routes";
         return true;
     }
 
     for (auto& s : httpServers) {
-        auto http = std::dynamic_pointer_cast<CIM::http::HttpServer>(s);
+        auto http = std::dynamic_pointer_cast<IM::http::HttpServer>(s);
         if (!http) continue;
         auto dispatch = http->getServletDispatch();
 
         /*同意联系人申请接口*/
         dispatch->addServlet("/api/v1/contact-apply/accept",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr /*session*/) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr /*session*/) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  uint64_t apply_id;
                                  std::string remark;
                                  Json::Value body;
                                  if (ParseBody(req->getBody(), body)) {
-                                     apply_id = CIM::JsonUtil::GetUint64(body, "apply_id");
-                                     remark = CIM::JsonUtil::GetString(body, "remark");
+                                     apply_id = IM::JsonUtil::GetUint64(body, "apply_id");
+                                     remark = IM::JsonUtil::GetString(body, "remark");
                                  }
 
                                  auto uid_result = GetUidFromToken(req, res);
@@ -52,7 +52,7 @@ bool ContactApiModule::onServerReady() {
                                  }
 
                                  /*调用业务逻辑处理接受好友申请（服务端已创建会话并返回）*/
-                                 auto session_result = CIM::app::ContactService::AgreeApply(
+                                 auto session_result = IM::app::ContactService::AgreeApply(
                                      uid_result.data, apply_id, remark);
                                  if (!session_result.ok) {
                                      res->setStatus(ToHttpStatus(session_result.code));
@@ -83,8 +83,8 @@ bool ContactApiModule::onServerReady() {
 
         /*添加联系人申请接口*/
         dispatch->addServlet("/api/v1/contact-apply/create",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr /*session*/) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr /*session*/) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  auto uid_result = GetUidFromToken(req, res);
@@ -99,12 +99,12 @@ bool ContactApiModule::onServerReady() {
                                  std::string remark;
                                  Json::Value body;
                                  if (ParseBody(req->getBody(), body)) {
-                                     to_id = CIM::JsonUtil::GetUint64(body, "user_id");
-                                     remark = CIM::JsonUtil::GetString(body, "remark");
+                                     to_id = IM::JsonUtil::GetUint64(body, "user_id");
+                                     remark = IM::JsonUtil::GetString(body, "remark");
                                  }
 
                                  /*调用业务逻辑处理添加联系人申请*/
-                                 auto result = CIM::app::ContactService::CreateContactApply(
+                                 auto result = IM::app::ContactService::CreateContactApply(
                                      uid_result.data, to_id, remark);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
@@ -118,16 +118,16 @@ bool ContactApiModule::onServerReady() {
 
         /*拒绝联系人申请接口*/
         dispatch->addServlet("/api/v1/contact-apply/decline",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr /*session*/) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr /*session*/) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  uint64_t apply_id;
                                  std::string remark;
                                  Json::Value body;
                                  if (ParseBody(req->getBody(), body)) {
-                                     apply_id = CIM::JsonUtil::GetUint64(body, "apply_id");
-                                     remark = CIM::JsonUtil::GetString(body, "remark");
+                                     apply_id = IM::JsonUtil::GetUint64(body, "apply_id");
+                                     remark = IM::JsonUtil::GetString(body, "remark");
                                  }
 
                                  auto uid_result = GetUidFromToken(req, res);
@@ -138,7 +138,7 @@ bool ContactApiModule::onServerReady() {
                                  }
 
                                  /*调用业务逻辑处理接受好友申请*/
-                                 auto result = CIM::app::ContactService::RejectApply(
+                                 auto result = IM::app::ContactService::RejectApply(
                                      uid_result.data, apply_id, remark);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
@@ -152,8 +152,8 @@ bool ContactApiModule::onServerReady() {
 
         /*获取好友申请列表接口*/
         dispatch->addServlet("/api/v1/contact-apply/list",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr /*session*/) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr /*session*/) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  auto uid_result = GetUidFromToken(req, res);
@@ -165,7 +165,7 @@ bool ContactApiModule::onServerReady() {
 
                                  /*获取未处理的好友申请列表*/
                                  auto result =
-                                     CIM::app::ContactService::ListContactApplies(uid_result.data);
+                                     IM::app::ContactService::ListContactApplies(uid_result.data);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -193,8 +193,8 @@ bool ContactApiModule::onServerReady() {
         /*获取未读好友申请数量接口*/
         dispatch->addServlet(
             "/api/v1/contact-apply/unread-num",
-            [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-               CIM::http::HttpSession::ptr /*session*/) {
+            [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+               IM::http::HttpSession::ptr /*session*/) {
                 res->setHeader("Content-Type", "application/json");
 
                 auto uid_result = GetUidFromToken(req, res);
@@ -205,7 +205,7 @@ bool ContactApiModule::onServerReady() {
                 }
 
                 auto result =
-                    CIM::app::ContactService::GetPendingContactApplyCount(uid_result.data);
+                    IM::app::ContactService::GetPendingContactApplyCount(uid_result.data);
                 if (!result.ok) {
                     res->setStatus(ToHttpStatus(result.code));
                     res->setBody(Error(result.code, result.err));
@@ -221,8 +221,8 @@ bool ContactApiModule::onServerReady() {
         /*获取联系人分组列表接口*/
         dispatch->addServlet(
             "/api/v1/contact-group/list",
-            [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-               CIM::http::HttpSession::ptr /*session*/) {
+            [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+               IM::http::HttpSession::ptr /*session*/) {
                 res->setHeader("Content-Type", "application/json");
 
                 auto uid_result = GetUidFromToken(req, res);
@@ -233,7 +233,7 @@ bool ContactApiModule::onServerReady() {
                 }
 
                 /*调用业务逻辑处理获取联系人分组列表*/
-                auto result = CIM::app::ContactService::GetContactGroupLists(uid_result.data);
+                auto result = IM::app::ContactService::GetContactGroupLists(uid_result.data);
                 if (!result.ok) {
                     res->setStatus(ToHttpStatus(result.code));
                     res->setBody(Error(result.code, result.err));
@@ -258,8 +258,8 @@ bool ContactApiModule::onServerReady() {
         /*保存联系人分组接口*/
         dispatch->addServlet(
             "/api/v1/contact-group/save",
-            [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-               CIM::http::HttpSession::ptr /*session*/) {
+            [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+               IM::http::HttpSession::ptr /*session*/) {
                 res->setHeader("Content-Type", "application/json");
 
                 std::vector<std::tuple<uint64_t, uint64_t, std::string>> groupItems;
@@ -283,7 +283,7 @@ bool ContactApiModule::onServerReady() {
 
                 /*调用业务逻辑处理修改联系人分组*/
                 auto result =
-                    CIM::app::ContactService::SaveContactGroup(uid_result.data, groupItems);
+                    IM::app::ContactService::SaveContactGroup(uid_result.data, groupItems);
                 if (!result.ok) {
                     res->setStatus(ToHttpStatus(result.code));
                     res->setBody(Error(result.code, result.err));
@@ -296,15 +296,15 @@ bool ContactApiModule::onServerReady() {
 
         /*修改联系人分组接口*/
         dispatch->addServlet("/api/v1/contact/change-group",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr /*session*/) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr /*session*/) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  uint64_t contact_id, group_id;
                                  Json::Value body;
                                  if (ParseBody(req->getBody(), body)) {
-                                     contact_id = CIM::JsonUtil::GetUint64(body, "user_id");
-                                     group_id = CIM::JsonUtil::GetUint64(body, "group_id");
+                                     contact_id = IM::JsonUtil::GetUint64(body, "user_id");
+                                     group_id = IM::JsonUtil::GetUint64(body, "group_id");
                                  }
 
                                  auto uid_result = GetUidFromToken(req, res);
@@ -314,7 +314,7 @@ bool ContactApiModule::onServerReady() {
                                      return 0;
                                  }
 
-                                 auto result = CIM::app::ContactService::ChangeContactGroup(
+                                 auto result = IM::app::ContactService::ChangeContactGroup(
                                      uid_result.data, contact_id, group_id);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
@@ -327,15 +327,15 @@ bool ContactApiModule::onServerReady() {
                              });
 
         /*删除联系人接口*/
-        dispatch->addServlet("/api/v1/contact/delete", [](CIM::http::HttpRequest::ptr req,
-                                                          CIM::http::HttpResponse::ptr res,
-                                                          CIM::http::HttpSession::ptr /*session*/) {
+        dispatch->addServlet("/api/v1/contact/delete", [](IM::http::HttpRequest::ptr req,
+                                                          IM::http::HttpResponse::ptr res,
+                                                          IM::http::HttpSession::ptr /*session*/) {
             res->setHeader("Content-Type", "application/json");
 
             uint64_t contact_id;
             Json::Value body;
             if (ParseBody(req->getBody(), body)) {
-                contact_id = CIM::JsonUtil::GetUint64(body, "user_id");
+                contact_id = IM::JsonUtil::GetUint64(body, "user_id");
             }
 
             auto uid_result = GetUidFromToken(req, res);
@@ -346,7 +346,7 @@ bool ContactApiModule::onServerReady() {
             }
 
             /*调用业务逻辑处理删除联系人*/
-            auto result = CIM::app::ContactService::DeleteContact(uid_result.data, contact_id);
+            auto result = IM::app::ContactService::DeleteContact(uid_result.data, contact_id);
             if (!result.ok) {
                 res->setStatus(ToHttpStatus(result.code));
                 res->setBody(Error(result.code, result.err));
@@ -357,15 +357,15 @@ bool ContactApiModule::onServerReady() {
         });
 
         /*获取联系人详情接口*/
-        dispatch->addServlet("/api/v1/contact/detail", [](CIM::http::HttpRequest::ptr req,
-                                                          CIM::http::HttpResponse::ptr res,
-                                                          CIM::http::HttpSession::ptr /*session*/) {
+        dispatch->addServlet("/api/v1/contact/detail", [](IM::http::HttpRequest::ptr req,
+                                                          IM::http::HttpResponse::ptr res,
+                                                          IM::http::HttpSession::ptr /*session*/) {
             res->setHeader("Content-Type", "application/json");
 
             uint64_t target_id;
             Json::Value body;
             if (ParseBody(req->getBody(), body)) {
-                target_id = CIM::JsonUtil::GetUint64(body, "user_id");
+                target_id = IM::JsonUtil::GetUint64(body, "user_id");
             }
 
             auto uid_result = GetUidFromToken(req, res);
@@ -375,7 +375,7 @@ bool ContactApiModule::onServerReady() {
                 return 0;
             }
 
-            auto result = CIM::app::ContactService::GetContactDetail(target_id);
+            auto result = IM::app::ContactService::GetContactDetail(target_id);
             if (!result.ok) {
                 res->setStatus(ToHttpStatus(result.code));
                 res->setBody(Error(result.code, result.err));
@@ -404,16 +404,16 @@ bool ContactApiModule::onServerReady() {
 
         /*编辑联系人备注接口*/
         dispatch->addServlet("/api/v1/contact/edit-remark",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr /*session*/) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr /*session*/) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  uint64_t contact_id;
                                  std::string remark;
                                  Json::Value body;
                                  if (ParseBody(req->getBody(), body)) {
-                                     contact_id = CIM::JsonUtil::GetUint64(body, "user_id");
-                                     remark = CIM::JsonUtil::GetString(body, "remark");
+                                     contact_id = IM::JsonUtil::GetUint64(body, "user_id");
+                                     remark = IM::JsonUtil::GetString(body, "remark");
                                  }
 
                                  auto uid_result = GetUidFromToken(req, res);
@@ -424,7 +424,7 @@ bool ContactApiModule::onServerReady() {
                                  }
 
                                  /*调用业务逻辑处理编辑联系人备注*/
-                                 auto result = CIM::app::ContactService::EditContactRemark(
+                                 auto result = IM::app::ContactService::EditContactRemark(
                                      uid_result.data, contact_id, remark);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
@@ -437,9 +437,9 @@ bool ContactApiModule::onServerReady() {
                              });
 
         /*获取联系人列表接口*/
-        dispatch->addServlet("/api/v1/contact/list", [](CIM::http::HttpRequest::ptr req,
-                                                        CIM::http::HttpResponse::ptr res,
-                                                        CIM::http::HttpSession::ptr /*session*/) {
+        dispatch->addServlet("/api/v1/contact/list", [](IM::http::HttpRequest::ptr req,
+                                                        IM::http::HttpResponse::ptr res,
+                                                        IM::http::HttpSession::ptr /*session*/) {
             res->setHeader("Content-Type", "application/json");
 
             auto uid_result = GetUidFromToken(req, res);
@@ -450,7 +450,7 @@ bool ContactApiModule::onServerReady() {
             }
 
             /*根据用户 ID 获取用户好友列表*/
-            auto contacts = CIM::app::ContactService::ListFriends(uid_result.data);
+            auto contacts = IM::app::ContactService::ListFriends(uid_result.data);
             if (!contacts.ok) {
                 res->setStatus(ToHttpStatus(contacts.code));
                 res->setBody(Error(contacts.code, contacts.err));
@@ -477,18 +477,18 @@ bool ContactApiModule::onServerReady() {
 
         /*获取联系人在线状态接口*/
         dispatch->addServlet("/api/v1/contact/online-status",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr /*session*/) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr /*session*/) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  uint64_t contact_id;
                                  Json::Value body;
                                  if (ParseBody(req->getBody(), body)) {
-                                     contact_id = CIM::JsonUtil::GetUint64(body, "user_id");
+                                     contact_id = IM::JsonUtil::GetUint64(body, "user_id");
                                  }
 
                                  auto result =
-                                     CIM::app::UserService::GetUserOnlineStatus(contact_id);
+                                     IM::app::UserService::GetUserOnlineStatus(contact_id);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -503,17 +503,17 @@ bool ContactApiModule::onServerReady() {
 
         /*搜索联系人接口*/
         dispatch->addServlet("/api/v1/contact/search",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr /*session*/) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr /*session*/) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  std::string mobile;
                                  Json::Value body;
                                  if (ParseBody(req->getBody(), body)) {
-                                     mobile = CIM::JsonUtil::GetString(body, "mobile");
+                                     mobile = IM::JsonUtil::GetString(body, "mobile");
                                  }
 
-                                 auto result = CIM::app::ContactService::SearchByMobile(mobile);
+                                 auto result = IM::app::ContactService::SearchByMobile(mobile);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -534,4 +534,4 @@ bool ContactApiModule::onServerReady() {
     return true;
 }
 
-}  // namespace CIM::api
+}  // namespace IM::api

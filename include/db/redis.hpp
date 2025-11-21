@@ -1,6 +1,6 @@
 
-#ifndef __CIM_DB_REDIS_HPP__
-#define __CIM_DB_REDIS_HPP__
+#ifndef __IM_DB_REDIS_HPP__
+#define __IM_DB_REDIS_HPP__
 
 #include <cstdlib>
 #include <stdlib.h>
@@ -15,7 +15,7 @@
 #include "io/lock.hpp"
 #include "base/singleton.hpp"
 
-namespace CIM {
+namespace IM {
 typedef std::shared_ptr<redisReply> ReplyPtr;
 
 class IRedis {
@@ -303,6 +303,6 @@ class RedisUtil {
                            const std::vector<std::string>& args);
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_DB_REDIS_HPP__
+#endif // __IM_DB_REDIS_HPP__

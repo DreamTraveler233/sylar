@@ -10,8 +10,8 @@
 #include "config/config.hpp"
 #include "base/macro.hpp"
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
 
 bool Env::init(int argc, char** argv) {
     /**
@@ -47,7 +47,7 @@ bool Env::init(int argc, char** argv) {
                 }
                 now_key = argv[i] + 1;
             } else {
-                CIM_LOG_ERROR(g_logger) << "invalid arg idx=" << i << " val=" << argv[i];
+                IM_LOG_ERROR(g_logger) << "invalid arg idx=" << i << " val=" << argv[i];
                 return false;
             }
         } else {
@@ -55,7 +55,7 @@ bool Env::init(int argc, char** argv) {
                 add(now_key, argv[i]);
                 now_key = nullptr;
             } else {
-                CIM_LOG_ERROR(g_logger) << "invalid arg idx=" << i << " val=" << argv[i];
+                IM_LOG_ERROR(g_logger) << "invalid arg idx=" << i << " val=" << argv[i];
                 return false;
             }
         }
@@ -67,40 +67,40 @@ bool Env::init(int argc, char** argv) {
 }
 
 void Env::add(const std::string& key, const std::string& val) {
-    CIM_ASSERT(!key.empty());
+    IM_ASSERT(!key.empty());
     RWMutexType::WriteLock lock(m_mutex);
     m_args[key] = val;
 }
 
 bool Env::has(const std::string& key) {
-    CIM_ASSERT(!key.empty());
+    IM_ASSERT(!key.empty());
     RWMutexType::ReadLock lock(m_mutex);
     auto it = m_args.find(key);
     return it != m_args.end();
 }
 
 void Env::del(const std::string& key) {
-    CIM_ASSERT(!key.empty());
+    IM_ASSERT(!key.empty());
     RWMutexType::WriteLock lock(m_mutex);
     m_args.erase(key);
 }
 
 std::string Env::get(const std::string& key, const std::string& default_value) {
-    CIM_ASSERT(!key.empty());
+    IM_ASSERT(!key.empty());
     RWMutexType::ReadLock lock(m_mutex);
     auto it = m_args.find(key);
     return it != m_args.end() ? it->second : default_value;
 }
 
 void Env::addHelp(const std::string& key, const std::string& desc) {
-    CIM_ASSERT(!key.empty());
+    IM_ASSERT(!key.empty());
     removeHelp(key);
     RWMutexType::WriteLock lock(m_mutex);
     m_helps.push_back(std::make_pair(key, desc));
 }
 
 void Env::removeHelp(const std::string& key) {
-    CIM_ASSERT(!key.empty());
+    IM_ASSERT(!key.empty());
     RWMutexType::WriteLock lock(m_mutex);
     for (auto it = m_helps.begin(); it != m_helps.end();) {
         if (it->first == key) {
@@ -120,12 +120,12 @@ void Env::printHelp() {
 }
 
 bool Env::setEnv(const std::string& key, const std::string& val) {
-    CIM_ASSERT(!key.empty() && !val.empty());
+    IM_ASSERT(!key.empty() && !val.empty());
     return !setenv(key.c_str(), val.c_str(), 1);
 }
 
 std::string Env::getEnv(const std::string& key, const std::string& default_value) {
-    CIM_ASSERT(!key.empty());
+    IM_ASSERT(!key.empty());
     const char* v = getenv(key.c_str());
     if (v == nullptr) {
         return default_value;
@@ -152,7 +152,7 @@ std::string Env::getAbsoluteWorkPath(const std::string& path) const {
     if (path[0] == '/') {
         return path;
     }
-    static auto g_server_work_path = CIM::Config::Lookup<std::string>("server.work_path");
+    static auto g_server_work_path = IM::Config::Lookup<std::string>("server.work_path");
     return g_server_work_path->getValue() + "/" + path;
 }
 
@@ -160,4 +160,4 @@ std::string Env::getConfigPath() {
     return getAbsolutePath(get("c", "config"));
 }
 
-}  // namespace CIM
+}  // namespace IM

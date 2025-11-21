@@ -4,10 +4,10 @@
 
 #include "base/macro.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 static constexpr const char* kDBName = "default";
-static auto g_logger = CIM_LOG_ROOT();
+static auto g_logger = IM_LOG_ROOT();
 
 namespace {
 // 统一列选择片段
@@ -16,7 +16,7 @@ static const char* kSelectCols =
     "quote_msg_id,is_revoked,status,revoke_by,revoke_time,created_at,updated_at";
 }  // namespace
 
-bool MessageDao::Create(const std::shared_ptr<CIM::MySQL>& db, const Message& m, std::string* err) {
+bool MessageDao::Create(const std::shared_ptr<IM::MySQL>& db, const Message& m, std::string* err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -77,7 +77,7 @@ bool MessageDao::Create(const std::shared_ptr<CIM::MySQL>& db, const Message& m,
 }
 
 bool MessageDao::GetById(const std::string& msg_id, Message& out, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -128,7 +128,7 @@ bool MessageDao::GetById(const std::string& msg_id, Message& out, std::string* e
 
 bool MessageDao::ListRecentDesc(const uint64_t talk_id, const uint64_t anchor_seq,
                                 const size_t limit, std::vector<Message>& out, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -194,11 +194,11 @@ bool MessageDao::ListRecentDescWithFilter(const uint64_t talk_id, const uint64_t
                                           const size_t limit, const uint64_t user_id,
                                           const uint16_t msg_type, std::vector<Message>& out,
                                           std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     return ListRecentDescWithFilter(db, talk_id, anchor_seq, limit, user_id, msg_type, out, err);
 }
 
-bool MessageDao::ListRecentDescWithFilter(const std::shared_ptr<CIM::MySQL>& db,
+bool MessageDao::ListRecentDescWithFilter(const std::shared_ptr<IM::MySQL>& db,
                                           const uint64_t talk_id, const uint64_t anchor_seq,
                                           const size_t limit, const uint64_t user_id,
                                           const uint16_t msg_type, std::vector<Message>& out,
@@ -278,7 +278,7 @@ bool MessageDao::GetByIds(const std::vector<std::string>& ids, std::vector<Messa
         out.clear();
         return true;
     }
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -341,7 +341,7 @@ bool MessageDao::GetByIdsWithFilter(const std::vector<std::string>& ids, const u
         out.clear();
         return true;
     }
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -408,7 +408,7 @@ bool MessageDao::GetByIdsWithFilter(const std::vector<std::string>& ids, const u
 
 bool MessageDao::ListAfterAsc(const uint64_t talk_id, const uint64_t after_seq, const size_t limit,
                               std::vector<Message>& out, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -454,7 +454,7 @@ bool MessageDao::ListAfterAsc(const uint64_t talk_id, const uint64_t after_seq, 
     return true;
 }
 
-bool MessageDao::Revoke(const std::shared_ptr<CIM::MySQL>& db, const std::string& msg_id,
+bool MessageDao::Revoke(const std::shared_ptr<IM::MySQL>& db, const std::string& msg_id,
                         const uint64_t user_id, std::string* err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
@@ -477,7 +477,7 @@ bool MessageDao::Revoke(const std::shared_ptr<CIM::MySQL>& db, const std::string
     return true;  // 不强制校验影响行数；由上层根据业务判断是否成功撤回
 }
 
-bool MessageDao::DeleteByTalkId(const std::shared_ptr<CIM::MySQL>& db, const uint64_t talk_id,
+bool MessageDao::DeleteByTalkId(const std::shared_ptr<IM::MySQL>& db, const uint64_t talk_id,
                                 std::string* err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
@@ -497,7 +497,7 @@ bool MessageDao::DeleteByTalkId(const std::shared_ptr<CIM::MySQL>& db, const uin
     return true;
 }
 
-bool MessageDao::SetStatus(const std::shared_ptr<CIM::MySQL>& db, const std::string& msg_id,
+bool MessageDao::SetStatus(const std::shared_ptr<IM::MySQL>& db, const std::string& msg_id,
                            uint8_t status, std::string* err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
@@ -518,4 +518,4 @@ bool MessageDao::SetStatus(const std::shared_ptr<CIM::MySQL>& db, const std::str
     return true;
 }
 
-}  // namespace CIM::dao
+}  // namespace IM::dao

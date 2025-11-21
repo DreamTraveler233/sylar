@@ -1,15 +1,15 @@
 /**
  * @file lock.hpp
  * @brief 线程同步锁封装模块
- * @author CIM
+ * @author IM
  *
  * 该文件定义了多种线程同步锁的封装，包括互斥锁、读写锁、自旋锁和原子锁等，
  * 并提供了RAII风格的锁管理器模板，确保锁的自动获取和释放，防止死锁和忘记释放锁的问题。
  * 所有锁类都继承自Noncopyable，禁止拷贝构造和赋值操作，确保锁的安全性。
  */
 
-#ifndef __CIM_IO_LOCK_HPP__
-#define __CIM_IO_LOCK_HPP__
+#ifndef __IM_IO_LOCK_HPP__
+#define __IM_IO_LOCK_HPP__
 
 #include <pthread.h>
 
@@ -19,7 +19,7 @@
 #include "coroutine.hpp"
 #include "base/noncopyable.hpp"
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 通用锁管理模板，RAII风格
      *
@@ -284,6 +284,6 @@ class CoroutineSemaphore : Noncopyable {
     std::list<std::pair<Scheduler*, Coroutine::ptr>> m_waiters;
     size_t m_concurrency;
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_IO_LOCK_HPP__
+#endif // __IM_IO_LOCK_HPP__

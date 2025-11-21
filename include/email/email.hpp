@@ -1,12 +1,12 @@
-#ifndef __CIM_EMAIL_EMAIL_HPP__
-#define __CIM_EMAIL_EMAIL_HPP__
+#ifndef __IM_EMAIL_EMAIL_HPP__
+#define __IM_EMAIL_EMAIL_HPP__
 
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace CIM {
+namespace IM {
 
 /**
  * @brief 邮件附件实体类
@@ -195,6 +195,6 @@ class EMail {
     std::vector<EMailEntity::ptr> m_entitys;     /// 附件实体列表
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_EMAIL_EMAIL_HPP__
+#endif // __IM_EMAIL_EMAIL_HPP__

@@ -5,7 +5,7 @@
 
 #include "util/util.hpp"
 
-namespace CIM {
+namespace IM {
 EMailEntity::ptr EMailEntity::CreateAttach(const std::string& filename) {
     std::ifstream ifs(filename, std::ios::binary);
     std::string buf;
@@ -61,4 +61,4 @@ void EMail::addEntity(EMailEntity::ptr entity) {
     m_entitys.push_back(entity);
 }
 
-}  // namespace CIM
+}  // namespace IM

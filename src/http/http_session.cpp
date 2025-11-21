@@ -2,7 +2,7 @@
 
 #include "http/http_parser.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 HttpSession::HttpSession(Socket::ptr sock, bool owner) : SocketStream(sock, owner) {}
 
 HttpRequest::ptr HttpSession::recvRequest() {
@@ -120,4 +120,4 @@ int HttpSession::read(ByteArray::ptr ba, size_t length) {
     return SocketStream::read(ba, length);
 }
 
-}  // namespace CIM::http
+}  // namespace IM::http

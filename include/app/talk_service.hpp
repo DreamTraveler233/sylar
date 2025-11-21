@@ -1,10 +1,10 @@
-#ifndef __CIM_APP_TALK_SERVICE_HPP__
-#define __CIM_APP_TALK_SERVICE_HPP__
+#ifndef __IM_APP_TALK_SERVICE_HPP__
+#define __IM_APP_TALK_SERVICE_HPP__
 
 #include "dao/talk_session_dao.hpp"
 #include "result.hpp"
 
-namespace CIM::app {
+namespace IM::app {
 
 class TalkService {
    public:
@@ -29,6 +29,6 @@ class TalkService {
                                             const uint8_t talk_mode);
 };
 
-}  // namespace CIM::app
+}  // namespace IM::app
 
-#endif // __CIM_APP_TALK_SERVICE_HPP__
+#endif // __IM_APP_TALK_SERVICE_HPP__

@@ -6,8 +6,8 @@
  * @note    依赖于config、http_session等基础模块。
  */
 
-#ifndef __CIM_HTTP_WS_SESSION_HPP__
-#define __CIM_HTTP_WS_SESSION_HPP__
+#ifndef __IM_HTTP_WS_SESSION_HPP__
+#define __IM_HTTP_WS_SESSION_HPP__
 
 #include <stdint.h>
 
@@ -17,7 +17,7 @@
 #include "config/config.hpp"
 #include "http_session.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 
 /**
  * @struct  WSFrameHead
@@ -189,7 +189,7 @@ class WSSession : public HttpSession {
  * @brief   WebSocket单条消息最大长度配置项
  * @note    超过该长度的消息将被拒绝，防止内存溢出
  */
-extern CIM::ConfigVar<uint32_t>::ptr g_websocket_message_max_size;
+extern IM::ConfigVar<uint32_t>::ptr g_websocket_message_max_size;
 
 /**
  * @brief   从流中接收一条WebSocket消息
@@ -232,6 +232,6 @@ int32_t WSPong(Stream* stream);
  */
 int32_t WSClose(Stream* stream, uint16_t code = 1000, const std::string& reason = "");
 
-}  // namespace CIM::http
+}  // namespace IM::http
 
-#endif  // __CIM_HTTP_WS_SESSION_HPP__
+#endif  // __IM_HTTP_WS_SESSION_HPP__

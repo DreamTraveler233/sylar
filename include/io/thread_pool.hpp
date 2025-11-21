@@ -1,5 +1,5 @@
-#ifndef __CIM_IO_THREAD_POOL_HPP__
-#define __CIM_IO_THREAD_POOL_HPP__
+#ifndef __IM_IO_THREAD_POOL_HPP__
+#define __IM_IO_THREAD_POOL_HPP__
 
 #include <atomic>
 #include <condition_variable>
@@ -13,7 +13,7 @@
 #include <thread>
 #include <unordered_map>
 
-namespace CIM {
+namespace IM {
 const size_t TASK_QUE_MAX_SIZE_ = 1024;
 const size_t THREAD_MAX_SIZE = 1024;
 const size_t THREAD_MAX_IDLE_TIME = 60;  // 单位/秒
@@ -363,6 +363,6 @@ class ThreadPool {
     PoolMode poolMode_;               // 当前线程池的工作模式
     std::atomic_bool poolIsRunning_;  // 线程池启动标志
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_IO_THREAD_POOL_HPP__
+#endif // __IM_IO_THREAD_POOL_HPP__

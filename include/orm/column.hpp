@@ -1,11 +1,11 @@
-#ifndef __CIM_ORM_COLUMN_HPP__
-#define __CIM_ORM_COLUMN_HPP__
+#ifndef __IM_ORM_COLUMN_HPP__
+#define __IM_ORM_COLUMN_HPP__
 
 #include <memory>
 #include <string>
 #include "tinyxml2.h"
 
-namespace CIM::orm
+namespace IM::orm
 {
     class Table;
     class Column
@@ -78,4 +78,4 @@ namespace CIM::orm
 
 }
 
-#endif // __CIM_ORM_COLUMN_HPP__
+#endif // __IM_ORM_COLUMN_HPP__

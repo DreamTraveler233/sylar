@@ -1,21 +1,21 @@
 /**
  * @file config_var.hpp
  * @brief 配置变量模板类定义文件
- * @author CIM
+ * @author IM
  *
  * 该文件定义了配置系统中的核心模板类 ConfigVar，用于存储和管理各种类型的配置项。
  * ConfigVar 继承自 ConfigVariableBase，提供了类型安全的配置项管理功能，
  * 支持配置值的序列化/反序列化、变更监听回调等特性。
  */
 
-#ifndef __CIM_CONFIG_CONFIG_VAR_HPP__
-#define __CIM_CONFIG_CONFIG_VAR_HPP__
+#ifndef __IM_CONFIG_CONFIG_VAR_HPP__
+#define __IM_CONFIG_CONFIG_VAR_HPP__
 
 #include "io/lock.hpp"
 #include "lexical_cast.hpp"
 #include "base/macro.hpp"
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 配置变量模板类
      * @tparam T 配置项的数据类型
@@ -47,7 +47,7 @@ class ConfigVar : public ConfigVariableBase {
          */
     ConfigVar(const std::string& name, const T& default_value, const std::string& description)
         : ConfigVariableBase(name, description), m_val(default_value) {
-        CIM_ASSERT(!name.empty());
+        IM_ASSERT(!name.empty());
     }
 
     /**
@@ -63,7 +63,7 @@ class ConfigVar : public ConfigVariableBase {
             RWMutexType::ReadLock lock(m_mutex);
             return toStr()(m_val);
         } catch (std::exception& e) {
-            CIM_LOG_ERROR(CIM_LOG_ROOT()) << "ConfigVar::toString exception" << e.what()
+            IM_LOG_ERROR(IM_LOG_ROOT()) << "ConfigVar::toString exception" << e.what()
                                           << " convert: " << typeid(m_val).name() << " to string";
         }
         return "";
@@ -80,12 +80,12 @@ class ConfigVar : public ConfigVariableBase {
          * 4、成功转换返回true，失败返回false
          */
     bool fromString(const std::string& val) override {
-        CIM_ASSERT(!val.empty());
+        IM_ASSERT(!val.empty());
         try {
             setValue(fromStr()(val));
             return true;
         } catch (std::exception& e) {
-            CIM_LOG_ERROR(CIM_LOG_ROOT())
+            IM_LOG_ERROR(IM_LOG_ROOT())
                 << "ConfigVar::fromString exception" << e.what() << " convert: string to"
                 << typeid(m_val).name() << " - " << val;
         }
@@ -142,7 +142,7 @@ class ConfigVar : public ConfigVariableBase {
          * @return 监听器ID，可用于删除监听器
          */
     uint64_t addListener(const ConfigChangeCb& cb) {
-        CIM_ASSERT(cb);
+        IM_ASSERT(cb);
         static uint64_t func_id = 0;
         RWMutexType::WriteLock lock(m_mutex);
         ++func_id;
@@ -155,14 +155,14 @@ class ConfigVar : public ConfigVariableBase {
          * @param[in] key 监听器ID
          */
     void delListener(uint64_t key) {
-        CIM_ASSERT(key > 0);
+        IM_ASSERT(key > 0);
         RWMutexType::WriteLock lock(m_mutex);
         if (m_cbs.find(key) != m_cbs.end()) {
-            CIM_LOG_INFO(CIM_LOG_ROOT())
+            IM_LOG_INFO(IM_LOG_ROOT())
                 << "Removing listener for config variable: " << getName() << " with key: " << key;
             m_cbs.erase(key);
         } else {
-            CIM_LOG_WARN(CIM_LOG_ROOT())
+            IM_LOG_WARN(IM_LOG_ROOT())
                 << "Trying to remove non-existent listener for config variable: " << getName()
                 << " with key: " << key;
         }
@@ -182,7 +182,7 @@ class ConfigVar : public ConfigVariableBase {
          * @return 对应的回调函数，如果不存在则返回nullptr
          */
     ConfigChangeCb getListener(uint64_t key) {
-        CIM_ASSERT(key > 0);
+        IM_ASSERT(key > 0);
         RWMutexType::ReadLock lock(m_mutex);
         auto it = m_cbs.find(key);
         return it == m_cbs.end() ? nullptr : it->second;
@@ -193,6 +193,6 @@ class ConfigVar : public ConfigVariableBase {
     std::map<uint64_t, ConfigChangeCb> m_cbs;  // 配置改变时的回调函数
     RWMutexType m_mutex;                       // 读写锁
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_CONFIG_CONFIG_VAR_HPP__
+#endif // __IM_CONFIG_CONFIG_VAR_HPP__

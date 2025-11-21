@@ -1,5 +1,5 @@
-#ifndef __CIM_CONFIG_LEXICAL_CAST_HPP__
-#define __CIM_CONFIG_LEXICAL_CAST_HPP__
+#ifndef __IM_CONFIG_LEXICAL_CAST_HPP__
+#define __IM_CONFIG_LEXICAL_CAST_HPP__
 
 #include <yaml-cpp/yaml.h>
 
@@ -13,7 +13,7 @@
 
 #include "log/logger_manager.hpp"
 
-namespace CIM {
+namespace IM {
 /**
      * 不同类型的数据转换
      * 主要思路：
@@ -332,6 +332,6 @@ class LexicalCast<std::string, LogDefine> {
         return ld;
     }
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif  // __CIM_CONFIG_LEXICAL_CAST_HPP__
+#endif  // __IM_CONFIG_LEXICAL_CAST_HPP__

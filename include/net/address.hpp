@@ -6,8 +6,8 @@
  * 提供了地址解析、创建、比较等功能，是网络通信的基础模块。
  */
 
-#ifndef __CIM_NET_ADDRESS_HPP__
-#define __CIM_NET_ADDRESS_HPP__
+#ifndef __IM_NET_ADDRESS_HPP__
+#define __IM_NET_ADDRESS_HPP__
 
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -20,7 +20,7 @@
 #include <utility>
 #include <vector>
 
-namespace CIM {
+namespace IM {
 class IPAddress;
 
 /**
@@ -524,6 +524,6 @@ class UnknownAddress : public Address {
      * @brief 流式输出Address
      */
 std::ostream& operator<<(std::ostream& os, const Address& addr);
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_NET_ADDRESS_HPP__
+#endif // __IM_NET_ADDRESS_HPP__

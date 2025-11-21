@@ -1,5 +1,5 @@
-#ifndef __CIM_DAO_USER_AUTH_DAO_HPP__
-#define __CIM_DAO_USER_AUTH_DAO_HPP__
+#ifndef __IM_DAO_USER_AUTH_DAO_HPP__
+#define __IM_DAO_USER_AUTH_DAO_HPP__
 
 #include <cstdint>
 #include <ctime>
@@ -9,7 +9,7 @@
 
 #include "db/mysql.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 struct UserAuth {
     uint64_t user_id = 0;                              // 用户ID (im_user.id)
@@ -24,7 +24,7 @@ struct UserAuth {
 class UserAuthDao {
    public:
     // 创建用户认证记录
-    static bool Create(const std::shared_ptr<CIM::MySQL>& db, const UserAuth& ua,
+    static bool Create(const std::shared_ptr<IM::MySQL>& db, const UserAuth& ua,
                        std::string* err = nullptr);
     // 根据用户 ID 获取用户认证记录
     static bool GetByUserId(const uint64_t user_id, UserAuth& out, std::string* err = nullptr);
@@ -33,6 +33,6 @@ class UserAuthDao {
                                    std::string* err = nullptr);
 };
 
-}  // namespace CIM::dao
+}  // namespace IM::dao
 
-#endif  // __CIM_DAO_USER_AUTH_DAO_HPP__
+#endif  // __IM_DAO_USER_AUTH_DAO_HPP__

@@ -1,7 +1,7 @@
 /**
  * @file socket.hpp
  * @brief Socket封装头文件
- * @author CIM
+ * @author IM
  *
  * 该文件定义了Socket和SSLSocket两个核心网络类，用于处理各种类型的网络通信：
  * 1. 支持TCP和UDP协议
@@ -15,12 +15,12 @@
  * - 智能指针管理：使用shared_ptr进行内存管理，避免内存泄漏
  * - 异常安全：在网络操作失败时返回适当的错误码而非抛出异常
  * - 超时控制：支持发送和接收操作的超时设置
- * - 协程支持：与CIM框架的协程系统无缝集成
+ * - 协程支持：与IM框架的协程系统无缝集成
  * - SSL支持：SSLSocket子类提供安全的网络通信
  */
 
-#ifndef __CIM_NET_SOCKET_HPP__
-#define __CIM_NET_SOCKET_HPP__
+#ifndef __IM_NET_SOCKET_HPP__
+#define __IM_NET_SOCKET_HPP__
 
 #include <netinet/tcp.h>
 #include <openssl/err.h>
@@ -33,7 +33,7 @@
 #include "address.hpp"
 #include "base/noncopyable.hpp"
 
-namespace CIM {
+namespace IM {
 /**
      * @brief Socket封装类
      *
@@ -72,14 +72,14 @@ class Socket : public std::enable_shared_from_this<Socket>, Noncopyable {
          * @param[in] address 地址
          * @return 返回创建的TCP Socket智能指针
          */
-    static Socket::ptr CreateTCP(CIM::Address::ptr address);
+    static Socket::ptr CreateTCP(IM::Address::ptr address);
 
     /**
          * @brief 创建UDP Socket(满足地址类型)
          * @param[in] address 地址
          * @return 返回创建的UDP Socket智能指针
          */
-    static Socket::ptr CreateUDP(CIM::Address::ptr address);
+    static Socket::ptr CreateUDP(IM::Address::ptr address);
 
     /**
          * @brief 创建IPv4的TCP Socket
@@ -477,7 +477,7 @@ class SSLSocket : public Socket {
          * @param[in] address 地址
          * @return 返回创建的SSL Socket智能指针
          */
-    static SSLSocket::ptr CreateTCP(CIM::Address::ptr address);
+    static SSLSocket::ptr CreateTCP(IM::Address::ptr address);
 
     /**
          * @brief 创建IPv4的TCP SSL Socket
@@ -671,6 +671,6 @@ class SSLSocket : public Socket {
      */
 std::ostream& operator<<(std::ostream& os, const Socket& sock);
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_NET_SOCKET_HPP__
+#endif // __IM_NET_SOCKET_HPP__

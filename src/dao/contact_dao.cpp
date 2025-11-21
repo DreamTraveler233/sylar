@@ -2,12 +2,12 @@
 
 #include "db/mysql.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 static constexpr const char* kDBName = "default";
 
 bool ContactDAO::ListByUser(uint64_t user_id, std::vector<ContactItem>& out, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -45,7 +45,7 @@ bool ContactDAO::ListByUser(uint64_t user_id, std::vector<ContactItem>& out, std
 }
 
 bool ContactDAO::GetByOwnerAndTarget(uint64_t target_id, ContactDetails& out, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -86,7 +86,7 @@ bool ContactDAO::GetByOwnerAndTarget(uint64_t target_id, ContactDetails& out, st
     return true;
 }
 
-bool ContactDAO::GetByOwnerAndTargetWithConn(const std::shared_ptr<CIM::MySQL>& db,
+bool ContactDAO::GetByOwnerAndTargetWithConn(const std::shared_ptr<IM::MySQL>& db,
                                              const uint64_t owner_id, const uint64_t target_id,
                                              ContactDetails& out, std::string* err) {
     if (!db) {
@@ -128,7 +128,7 @@ bool ContactDAO::GetByOwnerAndTargetWithConn(const std::shared_ptr<CIM::MySQL>& 
 
     return true;
 }
-bool ContactDAO::UpsertWithConn(const std::shared_ptr<CIM::MySQL>& db, const Contact& c,
+bool ContactDAO::UpsertWithConn(const std::shared_ptr<IM::MySQL>& db, const Contact& c,
                                 std::string* err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
@@ -174,7 +174,7 @@ bool ContactDAO::UpsertWithConn(const std::shared_ptr<CIM::MySQL>& db, const Con
     return true;
 }
 
-bool ContactDAO::EditRemark(const std::shared_ptr<CIM::MySQL>& db, const uint64_t user_id,
+bool ContactDAO::EditRemark(const std::shared_ptr<IM::MySQL>& db, const uint64_t user_id,
                             const uint64_t contact_id, const std::string& remark,
                             std::string* err) {
     if (!db) {
@@ -198,7 +198,7 @@ bool ContactDAO::EditRemark(const std::shared_ptr<CIM::MySQL>& db, const uint64_
     return true;
 }
 
-bool ContactDAO::DeleteWithConn(const std::shared_ptr<CIM::MySQL>& db, const uint64_t user_id,
+bool ContactDAO::DeleteWithConn(const std::shared_ptr<IM::MySQL>& db, const uint64_t user_id,
                                 const uint64_t contact_id, std::string* err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
@@ -222,7 +222,7 @@ bool ContactDAO::DeleteWithConn(const std::shared_ptr<CIM::MySQL>& db, const uin
     return true;
 }
 
-bool ContactDAO::UpdateStatusAndRelationWithConn(const std::shared_ptr<CIM::MySQL>& db,
+bool ContactDAO::UpdateStatusAndRelationWithConn(const std::shared_ptr<IM::MySQL>& db,
                                                  const uint64_t user_id, const uint64_t contact_id,
                                                  const uint8_t status, const uint8_t relation,
                                                  std::string* err) {
@@ -249,7 +249,7 @@ bool ContactDAO::UpdateStatusAndRelationWithConn(const std::shared_ptr<CIM::MySQ
     return true;
 }
 
-bool ContactDAO::ChangeGroupWithConn(const std::shared_ptr<CIM::MySQL>& db, const uint64_t user_id,
+bool ContactDAO::ChangeGroupWithConn(const std::shared_ptr<IM::MySQL>& db, const uint64_t user_id,
                                      const uint64_t contact_id, const uint64_t group_id,
                                      std::string* err) {
     if (!db) {
@@ -273,7 +273,7 @@ bool ContactDAO::ChangeGroupWithConn(const std::shared_ptr<CIM::MySQL>& db, cons
     return true;
 }
 
-bool ContactDAO::GetOldGroupIdWithConn(const std::shared_ptr<CIM::MySQL>& db,
+bool ContactDAO::GetOldGroupIdWithConn(const std::shared_ptr<IM::MySQL>& db,
                                        const uint64_t user_id, const uint64_t contact_id,
                                        uint64_t& out_group_id, std::string* err) {
     if (!db) {
@@ -305,7 +305,7 @@ bool ContactDAO::GetOldGroupIdWithConn(const std::shared_ptr<CIM::MySQL>& db,
     return true;
 }
 
-bool ContactDAO::RemoveFromGroupWithConn(const std::shared_ptr<CIM::MySQL>& db,
+bool ContactDAO::RemoveFromGroupWithConn(const std::shared_ptr<IM::MySQL>& db,
                                          const uint64_t user_id, const uint64_t contact_id,
                                          std::string* err) {
     if (!db) {
@@ -328,7 +328,7 @@ bool ContactDAO::RemoveFromGroupWithConn(const std::shared_ptr<CIM::MySQL>& db,
     return true;
 }
 
-bool ContactDAO::RemoveFromGroupByGroupIdWithConn(const std::shared_ptr<CIM::MySQL>& db,
+bool ContactDAO::RemoveFromGroupByGroupIdWithConn(const std::shared_ptr<IM::MySQL>& db,
                                                   const uint64_t user_id, const uint64_t group_id,
                                                   std::string* err) {
     if (!db) {
@@ -350,4 +350,4 @@ bool ContactDAO::RemoveFromGroupByGroupIdWithConn(const std::shared_ptr<CIM::MyS
     }
     return true;
 }
-}  // namespace CIM::dao
+}  // namespace IM::dao

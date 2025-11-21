@@ -1,5 +1,5 @@
-#ifndef __CIM_DAO_CONTACT_APPLY_DAO_HPP__
-#define __CIM_DAO_CONTACT_APPLY_DAO_HPP__
+#ifndef __IM_DAO_CONTACT_APPLY_DAO_HPP__
+#define __IM_DAO_CONTACT_APPLY_DAO_HPP__
 
 #include <cstdint>
 #include <ctime>
@@ -9,7 +9,7 @@
 
 #include "db/mysql.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 struct ContactApply {
     uint64_t id = 0;                 // 主键ID
@@ -45,14 +45,14 @@ class ContactApplyDAO {
     static bool GetItemById(const uint64_t id, std::vector<ContactApplyItem>& out,
                             std::string* err = nullptr);
     // 同意好友申请
-    static bool AgreeApplyWithConn(const std::shared_ptr<CIM::MySQL>& db, const uint64_t user_id,
+    static bool AgreeApplyWithConn(const std::shared_ptr<IM::MySQL>& db, const uint64_t user_id,
                                    const uint64_t apply_id, const std::string& remark,
                                    std::string* err = nullptr);
     // 拒接好友申请
     static bool RejectApply(const uint64_t handler_user_id, const uint64_t apply_user_id,
                             const std::string& remark, std::string* err = nullptr);
     // 根据ID获取申请记录详情（使用带MySQL连接的函数）
-    static bool GetDetailByIdWithConn(const std::shared_ptr<CIM::MySQL>& db,
+    static bool GetDetailByIdWithConn(const std::shared_ptr<IM::MySQL>& db,
                                       const uint64_t apply_id, ContactApply& out,
                                       std::string* err = nullptr);
     // 根据ID获取申请记录详情（内部会自动获取 MySQL 连接）
@@ -60,6 +60,6 @@ class ContactApplyDAO {
                               std::string* err = nullptr);
 };
 
-}  // namespace CIM::dao
+}  // namespace IM::dao
 
-#endif // __CIM_DAO_CONTACT_APPLY_DAO_HPP__
+#endif // __IM_DAO_CONTACT_APPLY_DAO_HPP__

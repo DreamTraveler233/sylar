@@ -1,11 +1,11 @@
-#ifndef __CIM_OTHER_MEMORY_POOL_HPP__
-#define __CIM_OTHER_MEMORY_POOL_HPP__
+#ifndef __IM_OTHER_MEMORY_POOL_HPP__
+#define __IM_OTHER_MEMORY_POOL_HPP__
 
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
 
-namespace CIM {
+namespace IM {
 // 定义清理操作函数指针类型
 typedef void (*NgxPoolCleanupPt)(void* data);
 
@@ -85,6 +85,6 @@ class NgxMemPool {
    private:
     NgxPool_t* _pool;
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_OTHER_MEMORY_POOL_HPP__
+#endif // __IM_OTHER_MEMORY_POOL_HPP__

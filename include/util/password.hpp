@@ -1,10 +1,10 @@
-#ifndef __CIM_UTIL_PASSWORD_HPP__
-#define __CIM_UTIL_PASSWORD_HPP__
+#ifndef __IM_UTIL_PASSWORD_HPP__
+#define __IM_UTIL_PASSWORD_HPP__
 
 #include <cstdint>
 #include <string>
 
-namespace CIM::util {
+namespace IM::util {
 
 // 使用PBKDF2-HMAC-SHA256和随机盐值的密码哈希工具
 class Password {
@@ -26,6 +26,6 @@ class Password {
     static bool Verify(const std::string& password, const std::string& stored_hash);
 };
 
-}  // namespace CIM::util
+}  // namespace IM::util
 
-#endif // __CIM_UTIL_PASSWORD_HPP__
+#endif // __IM_UTIL_PASSWORD_HPP__

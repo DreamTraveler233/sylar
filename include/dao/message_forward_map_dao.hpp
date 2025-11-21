@@ -1,5 +1,5 @@
-#ifndef __CIM_DAO_MESSAGE_FORWARD_MAP_DAO_HPP__
-#define __CIM_DAO_MESSAGE_FORWARD_MAP_DAO_HPP__
+#ifndef __IM_DAO_MESSAGE_FORWARD_MAP_DAO_HPP__
+#define __IM_DAO_MESSAGE_FORWARD_MAP_DAO_HPP__
 
 #include <cstdint>
 #include <memory>
@@ -8,7 +8,7 @@
 
 #include "db/mysql.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 // 转发来源映射字段
 struct ForwardSrc {
     std::string src_msg_id;      // 原消息ID（CHAR(32)）
@@ -19,9 +19,9 @@ struct ForwardSrc {
 // im_message_forward_map 表 DAO：转发消息与来源消息的对应关系
 class MessageForwardMapDao {
    public:
-    static bool AddForwardMap(const std::shared_ptr<CIM::MySQL>& db, const std::string& forward_msg_id,
+    static bool AddForwardMap(const std::shared_ptr<IM::MySQL>& db, const std::string& forward_msg_id,
                               const std::vector<ForwardSrc>& sources, std::string* err = nullptr);
 };
-}  // namespace CIM::dao
+}  // namespace IM::dao
 
-#endif  // __CIM_DAO_MESSAGE_FORWARD_MAP_DAO_HPP__
+#endif  // __IM_DAO_MESSAGE_FORWARD_MAP_DAO_HPP__

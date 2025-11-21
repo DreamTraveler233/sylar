@@ -3,8 +3,8 @@
 #include "base/macro.hpp"
 #include "io/worker.hpp"
 
-namespace CIM::ns {
-static Logger::ptr g_logger = CIM_LOG_NAME("system");
+namespace IM::ns {
+static Logger::ptr g_logger = IM_LOG_NAME("system");
 
 uint64_t s_request_count = 0;
 uint64_t s_on_connect = 0;
@@ -25,7 +25,7 @@ bool NameServerModule::handleRockRequest(RockRequest::ptr request, RockResponse:
         case (int)NSCommand::TICK:
             return handleTick(request, response, stream);
         default:
-            CIM_LOG_WARN(g_logger) << "invalid cmd=0x" << std::hex << request->getCmd();
+            IM_LOG_WARN(g_logger) << "invalid cmd=0x" << std::hex << request->getCmd();
             break;
     }
     return true;
@@ -39,12 +39,12 @@ bool NameServerModule::onConnect(Stream::ptr stream) {
     Atomic::addFetch(s_on_connect, 1);
     auto rockstream = std::dynamic_pointer_cast<RockStream>(stream);
     if (!rockstream) {
-        CIM_LOG_ERROR(g_logger) << "invalid stream";
+        IM_LOG_ERROR(g_logger) << "invalid stream";
         return false;
     }
     auto addr = rockstream->getRemoteAddress();
     if (addr) {
-        CIM_LOG_INFO(g_logger) << "onConnect: " << *addr;
+        IM_LOG_INFO(g_logger) << "onConnect: " << *addr;
     }
     return true;
 }
@@ -53,12 +53,12 @@ bool NameServerModule::onDisconnect(Stream::ptr stream) {
     Atomic::addFetch(s_on_disconnect, 1);
     auto rockstream = std::dynamic_pointer_cast<RockStream>(stream);
     if (!rockstream) {
-        CIM_LOG_ERROR(g_logger) << "invalid stream";
+        IM_LOG_ERROR(g_logger) << "invalid stream";
         return false;
     }
     auto addr = rockstream->getRemoteAddress();
     if (addr) {
-        CIM_LOG_INFO(g_logger) << "onDisconnect: " << *addr;
+        IM_LOG_INFO(g_logger) << "onDisconnect: " << *addr;
     }
     set(rockstream, nullptr);
     // setQueryDomain(rockstream, {});
@@ -75,7 +75,7 @@ bool NameServerModule::handleRegister(RockRequest::ptr request, RockResponse::pt
                                       RockStream::ptr stream) {
     auto rr = request->getAsPB<RegisterRequest>();
     if (!rr) {
-        CIM_LOG_ERROR(g_logger) << "invalid register request from: "
+        IM_LOG_ERROR(g_logger) << "invalid register request from: "
                                 << stream->getRemoteAddressString();
         return false;
     }
@@ -85,7 +85,7 @@ bool NameServerModule::handleRegister(RockRequest::ptr request, RockResponse::pt
         auto& info = rr->infos(i);
 #define XX(info, attr)                                                                       \
     if (!info.has_##attr()) {                                                                \
-        CIM_LOG_ERROR(g_logger) << "invalid register request from: "                         \
+        IM_LOG_ERROR(g_logger) << "invalid register request from: "                         \
                                 << stream->getRemoteAddressString() << " " #attr " is null"; \
         return false;                                                                        \
     }
@@ -93,7 +93,7 @@ bool NameServerModule::handleRegister(RockRequest::ptr request, RockResponse::pt
         XX(info, domain);
 
         if (info.cmds_size() == 0) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "invalid register request from: " << stream->getRemoteAddressString()
                 << " cmds is null";
             return false;
@@ -105,7 +105,7 @@ bool NameServerModule::handleRegister(RockRequest::ptr request, RockResponse::pt
 
         NSNode::ptr ns_node(new NSNode(node.ip(), node.port(), node.weight()));
         if (!(ns_node->getId() >> 32)) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "invalid register request from: " << stream->getRemoteAddressString()
                 << " ip=" << node.ip() << " invalid";
             return false;
@@ -113,7 +113,7 @@ bool NameServerModule::handleRegister(RockRequest::ptr request, RockResponse::pt
 
         if (old_value) {
             if (old_value->m_node->getId() != ns_node->getId()) {
-                CIM_LOG_ERROR(g_logger)
+                IM_LOG_ERROR(g_logger)
                     << "invalid register request from: " << stream->getRemoteAddressString()
                     << " old.ip=" << old_value->m_node->getIp()
                     << " old.port=" << old_value->m_node->getPort()
@@ -123,7 +123,7 @@ bool NameServerModule::handleRegister(RockRequest::ptr request, RockResponse::pt
         }
         if (new_value) {
             if (new_value->m_node->getId() != ns_node->getId()) {
-                CIM_LOG_ERROR(g_logger)
+                IM_LOG_ERROR(g_logger)
                     << "invalid register request from: " << stream->getRemoteAddressString()
                     << " new.ip=" << new_value->m_node->getIp()
                     << " new.port=" << new_value->m_node->getPort()
@@ -298,12 +298,12 @@ bool NameServerModule::handleQuery(RockRequest::ptr request, RockResponse::ptr r
                                    RockStream::ptr stream) {
     auto qreq = request->getAsPB<QueryRequest>();
     if (!qreq) {
-        CIM_LOG_ERROR(g_logger) << "invalid query request from: "
+        IM_LOG_ERROR(g_logger) << "invalid query request from: "
                                 << stream->getRemoteAddressString();
         return false;
     }
     if (!qreq->domains_size()) {
-        CIM_LOG_ERROR(g_logger) << "invalid query request from: "
+        IM_LOG_ERROR(g_logger) << "invalid query request from: "
                                 << stream->getRemoteAddressString() << " domains is null";
     }
     std::set<NSDomain::ptr> domains;
@@ -395,4 +395,4 @@ std::string NameServerModule::statusString() {
     return ss.str();
 }
 
-}  // namespace CIM::ns
+}  // namespace IM::ns

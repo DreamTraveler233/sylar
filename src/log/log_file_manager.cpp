@@ -12,8 +12,8 @@
 #include "util/string_util.hpp"
 #include "util/time_util.hpp"
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
 
 LogFileManager::LogFileManager()
     : m_lastYear(-1),
@@ -107,7 +107,7 @@ void LogFileManager::onCheck() {
 }
 
 LogFile::ptr LogFileManager::getLogFile(const std::string& fileName) {
-    CIM_ASSERT(!fileName.empty())
+    IM_ASSERT(!fileName.empty())
     MutexType::Lock lock(m_mutex);
     // 查找日志文件
     auto it = m_logs.find(fileName);
@@ -220,4 +220,4 @@ void LogFileManager::rotateDays(const LogFile::ptr& file) {
         file->rotate(ss.str());
     }
 }
-}  // namespace CIM
+}  // namespace IM

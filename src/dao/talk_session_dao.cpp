@@ -5,13 +5,13 @@
 #include "db/mysql.hpp"
 #include "util/time_util.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 static constexpr const char* kDBName = "default";
 
 bool TalkSessionDAO::getSessionListByUserId(const uint64_t user_id,
                                             std::vector<TalkSessionItem>& out, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -56,7 +56,7 @@ bool TalkSessionDAO::getSessionListByUserId(const uint64_t user_id,
 bool TalkSessionDAO::setSessionTop(const uint64_t user_id, const uint64_t to_from_id,
                                    const uint8_t talk_mode, const uint8_t action,
                                    std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -83,7 +83,7 @@ bool TalkSessionDAO::setSessionTop(const uint64_t user_id, const uint64_t to_fro
 bool TalkSessionDAO::setSessionDisturb(const uint64_t user_id, const uint64_t to_from_id,
                                        const uint8_t talk_mode, const uint8_t action,
                                        std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -106,7 +106,7 @@ bool TalkSessionDAO::setSessionDisturb(const uint64_t user_id, const uint64_t to
     }
     return true;
 }
-bool TalkSessionDAO::createSession(const std::shared_ptr<CIM::MySQL>& db,
+bool TalkSessionDAO::createSession(const std::shared_ptr<IM::MySQL>& db,
                                    const TalkSession& session, std::string* err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
@@ -185,7 +185,7 @@ bool TalkSessionDAO::createSession(const std::shared_ptr<CIM::MySQL>& db,
     return true;
 }
 
-bool TalkSessionDAO::bumpOnNewMessage(const std::shared_ptr<CIM::MySQL>& db, const uint64_t talk_id,
+bool TalkSessionDAO::bumpOnNewMessage(const std::shared_ptr<IM::MySQL>& db, const uint64_t talk_id,
                                       const uint64_t sender_user_id, const std::string& last_msg_id,
                                       const uint16_t last_msg_type,
                                       const std::string& last_msg_digest, std::string* err) {
@@ -216,7 +216,7 @@ bool TalkSessionDAO::bumpOnNewMessage(const std::shared_ptr<CIM::MySQL>& db, con
     return true;
 }
 
-bool TalkSessionDAO::EditRemarkWithConn(const std::shared_ptr<CIM::MySQL>& db,
+bool TalkSessionDAO::EditRemarkWithConn(const std::shared_ptr<IM::MySQL>& db,
                                         const uint64_t user_id, const uint64_t to_from_id,
                                         const std::string& remark, std::string* err) {
     if (!db) {
@@ -241,7 +241,7 @@ bool TalkSessionDAO::EditRemarkWithConn(const std::shared_ptr<CIM::MySQL>& db,
     return true;
 }
 
-bool TalkSessionDAO::getSessionByUserId(const std::shared_ptr<CIM::MySQL>& db,
+bool TalkSessionDAO::getSessionByUserId(const std::shared_ptr<IM::MySQL>& db,
                                         const uint64_t user_id, TalkSessionItem& out,
                                         const uint64_t to_from_id, const uint8_t talk_mode,
                                         std::string* err) {
@@ -291,7 +291,7 @@ bool TalkSessionDAO::getSessionByUserId(const std::shared_ptr<CIM::MySQL>& db,
 }
 bool TalkSessionDAO::deleteSession(const uint64_t user_id, const uint64_t to_from_id,
                                    const uint8_t talk_mode, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -313,7 +313,7 @@ bool TalkSessionDAO::deleteSession(const uint64_t user_id, const uint64_t to_fro
     }
     return true;
 }
-bool TalkSessionDAO::deleteSession(const std::shared_ptr<CIM::MySQL>& db, const uint64_t user_id,
+bool TalkSessionDAO::deleteSession(const std::shared_ptr<IM::MySQL>& db, const uint64_t user_id,
                                    const uint64_t to_from_id, const uint8_t talk_mode,
                                    std::string* err) {
     if (!db) {
@@ -339,7 +339,7 @@ bool TalkSessionDAO::deleteSession(const std::shared_ptr<CIM::MySQL>& db, const 
 }
 bool TalkSessionDAO::clearSessionUnreadNum(const uint64_t user_id, const uint64_t to_from_id,
                                            const uint8_t talk_mode, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -362,7 +362,7 @@ bool TalkSessionDAO::clearSessionUnreadNum(const uint64_t user_id, const uint64_
     return true;
 }
 
-bool TalkSessionDAO::updateLastMsgForUser(const std::shared_ptr<CIM::MySQL>& db,
+bool TalkSessionDAO::updateLastMsgForUser(const std::shared_ptr<IM::MySQL>& db,
                                           const uint64_t user_id, const uint64_t talk_id,
                                           const std::optional<std::string>& last_msg_id,
                                           const std::optional<uint16_t>& last_msg_type,
@@ -414,7 +414,7 @@ bool TalkSessionDAO::updateLastMsgForUser(const std::shared_ptr<CIM::MySQL>& db,
     return true;
 }
 
-bool TalkSessionDAO::listUsersByLastMsg(const std::shared_ptr<CIM::MySQL>& db,
+bool TalkSessionDAO::listUsersByLastMsg(const std::shared_ptr<IM::MySQL>& db,
                                         const uint64_t talk_id, const std::string& last_msg_id,
                                         std::vector<uint64_t>& out_user_ids, std::string* err) {
     out_user_ids.clear();
@@ -447,7 +447,7 @@ bool TalkSessionDAO::listUsersByLastMsg(const std::shared_ptr<CIM::MySQL>& db,
 bool TalkSessionDAO::listUsersByTalkId(const uint64_t talk_id, std::vector<uint64_t>& out_user_ids,
                                        std::string* err) {
     out_user_ids.clear();
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -471,4 +471,4 @@ bool TalkSessionDAO::listUsersByTalkId(const uint64_t talk_id, std::vector<uint6
     }
     return true;
 }
-}  // namespace CIM::dao
+}  // namespace IM::dao

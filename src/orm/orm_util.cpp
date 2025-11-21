@@ -2,7 +2,7 @@
 
 #include "util/util.hpp"
 
-namespace CIM::orm {
+namespace IM::orm {
 std::string GetAsVariable(const std::string& v) {
     return ToLower(v);
 }
@@ -42,4 +42,4 @@ std::string GetAsDefineMacro(const std::string& v) {
     tmp = ToUpper(tmp);
     return "__" + tmp + "__";
 }
-}  // namespace CIM::orm
+}  // namespace IM::orm

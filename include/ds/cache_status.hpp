@@ -1,5 +1,5 @@
-#ifndef __CIM_DS_CACHE_STATUS_HPP__
-#define __CIM_DS_CACHE_STATUS_HPP__
+#ifndef __IM_DS_CACHE_STATUS_HPP__
+#define __IM_DS_CACHE_STATUS_HPP__
 
 #include <stdint.h>
 
@@ -8,7 +8,7 @@
 
 #include "util.hpp"
 
-namespace CIM::ds {
+namespace IM::ds {
 class CacheStatus {
    public:
     CacheStatus() {}
@@ -62,6 +62,6 @@ class CacheStatus {
     int64_t m_hit = 0;
 };
 
-}  // namespace CIM::ds
+}  // namespace IM::ds
 
-#endif // __CIM_DS_CACHE_STATUS_HPP__
+#endif // __IM_DS_CACHE_STATUS_HPP__

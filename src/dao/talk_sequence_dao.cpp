@@ -1,6 +1,6 @@
 #include "dao/talk_sequence_dao.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 namespace {
 inline void set_err(std::string* err, const std::string& v) {
@@ -8,7 +8,7 @@ inline void set_err(std::string* err, const std::string& v) {
 }
 }  // namespace
 
-bool TalkSequenceDao::nextSeq(const std::shared_ptr<CIM::MySQL>& db, uint64_t talk_id,
+bool TalkSequenceDao::nextSeq(const std::shared_ptr<IM::MySQL>& db, uint64_t talk_id,
                               uint64_t& seq, std::string* err) {
     if (!db) {
         set_err(err, "TalkSequenceDao::nextSeq db is null");
@@ -57,4 +57,4 @@ bool TalkSequenceDao::nextSeq(const std::shared_ptr<CIM::MySQL>& db, uint64_t ta
     return true;
 }
 
-}  // namespace CIM::dao
+}  // namespace IM::dao

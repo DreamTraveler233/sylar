@@ -1,7 +1,7 @@
 /**
  * @file log_formatter.hpp
  * @brief 日志格式化器头文件
- * @author CIM
+ * @author IM
  * @date 2025-10-21
  *
  * 定义了日志格式化器(LogFormatter)及相关格式化项类。
@@ -9,8 +9,8 @@
  * 支持多种格式化项，如时间、线程ID、日志级别等，可以灵活组合形成不同的日志输出格式。
  */
 
-#ifndef __CIM_LOG_LOG_FORMATTER_HPP__
-#define __CIM_LOG_LOG_FORMATTER_HPP__
+#ifndef __IM_LOG_LOG_FORMATTER_HPP__
+#define __IM_LOG_LOG_FORMATTER_HPP__
 
 #include <iostream>
 #include <map>
@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-namespace CIM {
+namespace IM {
 class LogEvent;
 
 /**
@@ -378,6 +378,6 @@ class StringFormatItem : public LogFormatter::FormatItem {
    private:
     std::string m_string;  ///< 字符串内容
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_LOG_LOG_FORMATTER_HPP__
+#endif // __IM_LOG_LOG_FORMATTER_HPP__

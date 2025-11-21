@@ -6,41 +6,41 @@
 #include "zlib_stream.hpp"
 #include <fstream>
 
-static CIM::Logger::ptr g_logger = CIM_LOG_ROOT();
+static IM::Logger::ptr g_logger = IM_LOG_ROOT();
 
 void test_pool()
 {
-    CIM::http::HttpConnectionPool::ptr pool(new CIM::http::HttpConnectionPool(
+    IM::http::HttpConnectionPool::ptr pool(new IM::http::HttpConnectionPool(
         "www.baidu.com", "", 80, false, 10, 1000 * 30, 5));
 
-    CIM::IOManager::GetThis()->addTimer(1000, [pool]()
+    IM::IOManager::GetThis()->addTimer(1000, [pool]()
                                           {
             auto r = pool->doGet("/", 300);
-            CIM_LOG_INFO(g_logger) << r->toString(); }, true);
+            IM_LOG_INFO(g_logger) << r->toString(); }, true);
 }
 
 void run()
 {
-    // CIM::Address::ptr addr = CIM::Address::LookupAnyIpAddress("www.CIM.top:80");
+    // IM::Address::ptr addr = IM::Address::LookupAnyIpAddress("www.IM.top:80");
     // if (!addr)
     // {
-    //     CIM_LOG_INFO(g_logger) << "get addr error";
+    //     IM_LOG_INFO(g_logger) << "get addr error";
     //     return;
     // }
 
-    // CIM::Socket::ptr sock = CIM::Socket::CreateTCP(addr);
+    // IM::Socket::ptr sock = IM::Socket::CreateTCP(addr);
     // bool rt = sock->connect(addr);
     // if (!rt)
     // {
-    //     CIM_LOG_INFO(g_logger) << "connect " << *addr << " failed";
+    //     IM_LOG_INFO(g_logger) << "connect " << *addr << " failed";
     //     return;
     // }
 
-    // CIM::http::HttpConnection::ptr conn(new CIM::http::HttpConnection(sock));
-    // CIM::http::HttpRequest::ptr req(new CIM::http::HttpRequest);
+    // IM::http::HttpConnection::ptr conn(new IM::http::HttpConnection(sock));
+    // IM::http::HttpRequest::ptr req(new IM::http::HttpRequest);
     // req->setPath("/blog/");
-    // req->setHeader("host", "www.CIM.top");
-    // CIM_LOG_INFO(g_logger) << "req:" << std::endl
+    // req->setHeader("host", "www.IM.top");
+    // IM_LOG_INFO(g_logger) << "req:" << std::endl
     //                          << *req;
 
     // conn->sendRequest(req);
@@ -48,50 +48,50 @@ void run()
 
     // if (!rsp)
     // {
-    //     CIM_LOG_INFO(g_logger) << "recv response error";
+    //     IM_LOG_INFO(g_logger) << "recv response error";
     //     return;
     // }
-    // CIM_LOG_INFO(g_logger) << "rsp:" << std::endl
+    // IM_LOG_INFO(g_logger) << "rsp:" << std::endl
     //                          << *rsp;
 
     // std::ofstream ofs("rsp.dat");
     // ofs << *rsp;
 
-    // CIM_LOG_INFO(g_logger) << "=========================";
+    // IM_LOG_INFO(g_logger) << "=========================";
 
-    // auto r = CIM::http::HttpConnection::DoGet("http://www.baidu.com", 300);
-    // CIM_LOG_INFO(g_logger) << "result=" << r->result
+    // auto r = IM::http::HttpConnection::DoGet("http://www.baidu.com", 300);
+    // IM_LOG_INFO(g_logger) << "result=" << r->result
     //                          << " error=" << r->error
     //                          << " rsp=" << (r->response ? r->response->toString() : "");
 
-    // CIM_LOG_INFO(g_logger) << "=========================";
+    // IM_LOG_INFO(g_logger) << "=========================";
     test_pool();
 }
 
 void test_https()
 {
-    auto r = CIM::http::HttpConnection::DoGet("http://www.baidu.com/", 300, {{"Accept-Encoding", "gzip, deflate, br"}, {"Connection", "keep-alive"}, {"User-Agent", "curl/7.29.0"}});
-    CIM_LOG_INFO(g_logger) << "result=" << r->result
+    auto r = IM::http::HttpConnection::DoGet("http://www.baidu.com/", 300, {{"Accept-Encoding", "gzip, deflate, br"}, {"Connection", "keep-alive"}, {"User-Agent", "curl/7.29.0"}});
+    IM_LOG_INFO(g_logger) << "result=" << r->result
                              << " error=" << r->error
                              << " rsp=" << (r->response ? r->response->toString() : "");
 
-    // CIM::http::HttpConnectionPool::ptr pool(new CIM::http::HttpConnectionPool(
+    // IM::http::HttpConnectionPool::ptr pool(new IM::http::HttpConnectionPool(
     //             "www.baidu.com", "", 80, false, 10, 1000 * 30, 5));
-    auto pool = CIM::http::HttpConnectionPool::Create(
+    auto pool = IM::http::HttpConnectionPool::Create(
         "https://www.baidu.com", "", 10, 1000 * 30, 5);
-    CIM::IOManager::GetThis()->addTimer(1000, [pool]()
+    IM::IOManager::GetThis()->addTimer(1000, [pool]()
                                           {
             auto r = pool->doGet("/", 3000, {
                         {"Accept-Encoding", "gzip, deflate, br"},
                         {"User-Agent", "curl/7.29.0"}
                     });
-            CIM_LOG_INFO(g_logger) << r->toString(); }, true);
+            IM_LOG_INFO(g_logger) << r->toString(); }, true);
 }
 
 void test_data()
 {
-    CIM::Address::ptr addr = CIM::Address::LookupAny("www.baidu.com:80");
-    auto sock = CIM::Socket::CreateTCP(addr);
+    IM::Address::ptr addr = IM::Address::LookupAny("www.baidu.com:80");
+    auto sock = IM::Socket::CreateTCP(addr);
 
     sock->connect(addr);
     const char buff[] = "GET / HTTP/1.1\r\n"
@@ -131,7 +131,7 @@ void test_parser()
     }
 
     std::cout << "length: " << content.size() << " total: " << total << std::endl;
-    CIM::http::HttpResponseParser parser;
+    IM::http::HttpResponseParser parser;
     size_t nparse = parser.execute(&content[0], content.size(), false);
     std::cout << "finish: " << parser.isFinished() << std::endl;
     content.resize(content.size() - nparse);
@@ -154,7 +154,7 @@ void test_parser()
 
     std::cout << "total: " << body.size() << " content:" << cl << std::endl;
 
-    CIM::ZlibStream::ptr stream = CIM::ZlibStream::CreateGzip(false);
+    IM::ZlibStream::ptr stream = IM::ZlibStream::CreateGzip(false);
     stream->write(body.c_str(), body.size());
     stream->flush();
 
@@ -166,7 +166,7 @@ void test_parser()
 
 int main(int argc, char **argv)
 {
-    CIM::IOManager iom(2);
+    IM::IOManager iom(2);
     // iom.schedule(run);
     iom.schedule(run);
     return 0;

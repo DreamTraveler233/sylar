@@ -3,8 +3,8 @@
 #include "base/macro.hpp"
 #include "util/util.hpp"
 
-namespace CIM {
-static Logger::ptr g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static Logger::ptr g_logger = IM_LOG_NAME("system");
 
 AsyncSocketStream::Ctx::Ctx() : sn(0), timeout(0), result(0), timed(false), scheduler(nullptr) {}
 
@@ -98,7 +98,7 @@ void AsyncSocketStream::doRead() {
         // TODO log
     }
 
-    CIM_LOG_DEBUG(g_logger) << "doRead out " << this;
+    IM_LOG_DEBUG(g_logger) << "doRead out " << this;
     innerClose();
     m_waitSem.notify();
 
@@ -127,7 +127,7 @@ void AsyncSocketStream::doWrite() {
     } catch (...) {
         // TODO log
     }
-    CIM_LOG_DEBUG(g_logger) << "doWrite out " << this;
+    IM_LOG_DEBUG(g_logger) << "doWrite out " << this;
     {
         RWMutexType::WriteLock lock(m_queueMutex);
         m_queue.clear();
@@ -176,7 +176,7 @@ bool AsyncSocketStream::addCtx(Ctx::ptr ctx) {
 }
 
 bool AsyncSocketStream::enqueue(SendCtx::ptr ctx) {
-    CIM_ASSERT(ctx);
+    IM_ASSERT(ctx);
     RWMutexType::WriteLock lock(m_queueMutex);
     bool empty = m_queue.empty();
     m_queue.push_back(ctx);
@@ -188,7 +188,7 @@ bool AsyncSocketStream::enqueue(SendCtx::ptr ctx) {
 }
 
 bool AsyncSocketStream::innerClose() {
-    CIM_ASSERT(m_iomanager == IOManager::GetThis());
+    IM_ASSERT(m_iomanager == IOManager::GetThis());
     if (isConnected() && m_disconnectCb) {
         m_disconnectCb(shared_from_this());
     }
@@ -298,4 +298,4 @@ void AsyncSocketStreamManager::setDisconnectCb(disconnect_callback v) {
     }
 }
 
-}  // namespace CIM
+}  // namespace IM

@@ -2,7 +2,7 @@
 
 #include "base/macro.hpp"
 
-namespace CIM {
+namespace IM {
 ZlibStream::ptr ZlibStream::CreateGzip(bool encode, uint32_t buff_size) {
     return Create(encode, buff_size, GZIP);
 }
@@ -75,9 +75,9 @@ void ZlibStream::close() {
 }
 
 int ZlibStream::init(Type type, int level, int window_bits, int memlevel, Strategy strategy) {
-    CIM_ASSERT((level >= 0 && level <= 9) || level == DEFAULT_COMPRESSION);
-    CIM_ASSERT((window_bits >= 8 && window_bits <= 15));
-    CIM_ASSERT((memlevel >= 1 && memlevel <= 9));
+    IM_ASSERT((level >= 0 && level <= 9) || level == DEFAULT_COMPRESSION);
+    IM_ASSERT((window_bits >= 8 && window_bits <= 15));
+    IM_ASSERT((memlevel >= 1 && memlevel <= 9));
 
     memset(&m_zstream, 0, sizeof(m_zstream));
 
@@ -199,8 +199,8 @@ std::string ZlibStream::getResult() const {
     return rt;
 }
 
-CIM::ByteArray::ptr ZlibStream::getByteArray() {
-    CIM::ByteArray::ptr ba(new CIM::ByteArray);
+IM::ByteArray::ptr ZlibStream::getByteArray() {
+    IM::ByteArray::ptr ba(new IM::ByteArray);
     for (auto& i : m_buffs) {
         ba->write(i.iov_base, i.iov_len);
     }
@@ -208,4 +208,4 @@ CIM::ByteArray::ptr ZlibStream::getByteArray() {
     return ba;
 }
 
-}  // namespace CIM
+}  // namespace IM

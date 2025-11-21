@@ -5,12 +5,12 @@
 #include "db/mysql.hpp"
 #include "base/macro.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 static constexpr const char* kDBName = "default";
 
 bool SmsCodeDAO::Create(const SmsCode& code, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -47,7 +47,7 @@ bool SmsCodeDAO::Create(const SmsCode& code, std::string* err) {
 
 bool SmsCodeDAO::Verify(const std::string& mobile, const std::string& code,
                         const std::string& channel, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -81,7 +81,7 @@ bool SmsCodeDAO::Verify(const std::string& mobile, const std::string& code,
 }
 
 bool SmsCodeDAO::MarkAsUsed(const uint64_t id, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -102,7 +102,7 @@ bool SmsCodeDAO::MarkAsUsed(const uint64_t id, std::string* err) {
 }
 
 bool SmsCodeDAO::MarkExpiredAsInvalid(std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -122,7 +122,7 @@ bool SmsCodeDAO::MarkExpiredAsInvalid(std::string* err) {
 }
 
 bool SmsCodeDAO::DeleteInvalidCodes(std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -141,4 +141,4 @@ bool SmsCodeDAO::DeleteInvalidCodes(std::string* err) {
     return true;
 }
 
-}  // namespace CIM::dao
+}  // namespace IM::dao

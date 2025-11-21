@@ -1,5 +1,5 @@
-#ifndef __CIM_STREAMS_ZLIB_STREAM_HPP__
-#define __CIM_STREAMS_ZLIB_STREAM_HPP__
+#ifndef __IM_STREAMS_ZLIB_STREAM_HPP__
+#define __IM_STREAMS_ZLIB_STREAM_HPP__
 
 #include <stdint.h>
 #include <sys/uio.h>
@@ -11,7 +11,7 @@
 
 #include "net/stream.hpp"
 
-namespace CIM {
+namespace IM {
 class ZlibStream : public Stream {
    public:
     typedef std::shared_ptr<ZlibStream> ptr;
@@ -75,6 +75,6 @@ class ZlibStream : public Stream {
     bool m_free;
     std::vector<iovec> m_buffs;
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_STREAMS_ZLIB_STREAM_HPP__
+#endif // __IM_STREAMS_ZLIB_STREAM_HPP__

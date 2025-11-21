@@ -5,8 +5,8 @@
 #include "util/time_util.hpp"
 #include "io/worker.hpp"
 
-namespace CIM {
-static Logger::ptr g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static Logger::ptr g_logger = IM_LOG_NAME("system");
 static ConfigVar<std::unordered_map<std::string, std::unordered_map<std::string, std::string>>>::ptr
     g_rock_services = Config::Lookup(
         "rock_services",
@@ -23,12 +23,12 @@ std::string RockResult::toString() const {
 
 RockStream::RockStream(Socket::ptr sock)
     : AsyncSocketStream(sock, true), m_decoder(new RockMessageDecoder) {
-    CIM_LOG_DEBUG(g_logger) << "RockStream::RockStream " << this << " "
+    IM_LOG_DEBUG(g_logger) << "RockStream::RockStream " << this << " "
                             << (sock ? sock->toString() : "");
 }
 
 RockStream::~RockStream() {
-    CIM_LOG_DEBUG(g_logger) << "RockStream::~RockStream " << this << " "
+    IM_LOG_DEBUG(g_logger) << "RockStream::~RockStream " << this << " "
                             << (m_socket ? m_socket->toString() : "");
 }
 
@@ -74,7 +74,7 @@ bool RockStream::RockCtx::doSend(AsyncSocketStream::ptr stream) {
 }
 
 AsyncSocketStream::Ctx::ptr RockStream::doRecv() {
-    // CIM_LOG_INFO(g_logger) << "doRecv " << this;
+    // IM_LOG_INFO(g_logger) << "doRecv " << this;
     auto msg = m_decoder->parseFrom(shared_from_this());
     if (!msg) {
         innerClose();
@@ -85,13 +85,13 @@ AsyncSocketStream::Ctx::ptr RockStream::doRecv() {
     if (type == Message::RESPONSE) {
         auto rsp = std::dynamic_pointer_cast<RockResponse>(msg);
         if (!rsp) {
-            CIM_LOG_WARN(g_logger)
+            IM_LOG_WARN(g_logger)
                 << "RockStream doRecv response not RockResponse: " << msg->toString();
             return nullptr;
         }
         RockCtx::ptr ctx = getAndDelCtxAs<RockCtx>(rsp->getSn());
         if (!ctx) {
-            CIM_LOG_WARN(g_logger) << "RockStream request timeout reponse=" << rsp->toString();
+            IM_LOG_WARN(g_logger) << "RockStream request timeout reponse=" << rsp->toString();
             return nullptr;
         }
         ctx->result = rsp->getResult();
@@ -100,7 +100,7 @@ AsyncSocketStream::Ctx::ptr RockStream::doRecv() {
     } else if (type == Message::REQUEST) {
         auto req = std::dynamic_pointer_cast<RockRequest>(msg);
         if (!req) {
-            CIM_LOG_WARN(g_logger)
+            IM_LOG_WARN(g_logger)
                 << "RockStream doRecv request not RockRequest: " << msg->toString();
             return nullptr;
         }
@@ -109,12 +109,12 @@ AsyncSocketStream::Ctx::ptr RockStream::doRecv() {
                                          std::dynamic_pointer_cast<RockStream>(shared_from_this()),
                                          req));
         } else {
-            CIM_LOG_WARN(g_logger) << "unhandle request " << req->toString();
+            IM_LOG_WARN(g_logger) << "unhandle request " << req->toString();
         }
     } else if (type == Message::NOTIFY) {
         auto nty = std::dynamic_pointer_cast<RockNotify>(msg);
         if (!nty) {
-            CIM_LOG_WARN(g_logger)
+            IM_LOG_WARN(g_logger)
                 << "RockStream doRecv notify not RockNotify: " << msg->toString();
             return nullptr;
         }
@@ -124,10 +124,10 @@ AsyncSocketStream::Ctx::ptr RockStream::doRecv() {
                                          std::dynamic_pointer_cast<RockStream>(shared_from_this()),
                                          nty));
         } else {
-            CIM_LOG_WARN(g_logger) << "unhandle notify " << nty->toString();
+            IM_LOG_WARN(g_logger) << "unhandle notify " << nty->toString();
         }
     } else {
-        CIM_LOG_WARN(g_logger) << "RockStream recv unknow type=" << type
+        IM_LOG_WARN(g_logger) << "RockStream recv unknow type=" << type
                                << " msg: " << msg->toString();
     }
     return nullptr;
@@ -169,7 +169,7 @@ RockSDLoadBalance::RockSDLoadBalance(IServiceDiscovery::ptr sd) : SDLoadBalance(
 static SocketStream::ptr create_rock_stream(ServiceItemInfo::ptr info) {
     IPAddress::ptr addr = Address::LookupAnyIpAddress(info->getIp());
     if (!addr) {
-        CIM_LOG_ERROR(g_logger) << "invalid service info: " << info->toString();
+        IM_LOG_ERROR(g_logger) << "invalid service info: " << info->toString();
         return nullptr;
     }
     addr->setPort(info->getPort());
@@ -229,4 +229,4 @@ RockResult::ptr RockSDLoadBalance::request(const std::string& domain, const std:
     return r;
 }
 
-}  // namespace CIM
+}  // namespace IM

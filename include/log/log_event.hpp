@@ -1,7 +1,7 @@
 /**
  * @file log_event.hpp
  * @brief 日志事件相关类定义
- * @author CIM
+ * @author IM
  * @date 2025-10-21
  *
  * 该文件定义了日志事件相关的类，包括LogEvent和LogEventWrap。
@@ -9,15 +9,15 @@
  * LogEventWrap是一个包装类，用于在析构时自动将日志事件提交到日志系统。
  */
 
-#ifndef __CIM_LOG_LOG_EVENT_HPP__
-#define __CIM_LOG_LOG_EVENT_HPP__
+#ifndef __IM_LOG_LOG_EVENT_HPP__
+#define __IM_LOG_LOG_EVENT_HPP__
 
 #include <memory>
 #include <sstream>
 
 #include "log_level.hpp"
 
-namespace CIM {
+namespace IM {
 class Logger;
 
 /**
@@ -183,6 +183,6 @@ class LogEventWrap {
     LogEvent::ptr m_event;  ///< 日志事件
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_LOG_LOG_EVENT_HPP__
+#endif // __IM_LOG_LOG_EVENT_HPP__

@@ -4,11 +4,11 @@
  * @brief   模块系统核心接口定义，支持模块的注册、管理与生命周期控制
  * @author  DreamTraveler233
  * @date    2023-01-01
- * @note    本文件为CIM框架的模块化扩展提供基础抽象。
+ * @note    本文件为IM框架的模块化扩展提供基础抽象。
  */
 
-#ifndef __CIM_OTHER_MODULE_HPP__
-#define __CIM_OTHER_MODULE_HPP__
+#ifndef __IM_OTHER_MODULE_HPP__
+#define __IM_OTHER_MODULE_HPP__
 
 #include <map>
 #include <unordered_map>
@@ -18,7 +18,7 @@
 #include "base/singleton.hpp"
 #include "net/stream.hpp"
 
-namespace CIM {
+namespace IM {
 
 /**
      * @class   Module
@@ -342,6 +342,6 @@ class ModuleManager {
      */
 typedef Singleton<ModuleManager> ModuleMgr;
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_OTHER_MODULE_HPP__
+#endif // __IM_OTHER_MODULE_HPP__

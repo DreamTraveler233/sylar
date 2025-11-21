@@ -1,5 +1,5 @@
-#ifndef __CIM_APP_AUTH_SERVICE_HPP__
-#define __CIM_APP_AUTH_SERVICE_HPP__
+#ifndef __IM_APP_AUTH_SERVICE_HPP__
+#define __IM_APP_AUTH_SERVICE_HPP__
 
 #include <cstdint>
 #include <string>
@@ -7,7 +7,7 @@
 #include "http/http_session.hpp"
 #include "result.hpp"
 
-namespace CIM::app {
+namespace IM::app {
 
 class AuthService {
    public:
@@ -17,7 +17,7 @@ class AuthService {
 
     // 记录登录日志
     static VoidResult LogLogin(const UserResult& result, const std::string& platform,
-                               CIM::http::HttpSession::ptr session);
+                               IM::http::HttpSession::ptr session);
 
     // 用户上线
     static VoidResult GoOnline(const uint64_t id);
@@ -30,6 +30,6 @@ class AuthService {
     static UserResult Forget(const std::string& mobile, const std::string& new_password);
 };
 
-}  // namespace CIM::app
+}  // namespace IM::app
 
-#endif  // __CIM_APP_AUTH_SERVICE_HPP__
+#endif  // __IM_APP_AUTH_SERVICE_HPP__

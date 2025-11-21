@@ -1,12 +1,12 @@
-#ifndef __CIM_ROCK_ROCK_STREAM_HPP__
-#define __CIM_ROCK_ROCK_STREAM_HPP__
+#ifndef __IM_ROCK_ROCK_STREAM_HPP__
+#define __IM_ROCK_ROCK_STREAM_HPP__
 
 #include "streams/async_socket_stream.hpp"
 #include "rock_protocol.hpp"
 #include "streams/load_balance.hpp"
 #include <boost/any.hpp>
 
-namespace CIM
+namespace IM
 {
     struct RockResult
     {
@@ -122,4 +122,4 @@ namespace CIM
 
 }
 
-#endif // __CIM_ROCK_ROCK_STREAM_HPP__
+#endif // __IM_ROCK_ROCK_STREAM_HPP__

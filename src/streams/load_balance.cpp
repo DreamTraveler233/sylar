@@ -6,8 +6,8 @@
 #include "util/time_util.hpp"
 #include "io/worker.hpp"
 
-namespace CIM {
-static Logger::ptr g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static Logger::ptr g_logger = IM_LOG_NAME("system");
 
 HolderStats HolderStatsSet::getTotal() {
     HolderStats rt;
@@ -217,7 +217,7 @@ int32_t WeightLoadBalance::getIdx(uint64_t v) {
     int64_t total = *m_weights.rbegin();
     uint64_t dis = (v == (uint64_t)-1 ? rand() : v) % total;
     auto it = std::upper_bound(m_weights.begin(), m_weights.end(), dis);
-    CIM_ASSERT(it != m_weights.end());
+    IM_ASSERT(it != m_weights.end());
     return std::distance(m_weights.begin(), it);
 }
 
@@ -399,7 +399,7 @@ void SDLoadBalance::onServiceChange(
     const std::string& domain, const std::string& service,
     const std::unordered_map<uint64_t, ServiceItemInfo::ptr>& old_value,
     const std::unordered_map<uint64_t, ServiceItemInfo::ptr>& new_value) {
-    CIM_LOG_INFO(g_logger) << "onServiceChange domain=" << domain << " service=" << service;
+    IM_LOG_INFO(g_logger) << "onServiceChange domain=" << domain << " service=" << service;
     auto type = getType(domain, service);
     auto lb = get(domain, service, true);
     std::unordered_map<uint64_t, ServiceItemInfo::ptr> add_values;
@@ -420,7 +420,7 @@ void SDLoadBalance::onServiceChange(
     for (auto& i : add_values) {
         auto stream = m_cb(i.second);
         if (!stream) {
-            CIM_LOG_ERROR(g_logger) << "create stream fail, " << i.second->toString();
+            IM_LOG_ERROR(g_logger) << "create stream fail, " << i.second->toString();
             continue;
         }
 
@@ -488,4 +488,4 @@ std::string SDLoadBalance::statusString() {
     return ss.str();
 }
 
-}  // namespace CIM
+}  // namespace IM

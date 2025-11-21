@@ -1,5 +1,5 @@
-#ifndef __CIM_DAO_CONTACT_GROUP_DAO_HPP__
-#define __CIM_DAO_CONTACT_GROUP_DAO_HPP__
+#ifndef __IM_DAO_CONTACT_GROUP_DAO_HPP__
+#define __IM_DAO_CONTACT_GROUP_DAO_HPP__
 
 #include <cstdint>
 #include <ctime>
@@ -9,7 +9,7 @@
 
 #include "db/mysql.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 struct ContactGroup {
     uint64_t id = 0;             // 分组ID
@@ -31,29 +31,29 @@ struct ContactGroupItem {
 class ContactGroupDAO {
    public:
     // 创建新的联系人分组
-    static bool CreateWithConn(const std::shared_ptr<CIM::MySQL>& db, const ContactGroup& g,
+    static bool CreateWithConn(const std::shared_ptr<IM::MySQL>& db, const ContactGroup& g,
                                uint64_t& out_id, std::string* err = nullptr);
     // 更新联系人分组信息
-    static bool UpdateWithConn(const std::shared_ptr<CIM::MySQL>& db, const uint64_t id,
+    static bool UpdateWithConn(const std::shared_ptr<IM::MySQL>& db, const uint64_t id,
                                const uint32_t sort, const std::string& name,
                                std::string* err = nullptr);
     // 根据用户ID获取联系人分组列表
     static bool ListByUserId(const uint64_t user_id, std::vector<ContactGroupItem>& outs,
                              std::string* err = nullptr);
     // 根据用户ID获取联系人分组列表
-    static bool ListByUserIdWithConn(const std::shared_ptr<CIM::MySQL>& db, const uint64_t user_id,
+    static bool ListByUserIdWithConn(const std::shared_ptr<IM::MySQL>& db, const uint64_t user_id,
                                      std::vector<ContactGroupItem>& outs,
                                      std::string* err = nullptr);
 
     // 删除联系人分组
-    static bool DeleteWithConn(const std::shared_ptr<CIM::MySQL>& db, const uint64_t id,
+    static bool DeleteWithConn(const std::shared_ptr<IM::MySQL>& db, const uint64_t id,
                                std::string* err = nullptr);
     // 更新分组下的联系人数量
-    static bool UpdateContactCountWithConn(const std::shared_ptr<CIM::MySQL>& db,
+    static bool UpdateContactCountWithConn(const std::shared_ptr<IM::MySQL>& db,
                                            const uint64_t group_id, bool increase,
                                            std::string* err = nullptr);
 };
 
-}  // namespace CIM::dao
+}  // namespace IM::dao
 
-#endif // __CIM_DAO_CONTACT_GROUP_DAO_HPP__
+#endif // __IM_DAO_CONTACT_GROUP_DAO_HPP__

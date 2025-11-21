@@ -2,11 +2,11 @@
 
 #include "db/mysql.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 static constexpr const char* kDBName = "default";
 
-bool UserDAO::Create(const std::shared_ptr<CIM::MySQL>& db, const User& u, uint64_t& out_id,
+bool UserDAO::Create(const std::shared_ptr<IM::MySQL>& db, const User& u, uint64_t& out_id,
                      std::string* err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
@@ -58,7 +58,7 @@ bool UserDAO::Create(const std::shared_ptr<CIM::MySQL>& db, const User& u, uint6
 }
 
 bool UserDAO::GetByMobile(const std::string& mobile, User& out, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -104,7 +104,7 @@ bool UserDAO::GetByMobile(const std::string& mobile, User& out, std::string* err
 }
 
 bool UserDAO::GetById(uint64_t id, User& out, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -149,7 +149,7 @@ bool UserDAO::GetById(uint64_t id, User& out, std::string* err) {
     return true;
 }
 
-bool UserDAO::GetById(const std::shared_ptr<CIM::MySQL>& db, const uint64_t id, User& out,
+bool UserDAO::GetById(const std::shared_ptr<IM::MySQL>& db, const uint64_t id, User& out,
                       std::string* err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
@@ -197,7 +197,7 @@ bool UserDAO::GetById(const std::shared_ptr<CIM::MySQL>& db, const uint64_t id, 
 bool UserDAO::UpdateUserInfo(uint64_t id, const std::string& nickname, const std::string& avatar,
                              const std::string& motto, const uint8_t gender,
                              const std::string& birthday, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -224,7 +224,7 @@ bool UserDAO::UpdateUserInfo(uint64_t id, const std::string& nickname, const std
 }
 
 bool UserDAO::UpdateMobile(const uint64_t id, const std::string& new_mobile, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -245,7 +245,7 @@ bool UserDAO::UpdateMobile(const uint64_t id, const std::string& new_mobile, std
 }
 
 bool UserDAO::UpdateOnlineStatus(const uint64_t id, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -266,7 +266,7 @@ bool UserDAO::UpdateOnlineStatus(const uint64_t id, std::string* err) {
 }
 
 bool UserDAO::UpdateOfflineStatus(const uint64_t id, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -287,7 +287,7 @@ bool UserDAO::UpdateOfflineStatus(const uint64_t id, std::string* err) {
 }
 
 bool UserDAO::GetOnlineStatus(const uint64_t id, std::string& out_status, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -316,7 +316,7 @@ bool UserDAO::GetOnlineStatus(const uint64_t id, std::string& out_status, std::s
 }
 
 bool UserDAO::GetUserInfoSimple(const uint64_t uid, UserInfo& out, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -352,4 +352,4 @@ bool UserDAO::GetUserInfoSimple(const uint64_t uid, UserInfo& out, std::string* 
 
     return true;
 }
-}  // namespace CIM::dao
+}  // namespace IM::dao

@@ -1,21 +1,21 @@
 /**
  * @file log_file.hpp
  * @brief 文件日志类定义
- * @author CIM
+ * @author IM
  * @date 2025-10-21
  *
  * 该文件定义了文件日志类(LogFile)，用于封装单个日志文件的打开、写入、轮转、
  * 获取大小等操作。支持多种轮转类型，包括不轮转、按分钟、小时和天轮转。
  */
 
-#ifndef __CIM_LOG_LOG_FILE_HPP__
-#define __CIM_LOG_LOG_FILE_HPP__
+#ifndef __IM_LOG_LOG_FILE_HPP__
+#define __IM_LOG_LOG_FILE_HPP__
 
 #include <cstdint>
 #include <memory>
 #include <string>
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 日志轮转类型枚举
      */
@@ -140,6 +140,6 @@ class LogFile {
     RotateType m_rotateType;  ///< 日志轮转类型
     uint64_t m_maxFileSize;   ///< 大小轮转阈值
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif  // __CIM_LOG_LOG_FILE_HPP__
+#endif  // __IM_LOG_LOG_FILE_HPP__

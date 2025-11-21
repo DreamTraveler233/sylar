@@ -1,5 +1,5 @@
-#ifndef __CIM_DAO_USER_DAO_HPP__
-#define __CIM_DAO_USER_DAO_HPP__
+#ifndef __IM_DAO_USER_DAO_HPP__
+#define __IM_DAO_USER_DAO_HPP__
 
 #include <cstdint>
 #include <ctime>
@@ -8,7 +8,7 @@
 
 #include "db/mysql.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 struct User {
     uint64_t id = 0;                  // 用户ID（数据库自增ID）
@@ -42,7 +42,7 @@ struct UserInfo {
 class UserDAO {
    public:
     // 创建新用户
-    static bool Create(const std::shared_ptr<CIM::MySQL>& db, const User& u, uint64_t& out_id,
+    static bool Create(const std::shared_ptr<IM::MySQL>& db, const User& u, uint64_t& out_id,
                        std::string* err = nullptr);
 
     // 根据手机号获取用户信息
@@ -52,7 +52,7 @@ class UserDAO {
     static bool GetById(const uint64_t id, User& out, std::string* err = nullptr);
 
     // 根据用户ID获取用户信息
-    static bool GetById(const std::shared_ptr<CIM::MySQL>& db, const uint64_t id, User& out,
+    static bool GetById(const std::shared_ptr<IM::MySQL>& db, const uint64_t id, User& out,
                         std::string* err = nullptr);
 
     // 更新用户信息（昵称、头像、签名等）
@@ -79,6 +79,6 @@ class UserDAO {
     static bool GetUserInfoSimple(const uint64_t uid, UserInfo& out, std::string* err = nullptr);
 };
 
-}  // namespace CIM::dao
+}  // namespace IM::dao
 
-#endif  // __CIM_DAO_USER_DAO_HPP__
+#endif  // __IM_DAO_USER_DAO_HPP__

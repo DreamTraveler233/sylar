@@ -8,16 +8,16 @@
 #include "util/hash_util.hpp"
 #include "util/password.hpp"
 
-namespace CIM::app {
+namespace IM::app {
 
-static auto g_logger = CIM_LOG_NAME("root");
+static auto g_logger = IM_LOG_NAME("root");
 UserResult UserService::LoadUserInfo(const uint64_t uid) {
     UserResult result;
     std::string err;
 
-    if (!CIM::dao::UserDAO::GetById(uid, result.data, &err)) {
+    if (!IM::dao::UserDAO::GetById(uid, result.data, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "LoadUserInfo GetById failed, uid=" << uid << ", err=" << err;
             result.code = 500;
             result.err = "加载用户信息失败";
@@ -35,8 +35,8 @@ VoidResult UserService::UpdateUserInfo(const uint64_t uid, const std::string& ni
     VoidResult result;
     std::string err;
 
-    if (!CIM::dao::UserDAO::UpdateUserInfo(uid, nickname, avatar, motto, gender, birthday, &err)) {
-        CIM_LOG_ERROR(g_logger) << "UpdateUserInfo failed, uid=" << uid << ", err=" << err;
+    if (!IM::dao::UserDAO::UpdateUserInfo(uid, nickname, avatar, motto, gender, birthday, &err)) {
+        IM_LOG_ERROR(g_logger) << "UpdateUserInfo failed, uid=" << uid << ", err=" << err;
         result.code = 500;
         result.err = "更新用户信息失败";
         return result;
@@ -53,7 +53,7 @@ VoidResult UserService::UpdateMobile(const uint64_t uid, const std::string& pass
 
     // 解密前端传入的登录密码
     std::string decrypted_password;
-    auto dec_res = CIM::DecryptPassword(password, decrypted_password);
+    auto dec_res = IM::DecryptPassword(password, decrypted_password);
     if (!dec_res.ok) {
         result.code = dec_res.code;
         result.err = dec_res.err;
@@ -61,10 +61,10 @@ VoidResult UserService::UpdateMobile(const uint64_t uid, const std::string& pass
     }
 
     // 加载当前用户信息用于校验
-    CIM::dao::User user;
-    if (!CIM::dao::UserDAO::GetById(uid, user, &err)) {
+    IM::dao::User user;
+    if (!IM::dao::UserDAO::GetById(uid, user, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "UpdateMobile GetById failed, uid=" << uid << ", err=" << err;
             result.code = 404;
             result.err = "加载用户信息失败";
@@ -73,10 +73,10 @@ VoidResult UserService::UpdateMobile(const uint64_t uid, const std::string& pass
     }
 
     // 加载用户密码并验证
-    CIM::dao::UserAuth ua;
-    if (!CIM::dao::UserAuthDao::GetByUserId(uid, ua, &err)) {
+    IM::dao::UserAuth ua;
+    if (!IM::dao::UserAuthDao::GetByUserId(uid, ua, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "UpdateMobile GetByUserId failed, uid=" << uid << ", err=" << err;
             result.code = 500;
             result.err = "加载用户认证信息失败";
@@ -84,7 +84,7 @@ VoidResult UserService::UpdateMobile(const uint64_t uid, const std::string& pass
         }
     }
 
-    if (!CIM::util::Password::Verify(decrypted_password, ua.password_hash)) {
+    if (!IM::util::Password::Verify(decrypted_password, ua.password_hash)) {
         result.code = 403;
         result.err = "密码错误";
         return result;
@@ -97,8 +97,8 @@ VoidResult UserService::UpdateMobile(const uint64_t uid, const std::string& pass
     }
 
     // 检查新手机号是否已被其他账户使用
-    CIM::dao::User other_user;
-    if (CIM::dao::UserDAO::GetByMobile(new_mobile, other_user, &err)) {
+    IM::dao::User other_user;
+    if (IM::dao::UserDAO::GetByMobile(new_mobile, other_user, &err)) {
         if (other_user.id != uid) {
             result.code = 400;
             result.err = "新手机号已被使用";
@@ -106,9 +106,9 @@ VoidResult UserService::UpdateMobile(const uint64_t uid, const std::string& pass
         }
     }
 
-    if (!CIM::dao::UserDAO::UpdateMobile(uid, new_mobile, &err)) {
+    if (!IM::dao::UserDAO::UpdateMobile(uid, new_mobile, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "UpdateMobile UpdateMobile failed, uid=" << uid << ", err=" << err;
             result.code = 500;
             result.err = "更新手机号失败";
@@ -127,13 +127,13 @@ VoidResult UserService::UpdatePassword(const uint64_t uid, const std::string& ol
 
     // 1、密码解密
     std::string decrypted_old, decrypted_new;
-    auto dec_old_res = CIM::DecryptPassword(old_password, decrypted_old);
+    auto dec_old_res = IM::DecryptPassword(old_password, decrypted_old);
     if (!dec_old_res.ok) {
         result.code = dec_old_res.code;
         result.err = dec_old_res.err;
         return result;
     }
-    auto dec_new_res = CIM::DecryptPassword(new_password, decrypted_new);
+    auto dec_new_res = IM::DecryptPassword(new_password, decrypted_new);
     if (!dec_new_res.ok) {
         result.code = dec_new_res.code;
         result.err = dec_new_res.err;
@@ -141,27 +141,27 @@ VoidResult UserService::UpdatePassword(const uint64_t uid, const std::string& ol
     }
 
     // 2、验证旧密码
-    CIM::dao::UserAuth ua;
-    if (!CIM::dao::UserAuthDao::GetByUserId(uid, ua, &err)) {
+    IM::dao::UserAuth ua;
+    if (!IM::dao::UserAuthDao::GetByUserId(uid, ua, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "UpdatePassword GetByUserId failed, uid=" << uid << ", err=" << err;
             result.code = 500;
             result.err = "加载用户认证信息失败";
             return result;
         }
     }
-    if (!CIM::util::Password::Verify(decrypted_old, ua.password_hash)) {
+    if (!IM::util::Password::Verify(decrypted_old, ua.password_hash)) {
         result.code = 403;
         result.err = "旧密码错误";
         return result;
     }
 
     // 3、生成新密码哈希
-    auto new_password_hash = CIM::util::Password::Hash(decrypted_new);
+    auto new_password_hash = IM::util::Password::Hash(decrypted_new);
     if (new_password_hash.empty()) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger) << "UpdatePasswordHash Hash failed, uid=" << uid;
+            IM_LOG_ERROR(g_logger) << "UpdatePasswordHash Hash failed, uid=" << uid;
             result.code = 500;
             result.err = "新密码哈希生成失败";
             return result;
@@ -169,9 +169,9 @@ VoidResult UserService::UpdatePassword(const uint64_t uid, const std::string& ol
     }
 
     // 4、更新新密码
-    if (!CIM::dao::UserAuthDao::UpdatePasswordHash(uid, new_password_hash, &err)) {
+    if (!IM::dao::UserAuthDao::UpdatePasswordHash(uid, new_password_hash, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger) << "UpdatePasswordHash failed, uid=" << uid << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "UpdatePasswordHash failed, uid=" << uid << ", err=" << err;
             result.code = 500;
             result.err = "更新密码失败";
             return result;
@@ -186,16 +186,16 @@ UserResult UserService::GetUserByMobile(const std::string& mobile, const std::st
     std::string err;
 
     if (channel == "register") {
-        if (CIM::dao::UserDAO::GetByMobile(mobile, result.data, &err)) {
-            CIM_LOG_ERROR(g_logger)
+        if (IM::dao::UserDAO::GetByMobile(mobile, result.data, &err)) {
+            IM_LOG_ERROR(g_logger)
                 << "GetUserByMobile failed, mobile=" << mobile << ", err=" << err;
             result.code = 400;
             result.err = "手机号已注册!";
             return result;
         }
     } else if (channel == "forget_account") {
-        if (!CIM::dao::UserDAO::GetByMobile(mobile, result.data, &err)) {
-            CIM_LOG_ERROR(g_logger)
+        if (!IM::dao::UserDAO::GetByMobile(mobile, result.data, &err)) {
+            IM_LOG_ERROR(g_logger)
                 << "GetUserByMobile failed, mobile=" << mobile << ", err=" << err;
             result.code = 400;
             result.err = "手机号未注册!";
@@ -210,9 +210,9 @@ VoidResult UserService::Offline(const uint64_t id) {
     VoidResult result;
     std::string err;
 
-    if (!CIM::dao::UserDAO::UpdateOfflineStatus(id, &err)) {
+    if (!IM::dao::UserDAO::UpdateOfflineStatus(id, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "UpdateOfflineStatus failed, user_id=" << id << ", err=" << err;
             result.code = 500;
             result.err = "更新在线状态失败";
@@ -228,9 +228,9 @@ StatusResult UserService::GetUserOnlineStatus(const uint64_t id) {
     StatusResult result;
     std::string err;
 
-    if (!CIM::dao::UserDAO::GetOnlineStatus(id, result.data, &err)) {
+    if (!IM::dao::UserDAO::GetOnlineStatus(id, result.data, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "GetUserOnlineStatus failed, user_id=" << id << ", err=" << err;
             result.code = 500;
             result.err = "获取用户在线状态失败";
@@ -250,16 +250,16 @@ VoidResult UserService::SaveConfigInfo(const uint64_t user_id, const std::string
     VoidResult result;
     std::string err;
 
-    CIM::dao::UserSettings new_settings;
+    IM::dao::UserSettings new_settings;
     new_settings.user_id = user_id;
     new_settings.theme_mode = theme_mode;
     new_settings.theme_bag_img = theme_bag_img;
     new_settings.theme_color = theme_color;
     new_settings.notify_cue_tone = notify_cue_tone;
     new_settings.keyboard_event_notify = keyboard_event_notify;
-    if (!CIM::dao::UserSettingsDAO::Upsert(new_settings, &err)) {
+    if (!IM::dao::UserSettingsDAO::Upsert(new_settings, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "Upsert new UserSettings failed, user_id=" << user_id << ", err=" << err;
             result.code = 500;
             result.err = "保存用户设置失败";
@@ -274,9 +274,9 @@ ConfigInfoResult UserService::LoadConfigInfo(const uint64_t user_id) {
     ConfigInfoResult result;
     std::string err;
 
-    if (!CIM::dao::UserSettingsDAO::GetConfigInfo(user_id, result.data, &err)) {
+    if (!IM::dao::UserSettingsDAO::GetConfigInfo(user_id, result.data, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "LoadConfigInfo failed, user_id=" << user_id << ", err=" << err;
             result.code = 500;
             result.err = "加载用户设置失败";
@@ -292,9 +292,9 @@ UserInfoResult UserService::LoadUserInfoSimple(const uint64_t uid) {
     UserInfoResult result;
     std::string err;
 
-    if (!CIM::dao::UserDAO::GetUserInfoSimple(uid, result.data, &err)) {
+    if (!IM::dao::UserDAO::GetUserInfoSimple(uid, result.data, &err)) {
         if (!err.empty()) {
-            CIM_LOG_ERROR(g_logger) << "LoadUserInfoSimple failed, uid=" << uid << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "LoadUserInfoSimple failed, uid=" << uid << ", err=" << err;
             result.code = 404;
             result.err = "加载用户信息失败";
             return result;
@@ -305,4 +305,4 @@ UserInfoResult UserService::LoadUserInfoSimple(const uint64_t uid) {
     return result;
 }
 
-}  // namespace CIM::app
+}  // namespace IM::app

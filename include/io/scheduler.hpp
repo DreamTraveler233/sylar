@@ -1,15 +1,15 @@
 /**
  * @file scheduler.hpp
  * @brief 协程调度器实现
- * @author CIM
+ * @author IM
  *
  * 该文件定义了协程调度器Scheduler和调度切换器SchedulerSwitcher类。
  * Scheduler负责管理线程池和协程队列，实现协程的调度执行；
  * SchedulerSwitcher用于临时切换到指定的调度器上下文执行。
  */
 
-#ifndef __CIM_IO_SCHEDULER_HPP__
-#define __CIM_IO_SCHEDULER_HPP__
+#ifndef __IM_IO_SCHEDULER_HPP__
+#define __IM_IO_SCHEDULER_HPP__
 
 #include <list>
 #include <vector>
@@ -109,7 +109,7 @@
   从共享任务队列中竞争获取任务执行，实现了统一的工作线程模型。
  */
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 协程调度器类
      * @details 负责协程的调度，维护线程池和协程队列，实现协程在不同线程间的分发执行
@@ -359,6 +359,6 @@ class SchedulerSwitcher : public Noncopyable {
    private:
     Scheduler* m_caller;  ///< 调用者调度器，用于保存原调度器上下文
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_IO_SCHEDULER_HPP__
+#endif // __IM_IO_SCHEDULER_HPP__

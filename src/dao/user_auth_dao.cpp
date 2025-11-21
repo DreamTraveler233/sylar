@@ -2,11 +2,11 @@
 
 #include "db/mysql.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 static constexpr const char* kDBName = "default";
 
-bool UserAuthDao::Create(const std::shared_ptr<CIM::MySQL>& db, const UserAuth& ua,
+bool UserAuthDao::Create(const std::shared_ptr<IM::MySQL>& db, const UserAuth& ua,
                          std::string* err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
@@ -36,7 +36,7 @@ bool UserAuthDao::Create(const std::shared_ptr<CIM::MySQL>& db, const UserAuth& 
 }
 
 bool UserAuthDao::GetByUserId(const uint64_t user_id, UserAuth& out, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -70,7 +70,7 @@ bool UserAuthDao::GetByUserId(const uint64_t user_id, UserAuth& out, std::string
 
 bool UserAuthDao::UpdatePasswordHash(const uint64_t user_id, const std::string& new_password_hash,
                                      std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -91,4 +91,4 @@ bool UserAuthDao::UpdatePasswordHash(const uint64_t user_id, const std::string& 
     return true;
 }
 
-}  // namespace CIM::dao
+}  // namespace IM::dao

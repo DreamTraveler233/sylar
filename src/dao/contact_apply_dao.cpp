@@ -3,11 +3,11 @@
 #include "db/mysql.hpp"
 #include "util/util.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 static constexpr const char* kDBName = "default";
 
-bool ContactApplyDAO::AgreeApplyWithConn(const std::shared_ptr<CIM::MySQL>& db,
+bool ContactApplyDAO::AgreeApplyWithConn(const std::shared_ptr<IM::MySQL>& db,
                                          const uint64_t user_id, const uint64_t apply_id,
                                          const std::string& remark, std::string* err) {
     if (!db) {
@@ -32,7 +32,7 @@ bool ContactApplyDAO::AgreeApplyWithConn(const std::shared_ptr<CIM::MySQL>& db,
     return true;
 }
 
-bool ContactApplyDAO::GetDetailByIdWithConn(const std::shared_ptr<CIM::MySQL>& db,
+bool ContactApplyDAO::GetDetailByIdWithConn(const std::shared_ptr<IM::MySQL>& db,
                                             const uint64_t apply_id, ContactApply& out,
                                             std::string* err) {
     if (!db) {
@@ -75,7 +75,7 @@ bool ContactApplyDAO::GetDetailByIdWithConn(const std::shared_ptr<CIM::MySQL>& d
 
 bool ContactApplyDAO::GetDetailById(const uint64_t apply_id, ContactApply& out,
                                     std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -84,7 +84,7 @@ bool ContactApplyDAO::GetDetailById(const uint64_t apply_id, ContactApply& out,
 }
 
 bool ContactApplyDAO::Create(const ContactApply& a, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -150,7 +150,7 @@ bool ContactApplyDAO::Create(const ContactApply& a, std::string* err) {
 
 bool ContactApplyDAO::RejectApply(const uint64_t handler_user_id, const uint64_t apply_user_id,
                                   const std::string& remark, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -175,7 +175,7 @@ bool ContactApplyDAO::RejectApply(const uint64_t handler_user_id, const uint64_t
 
 bool ContactApplyDAO::GetItemById(const uint64_t id, std::vector<ContactApplyItem>& out,
                                   std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -213,7 +213,7 @@ bool ContactApplyDAO::GetItemById(const uint64_t id, std::vector<ContactApplyIte
 
 bool ContactApplyDAO::GetPendingCountById(uint64_t id, uint64_t& out_count, std::string* err) {
     out_count = 0;
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -242,4 +242,4 @@ bool ContactApplyDAO::GetPendingCountById(uint64_t id, uint64_t& out_count, std:
     return true;
 }
 
-}  // namespace CIM::dao
+}  // namespace IM::dao

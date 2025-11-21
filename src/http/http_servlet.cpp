@@ -2,7 +2,7 @@
 
 #include <fnmatch.h>
 
-namespace CIM::http {
+namespace IM::http {
 Servlet::Servlet(const std::string& name) : m_name(name) {}
 Servlet::~Servlet() {}
 FunctionServlet::FunctionServlet(callback cb) : Servlet("FunctionServlet"), m_cb(cb) {}
@@ -13,7 +13,7 @@ int32_t FunctionServlet::handle(HttpRequest::ptr request, HttpResponse::ptr resp
 }
 
 ServletDispatch::ServletDispatch() : Servlet("ServletDispatch") {
-    m_default.reset(new NotFoundServlet("CIM/1.0"));
+    m_default.reset(new NotFoundServlet("IM/1.0"));
 }
 
 int32_t ServletDispatch::handle(HttpRequest::ptr request, http::HttpResponse::ptr response,
@@ -143,7 +143,7 @@ NotFoundServlet::NotFoundServlet(const std::string& name)
 int32_t NotFoundServlet::handle(HttpRequest::ptr request, HttpResponse::ptr response,
                                 HttpSession::ptr session) {
     response->setStatus(HttpStatus::NOT_FOUND);
-    response->setHeader("Server", "CIM/1.0.0");
+    response->setHeader("Server", "IM/1.0.0");
 
     // 如果是 API 路径或客户端期望 JSON，则返回统一 JSON 错误，避免前端解析 HTML 报错
     const std::string& path = request->getPath();
@@ -167,4 +167,4 @@ Servlet::ptr ServletDispatch::getDefault() const {
 void ServletDispatch::setDefault(Servlet::ptr v) {
     m_default = v;
 }
-}  // namespace CIM::http
+}  // namespace IM::http

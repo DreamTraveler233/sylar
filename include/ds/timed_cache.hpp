@@ -1,5 +1,5 @@
-#ifndef __CIM_DS_TIMED_CACHE_HPP__
-#define __CIM_DS_TIMED_CACHE_HPP__
+#ifndef __IM_DS_TIMED_CACHE_HPP__
+#define __IM_DS_TIMED_CACHE_HPP__
 
 #include <set>
 #include <unordered_map>
@@ -8,7 +8,7 @@
 #include "lock.hpp"
 #include "util.hpp"
 
-namespace CIM::ds {
+namespace IM::ds {
 template <class K, class V, class RWMutexType = RWMutex>
 class TimedCache {
    private:
@@ -344,6 +344,6 @@ class HashTimedCache {
     CacheStatus m_status;
 };
 
-}  // namespace CIM::ds
+}  // namespace IM::ds
 
-#endif // __CIM_DS_TIMED_CACHE_HPP__
+#endif // __IM_DS_TIMED_CACHE_HPP__

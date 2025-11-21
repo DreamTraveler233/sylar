@@ -1,5 +1,5 @@
-#ifndef __CIM_HTTP_HTTP_SERVLET_HPP__
-#define __CIM_HTTP_HTTP_SERVLET_HPP__
+#ifndef __IM_HTTP_HTTP_SERVLET_HPP__
+#define __IM_HTTP_HTTP_SERVLET_HPP__
 
 #include <functional>
 #include <memory>
@@ -13,7 +13,7 @@
 #include "io/thread.hpp"
 #include "util/util.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 /**
      * @brief Servlet封装
      */
@@ -145,14 +145,14 @@ class ServletDispatch : public Servlet {
 
     /**
          * @brief 添加模糊匹配servlet
-         * @param[in] uri uri 模糊匹配 /CIM_*
+         * @param[in] uri uri 模糊匹配 /IM_*
          * @param[in] slt servlet
          */
     void addGlobServlet(const std::string& uri, Servlet::ptr slt);
 
     /**
          * @brief 添加模糊匹配servlet
-         * @param[in] uri uri 模糊匹配 /CIM_*
+         * @param[in] uri uri 模糊匹配 /IM_*
          * @param[in] cb FunctionServlet回调函数
          */
     void addGlobServlet(const std::string& uri, FunctionServlet::callback cb);
@@ -219,10 +219,10 @@ class ServletDispatch : public Servlet {
 
    private:
     /// 精准匹配servlet MAP
-    /// uri(/CIM/xxx) -> servlet
+    /// uri(/IM/xxx) -> servlet
     std::unordered_map<std::string, IServletCreator::ptr> m_datas;
     /// 模糊匹配servlet 数组
-    /// uri(/CIM/*) -> servlet
+    /// uri(/IM/*) -> servlet
     std::vector<std::pair<std::string, IServletCreator::ptr>> m_globs;
     Servlet::ptr m_default;  /// 默认servlet，所有路径都没匹配到时使用
     RWMutexType m_mutex;     /// 读写互斥量
@@ -247,6 +247,6 @@ class NotFoundServlet : public Servlet {
     std::string m_name;
     std::string m_content;
 };
-}  // namespace CIM::http
+}  // namespace IM::http
 
-#endif // __CIM_HTTP_HTTP_SERVLET_HPP__
+#endif // __IM_HTTP_HTTP_SERVLET_HPP__

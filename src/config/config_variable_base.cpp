@@ -4,10 +4,10 @@
 
 #include "base/macro.hpp"
 
-namespace CIM {
+namespace IM {
 ConfigVariableBase::ConfigVariableBase(const std::string& name, const std::string& description)
     : m_name(name), m_description(description) {
-    CIM_ASSERT(!name.empty());
+    IM_ASSERT(!name.empty());
     std::transform(m_name.begin(), m_name.end(), m_name.begin(), ::tolower);
 }
 
@@ -18,4 +18,4 @@ const std::string& ConfigVariableBase::getName() const {
 const std::string& ConfigVariableBase::getDescription() const {
     return m_description;
 }
-}  // namespace CIM
+}  // namespace IM

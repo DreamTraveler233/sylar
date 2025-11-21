@@ -2,13 +2,13 @@
 
 #include "base/macro.hpp"
 
-namespace CIM {
+namespace IM {
 // 当前线程的线程对象
 static thread_local Thread* t_thread = nullptr;
 // 当前线程的线程名称
 static thread_local std::string t_thread_name = "unknown";
 
-static auto g_logger = CIM_LOG_NAME("system");
+static auto g_logger = IM_LOG_NAME("system");
 
 Thread::Thread(std::function<void()> cb, const std::string& name)
     : m_id(-1), m_thread(-1), m_cb(cb), m_name(name) {
@@ -26,7 +26,7 @@ Thread::Thread(std::function<void()> cb, const std::string& name)
          */
     int rt = pthread_create(&m_thread, nullptr, &Thread::run, this);
     if (rt) {
-        CIM_LOG_ERROR(g_logger) << "pthread_create fail, rt = " << rt << " name = " << name;
+        IM_LOG_ERROR(g_logger) << "pthread_create fail, rt = " << rt << " name = " << name;
         throw std::logic_error("pthread_create error");
     }
 
@@ -40,7 +40,7 @@ Thread::~Thread() {
 void Thread::join() {
     int rt = pthread_join(m_thread, nullptr);
     if (rt) {
-        CIM_LOG_ERROR(g_logger) << "pthread_join thread fail, rt = " << rt << " name = " << m_name;
+        IM_LOG_ERROR(g_logger) << "pthread_join thread fail, rt = " << rt << " name = " << m_name;
         throw std::logic_error("pthread_join error");
     }
     m_thread = 0;
@@ -61,7 +61,7 @@ void* Thread::run(void* arg) {
     t_thread_name = thread->m_name;
 
     // 获取并设置当前线程的真实系统线程ID
-    thread->m_id = CIM::GetThreadId();
+    thread->m_id = IM::GetThreadId();
     // 设置线程的名称，限制在15个字符以内
     pthread_setname_np(pthread_self(), thread->m_name.substr(0, 15).c_str());
 
@@ -89,4 +89,4 @@ pid_t Thread::getId() const {
 const std::string& Thread::getName() const {
     return m_name;
 }
-}  // namespace CIM
+}  // namespace IM

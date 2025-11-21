@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-namespace CIM::ds {
+namespace IM::ds {
 static const uint32_t s_prime_size = 1250;
 static const uint32_t s_prime_list[] = {
     103,        211,       313,       419,        521,        631,        733,        839,
@@ -242,4 +242,4 @@ std::string RandomStringGenerator::Gen(uint32_t size) {
     return rt;
 }
 
-}  // namespace CIM::ds
+}  // namespace IM::ds

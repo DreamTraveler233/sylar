@@ -8,19 +8,19 @@
 #include "other/crypto_module.hpp"
 #include "util/json_util.hpp"
 
-namespace CIM {
+namespace IM {
 
-static auto g_logger = CIM_LOG_NAME("system");
+static auto g_logger = IM_LOG_NAME("system");
 
 // JWT签名密钥
-static auto g_jwt_secret = CIM::Config::Lookup<std::string>(
+static auto g_jwt_secret = IM::Config::Lookup<std::string>(
     "auth.jwt.secret", std::string("dev-secret"), "jwt hmac secret");
 // JWT签发者
 static auto g_jwt_issuer =
-    CIM::Config::Lookup<std::string>("auth.jwt.issuer", std::string("auth-service"), "jwt issuer");
+    IM::Config::Lookup<std::string>("auth.jwt.issuer", std::string("auth-service"), "jwt issuer");
 
 std::string Ok(const Json::Value& data) {
-    return CIM::JsonUtil::ToString(data);
+    return IM::JsonUtil::ToString(data);
 }
 
 std::string Error(const int code, const std::string& msg) {
@@ -28,12 +28,12 @@ std::string Error(const int code, const std::string& msg) {
     root["code"] = code;
     root["message"] = msg;
     root["data"] = Json::nullValue;
-    return CIM::JsonUtil::ToString(root);
+    return IM::JsonUtil::ToString(root);
 }
 
 bool ParseBody(const std::string& body, Json::Value& out) {
     if (body.empty()) return false;
-    if (!CIM::JsonUtil::FromString(out, body)) return false;
+    if (!IM::JsonUtil::FromString(out, body)) return false;
     return out.isObject();
 }
 
@@ -51,7 +51,7 @@ TokenResult SignJwt(const std::string& uid, uint32_t expires_in) {
                           .set_payload_claim("uid", jwt::claim(uid))
                           .sign(jwt::algorithm::hs256{g_jwt_secret->getValue()});
     } catch (const std::exception& e) {
-        CIM_LOG_ERROR(g_logger) << result.err;
+        IM_LOG_ERROR(g_logger) << result.err;
         result.code = 500;
         result.err = "令牌签名失败！";
         return result;
@@ -87,7 +87,7 @@ bool VerifyJwt(const std::string& token, std::string* out_uid) {
         }
         return true;
     } catch (const std::exception& e) {
-        CIM_LOG_WARN(g_logger) << "jwt verify failed: " << e.what();
+        IM_LOG_WARN(g_logger) << "jwt verify failed: " << e.what();
         return false;
     }
 }
@@ -100,12 +100,12 @@ bool IsJwtExpired(const std::string& token) {
             return exp < std::chrono::system_clock::now();
         }
     } catch (const std::exception& e) {
-        CIM_LOG_WARN(g_logger) << "jwt decode failed: " << e.what();
+        IM_LOG_WARN(g_logger) << "jwt decode failed: " << e.what();
     }
     return false;
 }
 
-UidResult GetUidFromToken(CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res) {
+UidResult GetUidFromToken(IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res) {
     UidResult result;
 
     // 从请求头中提取 Token
@@ -149,14 +149,14 @@ PasswordResult DecryptPassword(const std::string& encrypted_password, std::strin
     PasswordResult result;
 
     // Base64 解码
-    std::string cipher_bin = CIM::base64decode(encrypted_password);
+    std::string cipher_bin = IM::base64decode(encrypted_password);
     if (cipher_bin.empty()) {
         result.code = 400;
         result.err = "密码解码失败！";
         return result;
     }
     // 私钥解密
-    auto cm = CIM::CryptoModule::Get();
+    auto cm = IM::CryptoModule::Get();
     if (!cm || !cm->isReady()) {
         result.code = 500;
         result.err = "密钥模块未加载！";
@@ -171,46 +171,46 @@ PasswordResult DecryptPassword(const std::string& encrypted_password, std::strin
     return result;
 }
 
-CIM::http::HttpStatus ToHttpStatus(const int code) {
+IM::http::HttpStatus ToHttpStatus(const int code) {
     switch (code) {
         case 400:
-            return CIM::http::HttpStatus::BAD_REQUEST;  // 请求参数错误
+            return IM::http::HttpStatus::BAD_REQUEST;  // 请求参数错误
         case 401:
-            return CIM::http::HttpStatus::UNAUTHORIZED;  // 未认证/Token无效
+            return IM::http::HttpStatus::UNAUTHORIZED;  // 未认证/Token无效
         case 403:
-            return CIM::http::HttpStatus::FORBIDDEN;  // 权限不足
+            return IM::http::HttpStatus::FORBIDDEN;  // 权限不足
         case 404:
-            return CIM::http::HttpStatus::NOT_FOUND;  // 资源不存在
+            return IM::http::HttpStatus::NOT_FOUND;  // 资源不存在
         case 405:
-            return CIM::http::HttpStatus::METHOD_NOT_ALLOWED;  // 方法不允许
+            return IM::http::HttpStatus::METHOD_NOT_ALLOWED;  // 方法不允许
         case 406:
-            return CIM::http::HttpStatus::NOT_ACCEPTABLE;  // 不可接受
+            return IM::http::HttpStatus::NOT_ACCEPTABLE;  // 不可接受
         case 408:
-            return CIM::http::HttpStatus::REQUEST_TIMEOUT;  // 请求超时
+            return IM::http::HttpStatus::REQUEST_TIMEOUT;  // 请求超时
         case 409:
-            return CIM::http::HttpStatus::CONFLICT;  // 冲突（如重复）
+            return IM::http::HttpStatus::CONFLICT;  // 冲突（如重复）
         case 410:
-            return CIM::http::HttpStatus::GONE;  // 资源已删除
+            return IM::http::HttpStatus::GONE;  // 资源已删除
         case 413:
-            return CIM::http::HttpStatus::PAYLOAD_TOO_LARGE;  // 请求体过大
+            return IM::http::HttpStatus::PAYLOAD_TOO_LARGE;  // 请求体过大
         case 415:
-            return CIM::http::HttpStatus::UNSUPPORTED_MEDIA_TYPE;  // 媒体类型不支持
+            return IM::http::HttpStatus::UNSUPPORTED_MEDIA_TYPE;  // 媒体类型不支持
         case 422:
-            return CIM::http::HttpStatus::UNPROCESSABLE_ENTITY;  // 语义错误
+            return IM::http::HttpStatus::UNPROCESSABLE_ENTITY;  // 语义错误
         case 429:
-            return CIM::http::HttpStatus::TOO_MANY_REQUESTS;  // 请求过多
+            return IM::http::HttpStatus::TOO_MANY_REQUESTS;  // 请求过多
         case 500:
-            return CIM::http::HttpStatus::INTERNAL_SERVER_ERROR;  // 服务端错误
+            return IM::http::HttpStatus::INTERNAL_SERVER_ERROR;  // 服务端错误
         case 501:
-            return CIM::http::HttpStatus::NOT_IMPLEMENTED;  // 未实现
+            return IM::http::HttpStatus::NOT_IMPLEMENTED;  // 未实现
         case 502:
-            return CIM::http::HttpStatus::BAD_GATEWAY;  // 网关错误
+            return IM::http::HttpStatus::BAD_GATEWAY;  // 网关错误
         case 503:
-            return CIM::http::HttpStatus::SERVICE_UNAVAILABLE;  // 服务不可用
+            return IM::http::HttpStatus::SERVICE_UNAVAILABLE;  // 服务不可用
         case 504:
-            return CIM::http::HttpStatus::GATEWAY_TIMEOUT;  // 网关超时
+            return IM::http::HttpStatus::GATEWAY_TIMEOUT;  // 网关超时
         default:
-            return CIM::http::HttpStatus::INTERNAL_SERVER_ERROR;
+            return IM::http::HttpStatus::INTERNAL_SERVER_ERROR;
     }
 }
-}  // namespace CIM
+}  // namespace IM

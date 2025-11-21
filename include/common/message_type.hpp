@@ -1,9 +1,9 @@
-#ifndef __CIM_COMMON_MESSAGE_TYPE_HPP__
-#define __CIM_COMMON_MESSAGE_TYPE_HPP__
+#ifndef __IM_COMMON_MESSAGE_TYPE_HPP__
+#define __IM_COMMON_MESSAGE_TYPE_HPP__
 
 #include <cstdint>
 
-namespace CIM::common {
+namespace IM::common {
 
 /**
  * MessageType - 后端使用的消息类型枚举
@@ -38,6 +38,6 @@ enum class MessageType : uint16_t {
     SysGroupTransfer = 1113
 };
 
-}  // namespace CIM::common
+}  // namespace IM::common
 
-#endif  // __CIM_COMMON_MESSAGE_TYPE_HPP__
+#endif  // __IM_COMMON_MESSAGE_TYPE_HPP__

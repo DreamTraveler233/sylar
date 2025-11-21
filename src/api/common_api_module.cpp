@@ -11,42 +11,42 @@
 #include "system/application.hpp"
 #include "util/util.hpp"
 
-namespace CIM::api {
+namespace IM::api {
 
-static auto g_logger = CIM_LOG_NAME("root");
+static auto g_logger = IM_LOG_NAME("root");
 
 CommonApiModule::CommonApiModule() : Module("api.common", "0.1.0", "builtin") {}
 
 bool CommonApiModule::onServerReady() {
-    std::vector<CIM::TcpServer::ptr> httpServers;
-    if (!CIM::Application::GetInstance()->getServer("http", httpServers)) {
-        CIM_LOG_WARN(g_logger) << "no http servers found when registering common routes";
+    std::vector<IM::TcpServer::ptr> httpServers;
+    if (!IM::Application::GetInstance()->getServer("http", httpServers)) {
+        IM_LOG_WARN(g_logger) << "no http servers found when registering common routes";
         return true;
     }
 
     // 初始化验证码清理定时器（幂等）
-    CIM::app::CommonService::InitCleanupTimer();
+    IM::app::CommonService::InitCleanupTimer();
 
     for (auto& s : httpServers) {
-        auto http = std::dynamic_pointer_cast<CIM::http::HttpServer>(s);
+        auto http = std::dynamic_pointer_cast<IM::http::HttpServer>(s);
         if (!http) continue;
         auto dispatch = http->getServletDispatch();
 
         // 发送短信验证码
-        dispatch->addServlet("/api/v1/common/send-sms", [](CIM::http::HttpRequest::ptr req,
-                                                           CIM::http::HttpResponse::ptr res,
-                                                           CIM::http::HttpSession::ptr session) {
+        dispatch->addServlet("/api/v1/common/send-sms", [](IM::http::HttpRequest::ptr req,
+                                                           IM::http::HttpResponse::ptr res,
+                                                           IM::http::HttpSession::ptr session) {
             res->setHeader("Content-Type", "application/json");
 
             std::string mobile, channel;
             Json::Value body;
             if (ParseBody(req->getBody(), body)) {
-                mobile = CIM::JsonUtil::GetString(body, "mobile");
-                channel = CIM::JsonUtil::GetString(body, "channel");
+                mobile = IM::JsonUtil::GetString(body, "mobile");
+                channel = IM::JsonUtil::GetString(body, "channel");
             }
 
             /*判断手机号是否已经注册*/
-            auto ret = CIM::app::UserService::GetUserByMobile(mobile, channel);
+            auto ret = IM::app::UserService::GetUserByMobile(mobile, channel);
             if (!ret.ok) {
                 res->setStatus(ToHttpStatus(ret.code));
                 res->setBody(Error(ret.code, ret.err));
@@ -54,7 +54,7 @@ bool CommonApiModule::onServerReady() {
             }
 
             /* 发送短信验证码 */
-            auto result = CIM::app::CommonService::SendSmsCode(mobile, channel, session);
+            auto result = IM::app::CommonService::SendSmsCode(mobile, channel, session);
             if (!result.ok) {
                 res->setStatus(ToHttpStatus(result.code));
                 res->setBody(Error(result.code, result.err));
@@ -70,8 +70,8 @@ bool CommonApiModule::onServerReady() {
         // 注册邮箱服务（占位实现）
         dispatch->addServlet(
             "/api/v1/common/send-email",
-            [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-               CIM::http::HttpSession::ptr /*session*/) {
+            [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+               IM::http::HttpSession::ptr /*session*/) {
                 res->setHeader("Content-Type", "application/json");
                 res->setBody("{\"code\":0,\"msg\":\"ok\",\"data\":{\"status\":\"running\"}} ");
                 return 0;
@@ -80,16 +80,16 @@ bool CommonApiModule::onServerReady() {
         // 测试接口（占位）
         dispatch->addServlet(
             "/api/v1/common/send-test",
-            [](CIM::http::HttpRequest::ptr /*req*/, CIM::http::HttpResponse::ptr res,
-               CIM::http::HttpSession::ptr /*session*/) {
+            [](IM::http::HttpRequest::ptr /*req*/, IM::http::HttpResponse::ptr res,
+               IM::http::HttpSession::ptr /*session*/) {
                 res->setHeader("Content-Type", "application/json");
                 Json::Value data;
                 data["echo"] = true;
-                res->setBody(CIM::JsonUtil::ToString(data));
+                res->setBody(IM::JsonUtil::ToString(data));
                 return 0;
             });
     }
     return true;
 }
 
-}  // namespace CIM::api
+}  // namespace IM::api

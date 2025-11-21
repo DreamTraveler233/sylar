@@ -1,5 +1,5 @@
-#ifndef __CIM_HTTP_HTTP_CONNECTION_HPP__
-#define __CIM_HTTP_HTTP_CONNECTION_HPP__
+#ifndef __IM_HTTP_HTTP_CONNECTION_HPP__
+#define __IM_HTTP_HTTP_CONNECTION_HPP__
 
 #include <list>
 
@@ -8,7 +8,7 @@
 #include "streams/socket_stream.hpp"
 #include "uri.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 /**
      * @brief HTTP响应结果
      */
@@ -280,6 +280,6 @@ class HttpConnectionPool {
     std::list<HttpConnection*> m_conns;  /// 连接池
     std::atomic<int32_t> m_total = {0};  /// 当前连接池的连接数
 };
-}  // namespace CIM::http
+}  // namespace IM::http
 
-#endif // __CIM_HTTP_HTTP_CONNECTION_HPP__
+#endif // __IM_HTTP_HTTP_CONNECTION_HPP__

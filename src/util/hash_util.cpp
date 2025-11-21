@@ -12,7 +12,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
-namespace CIM {
+namespace IM {
 
 #define ROTL(x, r) ((x << r) | (x >> (32 - r)))
 
@@ -539,4 +539,4 @@ std::string random_string(size_t len, const std::string& chars) {
     return rt;
 }
 
-}  // namespace CIM
+}  // namespace IM

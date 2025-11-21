@@ -1,9 +1,9 @@
-#ifndef __CIM_CONFIG_CONFIG_HPP__
-#define __CIM_CONFIG_CONFIG_HPP__
+#ifndef __IM_CONFIG_CONFIG_HPP__
+#define __IM_CONFIG_CONFIG_HPP__
 /**
  * @file config.hpp
  * @brief 配置管理器定义文件
- * @author CIM
+ * @author IM
  *
  * 该文件定义了配置系统的核心管理类 Config，负责配置项的注册、查找、加载和管理。
  * Config 类提供了全局的配置管理功能，支持从 YAML 文件加载配置，并提供线程安全的
@@ -18,7 +18,7 @@
 #include "base/macro.hpp"
 #include "yaml-cpp/yaml.h"
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 配置管理器类
      *
@@ -55,7 +55,7 @@ class Config {
     template <class T>
     static typename ConfigVar<T>::ptr Lookup(const std::string& name, const T& default_value,
                                              const std::string& description = "") {
-        CIM_ASSERT(!name.empty());
+        IM_ASSERT(!name.empty());
         RWMutexType::WriteLock lock(GetMutex());
         // 根据配置项名称在存储容器中查找
         auto it = GetDatas().find(name);
@@ -66,12 +66,12 @@ class Config {
             auto tmp = std::dynamic_pointer_cast<ConfigVar<T>>(it->second);
             // 如果类型转换成功，说明找到了同名且同类型的配置项
             if (tmp) {
-                CIM_LOG_INFO(CIM_LOG_ROOT()) << "Lookup name = " << name << " exists";
+                IM_LOG_INFO(IM_LOG_ROOT()) << "Lookup name = " << name << " exists";
                 return tmp;
             }
             // 如果类型转换失败，说明虽然找到了同名配置项，但其实际类型与请求的类型T不匹配
             else {
-                CIM_LOG_ERROR(CIM_LOG_ROOT())
+                IM_LOG_ERROR(IM_LOG_ROOT())
                     << "Lookup name = " << name << " exists but type not " << typeid(T).name()
                     << " real_type = " << it->second->getTypeName() << " "
                     << "value = " << it->second->toString();
@@ -85,7 +85,7 @@ class Config {
         // 如果没有到了同名配置项，则创建该配置项
         // 检查配置项名称是否合法，只能包含字母、数字、下划线和点号
         if (name.find_first_not_of("abcdefghijklmnopqrstuvwxyz0123456789._") != std::string::npos) {
-            CIM_LOG_ERROR(CIM_LOG_ROOT()) << "lookup name invalid name=" << name;
+            IM_LOG_ERROR(IM_LOG_ROOT()) << "lookup name invalid name=" << name;
             throw std::invalid_argument(name);  // 抛出异常
         }
 
@@ -103,7 +103,7 @@ class Config {
          */
     template <class T>
     static typename ConfigVar<T>::ptr Lookup(const std::string& name) {
-        CIM_ASSERT(!name.empty());
+        IM_ASSERT(!name.empty());
         RWMutexType::ReadLock lock(GetMutex());
         auto it = GetDatas().find(name);
         if (it == GetDatas().end()) {
@@ -158,6 +158,6 @@ class Config {
         return m_mutex;
     }
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_CONFIG_CONFIG_HPP__
+#endif // __IM_CONFIG_CONFIG_HPP__

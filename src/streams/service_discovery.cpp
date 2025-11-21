@@ -7,8 +7,8 @@
 #include "util/hash_util.hpp"
 #include "base/macro.hpp"
 
-namespace CIM {
-static Logger::ptr g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static Logger::ptr g_logger = IM_LOG_NAME("system");
 
 ServiceItemInfo::ptr ServiceItemInfo::Create(const std::string& ip_and_port,
                                              const std::string& data) {
@@ -91,7 +91,7 @@ void ZKServiceDiscovery::start() {
         std::bind(&ZKServiceDiscovery::onWatch, self, std::placeholders::_1, std::placeholders::_2,
                   std::placeholders::_3, std::placeholders::_4));
     if (!b) {
-        CIM_LOG_ERROR(g_logger) << "ZKClient init fail, hosts=" << m_hosts;
+        IM_LOG_ERROR(g_logger) << "ZKClient init fail, hosts=" << m_hosts;
     }
     m_timer = IOManager::GetThis()->addTimer(
         60 * 1000,
@@ -130,7 +130,7 @@ void ZKServiceDiscovery::onZKConnect(const std::string& path, ZKClient::ptr clie
     }
 
     if (!ok) {
-        CIM_LOG_ERROR(g_logger) << "onZKConnect register fail";
+        IM_LOG_ERROR(g_logger) << "onZKConnect register fail";
     }
 
     ok = true;
@@ -140,7 +140,7 @@ void ZKServiceDiscovery::onZKConnect(const std::string& path, ZKClient::ptr clie
         }
     }
     if (!ok) {
-        CIM_LOG_ERROR(g_logger) << "onZKConnect query fail";
+        IM_LOG_ERROR(g_logger) << "onZKConnect query fail";
     }
 
     ok = true;
@@ -151,7 +151,7 @@ void ZKServiceDiscovery::onZKConnect(const std::string& path, ZKClient::ptr clie
     }
 
     if (!ok) {
-        CIM_LOG_ERROR(g_logger) << "onZKConnect queryData fail";
+        IM_LOG_ERROR(g_logger) << "onZKConnect queryData fail";
     }
 }
 
@@ -162,14 +162,14 @@ bool ZKServiceDiscovery::existsOrCreate(const std::string& path) {
     } else {
         auto pos = path.find_last_of('/');
         if (pos == std::string::npos) {
-            CIM_LOG_ERROR(g_logger) << "existsOrCreate invalid path=" << path;
+            IM_LOG_ERROR(g_logger) << "existsOrCreate invalid path=" << path;
             return false;
         }
         if (pos == 0 || existsOrCreate(path.substr(0, pos))) {
             std::string new_val(1024, 0);
             v = m_client->create(path, "", new_val);
             if (v != ZOK) {
-                CIM_LOG_ERROR(g_logger)
+                IM_LOG_ERROR(g_logger)
                     << "create path=" << path << " error:" << zerror(v) << " (" << v << ")";
                 return false;
             }
@@ -213,7 +213,7 @@ bool ZKServiceDiscovery::registerInfo(const std::string& domain, const std::stri
     std::string path = GetProvidersPath(domain, service);
     bool v = existsOrCreate(path);
     if (!v) {
-        CIM_LOG_ERROR(g_logger) << "create path=" << path << " fail";
+        IM_LOG_ERROR(g_logger) << "create path=" << path << " fail";
         return false;
     }
 
@@ -224,7 +224,7 @@ bool ZKServiceDiscovery::registerInfo(const std::string& domain, const std::stri
         return true;
     }
     if (!m_isOnTimer) {
-        CIM_LOG_ERROR(g_logger) << "create path=" << (path + "/" + ip_and_port)
+        IM_LOG_ERROR(g_logger) << "create path=" << (path + "/" + ip_and_port)
                                 << " fail, error:" << zerror(rt) << " (" << rt << ")";
     }
     return rt == ZNODEEXISTS;
@@ -235,12 +235,12 @@ bool ZKServiceDiscovery::queryInfo(const std::string& domain, const std::string&
         std::string path = GetConsumersPath(domain, service);
         bool v = existsOrCreate(path);
         if (!v) {
-            CIM_LOG_ERROR(g_logger) << "create path=" << path << " fail";
+            IM_LOG_ERROR(g_logger) << "create path=" << path << " fail";
             return false;
         }
 
         if (m_selfInfo.empty()) {
-            CIM_LOG_ERROR(g_logger) << "queryInfo selfInfo is null";
+            IM_LOG_ERROR(g_logger) << "queryInfo selfInfo is null";
             return false;
         }
 
@@ -251,7 +251,7 @@ bool ZKServiceDiscovery::queryInfo(const std::string& domain, const std::string&
             return true;
         }
         if (!m_isOnTimer) {
-            CIM_LOG_ERROR(g_logger) << "create path=" << (path + "/" + m_selfInfo)
+            IM_LOG_ERROR(g_logger) << "create path=" << (path + "/" + m_selfInfo)
                                     << " fail, error:" << zerror(rt) << " (" << rt << ")";
         }
         return rt == ZNODEEXISTS;
@@ -270,19 +270,19 @@ bool ZKServiceDiscovery::getChildren(const std::string& path) {
     std::string domain;
     std::string service;
     if (!ParseDomainService(path, domain, service)) {
-        CIM_LOG_ERROR(g_logger) << "get_children path=" << path << " invalid path";
+        IM_LOG_ERROR(g_logger) << "get_children path=" << path << " invalid path";
         return false;
     }
     {
         RWMutex::ReadLock lock(m_mutex);
         auto it = m_queryInfos.find(domain);
         if (it == m_queryInfos.end()) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "get_children path=" << path << " domian=" << domain << " not exists";
             return false;
         }
         if (it->second.count(service) == 0 && it->second.count("all") == 0) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "get_children path=" << path << " service=" << service << " not exists "
                 << Join(it->second.begin(), it->second.end(), ",");
             return false;
@@ -292,7 +292,7 @@ bool ZKServiceDiscovery::getChildren(const std::string& path) {
     std::vector<std::string> vals;
     int32_t v = m_client->getChildren(path, vals, true);
     if (v != ZOK) {
-        CIM_LOG_ERROR(g_logger) << "get_children path=" << path << " fail, error:" << zerror(v)
+        IM_LOG_ERROR(g_logger) << "get_children path=" << path << " fail, error:" << zerror(v)
                                 << " (" << v << ")";
         return false;
     }
@@ -303,7 +303,7 @@ bool ZKServiceDiscovery::getChildren(const std::string& path) {
             continue;
         }
         infos[info->getId()] = info;
-        CIM_LOG_INFO(g_logger) << "domain=" << domain << " service=" << service
+        IM_LOG_INFO(g_logger) << "domain=" << domain << " service=" << service
                                << " info=" << info->toString();
     }
 
@@ -317,7 +317,7 @@ bool ZKServiceDiscovery::getChildren(const std::string& path) {
 }
 
 bool ZKServiceDiscovery::queryData(const std::string& domain, const std::string& service) {
-    // CIM_LOG_INFO(g_logger) << "query_data domain=" << domain
+    // IM_LOG_INFO(g_logger) << "query_data domain=" << domain
     //                          << " service=" << service;
     if (service != "all") {
         std::string path = GetProvidersPath(domain, service);
@@ -334,20 +334,20 @@ bool ZKServiceDiscovery::queryData(const std::string& domain, const std::string&
 }
 
 void ZKServiceDiscovery::onZKChild(const std::string& path, ZKClient::ptr client) {
-    // CIM_LOG_INFO(g_logger) << "onZKChild path=" << path;
+    // IM_LOG_INFO(g_logger) << "onZKChild path=" << path;
     getChildren(path);
 }
 
 void ZKServiceDiscovery::onZKChanged(const std::string& path, ZKClient::ptr client) {
-    CIM_LOG_INFO(g_logger) << "onZKChanged path=" << path;
+    IM_LOG_INFO(g_logger) << "onZKChanged path=" << path;
 }
 
 void ZKServiceDiscovery::onZKDeleted(const std::string& path, ZKClient::ptr client) {
-    CIM_LOG_INFO(g_logger) << "onZKDeleted path=" << path;
+    IM_LOG_INFO(g_logger) << "onZKDeleted path=" << path;
 }
 
 void ZKServiceDiscovery::onZKExpiredSession(const std::string& path, ZKClient::ptr client) {
-    CIM_LOG_INFO(g_logger) << "onZKExpiredSession path=" << path;
+    IM_LOG_INFO(g_logger) << "onZKExpiredSession path=" << path;
     client->reconnect();
 }
 
@@ -368,8 +368,8 @@ void ZKServiceDiscovery::onWatch(int type, int stat, const std::string& path,
             return onZKExpiredSession(path, client);
         }
     }
-    CIM_LOG_ERROR(g_logger) << "onWatch hosts=" << m_hosts << " type=" << type << " stat=" << stat
+    IM_LOG_ERROR(g_logger) << "onWatch hosts=" << m_hosts << " type=" << type << " stat=" << stat
                             << " path=" << path << " client=" << client;
 }
 
-}  // namespace CIM
+}  // namespace IM

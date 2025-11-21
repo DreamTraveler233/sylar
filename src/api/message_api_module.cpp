@@ -11,28 +11,28 @@
 #include "system/application.hpp"
 #include "util/util.hpp"
 
-namespace CIM::api {
+namespace IM::api {
 
-static auto g_logger = CIM_LOG_NAME("root");
+static auto g_logger = IM_LOG_NAME("root");
 
 MessageApiModule::MessageApiModule() : Module("api.message", "0.1.0", "builtin") {}
 
 bool MessageApiModule::onServerReady() {
-    std::vector<CIM::TcpServer::ptr> httpServers;
-    if (!CIM::Application::GetInstance()->getServer("http", httpServers)) {
-        CIM_LOG_WARN(g_logger) << "no http servers found when registering message routes";
+    std::vector<IM::TcpServer::ptr> httpServers;
+    if (!IM::Application::GetInstance()->getServer("http", httpServers)) {
+        IM_LOG_WARN(g_logger) << "no http servers found when registering message routes";
         return true;
     }
 
     for (auto& s : httpServers) {
-        auto http = std::dynamic_pointer_cast<CIM::http::HttpServer>(s);
+        auto http = std::dynamic_pointer_cast<IM::http::HttpServer>(s);
         if (!http) continue;
         auto dispatch = http->getServletDispatch();
 
         // 删除消息（仅影响本人视图）
-        dispatch->addServlet("/api/v1/message/delete", [](CIM::http::HttpRequest::ptr req,
-                                                          CIM::http::HttpResponse::ptr res,
-                                                          CIM::http::HttpSession::ptr) {
+        dispatch->addServlet("/api/v1/message/delete", [](IM::http::HttpRequest::ptr req,
+                                                          IM::http::HttpResponse::ptr res,
+                                                          IM::http::HttpSession::ptr) {
             res->setHeader("Content-Type", "application/json");
 
             Json::Value body;
@@ -40,10 +40,10 @@ bool MessageApiModule::onServerReady() {
             uint64_t to_from_id = 0;
             std::vector<std::string> msg_ids;  // 删除的消息ID列表
             if (ParseBody(req->getBody(), body)) {
-                talk_mode = CIM::JsonUtil::GetUint8(body, "talk_mode");
-                to_from_id = CIM::JsonUtil::GetUint64(body, "to_from_id");
+                talk_mode = IM::JsonUtil::GetUint8(body, "talk_mode");
+                to_from_id = IM::JsonUtil::GetUint64(body, "to_from_id");
                 if (body.isMember("msg_ids") && body["msg_ids"].isArray()) {
-                    if (!CIM::common::parseMsgIdsFromJson(body["msg_ids"], msg_ids, true)) {
+                    if (!IM::common::parseMsgIdsFromJson(body["msg_ids"], msg_ids, true)) {
                         res->setStatus(ToHttpStatus(400));
                         res->setBody(Error(400, "msg_ids 格式错误"));
                         return 0;
@@ -58,7 +58,7 @@ bool MessageApiModule::onServerReady() {
                 return 0;
             }
 
-            auto svc_ret = CIM::app::MessageService::DeleteMessages(uid_ret.data, talk_mode,
+            auto svc_ret = IM::app::MessageService::DeleteMessages(uid_ret.data, talk_mode,
                                                                     to_from_id, msg_ids);
             if (!svc_ret.ok) {
                 res->setStatus(ToHttpStatus(svc_ret.code));
@@ -71,17 +71,17 @@ bool MessageApiModule::onServerReady() {
         });
 
         // 转发消息记录查询（不分页）
-        dispatch->addServlet("/api/v1/message/forward-records", [](CIM::http::HttpRequest::ptr req,
-                                                                   CIM::http::HttpResponse::ptr res,
-                                                                   CIM::http::HttpSession::ptr) {
+        dispatch->addServlet("/api/v1/message/forward-records", [](IM::http::HttpRequest::ptr req,
+                                                                   IM::http::HttpResponse::ptr res,
+                                                                   IM::http::HttpSession::ptr) {
             res->setHeader("Content-Type", "application/json");
             Json::Value body;
             uint8_t talk_mode = 0;
             std::vector<std::string> msg_ids;
             if (ParseBody(req->getBody(), body)) {
-                talk_mode = CIM::JsonUtil::GetUint8(body, "talk_mode");
+                talk_mode = IM::JsonUtil::GetUint8(body, "talk_mode");
                 if (body.isMember("msg_ids") && body["msg_ids"].isArray()) {
-                    if (!CIM::common::parseMsgIdsFromJson(body["msg_ids"], msg_ids, true)) {
+                    if (!IM::common::parseMsgIdsFromJson(body["msg_ids"], msg_ids, true)) {
                         res->setStatus(ToHttpStatus(400));
                         res->setBody(Error(400, "msg_ids 格式错误"));
                         return 0;
@@ -97,7 +97,7 @@ bool MessageApiModule::onServerReady() {
             }
 
             auto svc_ret =
-                CIM::app::MessageService::LoadForwardRecords(uid_ret.data, talk_mode, msg_ids);
+                IM::app::MessageService::LoadForwardRecords(uid_ret.data, talk_mode, msg_ids);
             if (!svc_ret.ok) {
                 res->setStatus(ToHttpStatus(svc_ret.code));
                 res->setBody(Error(svc_ret.code, svc_ret.err));
@@ -128,8 +128,8 @@ bool MessageApiModule::onServerReady() {
 
         // 历史消息分页（按类型过滤）
         dispatch->addServlet("/api/v1/message/history-records",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr) {
                                  res->setHeader("Content-Type", "application/json");
                                  Json::Value body;
                                  uint8_t talk_mode = 0;
@@ -138,11 +138,11 @@ bool MessageApiModule::onServerReady() {
                                  uint32_t limit = 0;
                                  uint16_t msg_type = 0;
                                  if (ParseBody(req->getBody(), body)) {
-                                     talk_mode = CIM::JsonUtil::GetUint8(body, "talk_mode");
-                                     to_from_id = CIM::JsonUtil::GetUint64(body, "to_from_id");
-                                     cursor = CIM::JsonUtil::GetUint64(body, "cursor");
-                                     limit = CIM::JsonUtil::GetUint32(body, "limit");
-                                     msg_type = CIM::JsonUtil::GetUint16(body, "msg_type");
+                                     talk_mode = IM::JsonUtil::GetUint8(body, "talk_mode");
+                                     to_from_id = IM::JsonUtil::GetUint64(body, "to_from_id");
+                                     cursor = IM::JsonUtil::GetUint64(body, "cursor");
+                                     limit = IM::JsonUtil::GetUint32(body, "limit");
+                                     msg_type = IM::JsonUtil::GetUint16(body, "msg_type");
                                  }
                                  auto uid_ret = GetUidFromToken(req, res);
                                  if (!uid_ret.ok) {
@@ -150,7 +150,7 @@ bool MessageApiModule::onServerReady() {
                                      res->setBody(Error(uid_ret.code, uid_ret.err));
                                      return 0;
                                  }
-                                 auto svc_ret = CIM::app::MessageService::LoadHistoryRecords(
+                                 auto svc_ret = IM::app::MessageService::LoadHistoryRecords(
                                      uid_ret.data, talk_mode, to_from_id, msg_type, cursor, limit);
                                  if (!svc_ret.ok) {
                                      res->setStatus(ToHttpStatus(svc_ret.code));
@@ -182,8 +182,8 @@ bool MessageApiModule::onServerReady() {
 
         /*获取会话消息记录*/
         dispatch->addServlet("/api/v1/message/records",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  Json::Value body;
@@ -192,10 +192,10 @@ bool MessageApiModule::onServerReady() {
                                  uint64_t cursor = 0;      // 游标
                                  uint32_t limit = 0;       // 每次请求返回的消息数量上限
                                  if (ParseBody(req->getBody(), body)) {
-                                     talk_mode = CIM::JsonUtil::GetUint8(body, "talk_mode");
-                                     to_from_id = CIM::JsonUtil::GetUint64(body, "to_from_id");
-                                     cursor = CIM::JsonUtil::GetUint64(body, "cursor");
-                                     limit = CIM::JsonUtil::GetUint32(body, "limit");
+                                     talk_mode = IM::JsonUtil::GetUint8(body, "talk_mode");
+                                     to_from_id = IM::JsonUtil::GetUint64(body, "to_from_id");
+                                     cursor = IM::JsonUtil::GetUint64(body, "cursor");
+                                     limit = IM::JsonUtil::GetUint32(body, "limit");
                                  }
 
                                  auto uid_ret = GetUidFromToken(req, res);
@@ -205,7 +205,7 @@ bool MessageApiModule::onServerReady() {
                                      return 0;
                                  }
 
-                                 auto svc_ret = CIM::app::MessageService::LoadRecords(
+                                 auto svc_ret = IM::app::MessageService::LoadRecords(
                                      uid_ret.data, talk_mode, to_from_id, cursor, limit);
                                  if (!svc_ret.ok) {
                                      res->setStatus(ToHttpStatus(svc_ret.code));
@@ -238,8 +238,8 @@ bool MessageApiModule::onServerReady() {
 
         /*消息撤回接口*/
         dispatch->addServlet("/api/v1/message/revoke",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr) {
                                  res->setHeader("Content-Type", "application/json");
 
                                  Json::Value body;
@@ -247,9 +247,9 @@ bool MessageApiModule::onServerReady() {
                                  uint64_t to_from_id = 0;             // 会话对象ID
                                  std::string msg_id = std::string();  // 消息ID（字符串）
                                  if (ParseBody(req->getBody(), body)) {
-                                     talk_mode = CIM::JsonUtil::GetUint8(body, "talk_mode");
-                                     to_from_id = CIM::JsonUtil::GetUint64(body, "to_from_id");
-                                     msg_id = CIM::JsonUtil::GetString(body, "msg_id");
+                                     talk_mode = IM::JsonUtil::GetUint8(body, "talk_mode");
+                                     to_from_id = IM::JsonUtil::GetUint64(body, "to_from_id");
+                                     msg_id = IM::JsonUtil::GetString(body, "msg_id");
                                  }
 
                                  auto uid_ret = GetUidFromToken(req, res);
@@ -259,7 +259,7 @@ bool MessageApiModule::onServerReady() {
                                      return 0;
                                  }
 
-                                 auto svc_ret = CIM::app::MessageService::RevokeMessage(
+                                 auto svc_ret = IM::app::MessageService::RevokeMessage(
                                      uid_ret.data, talk_mode, to_from_id, msg_id);
                                  if (!svc_ret.ok) {
                                      res->setStatus(ToHttpStatus(svc_ret.code));
@@ -272,9 +272,9 @@ bool MessageApiModule::onServerReady() {
                              });
 
         // 发送消息接口
-        dispatch->addServlet("/api/v1/message/send", [](CIM::http::HttpRequest::ptr req,
-                                                        CIM::http::HttpResponse::ptr res,
-                                                        CIM::http::HttpSession::ptr) {
+        dispatch->addServlet("/api/v1/message/send", [](IM::http::HttpRequest::ptr req,
+                                                        IM::http::HttpResponse::ptr res,
+                                                        IM::http::HttpSession::ptr) {
             res->setHeader("Content-Type", "application/json");
 
             std::string msg_id;       // 前端生成的消息ID（字符串）
@@ -286,11 +286,11 @@ bool MessageApiModule::onServerReady() {
             std::vector<uint64_t> mentioned_user_ids;
             Json::Value body;
             if (ParseBody(req->getBody(), body)) {
-                msg_id = CIM::JsonUtil::GetString(body, "msg_id");
-                quote_id = CIM::JsonUtil::GetString(body, "quote_id");
-                talk_mode = CIM::JsonUtil::GetUint8(body, "talk_mode");
-                to_from_id = CIM::JsonUtil::GetUint64(body, "to_from_id");
-                type = CIM::JsonUtil::GetString(body, "type");
+                msg_id = IM::JsonUtil::GetString(body, "msg_id");
+                quote_id = IM::JsonUtil::GetString(body, "quote_id");
+                talk_mode = IM::JsonUtil::GetUint8(body, "talk_mode");
+                to_from_id = IM::JsonUtil::GetUint64(body, "to_from_id");
+                type = IM::JsonUtil::GetString(body, "type");
                 if (body.isMember("body")) {
                     payload = body["body"];  // 直接取 JSON
                     // 提取 mentions（数组，来自前端 editor 的 mentionUids）
@@ -321,7 +321,7 @@ bool MessageApiModule::onServerReady() {
             // 服务端将其映射为内部的 `msg_type` 枚举数值（与数据库中 msg_type 字段一致），
             // 在 `MessageService::SendMessage` 中会用到这个数值分支实现不同类型的保存策略。
             uint16_t msg_type = 0;
-            static const auto& kTypeMap = CIM::common::kMessageTypeMap;
+            static const auto& kTypeMap = IM::common::kMessageTypeMap;
             auto it = kTypeMap.find(type);
             if (it != kTypeMap.end()) {
                 msg_type = static_cast<uint16_t>(it->second);
@@ -349,13 +349,13 @@ bool MessageApiModule::onServerReady() {
 
             std::string content_text;  // 文本类消息正文
             std::string extra;         // 非文本消息/扩展字段 JSON 字符串
-            if (msg_type == static_cast<uint16_t>(CIM::common::MessageType::Text)) {
+            if (msg_type == static_cast<uint16_t>(IM::common::MessageType::Text)) {
                 if (payload.isMember("text")) {
-                    content_text = CIM::JsonUtil::GetString(payload, "text");
+                    content_text = IM::JsonUtil::GetString(payload, "text");
                 }
 
                 // 服务器端也禁止发送空白消息
-                if (CIM::StringUtil::Trim(content_text, " \t\n\r").empty()) {
+                if (IM::StringUtil::Trim(content_text, " \t\n\r").empty()) {
                     res->setStatus(ToHttpStatus(400));
                     res->setBody(Error(400, "消息内容不能为空"));
                     return 0;
@@ -367,14 +367,14 @@ bool MessageApiModule::onServerReady() {
 
             // 如果是转发并且包含目标 user_ids/group_ids，则对每个目标分发消息
             Json::Value dist_root;
-            if (msg_type == static_cast<uint16_t>(CIM::common::MessageType::Forward) &&
+            if (msg_type == static_cast<uint16_t>(IM::common::MessageType::Forward) &&
                 ((payload.isMember("user_ids") && payload["user_ids"].isArray()) ||
                  (payload.isMember("group_ids") && payload["group_ids"].isArray()))) {
                 // 解析 action / msg_ids / targets
-                int action = CIM::JsonUtil::GetInt32(payload, "action");
+                int action = IM::JsonUtil::GetInt32(payload, "action");
                 std::vector<std::string> forward_msg_ids;
                 if (payload.isMember("msg_ids") && payload["msg_ids"].isArray()) {
-                    if (!CIM::common::parseMsgIdsFromJson(payload["msg_ids"], forward_msg_ids,
+                    if (!IM::common::parseMsgIdsFromJson(payload["msg_ids"], forward_msg_ids,
                                                           true)) {
                         res->setStatus(ToHttpStatus(400));
                         res->setBody(Error(400, "msg_ids 格式错误"));
@@ -391,7 +391,7 @@ bool MessageApiModule::onServerReady() {
                     Json::StreamWriterBuilder wb;
                     std::string fextra = Json::writeString(wb, forward_payload);
                     // 不传 msg_id 保证每个目标生成独立 ID（也可以根据需求由前端传入）
-                    auto r = CIM::app::MessageService::SendMessage(
+                    auto r = IM::app::MessageService::SendMessage(
                         uid_ret.data, target_mode, target_id, msg_type, std::string(), fextra,
                         quote_id, std::string(), std::vector<uint64_t>());
                     Json::Value item;
@@ -479,7 +479,7 @@ bool MessageApiModule::onServerReady() {
 
                 // 合并推送：若本次转发有至少一个成功的发送，则触发一次会话刷新通知给发送者
                 if (sender_reload_notified) {
-                    CIM::api::WsGatewayModule::PushToUser(uid_ret.data, "im.session.reload");
+                    IM::api::WsGatewayModule::PushToUser(uid_ret.data, "im.session.reload");
                 }
 
                 // 返回分发结果给前端，前端目前不依赖具体返回值，仅关心是否成功
@@ -489,7 +489,7 @@ bool MessageApiModule::onServerReady() {
                 return 0;
             }
             // 非转发分发（或没有指定 user_ids/group_ids）则把消息作为普通消息发送
-            auto svc_ret = CIM::app::MessageService::SendMessage(
+            auto svc_ret = IM::app::MessageService::SendMessage(
                 uid_ret.data, talk_mode, to_from_id, msg_type, content_text, extra, quote_id,
                 msg_id, mentioned_user_ids);
             if (!svc_ret.ok) {
@@ -521,8 +521,8 @@ bool MessageApiModule::onServerReady() {
 
         // 更新消息状态（sender 更新发送状态，如标记失败/成功）
         dispatch->addServlet("/api/v1/message/status",
-                             [](CIM::http::HttpRequest::ptr req, CIM::http::HttpResponse::ptr res,
-                                CIM::http::HttpSession::ptr) {
+                             [](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                IM::http::HttpSession::ptr) {
                                  res->setHeader("Content-Type", "application/json");
                                  Json::Value body;
                                  uint8_t talk_mode = 0;
@@ -530,10 +530,10 @@ bool MessageApiModule::onServerReady() {
                                  std::string msg_id;
                                  uint8_t status = 1;
                                  if (ParseBody(req->getBody(), body)) {
-                                     talk_mode = CIM::JsonUtil::GetUint8(body, "talk_mode");
-                                     to_from_id = CIM::JsonUtil::GetUint64(body, "to_from_id");
-                                     msg_id = CIM::JsonUtil::GetString(body, "msg_id");
-                                     status = CIM::JsonUtil::GetUint8(body, "status");
+                                     talk_mode = IM::JsonUtil::GetUint8(body, "talk_mode");
+                                     to_from_id = IM::JsonUtil::GetUint64(body, "to_from_id");
+                                     msg_id = IM::JsonUtil::GetString(body, "msg_id");
+                                     status = IM::JsonUtil::GetUint8(body, "status");
                                  }
                                  auto uid_ret = GetUidFromToken(req, res);
                                  if (!uid_ret.ok) {
@@ -541,7 +541,7 @@ bool MessageApiModule::onServerReady() {
                                      res->setBody(Error(uid_ret.code, uid_ret.err));
                                      return 0;
                                  }
-                                 auto svc_ret = CIM::app::MessageService::UpdateMessageStatus(
+                                 auto svc_ret = IM::app::MessageService::UpdateMessageStatus(
                                      uid_ret.data, talk_mode, to_from_id, msg_id, status);
                                  if (!svc_ret.ok) {
                                      res->setStatus(ToHttpStatus(svc_ret.code));
@@ -555,4 +555,4 @@ bool MessageApiModule::onServerReady() {
     return true;
 }
 
-}  // namespace CIM::api
+}  // namespace IM::api

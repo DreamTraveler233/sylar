@@ -6,7 +6,7 @@
 
 #include <sstream>
 
-namespace CIM::ns {
+namespace IM::ns {
 NSNode::NSNode(const std::string& ip, uint16_t port, uint32_t weight)
     : m_ip(ip), m_port(port), m_weight(weight) {
     m_id = GetID(ip, port);
@@ -219,4 +219,4 @@ void NSDomainSet::swap(NSDomainSet& ds) {
     m_datas.swap(ds.m_datas);
 }
 
-}  // namespace CIM::ns
+}  // namespace IM::ns

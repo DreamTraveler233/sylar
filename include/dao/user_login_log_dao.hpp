@@ -1,12 +1,12 @@
-#ifndef __CIM_DAO_USER_LOGIN_LOG_DAO_HPP__
-#define __CIM_DAO_USER_LOGIN_LOG_DAO_HPP__
+#ifndef __IM_DAO_USER_LOGIN_LOG_DAO_HPP__
+#define __IM_DAO_USER_LOGIN_LOG_DAO_HPP__
 
 #include <cstdint>
 #include <ctime>
 #include <string>
 #include <vector>
 
-namespace CIM::dao {
+namespace IM::dao {
 
 struct UserLoginLog {
     uint64_t id = 0;              // 主键ID
@@ -27,6 +27,6 @@ class UserLoginLogDAO {
     static bool Create(const UserLoginLog& log, std::string* err = nullptr);
 };
 
-}  // namespace CIM::dao
+}  // namespace IM::dao
 
-#endif  // __CIM_DAO_USER_LOGIN_LOG_DAO_HPP__
+#endif  // __IM_DAO_USER_LOGIN_LOG_DAO_HPP__

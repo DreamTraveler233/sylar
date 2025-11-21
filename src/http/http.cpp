@@ -1,6 +1,6 @@
 #include "http/http.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 /**
      * @brief 将字符串表示的HTTP方法转换为HttpMethod枚举值
      * @param[in] m HTTP方法字符串
@@ -428,4 +428,4 @@ void HttpResponse::setRedirect(const std::string& uri) {}
 
 void HttpResponse::setCookie(const std::string& key, const std::string& val, time_t expired,
                              const std::string& path, const std::string& domain, bool secure) {}
-}  // namespace CIM::http
+}  // namespace IM::http

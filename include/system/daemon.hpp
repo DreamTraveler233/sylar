@@ -1,5 +1,5 @@
-#ifndef __CIM_SYSTEM_DAEMON_HPP__
-#define __CIM_SYSTEM_DAEMON_HPP__
+#ifndef __IM_SYSTEM_DAEMON_HPP__
+#define __IM_SYSTEM_DAEMON_HPP__
 
 #include <unistd.h>
 
@@ -7,7 +7,7 @@
 
 #include "base/singleton.hpp"
 
-namespace CIM {
+namespace IM {
 /*
     工作原理总结
     这个守护进程实现采用双进程模型：
@@ -37,6 +37,6 @@ using ProcessInfoMgr = Singleton<ProcessInfo>;
 int start_daemon(int argc, char** argv, std::function<int(int argc, char** argv)> main_cb,
                  bool is_daemon);
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_SYSTEM_DAEMON_HPP__
+#endif // __IM_SYSTEM_DAEMON_HPP__

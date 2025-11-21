@@ -1,11 +1,11 @@
-#ifndef __CIM_ORM_TABLE_HPP__
-#define __CIM_ORM_TABLE_HPP__
+#ifndef __IM_ORM_TABLE_HPP__
+#define __IM_ORM_TABLE_HPP__
 
 #include "column.hpp"
 #include "index.hpp"
 #include <fstream>
 
-namespace CIM::orm
+namespace IM::orm
 {
     class Table
     {
@@ -61,4 +61,4 @@ namespace CIM::orm
 
 }
 
-#endif // __CIM_ORM_TABLE_HPP__
+#endif // __IM_ORM_TABLE_HPP__

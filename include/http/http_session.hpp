@@ -1,10 +1,10 @@
-#ifndef __CIM_HTTP_HTTP_SESSION_HPP__
-#define __CIM_HTTP_HTTP_SESSION_HPP__
+#ifndef __IM_HTTP_HTTP_SESSION_HPP__
+#define __IM_HTTP_HTTP_SESSION_HPP__
 
 #include "http.hpp"
 #include "streams/socket_stream.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 /**
      * @brief HTTPSession封装
      */
@@ -43,6 +43,6 @@ class HttpSession : public SocketStream {
    protected:
     std::string m_leftoverBuf;
 };
-}  // namespace CIM::http
+}  // namespace IM::http
 
-#endif // __CIM_HTTP_HTTP_SESSION_HPP__
+#endif // __IM_HTTP_HTTP_SESSION_HPP__

@@ -1,12 +1,12 @@
-#ifndef __CIM_OTHER_CRYPTO_MODULE_HPP__
-#define __CIM_OTHER_CRYPTO_MODULE_HPP__
+#ifndef __IM_OTHER_CRYPTO_MODULE_HPP__
+#define __IM_OTHER_CRYPTO_MODULE_HPP__
 
 #include "config/config.hpp"
 #include "other/module.hpp"
 #include "system/env.hpp"
 #include "util/crypto_util.hpp"
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 加解密模块：在启动阶段加载 RSA 密钥，并对外提供统一获取接口。
      *
@@ -33,7 +33,7 @@ class CryptoModule : public Module {
          * @brief 获取RSA加密器实例
          * @return RSACipher指针
          */
-    CIM::RSACipher::ptr getRSACipher() const { return m_rsa; }
+    IM::RSACipher::ptr getRSACipher() const { return m_rsa; }
 
     /**
          * @brief 获取当前使用的填充模式
@@ -108,10 +108,10 @@ class CryptoModule : public Module {
     static std::string MakeAbsPath(const std::string& p);
 
    private:
-    CIM::RSACipher::ptr m_rsa;
+    IM::RSACipher::ptr m_rsa;
     int m_padding = RSA_PKCS1_OAEP_PADDING;  // 默认 OAEP
     mutable RWMutex m_mutex;                 // 简单并发保护
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_OTHER_CRYPTO_MODULE_HPP__
+#endif // __IM_OTHER_CRYPTO_MODULE_HPP__

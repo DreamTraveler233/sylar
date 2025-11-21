@@ -1,5 +1,5 @@
-#ifndef __CIM_UTIL_JSON_UTIL_HPP__
-#define __CIM_UTIL_JSON_UTIL_HPP__
+#ifndef __IM_UTIL_JSON_UTIL_HPP__
+#define __IM_UTIL_JSON_UTIL_HPP__
 
 #include <jsoncpp/json/json.h>
 
@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 
-namespace CIM {
+namespace IM {
 class JsonUtil {
    public:
     static bool NeedEscape(const std::string& v);
@@ -36,6 +36,6 @@ class JsonUtil {
     static std::string ToString(const Json::Value& json);
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_UTIL_JSON_UTIL_HPP__
+#endif // __IM_UTIL_JSON_UTIL_HPP__

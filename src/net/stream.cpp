@@ -1,6 +1,6 @@
 #include "net/stream.hpp"
 
-namespace CIM {
+namespace IM {
 int Stream::readFixSize(void* buffer, size_t length) {
     size_t offset = 0;  // 偏移量
     int64_t left = length;
@@ -55,4 +55,4 @@ int Stream::writeFixSize(ByteArray::ptr ba, size_t length) {
     }
     return length;
 }
-}  // namespace CIM
+}  // namespace IM

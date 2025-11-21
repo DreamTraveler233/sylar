@@ -1,5 +1,5 @@
-#ifndef __CIM_BASE_MACRO_HPP__
-#define __CIM_BASE_MACRO_HPP__
+#ifndef __IM_BASE_MACRO_HPP__
+#define __IM_BASE_MACRO_HPP__
 
 #include "log/logger.hpp"
 #include "log/logger_manager.hpp"
@@ -15,65 +15,65 @@
  * 在不支持的编译器上退化为普通表达式
  */
 #if defined __GNUC__ || defined __llvm__
-#define CIM_LIKELY(x) __builtin_expect(!!(x), 1)
-#define CIM_UNLIKELY(x) __builtin_expect(!!(x), 0)
+#define IM_LIKELY(x) __builtin_expect(!!(x), 1)
+#define IM_UNLIKELY(x) __builtin_expect(!!(x), 0)
 #else
-#define CIM_LIKELY(x) (x)
-#define CIM_UNLIKELY(x) (x)
-#endif // __CIM_BASE_MACRO_HPP__
+#define IM_LIKELY(x) (x)
+#define IM_UNLIKELY(x) (x)
+#endif // __IM_BASE_MACRO_HPP__
 
-#define CIM_LOG(logger, level)                                               \
+#define IM_LOG(logger, level)                                               \
     if (level >= logger->getLevel())                                           \
-    CIM::LogEventWrap(                                                       \
-        CIM::LogEvent::ptr(                                                  \
-            new CIM::LogEvent(logger, level, __FILE__, __LINE__, 0,          \
-                                CIM::GetThreadId(), CIM::GetCoroutineId(), \
-                                time(0), CIM::Thread::GetName())))           \
+    IM::LogEventWrap(                                                       \
+        IM::LogEvent::ptr(                                                  \
+            new IM::LogEvent(logger, level, __FILE__, __LINE__, 0,          \
+                                IM::GetThreadId(), IM::GetCoroutineId(), \
+                                time(0), IM::Thread::GetName())))           \
         .getSS()
 
-#define CIM_LOG_DEBUG(logger) CIM_LOG(logger, CIM::Level::DEBUG)
-#define CIM_LOG_INFO(logger) CIM_LOG(logger, CIM::Level::INFO)
-#define CIM_LOG_WARN(logger) CIM_LOG(logger, CIM::Level::WARN)
-#define CIM_LOG_ERROR(logger) CIM_LOG(logger, CIM::Level::ERROR)
-#define CIM_LOG_FATAL(logger) CIM_LOG(logger, CIM::Level::FATAL)
+#define IM_LOG_DEBUG(logger) IM_LOG(logger, IM::Level::DEBUG)
+#define IM_LOG_INFO(logger) IM_LOG(logger, IM::Level::INFO)
+#define IM_LOG_WARN(logger) IM_LOG(logger, IM::Level::WARN)
+#define IM_LOG_ERROR(logger) IM_LOG(logger, IM::Level::ERROR)
+#define IM_LOG_FATAL(logger) IM_LOG(logger, IM::Level::FATAL)
 
-#define CIM_LOG_FMT(logger, level, fmt, ...)                                 \
+#define IM_LOG_FMT(logger, level, fmt, ...)                                 \
     if (level >= logger->getLevel())                                           \
-    CIM::LogEventWrap(                                                       \
-        CIM::LogEvent::ptr(                                                  \
-            new CIM::LogEvent(logger, level, __FILE__, __LINE__, 0,          \
-                                CIM::GetThreadId(), CIM::GetCoroutineId(), \
-                                time(0), CIM::Thread::GetName())))           \
+    IM::LogEventWrap(                                                       \
+        IM::LogEvent::ptr(                                                  \
+            new IM::LogEvent(logger, level, __FILE__, __LINE__, 0,          \
+                                IM::GetThreadId(), IM::GetCoroutineId(), \
+                                time(0), IM::Thread::GetName())))           \
         .getEvent()                                                            \
         ->format(fmt, __VA_ARGS__)
 
-#define CIM_LOG_FMT_DEBUG(logger, fmt, ...) CIM_LOG_FMT(logger, CIM::Level::DEBUG, fmt, __VA_ARGS__)
-#define CIM_LOG_FMT_INFO(logger, fmt, ...) CIM_LOG_FMT(logger, CIM::Level::INFO, fmt, __VA_ARGS__)
-#define CIM_LOG_FMT_WARN(logger, fmt, ...) CIM_LOG_FMT(logger, CIM::Level::WARN, fmt, __VA_ARGS__)
-#define CIM_LOG_FMT_ERROR(logger, fmt, ...) CIM_LOG_FMT(logger, CIM::Level::ERROR, fmt, __VA_ARGS__)
-#define CIM_LOG_FMT_FATAL(logger, fmt, ...) CIM_LOG_FMT(logger, CIM::Level::FATAL, fmt, __VA_ARGS__)
+#define IM_LOG_FMT_DEBUG(logger, fmt, ...) IM_LOG_FMT(logger, IM::Level::DEBUG, fmt, __VA_ARGS__)
+#define IM_LOG_FMT_INFO(logger, fmt, ...) IM_LOG_FMT(logger, IM::Level::INFO, fmt, __VA_ARGS__)
+#define IM_LOG_FMT_WARN(logger, fmt, ...) IM_LOG_FMT(logger, IM::Level::WARN, fmt, __VA_ARGS__)
+#define IM_LOG_FMT_ERROR(logger, fmt, ...) IM_LOG_FMT(logger, IM::Level::ERROR, fmt, __VA_ARGS__)
+#define IM_LOG_FMT_FATAL(logger, fmt, ...) IM_LOG_FMT(logger, IM::Level::FATAL, fmt, __VA_ARGS__)
 
-#define CIM_LOG_ROOT() CIM::LoggerMgr::GetInstance()->getRoot()
-#define CIM_LOG_NAME(name) CIM::LoggerMgr::GetInstance()->getLogger(name)
+#define IM_LOG_ROOT() IM::LoggerMgr::GetInstance()->getRoot()
+#define IM_LOG_NAME(name) IM::LoggerMgr::GetInstance()->getLogger(name)
 
-#define CIM_ASSERT(X)                                                                \
-    if (CIM_UNLIKELY(!(X)))                                                          \
+#define IM_ASSERT(X)                                                                \
+    if (IM_UNLIKELY(!(X)))                                                          \
     {                                                                                  \
-        CIM_LOG_ERROR(CIM_LOG_ROOT()) << "ASSERTION: " #X                          \
+        IM_LOG_ERROR(IM_LOG_ROOT()) << "ASSERTION: " #X                          \
                                           << "\nbacktrace:\n"                          \
-                                          << CIM::BacktraceToString(100, 2, "    "); \
+                                          << IM::BacktraceToString(100, 2, "    "); \
         assert(X);                                                                     \
     }
 
-#define CIM_ASSERT2(X, W)                                                            \
-    if (CIM_UNLIKELY(!(X)))                                                          \
+#define IM_ASSERT2(X, W)                                                            \
+    if (IM_UNLIKELY(!(X)))                                                          \
     {                                                                                  \
-        CIM_LOG_ERROR(CIM_LOG_ROOT()) << "ASSERTION: " #X                          \
+        IM_LOG_ERROR(IM_LOG_ROOT()) << "ASSERTION: " #X                          \
                                           << "\n"                                      \
                                           << W                                         \
                                           << "\nbacktrace:\n"                          \
-                                          << CIM::BacktraceToString(100, 2, "    "); \
+                                          << IM::BacktraceToString(100, 2, "    "); \
         assert(X);                                                                     \
     }
 
-#endif // __CIM_BASE_MACRO_HPP__
+#endif // __IM_BASE_MACRO_HPP__

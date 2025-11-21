@@ -1,6 +1,6 @@
 #include "other/zk_client.hpp"
 
-namespace CIM {
+namespace IM {
 
 const int ZKClient::EventType::CREATED = ZOO_CREATED_EVENT;
 const int ZKClient::EventType::DELETED = ZOO_DELETED_EVENT;
@@ -133,4 +133,4 @@ int32_t ZKClient::getState() {
     return zoo_state(m_handle);
 }
 
-}  // namespace CIM
+}  // namespace IM

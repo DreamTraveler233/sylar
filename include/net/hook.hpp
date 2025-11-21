@@ -1,18 +1,18 @@
-#ifndef __CIM_NET_HOOK_HPP__
-#define __CIM_NET_HOOK_HPP__
+#ifndef __IM_NET_HOOK_HPP__
+#define __IM_NET_HOOK_HPP__
 
 #include <stdarg.h>
 #include <stdint.h>
 #include <unistd.h>
 
-namespace CIM {
+namespace IM {
 // 用于检查钩子功能是否启用
 bool is_hook_enable();
 // 用于设置钩子功能的启用状态
 void set_hook_enable(bool flag);
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_NET_HOOK_HPP__
+#endif // __IM_NET_HOOK_HPP__
 
 // 这些函数指针变量不会被C++名称修饰
 extern "C" {

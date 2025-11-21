@@ -16,8 +16,8 @@
  * - 提供RAII机制自动管理文件描述符生命周期
  */
 
-#ifndef __CIM_NET_FD_MANAGER_HPP__
-#define __CIM_NET_FD_MANAGER_HPP__
+#ifndef __IM_NET_FD_MANAGER_HPP__
+#define __IM_NET_FD_MANAGER_HPP__
 
 #include "io/iomanager.hpp"
 #include "io/lock.hpp"
@@ -25,7 +25,7 @@
 #include "base/noncopyable.hpp"
 #include "base/singleton.hpp"
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 文件描述符上下文类
      * @details 用于存储和管理单个文件描述符的相关信息，
@@ -208,6 +208,6 @@ class FileDescriptor : public Noncopyable {
    private:
     int m_fd;  ///< 文件描述符
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_NET_FD_MANAGER_HPP__
+#endif // __IM_NET_FD_MANAGER_HPP__

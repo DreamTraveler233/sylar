@@ -1,12 +1,12 @@
-#ifndef __CIM_COMMON_MESSAGE_PREVIEW_MAP_HPP__
-#define __CIM_COMMON_MESSAGE_PREVIEW_MAP_HPP__
+#ifndef __IM_COMMON_MESSAGE_PREVIEW_MAP_HPP__
+#define __IM_COMMON_MESSAGE_PREVIEW_MAP_HPP__
 
 #include <map>
 #include <string>
 
 #include "common/message_type.hpp"
 
-namespace CIM::common {
+namespace IM::common {
 
 // 后端 MessageType -> 会话预览字符串映射
 static const std::map<MessageType, std::string> kMessagePreviewMap = {
@@ -36,6 +36,6 @@ static const std::map<MessageType, std::string> kMessagePreviewMap = {
     {MessageType::SysGroupMemberCancelMuted, "[群成员解除禁言消息]"}
 };
 
-}  // namespace CIM::common
+}  // namespace IM::common
 
-#endif  // __CIM_COMMON_MESSAGE_PREVIEW_MAP_HPP__
+#endif  // __IM_COMMON_MESSAGE_PREVIEW_MAP_HPP__

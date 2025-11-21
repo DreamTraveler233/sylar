@@ -2,7 +2,7 @@
 
 #include "util/util.hpp"
 
-namespace CIM {
+namespace IM {
 ByteArray::ptr Message::toByteArray() {
     ByteArray::ptr ba(new ByteArray);
     if (serializeToByteArray(ba)) {
@@ -58,4 +58,4 @@ bool Notify::parseFromByteArray(ByteArray::ptr bytearray) {
     return true;
 }
 
-}  // namespace CIM
+}  // namespace IM

@@ -2,12 +2,12 @@
 
 #include "db/mysql.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 static constexpr const char* kDBName = "default";
 
 bool UserLoginLogDAO::Create(const UserLoginLog& log, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -52,4 +52,4 @@ bool UserLoginLogDAO::Create(const UserLoginLog& log, std::string* err) {
     return true;
 }
 
-}  // namespace CIM::dao
+}  // namespace IM::dao

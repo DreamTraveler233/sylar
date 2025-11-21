@@ -7,8 +7,8 @@
  * 通过该类可以更方便地创建和控制线程，并支持获取线程信息、设置线程名称等操作。
  */
 
-#ifndef __CIM_IO_THREAD_HPP__
-#define __CIM_IO_THREAD_HPP__
+#ifndef __IM_IO_THREAD_HPP__
+#define __IM_IO_THREAD_HPP__
 
 #include <functional>
 #include <memory>
@@ -18,7 +18,7 @@
 #include "base/noncopyable.hpp"
 #include "semaphore.hpp"
 
-namespace CIM {
+namespace IM {
 /**
      * @brief 线程类，对pthread进行封装
      *
@@ -100,6 +100,6 @@ class Thread : public Noncopyable {
     std::string m_name;          // 线程名称
     Semaphore m_semaphore;       // 信号量，用于线程启动同步
 };
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_IO_THREAD_HPP__
+#endif // __IM_IO_THREAD_HPP__

@@ -4,15 +4,15 @@
 #include "system/application.hpp"
 #include "util/util.hpp"
 
-namespace CIM {
-static auto g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static auto g_logger = IM_LOG_NAME("system");
 
 // 配置项：路径与填充
-static auto g_rsa_priv_path = CIM::Config::Lookup<std::string>(
+static auto g_rsa_priv_path = IM::Config::Lookup<std::string>(
     "crypto.rsa_private_key_path", std::string(""), "rsa private key path");
-static auto g_rsa_pub_path = CIM::Config::Lookup<std::string>(
+static auto g_rsa_pub_path = IM::Config::Lookup<std::string>(
     "crypto.rsa_public_key_path", std::string(""), "rsa public key path (PKCS#1)");
-static auto g_rsa_padding = CIM::Config::Lookup<std::string>("crypto.padding", std::string("OAEP"),
+static auto g_rsa_padding = IM::Config::Lookup<std::string>("crypto.padding", std::string("OAEP"),
                                                              "rsa padding: OAEP|PKCS1|NOPAD");
 
 CryptoModule::CryptoModule() : Module("crypto", "0.1.0", "builtin") {}
@@ -46,7 +46,7 @@ std::string CryptoModule::MakeAbsPath(const std::string& p) {
 
     for (auto& cand : candidates) {
         std::ifstream ifs;
-        if (CIM::FSUtil::OpenForRead(ifs, cand, std::ios::in)) {
+        if (IM::FSUtil::OpenForRead(ifs, cand, std::ios::in)) {
             ifs.close();
             return cand;
         }
@@ -65,16 +65,16 @@ bool CryptoModule::onLoad() {
     m_padding = ParsePadding(pad_cfg);
 
     if (priv_path.empty() || pub_path.empty()) {
-        CIM_LOG_ERROR(g_logger) << "CryptoModule: rsa key path not configured: private='"
+        IM_LOG_ERROR(g_logger) << "CryptoModule: rsa key path not configured: private='"
                                 << priv_cfg << "' public='" << pub_cfg << "'";
         return false;
     }
 
     // 尝试加载密钥
-    m_rsa = CIM::RSACipher::Create(pub_path, priv_path);
+    m_rsa = IM::RSACipher::Create(pub_path, priv_path);
     if (!m_rsa) {
         // 友好的提示：支持 PKCS#1 / PKCS#8 / SubjectPublicKeyInfo 多格式
-        CIM_LOG_ERROR(g_logger) << "CryptoModule: load RSA keys failed. pub='" << pub_path
+        IM_LOG_ERROR(g_logger) << "CryptoModule: load RSA keys failed. pub='" << pub_path
                                 << "' pri='" << priv_path
                                 << "'. Checked config/exe/work base paths and multiple PEM "
                                    "formats. Please verify file exists and readable.";
@@ -85,13 +85,13 @@ bool CryptoModule::onLoad() {
     int pub_sz = m_rsa->getPubRSASize();
     int pri_sz = m_rsa->getPriRSASize();
     if (pub_sz <= 0 || pri_sz <= 0) {
-        CIM_LOG_ERROR(g_logger) << "CryptoModule: RSA size invalid: pub=" << pub_sz
+        IM_LOG_ERROR(g_logger) << "CryptoModule: RSA size invalid: pub=" << pub_sz
                                 << " pri=" << pri_sz;
         m_rsa.reset();
         return false;
     }
 
-    CIM_LOG_INFO(g_logger) << "CryptoModule: RSA loaded. pub_size=" << pub_sz
+    IM_LOG_INFO(g_logger) << "CryptoModule: RSA loaded. pub_size=" << pub_sz
                            << " pri_size=" << pri_sz << " padding=" << pad_cfg;
     return true;
 }
@@ -175,4 +175,4 @@ CryptoModule::ptr CryptoModule::Get() {
     return std::dynamic_pointer_cast<CryptoModule>(m);
 }
 
-}  // namespace CIM
+}  // namespace IM

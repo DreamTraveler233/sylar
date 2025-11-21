@@ -1,10 +1,10 @@
-#ifndef __CIM_NS_NS_CLIENT_HPP__
-#define __CIM_NS_NS_CLIENT_HPP__
+#ifndef __IM_NS_NS_CLIENT_HPP__
+#define __IM_NS_NS_CLIENT_HPP__
 
 #include "ns/ns_protocol.hpp"
 #include "rock/rock_stream.hpp"
 
-namespace CIM::ns {
+namespace IM::ns {
 class NSClient : public RockConnection {
    public:
     typedef std::shared_ptr<NSClient> ptr;
@@ -41,6 +41,6 @@ class NSClient : public RockConnection {
     Timer::ptr m_timer;
 };
 
-}  // namespace CIM::ns
+}  // namespace IM::ns
 
-#endif // __CIM_NS_NS_CLIENT_HPP__
+#endif // __IM_NS_NS_CLIENT_HPP__

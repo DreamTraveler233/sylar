@@ -1,5 +1,5 @@
-#ifndef __CIM_STREAMS_ASYNC_SOCKET_STREAM_HPP__
-#define __CIM_STREAMS_ASYNC_SOCKET_STREAM_HPP__
+#ifndef __IM_STREAMS_ASYNC_SOCKET_STREAM_HPP__
+#define __IM_STREAMS_ASYNC_SOCKET_STREAM_HPP__
 
 #include <boost/any.hpp>
 #include <list>
@@ -7,7 +7,7 @@
 
 #include "socket_stream.hpp"
 
-namespace CIM {
+namespace IM {
 class AsyncSocketStream : public SocketStream,
                           public std::enable_shared_from_this<AsyncSocketStream> {
    public:
@@ -176,6 +176,6 @@ class AsyncSocketStreamManager {
     disconnect_callback m_disconnectCb;
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_STREAMS_ASYNC_SOCKET_STREAM_HPP__
+#endif // __IM_STREAMS_ASYNC_SOCKET_STREAM_HPP__

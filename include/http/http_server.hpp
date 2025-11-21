@@ -1,11 +1,11 @@
-#ifndef __CIM_HTTP_HTTP_SERVER_HPP__
-#define __CIM_HTTP_HTTP_SERVER_HPP__
+#ifndef __IM_HTTP_HTTP_SERVER_HPP__
+#define __IM_HTTP_HTTP_SERVER_HPP__
 
 #include "http_servlet.hpp"
 #include "http_session.hpp"
 #include "net/tcp_server.hpp"
 
-namespace CIM::http {
+namespace IM::http {
 /**
      * @brief HTTP服务器类
      */
@@ -46,6 +46,6 @@ class HttpServer : public TcpServer {
     ServletDispatch::ptr m_dispatch;
 };
 
-}  // namespace CIM::http
+}  // namespace IM::http
 
-#endif // __CIM_HTTP_HTTP_SERVER_HPP__
+#endif // __IM_HTTP_HTTP_SERVER_HPP__

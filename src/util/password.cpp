@@ -8,7 +8,7 @@
 #include <sstream>
 #include <vector>
 
-namespace CIM {
+namespace IM {
 namespace util {
 
 namespace {
@@ -128,4 +128,4 @@ bool Password::Verify(const std::string& password, const std::string& stored_has
 }
 
 }  // namespace util
-}  // namespace CIM
+}  // namespace IM

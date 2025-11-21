@@ -7,31 +7,31 @@
 #include <fcntl.h>
 #include <time.h>
 
-auto g_logger = CIM_LOG_ROOT();
+auto g_logger = IM_LOG_ROOT();
 
 void test_sleep()
 {
-    CIM::IOManager iom(1, false, "test");
+    IM::IOManager iom(1, false, "test");
 
-    CIM::set_hook_enable(true);
+    IM::set_hook_enable(true);
     
-    CIM_LOG_INFO(g_logger) << "test_sleep begin";
+    IM_LOG_INFO(g_logger) << "test_sleep begin";
     time_t start = time(nullptr);
     
     iom.addTimer(1000, [](){
-        CIM_LOG_INFO(g_logger) << "timer callback 1";
+        IM_LOG_INFO(g_logger) << "timer callback 1";
         sleep(2);
-        CIM_LOG_INFO(g_logger) << "timer callback 1 end";
+        IM_LOG_INFO(g_logger) << "timer callback 1 end";
     });
     
     iom.addTimer(1500, [](){
-        CIM_LOG_INFO(g_logger) << "timer callback 2";
+        IM_LOG_INFO(g_logger) << "timer callback 2";
         usleep(100000); // 100ms
-        CIM_LOG_INFO(g_logger) << "timer callback 2 end";
+        IM_LOG_INFO(g_logger) << "timer callback 2 end";
     });
     
     time_t end = time(nullptr);
-    CIM_LOG_INFO(g_logger) << "test_sleep end, cost time: " << (end - start) << "s";
+    IM_LOG_INFO(g_logger) << "test_sleep end, cost time: " << (end - start) << "s";
 }
 
 int main(int argc, char** argv)

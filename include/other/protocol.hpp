@@ -1,5 +1,5 @@
-#ifndef __CIM_OTHER_PROTOCOL_HPP__
-#define __CIM_OTHER_PROTOCOL_HPP__
+#ifndef __IM_OTHER_PROTOCOL_HPP__
+#define __IM_OTHER_PROTOCOL_HPP__
 
 #include <memory>
 #include <string>
@@ -7,7 +7,7 @@
 #include "net/byte_array.hpp"
 #include "net/stream.hpp"
 
-namespace CIM {
+namespace IM {
 class Message {
    public:
     typedef std::shared_ptr<Message> ptr;
@@ -93,6 +93,6 @@ class Notify : public Message {
     uint32_t m_notify;
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_OTHER_PROTOCOL_HPP__
+#endif // __IM_OTHER_PROTOCOL_HPP__

@@ -2,15 +2,15 @@
 
 #include "base/macro.hpp"
 
-namespace CIM {
-static Logger::ptr g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static Logger::ptr g_logger = IM_LOG_NAME("system");
 
 SmtpClient::SmtpClient(Socket::ptr sock) : SocketStream(sock) {}
 
 SmtpClient::ptr SmtpClient::Create(const std::string& host, uint32_t port, bool ssl) {
     IPAddress::ptr addr = Address::LookupAnyIpAddress(host);
     if (!addr) {
-        CIM_LOG_ERROR(g_logger) << "invalid smtp server: " << host << ":" << port << " ssl=" << ssl;
+        IM_LOG_ERROR(g_logger) << "invalid smtp server: " << host << ":" << port << " ssl=" << ssl;
         return nullptr;
     }
     addr->setPort(port);
@@ -21,7 +21,7 @@ SmtpClient::ptr SmtpClient::Create(const std::string& host, uint32_t port, bool 
         sock = Socket::CreateTCP(addr);
     }
     if (!sock->connect(addr)) {
-        CIM_LOG_ERROR(g_logger) << "connect smtp server: " << host << ":" << port << " ssl=" << ssl
+        IM_LOG_ERROR(g_logger) << "connect smtp server: " << host << ":" << port << " ssl=" << ssl
                                 << " fail";
         return nullptr;
     }
@@ -167,4 +167,4 @@ std::string SmtpClient::getDebugInfo() {
     return m_ss.str();
 }
 
-}  // namespace CIM
+}  // namespace IM

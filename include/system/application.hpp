@@ -1,11 +1,11 @@
-#ifndef __CIM_SYSTEM_APPLICATION_HPP__
-#define __CIM_SYSTEM_APPLICATION_HPP__
+#ifndef __IM_SYSTEM_APPLICATION_HPP__
+#define __IM_SYSTEM_APPLICATION_HPP__
 
 #include "http/http_server.hpp"
 #include "rock/rock_stream.hpp"
 #include "streams/service_discovery.hpp"
 
-namespace CIM {
+namespace IM {
 
 /**
      * @brief 应用程序主类（单例）
@@ -114,12 +114,27 @@ class Application {
     /// 单例实例指针
     static Application* s_instance;
 
+    /// 程序在运行期间写入的 pid 文件路径
+    std::string m_pidfile;
+
+   public:
+    /**
+         * @brief 清理PID文件并做必要的退出前操作
+         */
+    void cleanup();
+
+    /**
+         * @brief 全局退出接口（确保清理 PID 文件后退出）
+         * @param code 退出码
+         */
+    static void Exit(int code = 0);
+
     /// 服务发现（Zookeeper）组件
     ZKServiceDiscovery::ptr m_serviceDiscovery;
     /// 基于服务发现的负载均衡组件
     RockSDLoadBalance::ptr m_rockSDLoadBalance;
 };
 
-}  // namespace CIM
+}  // namespace IM
 
-#endif // __CIM_SYSTEM_APPLICATION_HPP__
+#endif // __IM_SYSTEM_APPLICATION_HPP__

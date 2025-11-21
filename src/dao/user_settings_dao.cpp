@@ -5,12 +5,12 @@
 #include "db/mysql.hpp"
 #include "base/macro.hpp"
 
-namespace CIM::dao {
+namespace IM::dao {
 
 static constexpr const char* kDBName = "default";
 
 bool UserSettingsDAO::Upsert(const UserSettings& settings, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -47,7 +47,7 @@ bool UserSettingsDAO::Upsert(const UserSettings& settings, std::string* err) {
 }
 
 bool UserSettingsDAO::GetConfigInfo(uint64_t user_id, ConfigInfo& out, std::string* err) {
-    auto db = CIM::MySQLMgr::GetInstance()->get(kDBName);
+    auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -76,4 +76,4 @@ bool UserSettingsDAO::GetConfigInfo(uint64_t user_id, ConfigInfo& out, std::stri
     }
     return false;
 }
-}  // namespace CIM::dao
+}  // namespace IM::dao

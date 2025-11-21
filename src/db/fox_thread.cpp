@@ -6,8 +6,8 @@
 #include "base/macro.hpp"
 #include "util/util.hpp"
 
-namespace CIM {
-static Logger::ptr g_logger = CIM_LOG_NAME("system");
+namespace IM {
+static Logger::ptr g_logger = IM_LOG_NAME("system");
 
 static ConfigVar<std::map<std::string, std::map<std::string, std::string>>>::ptr g_thread_info_set =
     Config::Lookup("fox_thread", std::map<std::string, std::map<std::string, std::string>>(),
@@ -32,11 +32,11 @@ void FoxThread::read_cb(evutil_socket_t sock, short which, void* args) {
                 try {
                     (*it)();
                 } catch (std::exception& ex) {
-                    CIM_LOG_ERROR(g_logger) << "exception:" << ex.what();
+                    IM_LOG_ERROR(g_logger) << "exception:" << ex.what();
                 } catch (const char* c) {
-                    CIM_LOG_ERROR(g_logger) << "exception:" << c;
+                    IM_LOG_ERROR(g_logger) << "exception:" << c;
                 } catch (...) {
-                    CIM_LOG_ERROR(g_logger) << "uncatch exception";
+                    IM_LOG_ERROR(g_logger) << "uncatch exception";
                 }
             } else {
                 event_base_loopbreak(thread->m_base);
@@ -62,7 +62,7 @@ FoxThread::FoxThread(const std::string& name, struct event_base* base)
       m_total(0) {
     int fds[2];
     if (evutil_socketpair(AF_UNIX, SOCK_STREAM, 0, fds) == -1) {
-        // CIM_LOG_ERROR(g_logger) << "FoxThread init error";
+        // IM_LOG_ERROR(g_logger) << "FoxThread init error";
         throw std::logic_error("thread init error");
     }
 
@@ -128,7 +128,7 @@ FoxThread::~FoxThread() {
 
 void FoxThread::start() {
     if (m_thread) {
-        // CIM_LOG_ERROR(g_logger) << "FoxThread is running";
+        // IM_LOG_ERROR(g_logger) << "FoxThread is running";
         throw std::logic_error("FoxThread is running");
     }
 
@@ -400,25 +400,25 @@ void FoxThreadManager::add(const std::string& name, IFoxThread::ptr thr) {
 
 void FoxThreadManager::dispatch(const std::string& name, callback cb) {
     IFoxThread::ptr ti = get(name);
-    CIM_ASSERT(ti);
+    IM_ASSERT(ti);
     ti->dispatch(cb);
 }
 
 void FoxThreadManager::dispatch(const std::string& name, uint32_t id, callback cb) {
     IFoxThread::ptr ti = get(name);
-    CIM_ASSERT(ti);
+    IM_ASSERT(ti);
     ti->dispatch(id, cb);
 }
 
 void FoxThreadManager::batchDispatch(const std::string& name, const std::vector<callback>& cbs) {
     IFoxThread::ptr ti = get(name);
-    CIM_ASSERT(ti);
+    IM_ASSERT(ti);
     ti->batchDispatch(cbs);
 }
 
 void FoxThreadManager::broadcast(const std::string& name, callback cb) {
     IFoxThread::ptr ti = get(name);
-    CIM_ASSERT(ti);
+    IM_ASSERT(ti);
     ti->broadcast(cb);
 }
 
@@ -443,16 +443,16 @@ void FoxThreadManager::init() {
         auto name = i.first;
         auto advance = GetParamValue(i.second, "advance", 0);
         if (num <= 0) {
-            CIM_LOG_ERROR(g_logger)
+            IM_LOG_ERROR(g_logger)
                 << "thread pool:" << name << " num:" << num << " advance:" << advance << " invalid";
             continue;
         }
         if (num == 1) {
             m_threads[i.first] = FoxThread::ptr(new FoxThread(i.first));
-            CIM_LOG_INFO(g_logger) << "init thread : " << i.first;
+            IM_LOG_INFO(g_logger) << "init thread : " << i.first;
         } else {
             m_threads[i.first] = FoxThreadPool::ptr(new FoxThreadPool(num, name, advance));
-            CIM_LOG_INFO(g_logger)
+            IM_LOG_INFO(g_logger)
                 << "init thread pool:" << name << " num:" << num << " advance:" << advance;
         }
     }
@@ -460,23 +460,23 @@ void FoxThreadManager::init() {
 
 void FoxThreadManager::start() {
     for (auto i : m_threads) {
-        CIM_LOG_INFO(g_logger) << "thread: " << i.first << " start begin";
+        IM_LOG_INFO(g_logger) << "thread: " << i.first << " start begin";
         i.second->start();
-        CIM_LOG_INFO(g_logger) << "thread: " << i.first << " start end";
+        IM_LOG_INFO(g_logger) << "thread: " << i.first << " start end";
     }
 }
 
 void FoxThreadManager::stop() {
     for (auto i : m_threads) {
-        CIM_LOG_INFO(g_logger) << "thread: " << i.first << " stop begin";
+        IM_LOG_INFO(g_logger) << "thread: " << i.first << " stop begin";
         i.second->stop();
-        CIM_LOG_INFO(g_logger) << "thread: " << i.first << " stop end";
+        IM_LOG_INFO(g_logger) << "thread: " << i.first << " stop end";
     }
     for (auto i : m_threads) {
-        CIM_LOG_INFO(g_logger) << "thread: " << i.first << " join begin";
+        IM_LOG_INFO(g_logger) << "thread: " << i.first << " join begin";
         i.second->join();
-        CIM_LOG_INFO(g_logger) << "thread: " << i.first << " join end";
+        IM_LOG_INFO(g_logger) << "thread: " << i.first << " join end";
     }
 }
 
-}  // namespace CIM
+}  // namespace IM
