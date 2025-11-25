@@ -9,6 +9,7 @@
 #include "api/upload_api_module.hpp"
 #include "api/user_api_module.hpp"
 #include "api/ws_gateway_module.hpp"
+#include "api/static_file_module.hpp"
 #include "app/common_service_impl.hpp"
 #include "app/contact_service_impl.hpp"
 #include "app/media_service_impl.hpp"
@@ -18,12 +19,14 @@
 #include "base/macro.hpp"
 #include "db/mysql.hpp"
 #include "http/http_server.hpp"
+#include "http/multipart/multipart_parser.hpp"
 #include "infra/repository/common_repository_impl.hpp"
 #include "infra/repository/contact_repository_impl.hpp"
 #include "infra/repository/media_repository_impl.hpp"
 #include "infra/repository/message_repository_impl.hpp"
 #include "infra/repository/talk_repository_impl.hpp"
 #include "infra/repository/user_repository_impl.hpp"
+#include "infra/storage/istorage.hpp"
 #include "other/crypto_module.hpp"
 #include "other/module.hpp"
 #include "system/application.hpp"
@@ -66,7 +69,11 @@ int main(int argc, char** argv) {
     auto talk_repo = std::make_shared<IM::infra::repository::TalkRepositoryImpl>(db_manager);
 
     // Services
-    auto media_service = std::make_shared<IM::app::MediaServiceImpl>(upload_repo);
+    // Create storage adapter and inject to media service
+    auto storage_adapter = IM::infra::storage::CreateLocalStorageAdapter();
+    auto media_service = std::make_shared<IM::app::MediaServiceImpl>(upload_repo, storage_adapter);
+    // Create and register a shared multipart parser instance
+    auto multipart_parser = IM::http::multipart::CreateMultipartParser();
     auto common_service = std::make_shared<IM::app::CommonServiceImpl>(common_repo);
     auto user_service =
         std::make_shared<IM::app::UserServiceImpl>(user_repo, media_service, common_service);
@@ -83,13 +90,17 @@ int main(int argc, char** argv) {
         std::make_shared<IM::api::ContactApiModule>(contact_service, user_service));
     IM::ModuleMgr::GetInstance()->add(
         std::make_shared<IM::api::CommonApiModule>(common_service, user_service));
-    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::UploadApiModule>(media_service));
+    IM::ModuleMgr::GetInstance()->add(
+        std::make_shared<IM::api::UploadApiModule>(media_service, multipart_parser));
     IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::MessageApiModule>(message_service));
     IM::ModuleMgr::GetInstance()->add(
         std::make_shared<IM::api::TalkApiModule>(talk_service, user_service, message_service));
 
     // WebSocket 网关模块
     IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::WsGatewayModule>(user_service));
+
+    // 静态文件服务模块
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::StaticFileModule>());
 
     return app.run() ? 0 : 2;
 }

@@ -30,7 +30,7 @@ pkg_check_modules(JSONCPP REQUIRED jsoncpp)
 pkg_check_modules(LIBEVENT REQUIRED libevent)
 pkg_check_modules(HIREDIS_VIP REQUIRED hiredis_vip)
 pkg_check_modules(TINYXML2 REQUIRED tinyxml2)
-pkg_check_modules(MULTIPART_PARSER REQUIRED multipartparser)
+# pkg_check_modules(MULTIPART_PARSER REQUIRED multipartparser)
 
 # 查找 Ragel 状态机编译器
 find_program(RAGEL_EXECUTABLE ragel)
@@ -97,12 +97,16 @@ file(GLOB_RECURSE OTHER_SOURCES "src/*.cpp")
 list(FILTER OTHER_SOURCES EXCLUDE REGEX ".*\\.rl\\.cpp$")
 # 排除包含可执行入口(main)的引导程序源码，避免被编进共享库
 list(FILTER OTHER_SOURCES EXCLUDE REGEX ".*/bootstrap/.*")
+# 排除测试源文件，避免被编进共享库（测试以单独可执行文件构建）
+list(FILTER OTHER_SOURCES EXCLUDE REGEX ".*/tests/.*")
 
 # 合并所有源文件
 set(LIB_SRC ${OTHER_SOURCES} ${GENERATED_SOURCES})
 
 # 显式添加 Roaring Bitmap 的 C 实现文件
 list(APPEND LIB_SRC ${PROJECT_SOURCE_DIR}/src/ds/roaring.c)
+# 显式添加 Multipart Parser 的 C 实现文件
+list(APPEND LIB_SRC ${PROJECT_SOURCE_DIR}/src/infra/http/multipart_parser.c)
 
 # ==================== 主库构建 ====================
 # 生成动态库（.so）
@@ -119,7 +123,7 @@ target_include_directories(IM
         ${LIBEVENT_INCLUDE_DIRS}
         ${HIREDIS_INCLUDE_DIRS}
         ${TINYXML2_INCLUDE_DIRS}
-        ${MULTIPART_PARSER_INCLUDE_DIRS}
+        # ${MULTIPART_PARSER_INCLUDE_DIRS}
 )
 
 # ==================== 依赖链接 ====================
@@ -140,7 +144,7 @@ target_link_libraries(IM
         ${LIBEVENT_LIBRARIES}
         ${HIREDIS_VIP_LIBRARIES}
         ${TINYXML2_LIBRARIES}
-        ${MULTIPART_PARSER_LIBRARIES}
+        # ${MULTIPART_PARSER_LIBRARIES}
         /usr/lib/x86_64-linux-gnu/libzookeeper_mt.so
 )
 
@@ -150,8 +154,17 @@ add_dependencies(im_server IM)
 target_link_libraries(im_server PRIVATE IM)
 
 # ==================== 输出目录 ====================
-# 指定可执行文件输出目录
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+# 指定可执行文件输出目录 按类型区分 (应用/测试)
+set(BIN_APP_DIR ${PROJECT_SOURCE_DIR}/bin)
+set(BIN_TEST_DIR ${PROJECT_SOURCE_DIR}/bin/tests)
+file(MAKE_DIRECTORY ${BIN_APP_DIR})
+file(MAKE_DIRECTORY ${BIN_TEST_DIR})
 
 # 指定库文件输出路径
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+
+# 设置 app 可执行产物输出
+set_target_properties(im_server PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_APP_DIR})
+
+# Add tests subdirectory (unit/integration), tests/ own CMakeLists handles targets
+add_subdirectory(tests)

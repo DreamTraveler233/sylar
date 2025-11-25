@@ -4,7 +4,7 @@ CREATE DATABASE IF NOT EXISTS im_db
   COLLATE utf8mb4_unicode_ci;
 USE im_db;
 
---- 媒体文件表，存储已完成上传并可访问的文件元信息
+-- 媒体文件表，存储已完成上传并可访问的文件元信息
 CREATE TABLE IF NOT EXISTS `im_media_file` (
   `id` CHAR(32) NOT NULL PRIMARY KEY COMMENT '文件唯一ID，使用 uuid hex',
   `upload_id` VARCHAR(36) DEFAULT NULL COMMENT '关联上传会话ID，multipart 上传成功后回填',
@@ -19,9 +19,9 @@ CREATE TABLE IF NOT EXISTS `im_media_file` (
   `created_at` DATETIME NOT NULL DEFAULT NOW() COMMENT '创建时间',
   `deleted_at` DATETIME DEFAULT NULL COMMENT '删除时间，NULL 表示未删除',
   `updated_at` DATETIME NOT NULL DEFAULT NOW() ON UPDATE NOW() COMMENT '最后更新时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='媒体文件表，存储已完成上传并可访问的文件元信息';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='媒体文件表，存储已完成上传并可访问的文件元信息';
 
---- 分片上传会话表，记录 multipart 上传的临时状态与统计信息
+-- 分片上传会话表，记录 multipart 上传的临时状态与统计信息
 CREATE TABLE IF NOT EXISTS `im_upload_session` (
   `upload_id` VARCHAR(36) NOT NULL PRIMARY KEY COMMENT '分片上传会话ID（UUID）',
   `user_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '发起该上传的用户ID',
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `im_upload_session` (
   `temp_path` VARCHAR(512) DEFAULT NULL COMMENT '临时存放分片的目录（服务器本地路径）',
   `created_at` DATETIME NOT NULL DEFAULT NOW() COMMENT '会话创建时间',
   `updated_at` DATETIME NOT NULL DEFAULT NOW() ON UPDATE NOW() COMMENT '最后更新时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='分片上传会话表，记录 multipart 上传的临时状态与统计信息';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分片上传会话表，记录 multipart 上传的临时状态与统计信息';
 
 -- 用户主档
 CREATE TABLE IF NOT EXISTS `im_user` (
@@ -42,7 +42,8 @@ CREATE TABLE IF NOT EXISTS `im_user` (
   `mobile` VARCHAR(20) NOT NULL COMMENT '手机号（唯一，用于登录/找回）',
   `email` VARCHAR(100) NULL COMMENT '邮箱（唯一，可选，用于找回/通知）',
   `nickname` VARCHAR(64) NOT NULL COMMENT '昵称',
-  `avatar_media_id` CHAR(32) NOT NULL COMMENT '头像媒体文件ID（im_media_file.id）',
+  `avatar` VARCHAR(255) NULL COMMENT '头像URL（冗余字段，方便快速访问）',
+  `avatar_media_id` CHAR(32) NULL COMMENT '头像媒体文件ID（im_media_file.id）',
   `gender` TINYINT NOT NULL DEFAULT 0 COMMENT '性别：0=未知 1=男 2=女',
   `motto` VARCHAR(255) NULL COMMENT '个性签名',
   `birthday` DATE NULL COMMENT '生日 YYYY-MM-DD',

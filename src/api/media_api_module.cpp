@@ -1,13 +1,16 @@
-#include <multipart_parser.h>
-
 #include <algorithm>
 #include <cctype>
 #include <cstring>
+#include <fstream>
+#include <iterator>
 
 #include "api/upload_api_module.hpp"
 #include "common/common.hpp"
+#include "config/config.hpp"
 #include "http/http_server.hpp"
+#include "http/multipart/multipart_parser.hpp"
 #include "system/application.hpp"
+#include "system/env.hpp"
 #include "util/json_util.hpp"
 #include "util/string_util.hpp"
 
@@ -15,142 +18,11 @@ namespace IM::api {
 
 static auto g_logger = IM_LOG_NAME("root");
 
-struct MultipartPart {
-    std::string name;
-    std::string filename;
-    std::string content_type;
-    std::string data;
-};
-
-// 使用 multipart-parser-c 库解析 multipart/form-data
-// 该实现仍然一次性解析到内存（保持与之前行为一致），但使用成熟解析库提
-// 升解析鲁棒性。长期推荐将解析改为流式处理。
-struct MPParserContext {
-    std::vector<MultipartPart>* parts;
-    MultipartPart current;
-    std::string last_header_field;
-    std::string last_header_value;
-};
-
-static int mp_on_part_data_begin(multipart_parser* p) {
-    MPParserContext* c = (MPParserContext*)multipart_parser_get_data(p);
-    c->current = MultipartPart();
-    c->last_header_field.clear();
-    c->last_header_value.clear();
-    return 0;
-}
-
-static int mp_on_header_field(multipart_parser* p, const char* at, size_t len) {
-    MPParserContext* c = (MPParserContext*)multipart_parser_get_data(p);
-    c->last_header_field.append(at, len);
-    return 0;
-}
-
-static int mp_on_header_value(multipart_parser* p, const char* at, size_t len) {
-    MPParserContext* c = (MPParserContext*)multipart_parser_get_data(p);
-    c->last_header_value.append(at, len);
-
-    std::string key = c->last_header_field;
-    std::transform(key.begin(), key.end(), key.begin(), ::tolower);
-    std::string val = c->last_header_value;
-    if (key.find("content-disposition") != std::string::npos) {
-        size_t pos_name = val.find("name=");
-        if (pos_name != std::string::npos) {
-            size_t start = val.find('"', pos_name);
-            if (start != std::string::npos) {
-                size_t end = val.find('"', start + 1);
-                if (end != std::string::npos) {
-                    c->current.name = val.substr(start + 1, end - (start + 1));
-                }
-            } else {
-                size_t eq = pos_name + 5;
-                size_t end = val.find_first_of("; ", eq);
-                if (end != std::string::npos) c->current.name = val.substr(eq, end - eq);
-            }
-        }
-        size_t pos_file = val.find("filename=");
-        if (pos_file != std::string::npos) {
-            size_t start = val.find('"', pos_file);
-            if (start != std::string::npos) {
-                size_t end = val.find('"', start + 1);
-                if (end != std::string::npos) {
-                    c->current.filename = val.substr(start + 1, end - (start + 1));
-                }
-            } else {
-                size_t eq = pos_file + 9;
-                size_t end = val.find_first_of("; ", eq);
-                if (end != std::string::npos) c->current.filename = val.substr(eq, end - eq);
-            }
-        }
-    } else if (key.find("content-type") != std::string::npos) {
-        c->current.content_type = val;
-    }
-    return 0;
-}
-
-static int mp_on_part_data(multipart_parser* p, const char* at, size_t len) {
-    MPParserContext* c = (MPParserContext*)multipart_parser_get_data(p);
-    c->current.data.append(at, len);
-    return 0;
-}
-
-static int mp_on_part_data_end(multipart_parser* p) {
-    MPParserContext* c = (MPParserContext*)multipart_parser_get_data(p);
-    if (c->current.name.empty() && !c->current.filename.empty()) {
-        c->current.name = "file";
-    }
-    c->parts->push_back(c->current);
-    c->current = MultipartPart();
-    c->last_header_field.clear();
-    c->last_header_value.clear();
-    return 0;
-}
-
-static int mp_on_body_end(multipart_parser* p) {
-    return 0;
-}
-
-static bool ParseMultipart(const std::string& body, const std::string& boundary,
-                           std::vector<MultipartPart>& parts) {
-    MPParserContext ctx;
-    ctx.parts = &parts;
-
-    multipart_parser_settings settings;
-    memset(&settings, 0, sizeof(settings));
-    settings.on_part_data_begin = mp_on_part_data_begin;
-    settings.on_header_field = mp_on_header_field;
-    settings.on_header_value = mp_on_header_value;
-    settings.on_part_data = mp_on_part_data;
-    settings.on_part_data_end = mp_on_part_data_end;
-    settings.on_body_end = mp_on_body_end;
-
-    std::string bound = boundary;  // the parser expects boundary string without leading '--'
-    multipart_parser* parser = multipart_parser_init(bound.c_str(), &settings);
-    if (!parser) return false;
-    multipart_parser_set_data(parser, &ctx);
-    size_t parsed = multipart_parser_execute(parser, body.c_str(), body.size());
-    (void)parsed;
-    multipart_parser_free(parser);
-    return true;
-}
-
-// 从 Content-Type 中提取 boundary
-static std::string GetBoundary(const std::string& content_type) {
-    size_t pos = content_type.find("boundary=");
-    if (pos == std::string::npos) return "";
-    std::string val = content_type.substr(pos + 9);
-    // 去除首尾空白
-    while (!val.empty() && isspace((unsigned char)val.front())) val.erase(val.begin());
-    while (!val.empty() && isspace((unsigned char)val.back())) val.pop_back();
-    // 若存在则去除两端引号
-    if (!val.empty() && val.front() == '"' && val.back() == '"') {
-        val = val.substr(1, val.size() - 2);
-    }
-    return val;
-}
-
-UploadApiModule::UploadApiModule(IM::domain::service::IMediaService::Ptr media_service)
-    : Module("api.upload", "0.1.0", "builtin"), m_media_service(std::move(media_service)) {}
+UploadApiModule::UploadApiModule(IM::domain::service::IMediaService::Ptr media_service,
+                                 IM::http::multipart::MultipartParser::ptr parser)
+    : Module("api.upload", "0.1.0", "builtin"),
+      m_media_service(std::move(media_service)),
+      m_parser(std::move(parser)) {}
 bool UploadApiModule::onServerReady() {
     std::vector<IM::TcpServer::ptr> httpServers;
     if (!IM::Application::GetInstance()->getServer("http", httpServers)) {
@@ -216,32 +88,94 @@ bool UploadApiModule::onServerReady() {
                                                                 IM::http::HttpSession::ptr) {
             res->setHeader("Content-Type", "application/json");
 
-            // 解析 multipart/form-data
-            std::string boundary = GetBoundary(req->getHeader("Content-Type", ""));
-            if (boundary.empty()) {
+            const std::string content_type_hdr2 = req->getHeader("Content-Type", "");
+            const std::string transfer_encoding_hdr2 = req->getHeader("Transfer-Encoding", "");
+            const std::string content_length_hdr2 = req->getHeader("Content-Length", "");
+            size_t body_len2 = req->getBody().size();
+            IM_LOG_DEBUG(g_logger) << "Content-Type header: '" << content_type_hdr2
+                                   << "' Transfer-Encoding: '" << transfer_encoding_hdr2
+                                   << "' Content-Length: '" << content_length_hdr2 << "' body_size="
+                                   << body_len2;
+            if (!transfer_encoding_hdr2.empty()) {
+                std::string te2 = transfer_encoding_hdr2;
+                for (auto& c : te2) c = static_cast<char>(::tolower((unsigned char)c));
+                if (te2.find("chunked") != std::string::npos) {
+                    IM_LOG_WARN(g_logger) << "chunked Transfer-Encoding not supported for request bodies";
+                    res->setStatus(ToHttpStatus(400));
+                    res->setBody(Error(400, "Transfer-Encoding: chunked not supported"));
+                    return 0;
+                }
+            }
+
+            // Debugging: log Content-Type header and request body size to help diagnose parsing issues
+            const std::string content_type_hdr = req->getHeader("Content-Type", "");
+            const std::string transfer_encoding_hdr = req->getHeader("Transfer-Encoding", "");
+            const std::string content_length_hdr = req->getHeader("Content-Length", "");
+            size_t body_len = req->getBody().size();
+            IM_LOG_DEBUG(g_logger) << "Content-Type header: '" << content_type_hdr
+                                   << "' Transfer-Encoding: '" << transfer_encoding_hdr
+                                   << "' Content-Length: '" << content_length_hdr << "' body_size="
+                                   << body_len;
+
+            // If the request uses chunked transfer encoding, we do not currently support it
+            // on the server side for request bodies; return a helpful error so client can
+            // adjust behavior (e.g., provide Content-Length or avoid chunked encoding)
+            if (!transfer_encoding_hdr.empty()) {
+                std::string te = transfer_encoding_hdr;
+                for (auto& c : te) c = static_cast<char>(::tolower((unsigned char)c));
+                if (te.find("chunked") != std::string::npos) {
+                    IM_LOG_WARN(g_logger) << "chunked Transfer-Encoding not supported for request bodies";
+                    res->setStatus(ToHttpStatus(400));
+                    res->setBody(Error(400, "Transfer-Encoding: chunked not supported"));
+                    return 0;
+                }
+            }
+
+            // Parse multipart/form-data using infra parser
+            std::vector<IM::http::multipart::Part> parts;
+            std::string parse_err;
+            auto parser = m_parser;
+            std::string base_tmp_dir = IM::EnvMgr::GetInstance()->getAbsoluteWorkPath(
+                IM::Config::Lookup<std::string>("media.temp_base_dir",
+                                                std::string("data/uploads/tmp"))
+                    ->getValue());
+            if (!parser->Parse(req->getBody(), req->getHeader("Content-Type", ""), base_tmp_dir,
+                               parts, &parse_err)) {
                 res->setStatus(ToHttpStatus(400));
-                res->setBody(Error(400, "missing boundary"));
+                res->setBody(Error(400, parse_err.empty() ? "parse multipart failed" : parse_err));
                 return 0;
             }
 
-            std::vector<MultipartPart> parts;
-            if (!ParseMultipart(req->getBody(), boundary, parts)) {
+            if (parts.empty()) {
+                IM_LOG_INFO(g_logger) << "Parsed multipart parts count=0; Content-Type='"
+                                      << req->getHeader("Content-Type", "") << "' body_size="
+                                      << req->getBody().size();
                 res->setStatus(ToHttpStatus(400));
-                res->setBody(Error(400, "parse multipart failed"));
+                res->setBody(Error(400,
+                                   "no multipart parts parsed; ensure Content-Type multipart/form-data and request body not empty"));
+                return 0;
+            }
+
+            if (parts.empty()) {
+                // parts empty -> likely missing or malformed Content-Type or empty body
+                IM_LOG_INFO(g_logger) << "Parsed multipart parts count=0; Content-Type='"
+                                      << content_type_hdr2 << "' body_size=" << body_len2;
+                res->setStatus(ToHttpStatus(400));
+                res->setBody(Error(400,
+                                   "no multipart parts parsed; ensure Content-Type multipart/form-data and request body not empty"));
                 return 0;
             }
 
             IM_LOG_INFO(g_logger) << "Parsed multipart parts count=" << parts.size();
             for (const auto& p : parts) {
-                IM_LOG_DEBUG(g_logger)
-                    << "part name=" << p.name << " filename=" << p.filename
-                    << " content_type=" << p.content_type << " size=" << p.data.size();
+                IM_LOG_DEBUG(g_logger) << "part name=" << p.name << " filename=" << p.filename
+                                       << " content_type=" << p.content_type << " size=" << p.size;
             }
 
             std::string upload_id;
             uint32_t split_index = 0;
             uint32_t split_num = 0;
-            std::string file_data;
+            std::string file_temp_path;
 
             for (const auto& p : parts) {
                 if (p.name == "upload_id")
@@ -250,17 +184,48 @@ bool UploadApiModule::onServerReady() {
                     split_index = std::stoul(p.data);
                 else if (p.name == "split_num")
                     split_num = std::stoul(p.data);
-                else if (p.name == "file")
-                    file_data = p.data;
+                else if (p.name == "file") {
+                    if (!p.temp_file.empty()) {
+                        file_temp_path = p.temp_file;
+                    } else if (!p.data.empty()) {
+                        // write in-memory data to base temp dir
+                        file_temp_path =
+                            base_tmp_dir + "/parser_inmem_" + IM::random_string(8) + ".part";
+                        std::ofstream ofs(file_temp_path, std::ios::binary | std::ios::trunc);
+                        if (ofs) {
+                            ofs.write(p.data.c_str(), p.data.size());
+                            ofs.close();
+                        } else {
+                            IM_LOG_ERROR(g_logger)
+                                << "write in-memory data to tmp file failed: " << file_temp_path;
+                            file_temp_path.clear();
+                        }
+                    }
+                }
                 // 如果 part 没有显式 name='file'，但具有 filename，则回退使用该 part
-                else if (p.filename.size() > 0 && file_data.empty())
-                    file_data = p.data;
+                else if (p.filename.size() > 0 && file_temp_path.empty()) {
+                    if (!p.temp_file.empty()) {
+                        file_temp_path = p.temp_file;
+                    } else if (!p.data.empty()) {
+                        file_temp_path =
+                            base_tmp_dir + "/parser_inmem_" + IM::random_string(8) + ".part";
+                        std::ofstream ofs(file_temp_path, std::ios::binary | std::ios::trunc);
+                        if (ofs) {
+                            ofs.write(p.data.c_str(), p.data.size());
+                            ofs.close();
+                        } else {
+                            IM_LOG_ERROR(g_logger)
+                                << "write in-memory data to tmp file failed: " << file_temp_path;
+                            file_temp_path.clear();
+                        }
+                    }
+                }
             }
 
-            if (upload_id.empty() || file_data.empty()) {
+            if (upload_id.empty() || file_temp_path.empty()) {
                 IM_LOG_WARN(g_logger)
                     << "multipart upload missing param upload_id?=" << upload_id.empty()
-                    << " file?=" << file_data.empty() << " parts_count=" << parts.size();
+                    << " file?=" << file_temp_path.empty() << " parts_count=" << parts.size();
                 res->setStatus(ToHttpStatus(400));
                 res->setBody(Error(400, "missing params"));
                 return 0;
@@ -274,7 +239,27 @@ bool UploadApiModule::onServerReady() {
                 return 0;
             }
 
-            auto up_res = m_media_service->UploadPart(upload_id, split_index, split_num, file_data);
+            // Ensure part file resides in the session temp_path (move if necessary)
+            std::string part_path = file_temp_path;
+            std::string session_tmp = m_media_service->GetUploadTempPath(upload_id);
+            if (!session_tmp.empty()) {
+                std::string final_part_path = session_tmp + "/part_" + std::to_string(split_index);
+                if (!IM::FSUtil::Mv(part_path, final_part_path)) {
+                    // fallback to copy
+                    std::ifstream ifs(part_path, std::ios::binary);
+                    if (ifs) {
+                        std::ofstream ofs(final_part_path, std::ios::binary | std::ios::trunc);
+                        if (ofs) {
+                            ofs << ifs.rdbuf();
+                            ofs.close();
+                        }
+                    }
+                    IM::FSUtil::Unlink(part_path);
+                }
+                part_path = final_part_path;
+            }
+
+            auto up_res = m_media_service->UploadPart(upload_id, split_index, split_num, part_path);
             if (!up_res.ok) {
                 res->setStatus(ToHttpStatus(up_res.code));
                 res->setBody(Error(up_res.code, up_res.err));
@@ -306,18 +291,24 @@ bool UploadApiModule::onServerReady() {
                                                                  IM::http::HttpSession::ptr) {
             res->setHeader("Content-Type", "application/json");
 
-            std::string boundary = GetBoundary(req->getHeader("Content-Type", ""));
-            if (boundary.empty()) {
+            // Note: boundary check is performed by parser; continue parsing
+
+            std::vector<IM::http::multipart::Part> parts;
+            std::string parse_err;
+            auto parser = m_parser;
+            std::string base_tmp_dir2 = IM::EnvMgr::GetInstance()->getAbsoluteWorkPath(
+                IM::Config::Lookup<std::string>("media.temp_base_dir",
+                                                std::string("data/uploads/tmp"))
+                    ->getValue());
+            if (!parser->Parse(req->getBody(), req->getHeader("Content-Type", ""), base_tmp_dir2,
+                               parts, &parse_err)) {
                 res->setStatus(ToHttpStatus(400));
-                res->setBody(Error(400, "missing boundary"));
+                res->setBody(Error(400, parse_err.empty() ? "parse multipart failed" : parse_err));
                 return 0;
             }
 
-            std::vector<MultipartPart> parts;
-            if (!ParseMultipart(req->getBody(), boundary, parts)) {
-                res->setStatus(ToHttpStatus(400));
-                res->setBody(Error(400, "parse multipart failed"));
-                return 0;
+            if (parts.empty()) {
+                IM_LOG_WARN(g_logger) << "no file part found in multipart upload, parts_count=0";
             }
 
             std::string file_data;
@@ -326,14 +317,32 @@ bool UploadApiModule::onServerReady() {
 
             for (const auto& p : parts) {
                 if (p.name == "file") {
-                    file_data = p.data;
+                    if (!p.data.empty())
+                        file_data = p.data;
+                    else if (!p.temp_file.empty()) {
+                        std::ifstream ifs(p.temp_file, std::ios::binary);
+                        if (ifs) {
+                            std::string buf((std::istreambuf_iterator<char>(ifs)),
+                                            std::istreambuf_iterator<char>());
+                            file_data = std::move(buf);
+                        }
+                    }
                     file_name = p.filename;
                     file_content_type = p.content_type;
                     break;
                 }
                 // 回退：若没有显式 name='file'，则使用第一个看起来是文件的 part
                 if (p.filename.size() > 0 && file_data.empty()) {
-                    file_data = p.data;
+                    if (!p.data.empty())
+                        file_data = p.data;
+                    else if (!p.temp_file.empty()) {
+                        std::ifstream ifs(p.temp_file, std::ios::binary);
+                        if (ifs) {
+                            std::string buf((std::istreambuf_iterator<char>(ifs)),
+                                            std::istreambuf_iterator<char>());
+                            file_data = std::move(buf);
+                        }
+                    }
                     file_name = p.filename;
                     file_content_type = p.content_type;
                     // 此处不提前 break，优先使用显式名为 'file' 的 part

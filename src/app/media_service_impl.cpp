@@ -10,6 +10,7 @@
 #include "base/macro.hpp"
 #include "common/result.hpp"
 #include "config/config.hpp"
+#include "infra/storage/istorage.hpp"
 #include "system/env.hpp"
 
 namespace IM::app {
@@ -39,8 +40,9 @@ static std::string GetResolvedTempBaseDir() {
     return IM::EnvMgr::GetInstance()->getAbsoluteWorkPath(base);
 }
 
-MediaServiceImpl::MediaServiceImpl(IM::domain::repository::IMediaRepository::Ptr media_repo)
-    : m_media_repo(std::move(media_repo)) {}
+MediaServiceImpl::MediaServiceImpl(IM::domain::repository::IMediaRepository::Ptr media_repo,
+                                   IM::infra::storage::IStorageAdapter::Ptr storage_adapter)
+    : m_media_repo(std::move(media_repo)), m_storage_adapter(std::move(storage_adapter)) {}
 
 std::string MediaServiceImpl::GetStoragePath(const std::string& file_name) {
     time_t now = time(0);
@@ -138,8 +140,12 @@ void MediaServiceImpl::InitTempCleanupTimer() {
         true);
 }
 
+std::string MediaServiceImpl::GetUploadTempPath(const std::string& upload_id) {
+    return GetTempPath(upload_id);
+}
+
 Result<bool> MediaServiceImpl::UploadPart(const std::string& upload_id, uint32_t split_index,
-                                          uint32_t split_num, const std::string& data) {
+                                          uint32_t split_num, const std::string& temp_file_path) {
     Result<bool> r;
     model::UploadSession session;
     std::string repo_err;
@@ -159,24 +165,24 @@ Result<bool> MediaServiceImpl::UploadPart(const std::string& upload_id, uint32_t
     struct stat st;
     bool existed = (lstat(part_path.c_str(), &st) == 0);
     if (!existed) {
-        // write to temp file then rename for atomicity
-        std::string tmp_path = part_path + ".tmp";
-        std::ofstream ofs(tmp_path, std::ios::binary | std::ios::trunc);
-        if (!ofs) {
-            IM_LOG_ERROR(g_logger) << "open part tmp file failed: " << tmp_path;
-            r.code = 500;
-            r.err = "write part file failed";
-            return r;
-        }
-        ofs.write(data.c_str(), data.size());
-        ofs.close();
-        // rename tmp to final
-        if (rename(tmp_path.c_str(), part_path.c_str()) != 0) {
-            IM_LOG_ERROR(g_logger)
-                << "rename part tmp file failed: " << tmp_path << " -> " << part_path;
-            r.code = 500;
-            r.err = "write part file failed";
-            return r;
+        // Move the provided temp_file_path into part_path via storage adapter
+        std::string err_msg;
+        if (!m_storage_adapter) {
+            // fallback to local move
+            if (rename(temp_file_path.c_str(), part_path.c_str()) != 0) {
+                IM_LOG_ERROR(g_logger)
+                    << "rename part tmp file failed: " << temp_file_path << " -> " << part_path;
+                r.code = 500;
+                r.err = "write part file failed";
+                return r;
+            }
+        } else {
+            if (!m_storage_adapter->MovePartFile(temp_file_path, part_path, &err_msg)) {
+                IM_LOG_ERROR(g_logger) << "storage adapter move failed: " << err_msg;
+                r.code = 500;
+                r.err = err_msg.empty() ? "write part file failed" : err_msg;
+                return r;
+            }
         }
     } else {
         // Part already exists: ignore re-upload of same part
@@ -259,16 +265,30 @@ Result<IM::model::MediaFile> MediaServiceImpl::MergeParts(const model::UploadSes
         return r;
     }
 
+    // Merge parts using storage adapter if available
+    std::vector<std::string> part_files;
     for (uint32_t i = 0; i < session.shard_num; ++i) {
-        std::string part_path = session.temp_path + "/part_" + std::to_string(i);
-        std::ifstream ifs(part_path, std::ios::binary);
-        if (!ifs) {
+        part_files.push_back(session.temp_path + "/part_" + std::to_string(i));
+    }
+    std::string err_msg;
+    if (m_storage_adapter) {
+        if (!m_storage_adapter->MergeParts(part_files, final_path, &err_msg)) {
             r.code = 500;
-            r.err = "read part file failed: " + std::to_string(i);
+            r.err = err_msg.empty() ? "merge parts failed" : err_msg;
             return r;
         }
-        ofs << ifs.rdbuf();
-        ifs.close();
+    } else {
+        for (uint32_t i = 0; i < session.shard_num; ++i) {
+            std::string part_path = session.temp_path + "/part_" + std::to_string(i);
+            std::ifstream ifs(part_path, std::ios::binary);
+            if (!ifs) {
+                r.code = 500;
+                r.err = "read part file failed: " + std::to_string(i);
+                return r;
+            }
+            ofs << ifs.rdbuf();
+            ifs.close();
+        }
     }
     ofs.close();
 

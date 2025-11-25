@@ -13,7 +13,7 @@ static auto g_rsa_priv_path = IM::Config::Lookup<std::string>(
 static auto g_rsa_pub_path = IM::Config::Lookup<std::string>(
     "crypto.rsa_public_key_path", std::string(""), "rsa public key path (PKCS#1)");
 static auto g_rsa_padding = IM::Config::Lookup<std::string>("crypto.padding", std::string("OAEP"),
-                                                             "rsa padding: OAEP|PKCS1|NOPAD");
+                                                            "rsa padding: OAEP|PKCS1|NOPAD");
 
 CryptoModule::CryptoModule() : Module("crypto", "0.1.0", "builtin") {}
 
@@ -65,8 +65,8 @@ bool CryptoModule::onLoad() {
     m_padding = ParsePadding(pad_cfg);
 
     if (priv_path.empty() || pub_path.empty()) {
-        IM_LOG_ERROR(g_logger) << "CryptoModule: rsa key path not configured: private='"
-                                << priv_cfg << "' public='" << pub_cfg << "'";
+        IM_LOG_ERROR(g_logger) << "CryptoModule: rsa key path not configured: private='" << priv_cfg
+                               << "' public='" << pub_cfg << "'";
         return false;
     }
 
@@ -75,9 +75,9 @@ bool CryptoModule::onLoad() {
     if (!m_rsa) {
         // 友好的提示：支持 PKCS#1 / PKCS#8 / SubjectPublicKeyInfo 多格式
         IM_LOG_ERROR(g_logger) << "CryptoModule: load RSA keys failed. pub='" << pub_path
-                                << "' pri='" << priv_path
-                                << "'. Checked config/exe/work base paths and multiple PEM "
-                                   "formats. Please verify file exists and readable.";
+                               << "' pri='" << priv_path
+                               << "'. Checked config/exe/work base paths and multiple PEM "
+                                  "formats. Please verify file exists and readable.";
         return false;
     }
 
@@ -86,13 +86,13 @@ bool CryptoModule::onLoad() {
     int pri_sz = m_rsa->getPriRSASize();
     if (pub_sz <= 0 || pri_sz <= 0) {
         IM_LOG_ERROR(g_logger) << "CryptoModule: RSA size invalid: pub=" << pub_sz
-                                << " pri=" << pri_sz;
+                               << " pri=" << pri_sz;
         m_rsa.reset();
         return false;
     }
 
     IM_LOG_INFO(g_logger) << "CryptoModule: RSA loaded. pub_size=" << pub_sz
-                           << " pri_size=" << pri_sz << " padding=" << pad_cfg;
+                          << " pri_size=" << pri_sz << " padding=" << pad_cfg;
     return true;
 }
 

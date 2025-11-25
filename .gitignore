@@ -1,5 +1,6 @@
 build/
-bin/test_*
+bin/app/
+bin/tests/
 .vscode/
 autobuild.sh
 *.so

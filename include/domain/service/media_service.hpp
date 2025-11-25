@@ -22,7 +22,8 @@ class IMediaService {
 
     // 上传分片，返回是否合并完成（true 表示已合并并生成文件）
     virtual Result<bool> UploadPart(const std::string& upload_id, const uint32_t split_index,
-                                    const uint32_t split_num, const std::string& data) = 0;
+                                    const uint32_t split_num,
+                                    const std::string& temp_file_path) = 0;
 
     // 单文件上传
     virtual Result<model::MediaFile> UploadFile(const uint64_t user_id,
@@ -36,6 +37,9 @@ class IMediaService {
 
     // 初始化临时分片目录清理定时器（可安全调用多次）
     virtual void InitTempCleanupTimer() = 0;
+
+    // 获取上传临时目录路径（便于 API 将解析的临时文件移动到会话目录）
+    virtual std::string GetUploadTempPath(const std::string& upload_id) = 0;
 
    private:
     // 获取存储路径

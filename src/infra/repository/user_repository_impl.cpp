@@ -212,24 +212,14 @@ bool UserRepositoryImpl::GetUserById(const uint64_t id, model::User& out, std::s
 }
 
 bool UserRepositoryImpl::UpdateUserInfo(const uint64_t id, const std::string& nickname,
-                                        const std::string& avatar, const std::string& motto,
-                                        const uint8_t gender, const std::string& birthday,
-                                        std::string* err) {
+                                        const std::string& avatar,
+                                        const std::string& avatar_media_id,
+                                        const std::string& motto, const uint8_t gender,
+                                        const std::string& birthday, std::string* err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
-    }
-
-    bool is_id = false;
-    if (avatar.length() == 32) {
-        is_id = true;
-        for (char c : avatar) {
-            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) {
-                is_id = false;
-                break;
-            }
-        }
     }
 
     const char* sql =
@@ -248,8 +238,8 @@ bool UserRepositoryImpl::UpdateUserInfo(const uint64_t id, const std::string& ni
         stmt->bindString(2, avatar);
     else
         stmt->bindNull(2);
-    if (is_id)
-        stmt->bindString(3, avatar);
+    if (!avatar_media_id.empty())
+        stmt->bindString(3, avatar_media_id);
     else
         stmt->bindNull(3);
     // 将 motto 绑定为字符串，SQL 的 NULLIF 会在空字符串时将其置为 NULL
@@ -262,7 +252,7 @@ bool UserRepositoryImpl::UpdateUserInfo(const uint64_t id, const std::string& ni
     stmt->bindUint64(7, id);
     IM_LOG_DEBUG(g_logger) << "UserDAO::UpdateUserInfo bind values: id=" << id << " nickname='"
                            << nickname << "' avatar='" << avatar
-                           << "' avatar_is_id=" << (is_id ? "1" : "0") << " motto='" << motto
+                           << "' avatar_media_id='" << avatar_media_id << "' motto='" << motto
                            << "' gender=" << (int)gender << " birthday='" << birthday << "'";
     if (stmt->execute() != 0) {
         if (err) *err = stmt->getErrStr();

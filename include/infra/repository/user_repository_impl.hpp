@@ -17,7 +17,8 @@ class UserRepositoryImpl : public IM::domain::repository::IUserRepository {
                         std::string* err = nullptr) override;
     bool GetUserById(const uint64_t id, model::User& out, std::string* err = nullptr) override;
     bool UpdateUserInfo(const uint64_t id, const std::string& nickname, const std::string& avatar,
-                        const std::string& motto, const uint8_t gender, const std::string& birthday,
+                        const std::string& avatar_media_id, const std::string& motto,
+                        const uint8_t gender, const std::string& birthday,
                         std::string* err = nullptr) override;
     bool UpdateMobile(const uint64_t id, const std::string& new_mobile,
                       std::string* err = nullptr) override;

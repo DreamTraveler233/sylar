@@ -35,9 +35,9 @@ class IUserRepository {
 
     // 更新用户信息（昵称、头像、签名等）
     virtual bool UpdateUserInfo(const uint64_t id, const std::string& nickname,
-                                const std::string& avatar, const std::string& motto,
-                                const uint8_t gender, const std::string& birthday,
-                                std::string* err = nullptr) = 0;
+                                const std::string& avatar, const std::string& avatar_media_id,
+                                const std::string& motto, const uint8_t gender,
+                                const std::string& birthday, std::string* err = nullptr) = 0;
 
     // 更新用户手机号
     virtual bool UpdateMobile(const uint64_t id, const std::string& new_mobile,

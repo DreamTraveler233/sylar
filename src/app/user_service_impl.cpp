@@ -45,6 +45,8 @@ Result<model::User> UserServiceImpl::LoadUserInfo(const uint64_t uid) {
             auto gf_res = m_media_service->GetMediaFile(result.data.avatar);
             if (gf_res.ok) {
                 result.data.avatar = gf_res.data.url;
+            } else {
+                IM_LOG_WARN(g_logger) << "LoadUserInfo resolve avatar id failed: " << result.data.avatar << ", err=" << gf_res.err;
             }
         }
     }
@@ -59,7 +61,31 @@ Result<void> UserServiceImpl::UpdateUserInfo(const uint64_t uid, const std::stri
     Result<void> result;
     std::string err;
 
-    if (!m_user_repo->UpdateUserInfo(uid, nickname, avatar, motto, gender, birthday, &err)) {
+    std::string real_avatar = avatar;
+    std::string avatar_media_id;
+
+    // 检查 avatar 是否为文件 ID (32位 hex)
+    if (avatar.length() == 32) {
+        bool is_id = true;
+        for (char c : avatar) {
+            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) {
+                is_id = false;
+                break;
+            }
+        }
+        if (is_id) {
+            avatar_media_id = avatar;
+            // 尝试解析为 URL
+            auto gf_res = m_media_service->GetMediaFile(avatar);
+            if (gf_res.ok) {
+                real_avatar = gf_res.data.url;
+            } else {
+                IM_LOG_WARN(g_logger) << "UpdateUserInfo resolve avatar id failed: " << avatar << ", err=" << gf_res.err;
+            }
+        }
+    }
+
+    if (!m_user_repo->UpdateUserInfo(uid, nickname, real_avatar, avatar_media_id, motto, gender, birthday, &err)) {
         IM_LOG_ERROR(g_logger) << "UpdateUserInfo failed, uid=" << uid << ", err=" << err;
         result.code = 500;
         result.err = "更新用户信息失败";
