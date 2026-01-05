@@ -1,8 +1,6 @@
 build/
 bin/app/
-bin/tests/
 .vscode/
-autobuild.sh
 *.so
 *.tmp
 *.log
