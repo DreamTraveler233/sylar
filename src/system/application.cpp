@@ -219,7 +219,7 @@ bool Application::init(int argc, char** argv) {
 
     /*创建工作目录*/
     if (!FSUtil::Mkdir(g_server_work_path->getValue())) {
-        IM_LOG_FATAL(g_logger) << "create work path [" << g_server_work_path->getValue()
+        IM_LOG_FATAL(g_logger) << "create work path [" << g_server_work_path->getValue() << "] fail"
                                << " errno=" << errno << " errstr=" << strerror(errno);
         return false;
     }

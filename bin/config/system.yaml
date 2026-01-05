@@ -1,5 +1,5 @@
 server:
-    work_path: apps/work/IM
+    work_path: bin/apps/work/IM
     pid_file: IM.pid
 
 # 认证与安全配置

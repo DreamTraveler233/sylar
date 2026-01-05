@@ -151,7 +151,7 @@ target_link_libraries(IM
 )
 
 # 业务服务可执行文件
-add_executable(im_server src/bootstrap/im_server.cpp)
+add_executable(im_server apps/im_server.cpp)
 add_dependencies(im_server IM)
 target_link_libraries(im_server PRIVATE IM)
 
