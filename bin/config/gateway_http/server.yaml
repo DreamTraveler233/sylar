@@ -6,6 +6,6 @@ servers:
       keepalive: 1
       timeout: 1000
       # 分配工作池：
-      accept_worker: accept
-      io_worker: http_worker
-      process_worker:  http_worker
+      accept_worker: accept # 使用 accept_worker 池处理连接接受
+      io_worker: http_worker # 使用 io_worker 池处理IO操作
+      process_worker:  http_worker # 使用 io_worker 池处理业务逻辑

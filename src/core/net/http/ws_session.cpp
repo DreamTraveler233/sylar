@@ -9,6 +9,10 @@
 namespace IM::http {
 static IM::Logger::ptr g_logger = IM_LOG_NAME("system");
 
+static IM::ConfigVar<uint32_t>::ptr g_mempool_enable =
+    IM::Config::Lookup("mempool.enable", (uint32_t)1,
+                      "enable ngx-style memory pool for IO buffers");
+
 // 是否允许客户端未掩码帧（仅用于兼容非标准客户端，默认关闭）
 static IM::ConfigVar<uint32_t>::ptr g_ws_allow_unmasked_client_frames =
     IM::Config::Lookup("websocket.allow_unmasked_client_frames", (uint32_t)0,
@@ -87,9 +91,13 @@ std::string WSFrameHead::toString() const {
 }
 
 WSFrameMessage::ptr WSSession::recvMessage() {
-    // Reuse per-session pool for per-message temporary buffers.
-    m_reqPool.resetPool();
-    return WSRecvMessage(this, false, &m_reqPool);
+    const bool use_pool = (g_mempool_enable->getValue() != 0);
+    if (use_pool) {
+        // Reuse per-session pool for per-message temporary buffers.
+        m_reqPool.resetPool();
+        return WSRecvMessage(this, false, &m_reqPool);
+    }
+    return WSRecvMessage(this, false, nullptr);
 }
 
 int32_t WSSession::sendMessage(WSFrameMessage::ptr msg, bool fin) {

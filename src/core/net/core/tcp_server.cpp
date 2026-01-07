@@ -53,7 +53,7 @@ bool TcpServer::bind(const std::vector<Address::ptr>& addrs, std::vector<Address
         }
 
         // 开启监听
-        if (!sock->listen()) {
+        if (!sock->listen(4096)) {
             IM_LOG_ERROR(g_logger)
                 << "listen fail errno=" << errno << " errstr=" << strerror(errno) << " addr=["
                 << addr->toString() << "]";

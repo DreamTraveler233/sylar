@@ -2,11 +2,16 @@
 
 #include "core/net/http/http_parser.hpp"
 #include "core/base/macro.hpp"
+#include "core/config/config.hpp"
 #include "core/util/time_util.hpp"
 #include "core/net/streams/zlib_stream.hpp"
 
 namespace IM::http {
 static IM::Logger::ptr g_logger = IM_LOG_NAME("system");
+
+static IM::ConfigVar<uint32_t>::ptr g_mempool_enable =
+    IM::Config::Lookup("mempool.enable", (uint32_t)1,
+                      "enable ngx-style memory pool for IO buffers");
 
 HttpResult::HttpResult(int _result, HttpResponse::ptr _response, const std::string& _error)
     : result(_result), response(_response), error(_error) {}
@@ -27,8 +32,11 @@ HttpConnection::~HttpConnection() {
 }
 
 HttpResponse::ptr HttpConnection::recvResponse() {
+    const bool use_pool = (g_mempool_enable->getValue() != 0);
     // Reuse per-connection pool memory across requests when used with HttpConnectionPool.
-    m_reqPool.resetPool();
+    if (use_pool) {
+        m_reqPool.resetPool();
+    }
 
     // 创建HTTP响应解析器
     HttpResponseParser::ptr parser(new HttpResponseParser);
@@ -36,8 +44,11 @@ HttpResponse::ptr HttpConnection::recvResponse() {
     uint64_t buff_size = HttpRequestParser::GetHttpRequestBufferSize();
     // uint64_t buff_size = 100;
 
-    // 分配缓冲区内存：优先走连接内存池，失败则回退到堆。
-    char* data = static_cast<char*>(m_reqPool.palloc(static_cast<size_t>(buff_size) + 1));
+    // 分配缓冲区内存：按配置决定是否走连接内存池；失败则回退到堆。
+    char* data = nullptr;
+    if (use_pool) {
+        data = static_cast<char*>(m_reqPool.palloc(static_cast<size_t>(buff_size) + 1));
+    }
     std::unique_ptr<char[]> heap_buf;
     if (!data) {
         heap_buf.reset(new char[buff_size + 1]);

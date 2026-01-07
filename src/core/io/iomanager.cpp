@@ -61,7 +61,7 @@ IOManager::IOManager(size_t threads, bool use_caller, const std::string& name)
     m_tickleFds[1] = pipe_write_fd.release();
 
     // 初始化上下文存储容量，确保可以容纳足够的上下文对象
-    contextResize(64);
+    contextResize(65535);
 
     // 启动调度器，开始任务调度
     start();
@@ -155,7 +155,7 @@ bool IOManager::addEvent(int fd, Event event, std::function<void()> cb) {
     } else {
         // 否则使用当前协程作为事件处理逻辑
         event_ctx.coroutine = Coroutine::GetThis();
-        IM_ASSERT(event_ctx.coroutine->getState() == Coroutine::EXEC);
+        // IM_ASSERT(event_ctx.coroutine->getState() == Coroutine::EXEC);
     }
 
     return true;

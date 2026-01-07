@@ -1,14 +1,22 @@
 #include "core/net/http/http_session.hpp"
 
 #include "core/base/macro.hpp"
+#include "core/config/config.hpp"
 #include "core/net/http/http_parser.hpp"
 
 namespace IM::http {
+static IM::ConfigVar<uint32_t>::ptr g_mempool_enable =
+    IM::Config::Lookup("mempool.enable", (uint32_t)1,
+                      "enable ngx-style memory pool for IO buffers");
+
 HttpSession::HttpSession(Socket::ptr sock, bool owner) : SocketStream(sock, owner) {}
 
 HttpRequest::ptr HttpSession::recvRequest() {
+    const bool use_pool = (g_mempool_enable->getValue() != 0);
     // Reuse per-session pool memory across keep-alive requests.
-    m_reqPool.resetPool();
+    if (use_pool) {
+        m_reqPool.resetPool();
+    }
 
     // 创建HTTP请求解析器实例，用于解析接收到的数据
     HttpRequestParser::ptr parser(new HttpRequestParser);
@@ -16,8 +24,11 @@ HttpRequest::ptr HttpSession::recvRequest() {
     uint64_t buff_size = HttpRequestParser::GetHttpRequestBufferSize();
     // uint64_t buff_size = 100;
 
-    // 分配缓冲区内存：优先走会话内存池，失败则回退到堆。
-    char* data = static_cast<char*>(m_reqPool.palloc(buff_size));
+    // 分配缓冲区内存：按配置决定是否走会话内存池；失败则回退到堆。
+    char* data = nullptr;
+    if (use_pool) {
+        data = static_cast<char*>(m_reqPool.palloc(buff_size));
+    }
     std::unique_ptr<char[]> heap_buf;
     if (!data) {
         heap_buf.reset(new char[buff_size]);

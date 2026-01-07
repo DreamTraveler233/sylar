@@ -2,6 +2,10 @@ server:
     work_path: bin/apps/work/gateway_http
     pid_file: gateway_http.pid
 
+# 内存池开关（用于 IO 热路径 buffer 复用）
+mempool:
+    enable: 1
+
 # 认证与安全配置
 auth:
     jwt:

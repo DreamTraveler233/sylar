@@ -16,6 +16,10 @@ HttpServer::HttpServer(bool keepalive, IOManager* worker, IOManager* io_worker,
     m_type = "http";
     m_dispatch->addServlet("/_/status", Servlet::ptr(new StatusServlet));
     m_dispatch->addServlet("/_/config", Servlet::ptr(new ConfigServlet));
+    m_dispatch->addServlet("/ping", [](HttpRequest::ptr req, HttpResponse::ptr res, HttpSession::ptr session) {
+        res->setBody("pong");
+        return 0;
+    });
 }
 
 void HttpServer::setName(const std::string& v) {
