@@ -16,6 +16,12 @@ auth:
 # 服务发现配置 (Zookeeper)
 service_discovery.zk: "127.0.0.1:2181"
 
+# Presence 服务 RPC 固定地址（本地/单机开发建议配置，避免依赖 ZK 刷新延迟）
+presence.rpc_addr: "127.0.0.1:8070"
+
+# Stage 4: user service
+user.rpc_addr: "127.0.0.1:8073"
+
 # 机器编码配置（用于区分不同机器，范围是 0~1023）
 machine:
     code: "0"

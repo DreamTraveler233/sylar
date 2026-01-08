@@ -1,0 +1,7 @@
+# 媒体文件相关配置
+media:
+  upload_base_dir: /var/lib/im/media
+  temp_base_dir: /var/lib/im/media/tmp
+  shard_size_default: 5242880  # 5MB
+  temp_cleanup_interval: 3600
+  temp_retention_secs: 86400

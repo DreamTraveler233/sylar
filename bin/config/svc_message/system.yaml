@@ -1,0 +1,35 @@
+# svc_message 系统配置
+server:
+  work_path: bin/apps/work/svc_message
+  pid_file: svc_message.pid
+
+mempool:
+  enable: 1
+
+# 服务发现配置 (Zookeeper)
+service_discovery.zk: "127.0.0.1:2181"
+
+# RSA 密钥配置（CryptoModule 依赖；路径相对 config 目录解析）
+crypto:
+  rsa_private_key_path: "keys/rsa_private_2048.pem"
+  rsa_public_key_path: "keys/rsa_public_rsa_2048.pem"
+  padding: "PKCS1"
+
+# MySQL 数据源配置（复用 default）
+mysql.dbs:
+  default:
+    host: "localhost"
+    port: 3306
+    user: "im"
+    passwd: "Im@642157"
+    dbname: "im_db"
+    pool: 10
+
+# Presence 服务 RPC 固定地址（用于推送路由查询）
+presence.rpc_addr: "127.0.0.1:8070"
+
+# Contact 服务 RPC 固定地址（用于好友关系校验与会话名片查询）
+contact.rpc_addr: "127.0.0.1:8072"
+
+# Contact 服务 RPC 固定地址（用于好友关系/联系人信息查询）
+contact.rpc_addr: "127.0.0.1:8072"

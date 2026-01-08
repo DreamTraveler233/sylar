@@ -15,7 +15,8 @@
 #include "application/app/media_service_impl.hpp"
 #include "application/app/message_service_impl.hpp"
 #include "application/app/talk_service_impl.hpp"
-#include "application/app/user_service_impl.hpp"
+#include "application/rpc/message_service_rpc_client.hpp"
+#include "application/rpc/user_service_rpc_client.hpp"
 #include "core/base/macro.hpp"
 #include "infra/db/mysql.hpp"
 #include "core/net/http/http_server.hpp"
@@ -34,16 +35,17 @@
 
 /**
  * @brief HTTP API 网关进程入口
- * 
+ *
  * 责任：
  * 1. 提供 RESTful API
  * 2. 处理用户登录、注册、资料管理
  * 3. 业务逻辑触发（调用后端服务）
  */
-int main(int argc, char** argv) {
-    /* 创建并初始化应用程序实例 */
+int main(int argc, char **argv)
+{
     IM::Application app;
-    if (!app.init(argc, argv)) {
+    if (!app.init(argc, argv))
+    {
         IM_LOG_ERROR(IM_LOG_ROOT()) << "Gateway HTTP init failed";
         return 1;
     }
@@ -59,7 +61,7 @@ int main(int argc, char** argv) {
     IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::OrganizeApiModule>());
 
     auto db_manager =
-        std::shared_ptr<IM::MySQLManager>(IM::MySQLMgr::GetInstance(), [](IM::MySQLManager*) {});
+        std::shared_ptr<IM::MySQLManager>(IM::MySQLMgr::GetInstance(), [](IM::MySQLManager *) {});
 
     // Repositories
     auto user_repo = std::make_shared<IM::infra::repository::UserRepositoryImpl>(db_manager);
@@ -75,10 +77,10 @@ int main(int argc, char** argv) {
     auto media_service = std::make_shared<IM::app::MediaServiceImpl>(upload_repo, storage_adapter);
     auto multipart_parser = IM::http::multipart::CreateMultipartParser();
     auto common_service = std::make_shared<IM::app::CommonServiceImpl>(common_repo);
-    auto user_service = std::make_shared<IM::app::UserServiceImpl>(user_repo, media_service,
-                                                                   common_service, talk_repo);
-    auto message_service = std::make_shared<IM::app::MessageServiceImpl>(message_repo, talk_repo,
-                                                                         user_repo, contact_repo);
+    IM::domain::service::IUserService::Ptr user_service =
+        std::make_shared<IM::app::rpc::UserServiceRpcClient>();
+    IM::domain::service::IMessageService::Ptr message_service =
+        std::make_shared<IM::app::rpc::MessageServiceRpcClient>();
     auto talk_service = std::make_shared<IM::app::TalkServiceImpl>(talk_repo, contact_repo,
                                                                    message_repo, group_repo);
     auto contact_service = std::make_shared<IM::app::ContactServiceImpl>(

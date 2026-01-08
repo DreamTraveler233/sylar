@@ -1,0 +1,16 @@
+workers:
+    accept:
+        worker_num: 1
+        thread_num: 2
+
+    http_worker:
+        worker_num: 1
+        thread_num: 4
+
+    ws_worker:
+        worker_num: 1
+        thread_num: 4
+
+    rock_worker:
+        worker_num: 1
+        thread_num: 4

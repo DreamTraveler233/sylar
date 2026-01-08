@@ -2,6 +2,12 @@
 
 日期：2026-01-06
 
+更新记录：
+- 2026-01-08：阶段 2（在线状态与路由）在本仓库实现并完成本地多实例联调；presence 支持可配置与更完整的路由返回字段。
+- 2026-01-08：阶段 3（消息服务拆分）完成；实现 `svc_message` 独立进程与 Rock RPC 通信；`gateway_http` 已接入远端消息服务；完成分页查询联调。
+- 2026-01-08：阶段 4（业务域拆分）启动：新增 `svc_contact`（联系人查询 RPC，CMD 401）；`svc_message` 的好友关系校验/会话名片查询改为通过 `svc_contact` RPC 获取。
+- 2026-01-08：阶段 4（业务域拆分）：新增 `svc_user`（用户服务 RPC，CMD 501-517，端口 8073）；`gateway_http/gateway_ws` 的 `IUserService` 通过 `svc_user` RPC 调用。
+
 ## 1. 背景与目标
 
 ### 1.1 背景
@@ -174,7 +180,8 @@
 ### 阶段 4：按业务域继续拆分（第 8~10 周）
 **目标**：联系人、群组、媒体等服务独立，形成“多服务 + 网关”结构。
 - 工作内容
-  - `svc-user`、`svc-contact`、`svc-group`、`svc-media` 拆分
+  - 先拆 `svc-contact`：提供联系人/好友关系的查询类 RPC，供消息/会话等跨域读取
+  - 继续拆 `svc-user`、`svc-group`、`svc-media`（按链路优先级逐步替换）
   - 数据库访问边界清晰：每个服务仅访问自己的表/视图（必要时做拆库准备）
 - 交付物
   - 对应服务可执行文件与部署配置
@@ -211,6 +218,11 @@
 - `gateway_instance_id` 建议等于服务发现的 `instance_id`，避免二义性。
 - presence 建议以 Redis 为准：`presence:{uid} -> {instance_id, device_id, last_seen}`（可多设备存 set/hash）。
 - 需要定义“网关间投递 RPC”：例如 `DeliverToUser(uid, payload)`，由目标网关执行本地推送。
+
+本仓库当前落地（阶段 2 最小可用闭环，2026-01-08）：
+- Presence 服务：`svc-presence`（Rock RPC），Redis 存储 key 默认 `presence:{uid}`，value 为 JSON（兼容旧的纯字符串 `ip:port`）。
+- 路由返回字段：`gateway_rpc`，并附带 `last_seen_ms`、`ttl_sec`（若可读到）。
+- 网关直连配置：支持在网关侧配置 `presence.rpc_addr`（例如 `127.0.0.1:8070`）优先直连 presence，避免依赖 ZooKeeper 刷新延迟。
 
 ### 5.3 数据拆分原则
 - 初期允许共享一个 MySQL（逻辑隔离），中期按服务拆 schema，后期按服务拆库。
@@ -310,12 +322,19 @@
     - [x] 设置专用的日志与工作目录，避免文件冲突
     - [x] 验证网关可以独立启动、监听端口并在 ZK 注册
     - [x] 编写 `scripts/gateways_run.sh` 专用启停脚本
-- [ ] **阶段 2：在线路由服务抽离 (Presence Service Extraction)**
-    - [ ] 设计分布式在线状态存储结构（Redis + ZK）
-    - [ ] 实现跨网关的消息推送 RPC 接口
-    - [ ] 改造 `WsGatewayModule` 使用 `svc-presence` 进行路由
-- [ ] **阶段 3：消息服务拆分 (Message Service Extraction)**
-    - [ ] 提取消息写入与离线存储逻辑为独立服务
-    - [ ] 实现消息写入的幂等性校验
+- [x] **阶段 2：在线路由服务抽离 (Presence Service Extraction)**
+  - [x] 设计并落地在线状态存储结构（Redis + TTL，ZK 用于服务发现）
+  - [x] 实现跨网关的消息推送 RPC 接口（网关间投递）
+  - [x] 改造 `WsGatewayModule` 使用 `svc-presence` 进行路由
+  - [x] 本地联调：同时启动 `svc-presence` + `gateway_http` + 2 个 `gateway_ws` 实例，跨网关推送可用
+- [x] **阶段 3：消息服务拆分 (Message Service Extraction)**
+    - [x] 提取消息写入与离线存储逻辑为独立服务 `svc_message`
+    - [x] 实现消息服务的 Rock RPC 接口 (CMD 301-309) 与客户端封装
+    - [x] 改造 `gateway_http` 使用远程 `IMessageService` 接口
+    - [x] 完成消息分页查询 (Records/History) 的全链路联调与验证
 - [ ] **阶段 4：业务域服务拆分 (Business Service Sharding)**
+  - [x] 新增 `svc_contact`（联系人查询 RPC，CMD 401，端口 8072）
+  - [x] `svc_message` 通过 `svc_contact` RPC 执行好友关系校验（`invalid_reason: not_friend` 逻辑保持一致）
+  - [x] 新增 `svc_user`（用户服务 RPC，CMD 501-517，端口 8073；网关通过 RPC 调用）
+  - [ ] 拆分 `svc-group` / `svc-media`（待排期）
 - [ ] **阶段 5：监控、治理与性能压测**

@@ -6,15 +6,15 @@
 
 ### [gateways_run.sh](gateways_run.sh) (网关分离运行)
 在阶段 1 完成网关分离后，专用于启停专用的 HTTP 网关与 WebSocket 网关。
-- **功能**: 管理分离后的 `gateway_http` 和 `gateway_ws` 进程。
+- **功能**: 管理分离后的 `im_gateway_http`、`im_gateway_ws` 以及各业务子服务进程。
 - **用法**:
-  - `./gateways_run.sh start`: 启动 HTTP 和 WS 网关。
-  - `./gateways_run.sh stop`: 停止网关进程。
-  - `./gateways_run.sh status`: 查看网关运行状态及监听端口。
-- **配置依赖**: 依赖 `bin/config/gateway_http` 和 `bin/config/gateway_ws`。
+  - `./gateways_run.sh start`: 启动 HTTP 和 WS 网关及业务服务。
+  - `./gateways_run.sh stop`: 停止所有相关进程。
+  - `./gateways_run.sh status`: 查看进程运行状态及监听端口。
+- **配置依赖**: 依赖 `bin/config/gateway_http`、`bin/config/gateway_ws` 等目录。
 
 ### [build.sh](build.sh) (编译构建)
-- **功能**: 封装了 CMake 编译流程，生成 `im_server`、`gateway_http` 和 `gateway_ws`。
+- **功能**: 封装了 CMake 编译流程，生成 `im_server`、`im_gateway_http`、`im_gateway_ws` 及 `im_svc_*` 系列服务。
 - **输出**: 编译结果存放在 `build/` 目录，生成的库位于 `lib/`，可执行文件位于 `bin/`。
 
 ### [start_env.sh](start_env.sh) & [stop_env.sh](stop_env.sh) (基础环境管理)

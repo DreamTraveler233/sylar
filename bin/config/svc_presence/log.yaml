@@ -1,0 +1,17 @@
+logs:
+  - name: root
+    level: debug
+    appenders:
+      - type: FileLogAppender
+        path: log/svc_presence/root.log
+        rotate_type: hour
+      - type: StdoutLogAppender
+
+  - name: system
+    level: info
+    appenders:
+      - type: FileLogAppender
+        path: log/svc_presence/system.log
+        rotate_type: size
+        max_size: 10485760
+      - type: StdoutLogAppender

@@ -1,0 +1,8 @@
+workers:
+    accept:
+        worker_num: 1
+        thread_num: 2
+
+    rock_worker:
+        worker_num: 1
+        thread_num: 4

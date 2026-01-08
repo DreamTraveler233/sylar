@@ -1,0 +1,48 @@
+server:
+    work_path: bin/apps/work/gateway_ws_2
+    pid_file: gateway_ws_2.pid
+
+mempool:
+    enable: 1
+
+auth:
+    jwt:
+        secret: "dev-secret-change-me"
+        issuer: "auth-service"
+        expires_in: 3600
+
+service_discovery.zk: "127.0.0.1:2181"
+
+presence.rpc_addr: "127.0.0.1:8070"
+
+# Stage 4: user service
+user.rpc_addr: "127.0.0.1:8073"
+
+machine:
+    code: "0"
+
+crypto:
+    rsa_private_key_path: "keys/rsa_private_2048.pem"
+    rsa_public_key_path: "keys/rsa_public_rsa_2048.pem"
+    padding: "PKCS1"
+
+mysql.dbs:
+    default:
+        host: "localhost"
+        port: 3306
+        user: "im"
+        passwd: "Im@642157"
+        dbname: "im_db"
+        pool: 10
+
+redis.config:
+    default:
+        host: "127.0.0.1:6379"
+        passwd: ""
+        log_enable: "1"
+        timeout: "1000"
+
+websocket:
+    allow_unmasked_client_frames: 1
+    message:
+        max_size: 33554432

@@ -1,0 +1,18 @@
+servers:
+    # WebSocket 通讯服务器配置
+    - address: ["0.0.0.0:8082"]
+      type: ws
+      name: IM-ws-gateway-2/1.0
+      timeout: 120000
+      accept_worker: accept
+      io_worker: ws_worker
+      process_worker: ws_worker
+
+    # Rock RPC 服务器配置 (用于接收后端服务的推送指令)
+    - address: ["0.0.0.0:8061"]
+      type: rock
+      name: IM-ws-gateway-rpc-2/1.0
+      timeout: 5000
+      accept_worker: accept
+      io_worker: rock_worker
+      process_worker: rock_worker

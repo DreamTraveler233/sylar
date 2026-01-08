@@ -1,0 +1,20 @@
+# svc_contact 系统配置
+server:
+  work_path: bin/apps/work/svc_contact
+  pid_file: svc_contact.pid
+
+mempool:
+  enable: 1
+
+# 服务发现配置 (Zookeeper)
+service_discovery.zk: "127.0.0.1:2181"
+
+# MySQL 数据源配置（复用 default）
+mysql.dbs:
+  default:
+    host: "localhost"
+    port: 3306
+    user: "im"
+    passwd: "Im@642157"
+    dbname: "im_db"
+    pool: 10

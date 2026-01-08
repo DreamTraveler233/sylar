@@ -1,0 +1,17 @@
+server:
+    work_path: bin/apps/work/svc_presence
+    pid_file: svc_presence.pid
+
+mempool:
+    enable: 1
+
+# 服务发现配置 (Zookeeper)
+service_discovery.zk: "127.0.0.1:2181"
+
+# Redis 配置 (presence 的主存)
+redis.config:
+    default:
+        host: "127.0.0.1:6379"
+        passwd: ""
+        log_enable: "1"
+        timeout: "1000"

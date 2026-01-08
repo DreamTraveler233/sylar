@@ -1,0 +1,7 @@
+# svc_user 线程池配置（与其它服务保持一致的最小集）
+
+workers:
+  accept:
+    thread_num: 1
+  rock_worker:
+    thread_num: 2

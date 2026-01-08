@@ -11,6 +11,7 @@
 #include "interface/api/user_api_module.hpp"
 #include "interface/api/ws_gateway_module.hpp"
 #include "application/app/common_service_impl.hpp"
+#include "application/app/contact_query_service_impl.hpp"
 #include "application/app/contact_service_impl.hpp"
 #include "application/app/group_service_impl.hpp"
 #include "application/app/media_service_impl.hpp"
@@ -33,15 +34,17 @@
 #include "infra/module/module.hpp"
 #include "core/system/application.hpp"
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
     /* 创建并初始化应用程序实例 */
     IM::Application app;
-    if (!app.init(argc, argv)) {
+    if (!app.init(argc, argv))
+    {
         IM_LOG_ERROR(IM_LOG_ROOT()) << "Application init failed";
         return 1;
     }
 
-    std::srand(std::time(nullptr));  // 初始化随机数种子
+    std::srand(std::time(nullptr)); // 初始化随机数种子
 
     // 注册加解密模块
     IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::CryptoModule>());
@@ -55,7 +58,7 @@ int main(int argc, char** argv) {
     IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::OrganizeApiModule>());
 
     auto db_manager =
-        std::shared_ptr<IM::MySQLManager>(IM::MySQLMgr::GetInstance(), [](IM::MySQLManager*) {});
+        std::shared_ptr<IM::MySQLManager>(IM::MySQLMgr::GetInstance(), [](IM::MySQLManager *) {});
 
     // Repositories
     auto user_repo = std::make_shared<IM::infra::repository::UserRepositoryImpl>(db_manager);
@@ -75,8 +78,9 @@ int main(int argc, char** argv) {
     auto common_service = std::make_shared<IM::app::CommonServiceImpl>(common_repo);
     auto user_service = std::make_shared<IM::app::UserServiceImpl>(user_repo, media_service,
                                                                    common_service, talk_repo);
-    auto message_service = std::make_shared<IM::app::MessageServiceImpl>(message_repo, talk_repo,
-                                                                         user_repo, contact_repo);
+    auto contact_query_service = std::make_shared<IM::app::ContactQueryServiceImpl>(contact_repo);
+    auto message_service = std::make_shared<IM::app::MessageServiceImpl>(
+        message_repo, talk_repo, user_repo, contact_query_service);
     auto talk_service = std::make_shared<IM::app::TalkServiceImpl>(talk_repo, contact_repo,
                                                                    message_repo, group_repo);
     auto contact_service = std::make_shared<IM::app::ContactServiceImpl>(

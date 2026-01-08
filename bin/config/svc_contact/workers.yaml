@@ -1,0 +1,5 @@
+workers:
+  accept:
+    thread_num: 1
+  rock_worker:
+    thread_num: 2

@@ -1,0 +1,7 @@
+logs:
+  - name: root
+    level: info
+    appenders:
+      - type: FileLogAppender
+        path: log/svc_user/root.log
+      - type: StdoutLogAppender

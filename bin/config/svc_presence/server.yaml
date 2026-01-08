@@ -1,0 +1,9 @@
+servers:
+    # Rock RPC 服务器配置 (Presence 服务)
+    - address: ["0.0.0.0:8070"]
+      type: rock
+      name: IM-svc-presence/1.0
+      timeout: 5000
+      accept_worker: accept
+      io_worker: rock_worker
+      process_worker: rock_worker
