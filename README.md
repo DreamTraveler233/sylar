@@ -1,25 +1,25 @@
 # XinYu IM Backend
 
-XinYu IM Backend 是一个基于 **C++17** 构建的高性能、**分布式架构**即时通讯服务端。项目正在从传统的单体架构演进为微服务体系，目前已实现核心网关层（Gateway）的彻底分离。它不仅提供 RESTful API 和 WebSocket 长连接服务，还集成了媒体处理、关系链管理及分布式消息路由能力。
+XinYu IM Backend 是一个基于 **C++17** 的高性能即时通讯服务端，采用分层架构（API → Application → Infrastructure），并在工程上逐步从单体形态演进为**网关分离 + 服务自治**的分布式体系。
+
+当前仓库重点落在网关层：提供面向业务的 **HTTP REST API** 与面向长连接的 **WebSocket** 服务，并通过内部 **Rock RPC** 链路完成跨进程/跨节点的信令投递，为后续在线路由、消息存储与业务服务拆分打基础。
 
 ## 核心亮点
 
-- **分布式网关架构**：
-    - **`gateway_http`**：专门处理无状态的 REST 业务请求，负责鉴权、资料同步及业务逻辑触发。
-    - **`gateway_ws`**：高性能长连接网关，负责百万级连接维护、心跳检测及下行消息精准推送。
-- **跨进程通讯 (Rock RPC)**：基于自定义 Rock 协议实现网关间的信令投递。即使客户端连接在不同的网关节点，系统也能通过内部 RPC 链路实现实时消息送达。
-- **服务发现与自治**：深度集成 **ZooKeeper**，实现网关节点的自动注册与发现 (Service Discovery)。系统能够实时感知节点变更，支持动态扩容与负载均衡。
-- **高性能底层支撑**：
-    - 采用 **Libevent + 协程 (Coroutine)** 模型，兼顾开发效率与极致并发性能。
-    - 针对 IM 场景深度优化，支持消息幂等性检查、图片/视频多级缩略图生成及本地/云端存储适配。
-- **分层领域模型**：严格遵循分层架构 (API → Application → Infrastructure)，业务逻辑与存储介质彻底解耦，易于扩展与维护。
+- **网关分离部署**：
+    - **`gateway_http`**：处理无状态 REST 请求（鉴权、资料/关系链相关接口、业务触发）。
+    - **`gateway_ws`**：维护长连接（心跳、会话管理、下行推送），并对外提供 WebSocket 接入。
+- **跨进程通讯（Rock RPC）**：基于自定义 Rock 协议完成网关/服务间信令投递；客户端连接分布在不同网关节点时，仍可通过内部 RPC 链路实现消息送达。
+- **服务发现与自治**：集成 **ZooKeeper** 做节点注册与发现（Service Discovery），支持节点变更感知与水平扩容。
+- **高性能网络与并发模型**：基于 **Libevent + 协程（Coroutine）**，在保持可维护性的同时面向高并发长连接场景优化。
+- **工程化与可扩展性**：业务逻辑与存储介质解耦（MySQL/Redis/本地或云存储），便于后续拆分与演进。
 
 ## 仓库结构概览
 | 路径 | 说明 |
 | --- | --- |
-| `src/interface/` | 接口层：HTTP Servolets、WebSocket 处理及 RPC 模块实现。 |
-| `src/application/` | 应用服务层：处理聊天逻辑、好友添加、群组管理等。 |
-| `src/infrastructure/` | 基础设施层：MySQL/Redis 仓储适配、加密算法及云存储实现。 |
+| `src/interface/` | 接口层：HTTP Servlets、WebSocket 处理及 RPC 模块实现。 |
+| `src/application/` | 应用服务层：组合领域能力，对外提供用例级服务。 |
+| `src/infra/` | 基础设施层：MySQL/Redis 仓储适配、第三方能力集成（存储、邮件等）。 |
 | `bin/config/` | 配置文件目录：包含 `gateway_http` 和 `gateway_ws` 的独立配置模板。 |
 | `bin/` | 构建产物：`gateway_http` (API网关)、`gateway_ws` (WS网关)、`im_server` (兼容单体)。 |
 | `scripts/` | 自动化工具：`gateways_run.sh` (网关启停)、`sql/` (数据库迁移)。 |
@@ -70,7 +70,7 @@ sudo apt install build-essential cmake pkg-config ccache ragel \
 
 ## 设计理念与架构演进
 
-项目正依照 **[分布式IM服务器项目计划书.md](分布式IM服务器项目计划书.md)** 进行分阶段重构。
+项目正依照 [docs/分布式IM服务器项目计划书.md](docs/%E5%88%86%E5%B8%83%E5%BC%8FIM%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%A1%B9%E7%9B%AE%E8%AE%A1%E5%88%92%E4%B9%A6.md) 进行分阶段重构；服务发现约定见 [docs/service_discovery_convention.md](docs/service_discovery_convention.md)。
 
 - **Phase 1（当前）**：网关分离。将单体拆分为 `gateway_http` 和 `gateway_ws`，解决单进程并发瓶颈，引入 RPC 投递机制。
 - **Phase 2（计划中）**：全局在线路由 (Presence)。利用 Redis 记录用户会话映射，实现多节点间的推送寻址。
