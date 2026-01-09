@@ -1,0 +1,11 @@
+# svc_group 网络监听配置
+# - rock: 服务间 RPC（Rock 协议）
+
+servers:
+  - address: ["0.0.0.0:8074"]
+    type: rock
+    name: IM-svc-group/1.0
+    timeout: 5000
+    accept_worker: accept
+    io_worker: rock_worker
+    process_worker: rock_worker

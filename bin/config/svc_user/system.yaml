@@ -10,6 +10,7 @@ mempool:
 crypto:
   rsa_private_key_path: "keys/rsa_private_2048.pem"
   rsa_public_key_path: "keys/rsa_public_rsa_2048.pem"
+  padding: "PKCS1"
 
 # 服务发现配置 (Zookeeper)
 service_discovery.zk: "127.0.0.1:2181"

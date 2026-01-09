@@ -19,6 +19,10 @@ static auto g_jwt_secret = IM::Config::Lookup<std::string>(
 static auto g_jwt_issuer =
     IM::Config::Lookup<std::string>("auth.jwt.issuer", std::string("auth-service"), "jwt issuer");
 
+// 预注册：presence 固定 RPC 地址（避免模块在配置加载后才 Lookup 导致取到空默认值）
+static auto g_presence_rpc_addr = IM::Config::Lookup<std::string>(
+    "presence.rpc_addr", std::string(""), "presence rpc address ip:port");
+
 std::string Ok(const Json::Value& data) {
     return IM::JsonUtil::ToString(data);
 }

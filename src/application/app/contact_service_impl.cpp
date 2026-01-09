@@ -14,12 +14,12 @@ static auto g_logger = IM_LOG_NAME("root");
 static constexpr const char* kDBName = "default";
 
 ContactServiceImpl::ContactServiceImpl(IM::domain::repository::IContactRepository::Ptr contact_repo,
-                                       IM::domain::repository::IUserRepository::Ptr user_repo,
+                                                                             IM::domain::service::IUserService::Ptr user_service,
                                        IM::domain::repository::ITalkRepository::Ptr talk_repo,
                                        IM::domain::service::IMessageService::Ptr message_service,
                                        IM::domain::service::ITalkService::Ptr talk_service)
     : m_contact_repo(std::move(contact_repo)),
-      m_user_repo(std::move(user_repo)),
+            m_user_service(std::move(user_service)),
       m_talk_repo(std::move(talk_repo)),
       m_message_service(std::move(message_service)),
       m_talk_service(std::move(talk_service)) {}
@@ -181,9 +181,10 @@ Result<dto::TalkSessionItem> ContactServiceImpl::AgreeApply(const uint64_t user_
     }
 
     // 同时向申请者发送接受通知（im.contact.accept），包含被同意者资讯
-    IM::dto::UserInfo acceptor;
-    std::string err_u;
-    if (m_user_repo->GetUserInfoSimple(apply.target_user_id, acceptor, &err_u)) {
+    if (m_user_service) {
+        auto acceptor_r = m_user_service->LoadUserInfoSimple(apply.target_user_id);
+        if (acceptor_r.ok) {
+            const auto& acceptor = acceptor_r.data;
         Json::Value payload_accept;
         payload_accept["acceptor_id"] = (Json::UInt64)apply.target_user_id;
         payload_accept["acceptor_name"] = acceptor.nickname;
@@ -195,6 +196,7 @@ Result<dto::TalkSessionItem> ContactServiceImpl::AgreeApply(const uint64_t user_
         }
         IM::api::WsGatewayModule::PushToUser(apply.apply_user_id, "im.contact.accept",
                                              payload_accept);
+        }
     }
 
     // 发送欢迎消息给双方
@@ -227,15 +229,18 @@ Result<void> ContactServiceImpl::CreateContactApply(uint64_t apply_user_id, uint
     }
 
     // 推送好友申请通知给目标用户
-    IM::dto::UserInfo applicant;
-    if (m_user_repo->GetUserInfoSimple(apply_user_id, applicant, &err)) {
-        Json::Value payload;
-        payload["remark"] = remark;
-        payload["nickname"] = applicant.nickname;
-        payload["avatar"] = applicant.avatar;
-        payload["apply_time"] = IM::TimeUtil::NowToMS();
+    if (m_user_service) {
+        auto applicant_r = m_user_service->LoadUserInfoSimple(apply_user_id);
+        if (applicant_r.ok) {
+            const auto& applicant = applicant_r.data;
+            Json::Value payload;
+            payload["remark"] = remark;
+            payload["nickname"] = applicant.nickname;
+            payload["avatar"] = applicant.avatar;
+            payload["apply_time"] = IM::TimeUtil::NowToMS();
 
-        IM::api::WsGatewayModule::PushToUser(target_user_id, "im.contact.apply", payload);
+            IM::api::WsGatewayModule::PushToUser(target_user_id, "im.contact.apply", payload);
+        }
     }
 
     result.ok = true;
@@ -296,14 +301,21 @@ Result<std::vector<dto::ContactGroupItem>> ContactServiceImpl::GetContactGroupLi
 
 Result<model::User> ContactServiceImpl::SearchByMobile(const std::string& mobile) {
     Result<model::User> result;
-    std::string err;
 
-    if (!m_user_repo->GetUserByMobile(mobile, result.data, &err)) {
-        IM_LOG_ERROR(g_logger) << "SearchByMobile failed, mobile=" << mobile << ", err=" << err;
-        result.code = 404;
-        result.err = "联系人不存在";
+    if (!m_user_service) {
+        result.code = 500;
+        result.err = "user service not ready";
         return result;
     }
+
+    auto r = m_user_service->GetUserByMobile(mobile, "contact");
+    if (!r.ok) {
+        result.code = r.code == 0 ? 404 : r.code;
+        result.err = r.err.empty() ? "联系人不存在" : r.err;
+        return result;
+    }
+
+    result.data = std::move(r.data);
     result.ok = true;
     return result;
 }

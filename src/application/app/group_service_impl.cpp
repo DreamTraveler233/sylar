@@ -11,11 +11,11 @@ static auto g_logger = IM_LOG_NAME("root");
 static constexpr const char* kDBName = "default";
 
 GroupServiceImpl::GroupServiceImpl(domain::repository::IGroupRepository::Ptr group_repo,
-                                   domain::repository::IUserRepository::Ptr user_repo,
+                                                                     domain::service::IUserService::Ptr user_service,
                                    domain::service::IMessageService::Ptr message_service,
                                    domain::service::ITalkService::Ptr talk_service)
     : m_group_repo(std::move(group_repo)),
-      m_user_repo(std::move(user_repo)),
+            m_user_service(std::move(user_service)),
       m_message_service(std::move(message_service)),
       m_talk_service(std::move(talk_service)) {}
 
@@ -184,9 +184,11 @@ Result<dto::GroupDetail> GroupServiceImpl::GetGroupDetail(uint64_t user_id, uint
         result.data.notice.created_at = notice.created_at;
         result.data.notice.updated_at = notice.updated_at;
         // Get modifier name
-        IM::dto::UserInfo u;
-        if (m_user_repo->GetUserInfoSimple(notice.modify_user_id, u, &err)) {
-            result.data.notice.modify_user_name = u.nickname;
+        if (m_user_service) {
+            auto ur = m_user_service->LoadUserInfoSimple(notice.modify_user_id);
+            if (ur.ok) {
+                result.data.notice.modify_user_name = ur.data.nickname;
+            }
         }
     }
 
@@ -999,9 +1001,13 @@ Result<dto::GroupVoteDetail> GroupServiceImpl::GetVoteDetail(uint64_t user_id, u
 
             if (!vote.is_anonymous) {
                 for (auto uid : option_users[opt.opt_key]) {
-                    IM::dto::UserInfo u;
-                    if (m_user_repo->GetUserInfoSimple(uid, u, &err)) {
-                        item.users.push_back(u.nickname);
+                    if (m_user_service) {
+                        auto ur = m_user_service->LoadUserInfoSimple(uid);
+                        if (ur.ok) {
+                            item.users.push_back(ur.data.nickname);
+                        } else {
+                            item.users.push_back(std::to_string(uid));
+                        }
                     } else {
                         item.users.push_back(std::to_string(uid));
                     }

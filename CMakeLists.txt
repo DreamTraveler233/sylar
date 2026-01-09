@@ -177,6 +177,16 @@ add_executable(im_svc_user src/bootstrap/svc_user.cpp)
 add_dependencies(im_svc_user IM)
 target_link_libraries(im_svc_user PRIVATE IM)
 
+# Stage 4: group service
+add_executable(im_svc_group src/bootstrap/svc_group.cpp)
+add_dependencies(im_svc_group IM)
+target_link_libraries(im_svc_group PRIVATE IM)
+
+# Stage 4: talk service
+add_executable(im_svc_talk src/bootstrap/svc_talk.cpp)
+add_dependencies(im_svc_talk IM)
+target_link_libraries(im_svc_talk PRIVATE IM)
+
 # ==================== 输出目录 ====================
 # 指定可执行文件输出目录 按类型区分 (应用/测试)
 set(BIN_APP_DIR ${PROJECT_SOURCE_DIR}/bin)
@@ -197,6 +207,8 @@ set_target_properties(im_svc_contact PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_A
 set_target_properties(im_svc_user PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_APP_DIR})
 set_target_properties(im_gateway_http PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_APP_DIR})
 set_target_properties(im_svc_presence PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_APP_DIR})
+set_target_properties(im_svc_group PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_APP_DIR})
+set_target_properties(im_svc_talk PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_APP_DIR})
 
 # ==================== Tests ====================
 option(ENABLE_TESTS "Build unit tests" ON)

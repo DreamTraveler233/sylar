@@ -9,6 +9,10 @@ mempool:
 # 服务发现配置 (Zookeeper)
 service_discovery.zk: "127.0.0.1:2181"
 
+# 固定 RPC 地址（开发环境稳定性）
+user.rpc_addr: "127.0.0.1:8073"
+message.rpc_addr: "127.0.0.1:8071"
+
 # MySQL 数据源配置（复用 default）
 mysql.dbs:
   default:

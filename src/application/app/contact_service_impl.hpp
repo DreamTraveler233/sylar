@@ -3,16 +3,16 @@
 
 #include "domain/repository/contact_repository.hpp"
 #include "domain/repository/talk_repository.hpp"
-#include "domain/repository/user_repository.hpp"
 #include "domain/service/contact_service.hpp"
 #include "domain/service/message_service.hpp"
 #include "domain/service/talk_service.hpp"
+#include "domain/service/user_service.hpp"
 namespace IM::app {
 
 class ContactServiceImpl : public IM::domain::service::IContactService {
    public:
     explicit ContactServiceImpl(IM::domain::repository::IContactRepository::Ptr contact_repo,
-                                IM::domain::repository::IUserRepository::Ptr user_repo,
+                                          IM::domain::service::IUserService::Ptr user_service,
                                 IM::domain::repository::ITalkRepository::Ptr talk_repo,
                                 IM::domain::service::IMessageService::Ptr message_service,
                                 IM::domain::service::ITalkService::Ptr talk_service);
@@ -42,7 +42,7 @@ class ContactServiceImpl : public IM::domain::service::IContactService {
 
    private:
     IM::domain::repository::IContactRepository::Ptr m_contact_repo;
-    IM::domain::repository::IUserRepository::Ptr m_user_repo;
+    IM::domain::service::IUserService::Ptr m_user_service;
     IM::domain::repository::ITalkRepository::Ptr m_talk_repo;
     IM::domain::service::IMessageService::Ptr m_message_service;
     IM::domain::service::ITalkService::Ptr m_talk_service;

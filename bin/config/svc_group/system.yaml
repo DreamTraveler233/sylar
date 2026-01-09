@@ -1,0 +1,24 @@
+# svc_group 系统配置
+server:
+  work_path: bin/apps/work/svc_group
+  pid_file: svc_group.pid
+
+mempool:
+  enable: 1
+
+# 服务发现配置 (Zookeeper)
+service_discovery.zk: "127.0.0.1:2181"
+
+# 固定 RPC 地址（开发环境稳定性）
+user.rpc_addr: "127.0.0.1:8073"
+message.rpc_addr: "127.0.0.1:8071"
+
+# MySQL 数据源配置（复用 default）
+mysql.dbs:
+  default:
+    host: "localhost"
+    port: 3306
+    user: "im"
+    passwd: "Im@642157"
+    dbname: "im_db"
+    pool: 10

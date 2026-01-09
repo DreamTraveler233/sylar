@@ -22,6 +22,9 @@ presence.rpc_addr: "127.0.0.1:8070"
 # Stage 4: user service
 user.rpc_addr: "127.0.0.1:8073"
 
+# Stage 4: talk service (for ws broadcast member lookup)
+talk.rpc_addr: "127.0.0.1:8075"
+
 # 机器编码配置（用于区分不同机器，范围是 0~1023）
 machine:
     code: "0"
@@ -46,7 +49,7 @@ mysql.dbs:
 redis.config:
     default:
         host: "127.0.0.1:6379"
-        passwd: ""
+        passwd: "Im@642157"
         log_enable: "1"
         timeout: "1000"
 

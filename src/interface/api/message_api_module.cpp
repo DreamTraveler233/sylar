@@ -293,6 +293,15 @@ bool MessageApiModule::onServerReady() {
                 type = IM::JsonUtil::GetString(body, "type");
                 if (body.isMember("body")) {
                     payload = body["body"];  // 直接取 JSON
+
+                    // 约定：body 必须是 object（例如 {"text":"hi"}）。
+                    // 如果是 string/array 等，会触发 Json::Value::find 的异常，导致连接被断开。
+                    if (!payload.isNull() && !payload.isObject()) {
+                        res->setStatus(ToHttpStatus(400));
+                        res->setBody(Error(400, "body 必须是 JSON 对象"));
+                        return 0;
+                    }
+
                     // 提取 mentions（数组，来自前端 editor 的 mentionUids）
                     if (payload.isMember("mentions") && payload["mentions"].isArray()) {
                         for (auto& v : payload["mentions"]) {

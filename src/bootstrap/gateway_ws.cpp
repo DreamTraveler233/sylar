@@ -1,8 +1,7 @@
 #include "interface/api/ws_gateway_module.hpp"
 #include "application/rpc/user_service_rpc_client.hpp"
+#include "application/rpc/talk_repository_rpc_client.hpp"
 #include "core/base/macro.hpp"
-#include "infra/db/mysql.hpp"
-#include "infra/repository/talk_repository_impl.hpp"
 #include "infra/module/crypto_module.hpp"
 #include "infra/module/module.hpp"
 #include "core/system/application.hpp"
@@ -30,12 +29,8 @@ int main(int argc, char **argv)
     // 注册加解密模块
     IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::CryptoModule>());
 
-    // --- 临时链路：在彻底拆分服务前，网关仍暂持有一些逻辑依赖 ---
-    // 未来这里将替换为 RPC Client
-    auto db_manager =
-        std::shared_ptr<IM::MySQLManager>(IM::MySQLMgr::GetInstance(), [](IM::MySQLManager *) {});
-
-    auto talk_repo = std::make_shared<IM::infra::repository::TalkRepositoryImpl>(db_manager);
+    // Talk repo (RPC): used for group broadcast member lookup
+    auto talk_repo = std::make_shared<IM::app::rpc::TalkRepositoryRpcClient>();
 
     IM::domain::service::IUserService::Ptr user_service =
         std::make_shared<IM::app::rpc::UserServiceRpcClient>();

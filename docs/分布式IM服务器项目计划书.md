@@ -7,6 +7,8 @@
 - 2026-01-08：阶段 3（消息服务拆分）完成；实现 `svc_message` 独立进程与 Rock RPC 通信；`gateway_http` 已接入远端消息服务；完成分页查询联调。
 - 2026-01-08：阶段 4（业务域拆分）启动：新增 `svc_contact`（联系人查询 RPC，CMD 401）；`svc_message` 的好友关系校验/会话名片查询改为通过 `svc_contact` RPC 获取。
 - 2026-01-08：阶段 4（业务域拆分）：新增 `svc_user`（用户服务 RPC，CMD 501-517，端口 8073）；`gateway_http/gateway_ws` 的 `IUserService` 通过 `svc_user` RPC 调用。
+- 2026-01-09：阶段 4（业务域拆分）推进：完成 `svc_group`、`svc_talk` 拆分与独立部署。
+- 2026-01-09：阶段 5（可靠性优化）：修复 Redis 驱动在重连时无法自动重认证（AUTH）的 Bug；修复 `svc_presence` 缺失 Redis 配置导致路由失效的问题。
 
 ## 1. 背景与目标
 
@@ -332,9 +334,13 @@
     - [x] 实现消息服务的 Rock RPC 接口 (CMD 301-309) 与客户端封装
     - [x] 改造 `gateway_http` 使用远程 `IMessageService` 接口
     - [x] 完成消息分页查询 (Records/History) 的全链路联调与验证
-- [ ] **阶段 4：业务域服务拆分 (Business Service Sharding)**
+- [x] **阶段 4：业务域服务拆分 (Business Service Sharding)**
   - [x] 新增 `svc_contact`（联系人查询 RPC，CMD 401，端口 8072）
   - [x] `svc_message` 通过 `svc_contact` RPC 执行好友关系校验（`invalid_reason: not_friend` 逻辑保持一致）
   - [x] 新增 `svc_user`（用户服务 RPC，CMD 501-517，端口 8073；网关通过 RPC 调用）
-  - [ ] 拆分 `svc-group` / `svc-media`（待排期）
+  - [x] 拆分 `svc_group` / `svc_talk`（完成独立进程部署）
+  - [ ] 拆分 `svc-media`（待排期）
 - [ ] **阶段 5：监控、治理与性能压测**
+  - [x] 核心可靠性修复：Redis 驱动重连 AUTH 修复
+  - [ ] 统一 Trace ID 实现与日志接入
+  - [ ] 性能压测与瓶颈分析

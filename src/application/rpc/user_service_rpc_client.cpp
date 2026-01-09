@@ -315,9 +315,25 @@ namespace IM::app::rpc
             return result;
         }
 
+        // 约定：
+        // - channel=register：手机号未注册是正常情况，svc-user 可能返回空 data 或 uid=0。
+        // - channel=forget_account：手机号必须已注册，svc-user 应返回有效 user。
+        if (!out.isMember("data") || !out["data"].isObject()) {
+            if (channel == "register") {
+                result.ok = true;
+                return result;
+            }
+            result.code = 500;
+            result.err = "invalid svc-user response";
+            return result;
+        }
+
         IM::model::User u;
-        if (!out.isMember("data") || !parseUser(out["data"], u))
-        {
+        if (!parseUser(out["data"], u)) {
+            if (channel == "register") {
+                result.ok = true;
+                return result;
+            }
             result.code = 500;
             result.err = "invalid user";
             return result;
@@ -359,9 +375,23 @@ namespace IM::app::rpc
             return result;
         }
 
+        // channel=register / update_email：邮箱未注册是正常情况，允许空 data 或 uid=0。
+        if (!out.isMember("data") || !out["data"].isObject()) {
+            if (channel == "register" || channel == "update_email") {
+                result.ok = true;
+                return result;
+            }
+            result.code = 500;
+            result.err = "invalid svc-user response";
+            return result;
+        }
+
         IM::model::User u;
-        if (!out.isMember("data") || !parseUser(out["data"], u))
-        {
+        if (!parseUser(out["data"], u)) {
+            if (channel == "register" || channel == "update_email") {
+                result.ok = true;
+                return result;
+            }
             result.code = 500;
             result.err = "invalid user";
             return result;

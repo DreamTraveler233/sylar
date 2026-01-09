@@ -10,24 +10,18 @@
 #include "interface/api/upload_api_module.hpp"
 #include "interface/api/user_api_module.hpp"
 #include "application/app/common_service_impl.hpp"
-#include "application/app/contact_service_impl.hpp"
-#include "application/app/group_service_impl.hpp"
 #include "application/app/media_service_impl.hpp"
-#include "application/app/message_service_impl.hpp"
-#include "application/app/talk_service_impl.hpp"
+#include "application/rpc/contact_service_rpc_client.hpp"
+#include "application/rpc/group_service_rpc_client.hpp"
 #include "application/rpc/message_service_rpc_client.hpp"
+#include "application/rpc/talk_service_rpc_client.hpp"
 #include "application/rpc/user_service_rpc_client.hpp"
 #include "core/base/macro.hpp"
 #include "infra/db/mysql.hpp"
 #include "core/net/http/http_server.hpp"
 #include "core/net/http/multipart/multipart_parser.hpp"
 #include "infra/repository/common_repository_impl.hpp"
-#include "infra/repository/contact_repository_impl.hpp"
-#include "infra/repository/group_repository_impl.hpp"
 #include "infra/repository/media_repository_impl.hpp"
-#include "infra/repository/message_repository_impl.hpp"
-#include "infra/repository/talk_repository_impl.hpp"
-#include "infra/repository/user_repository_impl.hpp"
 #include "infra/storage/istorage.hpp"
 #include "infra/module/crypto_module.hpp"
 #include "infra/module/module.hpp"
@@ -64,13 +58,8 @@ int main(int argc, char **argv)
         std::shared_ptr<IM::MySQLManager>(IM::MySQLMgr::GetInstance(), [](IM::MySQLManager *) {});
 
     // Repositories
-    auto user_repo = std::make_shared<IM::infra::repository::UserRepositoryImpl>(db_manager);
-    auto contact_repo = std::make_shared<IM::infra::repository::ContactRepositoryImpl>(db_manager);
     auto common_repo = std::make_shared<IM::infra::repository::CommonRepositoryImpl>(db_manager);
     auto upload_repo = std::make_shared<IM::infra::repository::MediaRepositoryImpl>(db_manager);
-    auto message_repo = std::make_shared<IM::infra::repository::MessageRepositoryImpl>(db_manager);
-    auto talk_repo = std::make_shared<IM::infra::repository::TalkRepositoryImpl>(db_manager);
-    auto group_repo = std::make_shared<IM::infra::repository::GroupRepositoryImpl>();
 
     // Services
     auto storage_adapter = IM::infra::storage::CreateLocalStorageAdapter();
@@ -81,12 +70,14 @@ int main(int argc, char **argv)
         std::make_shared<IM::app::rpc::UserServiceRpcClient>();
     IM::domain::service::IMessageService::Ptr message_service =
         std::make_shared<IM::app::rpc::MessageServiceRpcClient>();
-    auto talk_service = std::make_shared<IM::app::TalkServiceImpl>(talk_repo, contact_repo,
-                                                                   message_repo, group_repo);
-    auto contact_service = std::make_shared<IM::app::ContactServiceImpl>(
-        contact_repo, user_repo, talk_repo, message_service, talk_service);
-    auto group_service = std::make_shared<IM::app::GroupServiceImpl>(group_repo, user_repo,
-                                                                     message_service, talk_service);
+
+    IM::domain::service::IContactService::Ptr contact_service =
+        std::make_shared<IM::app::rpc::ContactServiceRpcClient>();
+    IM::domain::service::IGroupService::Ptr group_service =
+        std::make_shared<IM::app::rpc::GroupServiceRpcClient>();
+
+    IM::domain::service::ITalkService::Ptr talk_service =
+        std::make_shared<IM::app::rpc::TalkServiceRpcClient>();
 
     // Register API modules
     IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::UserApiModule>(user_service));

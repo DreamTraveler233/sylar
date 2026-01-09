@@ -17,6 +17,7 @@
 #include "core/system/application.hpp"
 #include "core/util/util.hpp"
 #include "domain/repository/talk_repository.hpp"
+#include "application/rpc/talk_repository_rpc_client.hpp"
 
 namespace IM::api {
 
@@ -24,6 +25,13 @@ static auto g_logger = IM_LOG_NAME("root");
 
 // 静态 talk repo（用于静态 PushImMessage 调用）
 static IM::domain::repository::ITalkRepository::Ptr s_talk_repo = nullptr;
+
+static IM::domain::repository::ITalkRepository::Ptr GetTalkRepoForBroadcast() {
+    if (s_talk_repo) return s_talk_repo;
+    static IM::domain::repository::ITalkRepository::Ptr s_fallback =
+        std::make_shared<IM::app::rpc::TalkRepositoryRpcClient>();
+    return s_fallback;
+}
 
 WsGatewayModule::WsGatewayModule(IM::domain::service::IUserService::Ptr user_service,
                                  IM::domain::repository::ITalkRepository::Ptr talk_repo)
@@ -641,13 +649,14 @@ void WsGatewayModule::PushImMessage(uint8_t talk_mode, uint64_t to_from_id, uint
     } else {
         // 群聊：通过 talk repository 查出会话内用户并广播
         try {
-            if (s_talk_repo) {
+            auto talk_repo = GetTalkRepoForBroadcast();
+            if (talk_repo) {
                 uint64_t talk_id = 0;
                 std::string terr;
-                if (s_talk_repo->getGroupTalkId(to_from_id, talk_id, &terr)) {
+                if (talk_repo->getGroupTalkId(to_from_id, talk_id, &terr)) {
                     std::vector<uint64_t> talk_users;
                     std::string lerr;
-                    if (s_talk_repo->listUsersByTalkId(talk_id, talk_users, &lerr)) {
+                    if (talk_repo->listUsersByTalkId(talk_id, talk_users, &lerr)) {
                         for (auto uid : talk_users) {
                             PushToUser(uid, "im.message", payload);
                         }

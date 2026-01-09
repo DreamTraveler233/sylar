@@ -74,7 +74,11 @@ Redis::Redis(const std::map<std::string, std::string>& conf) {
 }
 
 bool Redis::reconnect() {
-    return redisReconnect(m_context.get());
+    // hiredis reconnect does not re-run AUTH. Drop the context and rebuild it
+    // via connect() so passwd + timeouts are applied again.
+    m_context.reset();
+    const uint64_t ms = m_connectMs ? m_connectMs : 50;
+    return connect(m_host, m_port, ms);
 }
 
 bool Redis::connect() {
@@ -91,10 +95,11 @@ bool Redis::connect(const std::string& ip, int port, uint64_t ms) {
     timeval tv = {(int)ms / 1000, (int)ms % 1000 * 1000};
     auto c = redisConnectWithTimeout(ip.c_str(), port, tv);
     if (c) {
+        m_context.reset(c, redisFree);
+
         if (m_cmdTimeout.tv_sec || m_cmdTimeout.tv_usec) {
             setTimeout(m_cmdTimeout.tv_sec * 1000 + m_cmdTimeout.tv_usec / 1000);
         }
-        m_context.reset(c, redisFree);
 
         if (!m_passwd.empty()) {
             auto r = (redisReply*)redisCommand(c, "auth %s", m_passwd.c_str());

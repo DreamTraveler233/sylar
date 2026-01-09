@@ -1,7 +1,7 @@
 #pragma once
 #include "domain/service/group_service.hpp"
 #include "domain/repository/group_repository.hpp"
-#include "domain/repository/user_repository.hpp"
+#include "domain/service/user_service.hpp"
 #include "domain/service/message_service.hpp"
 #include "domain/service/talk_service.hpp"
 
@@ -10,7 +10,7 @@ namespace IM::app {
 class GroupServiceImpl : public domain::service::IGroupService {
 public:
     GroupServiceImpl(domain::repository::IGroupRepository::Ptr group_repo,
-                     domain::repository::IUserRepository::Ptr user_repo,
+                     domain::service::IUserService::Ptr user_service,
                      domain::service::IMessageService::Ptr message_service,
                      domain::service::ITalkService::Ptr talk_service);
     ~GroupServiceImpl() override = default;
@@ -55,7 +55,7 @@ public:
 
 private:
     domain::repository::IGroupRepository::Ptr m_group_repo;
-    domain::repository::IUserRepository::Ptr m_user_repo;
+    domain::service::IUserService::Ptr m_user_service;
     domain::service::IMessageService::Ptr m_message_service;
     domain::service::ITalkService::Ptr m_talk_service;
 };

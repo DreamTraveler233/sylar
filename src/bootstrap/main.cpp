@@ -84,8 +84,8 @@ int main(int argc, char **argv)
     auto talk_service = std::make_shared<IM::app::TalkServiceImpl>(talk_repo, contact_repo,
                                                                    message_repo, group_repo);
     auto contact_service = std::make_shared<IM::app::ContactServiceImpl>(
-        contact_repo, user_repo, talk_repo, message_service, talk_service);
-    auto group_service = std::make_shared<IM::app::GroupServiceImpl>(group_repo, user_repo,
+        contact_repo, user_service, talk_repo, message_service, talk_service);
+    auto group_service = std::make_shared<IM::app::GroupServiceImpl>(group_repo, user_service,
                                                                      message_service, talk_service);
 
     // Register API modules in the order that satisfies dependencies

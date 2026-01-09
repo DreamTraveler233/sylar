@@ -28,6 +28,9 @@ mysql.dbs:
 # Presence 服务 RPC 固定地址（用于推送路由查询）
 presence.rpc_addr: "127.0.0.1:8070"
 
+# Talk 服务 RPC 固定地址（用于群聊广播查询 talk_id 与成员列表）
+talk.rpc_addr: "127.0.0.1:8075"
+
 # Contact 服务 RPC 固定地址（用于好友关系校验与会话名片查询）
 contact.rpc_addr: "127.0.0.1:8072"
 
