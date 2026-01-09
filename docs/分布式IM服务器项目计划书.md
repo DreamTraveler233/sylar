@@ -8,6 +8,8 @@
 - 2026-01-08：阶段 4（业务域拆分）启动：新增 `svc_contact`（联系人查询 RPC，CMD 401）；`svc_message` 的好友关系校验/会话名片查询改为通过 `svc_contact` RPC 获取。
 - 2026-01-08：阶段 4（业务域拆分）：新增 `svc_user`（用户服务 RPC，CMD 501-517，端口 8073）；`gateway_http/gateway_ws` 的 `IUserService` 通过 `svc_user` RPC 调用。
 - 2026-01-09：阶段 4（业务域拆分）推进：完成 `svc_group`、`svc_talk` 拆分与独立部署。
+- 2026-01-09：阶段 4（业务域拆分）推进：完成 `svc_media` 拆分与独立部署（端口 8076）；`gateway_http`/`svc_user` 通过 RPC 调用。
+- 2026-01-09：阶段 4/5 联调验收：完成全链路冒烟测试，WS 消息路由稳定，媒体上传 RPC 路径验证通过。
 - 2026-01-09：阶段 5（可靠性优化）：修复 Redis 驱动在重连时无法自动重认证（AUTH）的 Bug；修复 `svc_presence` 缺失 Redis 配置导致路由失效的问题。
 
 ## 1. 背景与目标
@@ -339,7 +341,7 @@
   - [x] `svc_message` 通过 `svc_contact` RPC 执行好友关系校验（`invalid_reason: not_friend` 逻辑保持一致）
   - [x] 新增 `svc_user`（用户服务 RPC，CMD 501-517，端口 8073；网关通过 RPC 调用）
   - [x] 拆分 `svc_group` / `svc_talk`（完成独立进程部署）
-  - [ ] 拆分 `svc-media`（待排期）
+  - [x] 拆分 `svc-media`（完成独立进程部署，端口 8076）
 - [ ] **阶段 5：监控、治理与性能压测**
   - [x] 核心可靠性修复：Redis 驱动重连 AUTH 修复
   - [ ] 统一 Trace ID 实现与日志接入

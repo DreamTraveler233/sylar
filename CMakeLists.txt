@@ -187,6 +187,11 @@ add_executable(im_svc_talk src/bootstrap/svc_talk.cpp)
 add_dependencies(im_svc_talk IM)
 target_link_libraries(im_svc_talk PRIVATE IM)
 
+# Stage 4/5: media service
+add_executable(im_svc_media src/bootstrap/svc_media.cpp)
+add_dependencies(im_svc_media IM)
+target_link_libraries(im_svc_media PRIVATE IM)
+
 # ==================== 输出目录 ====================
 # 指定可执行文件输出目录 按类型区分 (应用/测试)
 set(BIN_APP_DIR ${PROJECT_SOURCE_DIR}/bin)
@@ -209,6 +214,7 @@ set_target_properties(im_gateway_http PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_
 set_target_properties(im_svc_presence PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_APP_DIR})
 set_target_properties(im_svc_group PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_APP_DIR})
 set_target_properties(im_svc_talk PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_APP_DIR})
+set_target_properties(im_svc_media PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_APP_DIR})
 
 # ==================== Tests ====================
 option(ENABLE_TESTS "Build unit tests" ON)

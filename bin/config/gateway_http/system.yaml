@@ -31,6 +31,9 @@ group.rpc_addr: "127.0.0.1:8074"
 # Stage 4: talk service
 talk.rpc_addr: "127.0.0.1:8075"
 
+# Stage 4/5: media service
+media.rpc_addr: "127.0.0.1:8076"
+
 # 机器编码配置（用于区分不同机器，范围是 0~1023）
 machine:
     code: "0"

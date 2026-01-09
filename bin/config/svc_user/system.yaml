@@ -15,6 +15,9 @@ crypto:
 # 服务发现配置 (Zookeeper)
 service_discovery.zk: "127.0.0.1:2181"
 
+# media service (avatar/media lookup)
+media.rpc_addr: "127.0.0.1:8076"
+
 # MySQL 数据源配置（复用 default）
 mysql.dbs:
   default:

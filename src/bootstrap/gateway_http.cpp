@@ -10,9 +10,9 @@
 #include "interface/api/upload_api_module.hpp"
 #include "interface/api/user_api_module.hpp"
 #include "application/app/common_service_impl.hpp"
-#include "application/app/media_service_impl.hpp"
 #include "application/rpc/contact_service_rpc_client.hpp"
 #include "application/rpc/group_service_rpc_client.hpp"
+#include "application/rpc/media_service_rpc_client.hpp"
 #include "application/rpc/message_service_rpc_client.hpp"
 #include "application/rpc/talk_service_rpc_client.hpp"
 #include "application/rpc/user_service_rpc_client.hpp"
@@ -21,8 +21,6 @@
 #include "core/net/http/http_server.hpp"
 #include "core/net/http/multipart/multipart_parser.hpp"
 #include "infra/repository/common_repository_impl.hpp"
-#include "infra/repository/media_repository_impl.hpp"
-#include "infra/storage/istorage.hpp"
 #include "infra/module/crypto_module.hpp"
 #include "infra/module/module.hpp"
 #include "core/system/application.hpp"
@@ -59,11 +57,9 @@ int main(int argc, char **argv)
 
     // Repositories
     auto common_repo = std::make_shared<IM::infra::repository::CommonRepositoryImpl>(db_manager);
-    auto upload_repo = std::make_shared<IM::infra::repository::MediaRepositoryImpl>(db_manager);
-
-    // Services
-    auto storage_adapter = IM::infra::storage::CreateLocalStorageAdapter();
-    auto media_service = std::make_shared<IM::app::MediaServiceImpl>(upload_repo, storage_adapter);
+    // Media service (RPC)
+    IM::domain::service::IMediaService::Ptr media_service =
+        std::make_shared<IM::app::rpc::MediaServiceRpcClient>();
     auto multipart_parser = IM::http::multipart::CreateMultipartParser();
     auto common_service = std::make_shared<IM::app::CommonServiceImpl>(common_repo);
     IM::domain::service::IUserService::Ptr user_service =

@@ -1,0 +1,6 @@
+# svc_media worker 配置
+workers:
+  accept:
+    thread_num: 1
+  rock_worker:
+    thread_num: 4
