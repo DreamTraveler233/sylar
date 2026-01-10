@@ -15,11 +15,18 @@
 
 ## 2. 现有服务命名约定
 
-| 服务组件 | 进程类型 | Domain | Service | 节点内容 (Data) | 说明 |
+| 服务组件 | 进程类型 | Domain | Service | 节点内容 | 说明 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **WebSocket 网关** | gateway_ws | `im` | `ws` | `ws` | 承载长连接 |
-| **HTTP API** | gateway_http | `im` | `http` | `http` | 承载 REST API |
-| **Rock RPC** | (内嵌) | `im` | `rock` | `rock` | 内部通信 |
+| **WebSocket 网关** | im_gateway_ws | `im` | `ws` | `ws` | 承载长连接入口 |
+| **HTTP API 网关** | im_gateway_http | `im` | `http` | `http` | 承载 REST API 入口 |
+| **在线状态与路由** | im_svc_presence | `im` | `presence` | `rock` | 维护 user->gateway 映射 |
+| **消息中心** | im_svc_message | `im` | `message` | `rock` | 消息持久化与投递路由 |
+| **联系人/关系** | im_svc_contact | `im` | `contact` | `rock` | 好友关系与名片查询 |
+| **用户/账号** | im_svc_user | `im` | `user` | `rock` | 用户资料与账号管理 |
+| **群组/社群** | im_svc_group | `im` | `group` | `rock` | 群组逻辑与成员管理 |
+| **会话/列表** | im_svc_talk | `im` | `talk` | `rock` | 消息会话状态同步 |
+| **媒体/存储** | im_svc_media | `im` | `media` | `rock` | 文件上传与元数据 |
+| **Rock RPC** | (通用) | `im` | `rock` | `rock` | 基础 RPC 通信模块 |
 
 ## 3. 节点数据格式
 

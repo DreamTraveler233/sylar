@@ -1,64 +1,58 @@
 # scripts 目录说明文档
 
-本目录包含了 XinYu-IM-Backend 项目的构建、环境管理、集群运行及运维辅助脚本。
+本目录包含了 XinYu-IM-Backend 项目的构建、环境管理、部署运行及测试脚本。我们采用了按功能分类的目录结构，以提升项目可维护性。
 
-## 1. 核心运行脚本
+## 目录结构概览
 
-### [gateways_run.sh](gateways_run.sh) (网关分离运行)
-在阶段 1 完成网关分离后，专用于启停专用的 HTTP 网关与 WebSocket 网关。
-- **功能**: 管理分离后的 `im_gateway_http`、`im_gateway_ws` 以及各业务子服务进程。
-- **用法**:
-  - `./gateways_run.sh start`: 启动 HTTP 和 WS 网关及业务服务。
-  - `./gateways_run.sh stop`: 停止所有相关进程。
-  - `./gateways_run.sh status`: 查看进程运行状态及监听端口。
-- **配置依赖**: 依赖 `bin/config/gateway_http`、`bin/config/gateway_ws` 等目录。
-
-### [build.sh](build.sh) (编译构建)
-- **功能**: 封装了 CMake 编译流程，生成 `im_server`、`im_gateway_http`、`im_gateway_ws` 及 `im_svc_*` 系列服务。
-- **输出**: 编译结果存放在 `build/` 目录，生成的库位于 `lib/`，可执行文件位于 `bin/`。
-
-### [start_env.sh](start_env.sh) & [stop_env.sh](stop_env.sh) (基础环境管理)
-- **功能**: 检查并启动/停止项目依赖的中间件（Zookeeper, Redis, MySQL, Nginx）。
-- **注意**: 在运行 `im_server` 或 `cluster_run.sh` 之前，必须确保基础环境已启动。
-
----
-
-## 2. 目录结构
-
-| 子目录 | 说明 |
-| :--- | :--- |
-| **docker/** | Docker 部署相关配置，目前主要包含 Nginx 环境的容器化脚本。 |
-| **sql/** | 数据库迁移管理（migrate.sh），负责执行 `migrations/` 下的版本更新。 |
-| **tooling/** | 辅助工具，如测试脚本、媒体文件目录初始化脚本等。 |
-
----
-
-## 3. 典型操作流程
-
-### 场景 A：重新编译并本地集群测试
-```bash
-# 1. 启动中间件
-./start_env.sh
-
-# 2. 编译代码
-./build.sh
-
-# 3. 运行集群节点
-./cluster_run.sh restart
-
-# 4. 检查是否正常
-./cluster_run.sh status
+```
+scripts/
+├── db/             # 数据库相关脚本（迁移、初始化）
+├── deploy/         # 部署与进程管理脚本
+├── docker/         # Docker 容器化方案与 Nginx 配置
+├── env/            # 基础依赖环境（Redis, MySQL, MinIO 等）管理
+├── tests/          # 自动化测试脚本（冒烟测试、压力测试）
+└── build.sh        # 全局编译构建脚本
 ```
 
-### 场景 B：数据库版本更新
-```bash
-cd sql
-./migrate.sh
-```
+## 1. 编译构建
 
----
+### [build.sh](build.sh)
+- **功能**: 封装 CMake 编译流程。
+- **输出**: 
+  - 可执行文件: bin/ (如 gateway_http, gateway_ws, im_svc_media 等)
+  - 库文件: lib/
 
-## 4. 运维注意事项
-- **端口冲突**: `cluster_run.sh` 启动的节点端口在 `conf/cluster/` 对应的 `server.yaml` 中配置。若需新增节点，请确保所有端口不冲突。
-- **日志查看**: 集群模式下，日志不再输出到标准输出，请查看 `bin/log/nodeX/system.log`。
-- **清理**: 如果进程异常无法停止，可以使用 `pkill -9 im_server` 强行清理。
+## 2. 数据库管理 (db/)
+
+### [db/migrate.sh](db/migrate.sh)
+- **功能**: 执行 migrations/ 目录下的 SQL 迁移文件。
+- **依赖**: 需要系统中安装有 mysql 客户端，并能访问当前配置的数据库。
+
+## 3. 部署与运行 (deploy/)
+
+### [deploy/gateways.sh](deploy/gateways.sh)
+- **功能**: 管理分层架构下的网关与业务服务进程。
+- **命令**:
+  - ./deploy/gateways.sh start: 启动所有网关及微服务。
+  - ./deploy/gateways.sh stop: 优雅停止进程。
+  - ./deploy/gateways.sh status: 查看当前运行状态、PID 及监听端口。
+
+## 4. 环境管理 (env/)
+
+### [env/start_env.sh](env/start_env.sh) & [env/stop_env.sh](env/stop_env.sh)
+- **功能**: 基于 Docker Compose 或本地包管理工具启动/停止 Redis, MySQL, MongoDB, MinIO 等基础设施。
+
+## 5. 自动化测试 (tests/)
+
+### [tests/smoke/api_smoke.sh](tests/smoke/api_smoke.sh)
+- **功能**: 对 HTTP 网关进行全链路冒烟测试，包括用户注册、登录、好友申请、消息发送等。
+- **测试报告**: 运行结束后输出各接口的响应状态。
+
+### [tests/smoke/ws_smoke/](tests/smoke/ws_smoke/)
+- **功能**: 基于 Node.js 的 WebSocket 并发连接与心跳测试。
+
+### [tests/smoke/test_update_user_info.sh](tests/smoke/test_update_user_info.sh)
+- **功能**: 验证用户信息更新逻辑及数据库字段绑定正确性。
+
+## 6. 工具与配置 (docker/)
+包含 Nginx 的反向代理配置 (nginx.dev.conf) 及快速启动 Nginx 容器的脚本。

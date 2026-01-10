@@ -1,118 +1,85 @@
 # XinYu IM Backend
 
-XinYu IM Backend 是一个基于 **C++17** 的高性能即时通讯服务端，采用分层架构（API → Application → Infrastructure），并在工程上逐步从单体形态演进为**网关分离 + 服务自治**的分布式体系。
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![C++](https://img.shields.io/badge/language-C%2B%2B17-orange.svg)]()
+[![Platform](https://img.shields.io/badge/platform-Linux-lightgrey.svg)]()
 
-当前仓库重点落在网关层：提供面向业务的 **HTTP REST API** 与面向长连接的 **WebSocket** 服务，并通过内部 **Rock RPC** 链路完成跨进程/跨节点的信令投递，为后续在线路由、消息存储与业务服务拆分打基础。
+XinYu IM Backend 是一个基于 **C++17** 开发的高性能即时通讯服务端。项目采用分层架构设计，实现了 **网关分离** 与 **分布式链路追踪**，能够在保证高并发性能的同时，提供极佳的可维护性与可观测性。
 
-## 核心亮点
+## ✨ 特性
 
-- **网关分离部署**：
-    - **`gateway_http`**：处理无状态 REST 请求（鉴权、资料/关系链相关接口、业务触发）。
-    - **`gateway_ws`**：维护长连接（心跳、会话管理、下行推送），并对外提供 WebSocket 接入。
-- **跨进程通讯（Rock RPC）**：基于自定义 Rock 协议完成网关/服务间信令投递；客户端连接分布在不同网关节点时，仍可通过内部 RPC 链路实现消息送达。
-- **服务发现与自治**：集成 **ZooKeeper** 做节点注册与发现（Service Discovery），支持节点变更感知与水平扩容。
-- **高性能网络与并发模型**：基于 **Libevent + 协程（Coroutine）**，在保持可维护性的同时面向高并发长连接场景优化。
-- **工程化与可扩展性**：业务逻辑与存储介质解耦（MySQL/Redis/本地或云存储），便于后续拆分与演进。
+- 🚀 **高性能并发模型**：基于 Libevent + 协程（Coroutine）的非阻塞 IO 模型，轻松应对动态长连接压力的同时保持同步代码的编写体验。
+- 🏗️ **网关分离架构**：
+  - **HTTP 网关**: 负责 RESTful API、身份鉴权及业务逻辑触发。
+  - **WebSocket 网关**: 负责长连接维护、心跳检测及实时消息下发。
+- 🔗 **分布式链路追踪**：内置协程安全的 **Trace ID** 追踪机制，支持跨 RPC 节点的日志染色，实现全链路请求定位。
+- 🛰️ **服务发现与自治**：集成 ZooKeeper 动态注册与发现服务节点，支持水平扩容与故障感知。
+- 📦 **微服务化演进**：已实现媒体服务 (`im_svc_media`) 的解耦拆分，支持 Rock RPC 跨进程通信。
 
-## 仓库结构概览
-| 路径 | 说明 |
-| --- | --- |
-| `src/interface/` | 接口层：HTTP Servlets、WebSocket 处理及 RPC 模块实现。 |
-| `src/application/` | 应用服务层：组合领域能力，对外提供用例级服务。 |
-| `src/infra/` | 基础设施层：MySQL/Redis 仓储适配、第三方能力集成（存储、邮件等）。 |
-| `bin/config/` | 配置文件目录：包含 `gateway_http` 和 `gateway_ws` 的独立配置模板。 |
-| `bin/` | 构建产物：`gateway_http` (API网关)、`gateway_ws` (WS网关)、`im_server` (兼容单体)。 |
-| `scripts/` | 自动化工具：`gateways_run.sh` (网关启停)、`sql/` (数据库迁移)。 |
+## 🚀 快速开始
 
-## 依赖与环境要求
-- CMake ≥ 3.10，Make/ninja，ccache(可选)。
-- C++17 编译器（推荐 GCC ≥ 9 或 Clang ≥ 11）。
-- 系统库：Threads、pkg-config、Protobuf、OpenSSL、Zlib、yaml-cpp、jwt-cpp、sqlite3、mysqlclient、jsoncpp、libevent、hiredis_vip、tinyxml2、ragel、ZooKeeper (`libzookeeper_mt.so`)。
-- 服务依赖：MySQL 8+、Redis、（可选）ZooKeeper 用于 `service_discovery.zk`。
-- 其它：RSA 密钥对 (`keys/`)、本地或分布式文件存储路径（媒体上传）。
+### 先决条件
+- **操作系统**: Linux (推荐 Ubuntu 20.04+)
+- **编译器**: GCC 9+ 或 Clang 11+
+- **依赖库**: Protobuf, OpenSSL, Zlib, YAML-cpp, JWT-cpp, MySQL Client, Hiredis, Libevent, ZooKeeper
 
-Ubuntu 示例安装命令（按需调整）：
+### 安装步骤
 ```bash
-sudo apt install build-essential cmake pkg-config ccache ragel \
-    libprotobuf-dev protobuf-compiler libssl-dev zlib1g-dev libyaml-cpp-dev \
-    libjwt-cpp-dev libsqlite3-dev libmysqlclient-dev libjsoncpp-dev \
-    libevent-dev libhiredis-dev libtinyxml2-dev libzookeeper-mt-dev
+# 1. 克隆项目
+git clone https://github.com/szy/XinYu-IM-Backend.git
+cd XinYu-IM-Backend
+
+# 2. 启动基础依赖环境 (Redis, MySQL, ZooKeeper 等)
+./scripts/env/start_env.sh
+
+# 3. 执行数据库迁移
+./scripts/db/migrate.sh apply
+
+# 4. 编译项目
+./scripts/build.sh
 ```
 
-## 快速上手
+### 运行服务
+```bash
+# 一键启动 HTTP 与 WebSocket 所有网关服务
+./scripts/deploy/gateways.sh start
 
-1. **基础环境准备**：
-   ```bash
-   # 启动 MySQL, Redis, ZooKeeper
-   ./scripts/start_env.sh
-   # 执行数据库迁移
-   ./scripts/sql/migrate.sh apply
-   ```
+# 检查运行状态
+./scripts/deploy/gateways.sh status
+```
 
-2. **编译代码**：
-   ```bash
-   ./scripts/build.sh
-   ```
+## 📂 项目结构
 
-3. **启动网关服务**：
-   项目目前采用网关分离部署模式，由专用脚本管理：
-   ```bash
-   # 一键启动 HTTP 与 WebSocket 网关
-   ./scripts/gateways_run.sh start
-   # 查看运行状态与监听端口
-   ./scripts/gateways_run.sh status
-   ```
+```
+XinYu-IM-Backend/
+├── bin/                # 编译产物、配置文件及日志
+│   ├── config/         # 业务配置文件 (YAML)
+│   └── log/            # 服务运行日志
+├── scripts/            # 自动化运维工具链
+│   ├── db/             # 数据库迁移脚本
+│   ├── deploy/         # 进程管理与部署
+│   ├── env/            # 基础设施管理
+│   └── tests/          # 冒烟测试与压测
+├── src/                # 核心源代码
+│   ├── core/           # 框架底层 (IO, 协程, 网络, 追踪)
+│   ├── interface/      # 接口层 (HTTP/WS/RPC)
+│   └── infra/          # 基础设施适配 (MySQL/Redis/Storage)
+└── migrations/         # 数据库版本迁移 SQL
+```
 
-4. **客户端连接**：
-   - **HTTP API**: `http://127.0.0.1:8080/api/v1/...`
-   - **WebSocket**: `ws://127.0.0.1:8081?token=...&platform=pc`
-   - **内部 RPC**: `127.0.0.1:8060` (仅供服务间调用)
+## 📖 文档
+- [分布式项目计划书](docs/分布式IM服务器项目计划书.md)
+- [服务发现约定](docs/service_discovery_convention.md)
+- [脚本目录使用说明](scripts/README.md)
 
-## 设计理念与架构演进
+## 🤝 贡献
+欢迎提交 Issue 或 PR。在提交代码前请确保：
+1. 请运行 `.clang-format` 格式化代码。
+2. 运行 `./scripts/tests/smoke/api_smoke.sh` 确保核心流程通过。
 
-项目正依照 [docs/分布式IM服务器项目计划书.md](docs/%E5%88%86%E5%B8%83%E5%BC%8FIM%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%A1%B9%E7%9B%AE%E8%AE%A1%E5%88%92%E4%B9%A6.md) 进行分阶段重构；服务发现约定见 [docs/service_discovery_convention.md](docs/service_discovery_convention.md)。
+## 📄 许可证
+本项目基于 [MIT License](LICENSE) 开源。
 
-- **Phase 1（当前）**：网关分离。将单体拆分为 `gateway_http` 和 `gateway_ws`，解决单进程并发瓶颈，引入 RPC 投递机制。
-- **Phase 2（计划中）**：全局在线路由 (Presence)。利用 Redis 记录用户会话映射，实现多节点间的推送寻址。
-- **Phase 3（计划中）**：业务核心拆分。将消息存储、离线记录、关系链提取为独立服务。
-
-## 运行与部署提示
-- **相对路径支持**：所有二进制程序均默认从 `bin/config/` 读取配置。
-- **日志观察**：网关日志分别记录在 `bin/log/gateway_http/` 和 `bin/log/gateway_ws/`。
-- **动态扩容**：若需部署多个 WS 网关实例，物理复制 `bin/config/gateway_ws` 目录并修改 `server.yaml` 中的监听端口及 ZK 注册信息即可。
-
-## 配置说明 (bin/config/)
-
-项目配置文件采用子目录隔离模式，确保不同职责的网关进程互不干扰。
-
-- **`gateway_http/`**：HTTP 网关配置，重点在于 `server.yaml` 中的 `http` 监听。
-- **`gateway_ws/`**：WS 网关配置，重点在于 `server.yaml` 中的 `ws` 与 `rock` 监听。
-
-### 核心配置文件：
-- **`system.yaml`**：
-    - `server.work_path`：网关的运行时工作目录（如 `bin/apps/work/gateway_ws`）。
-    - `server.pid_file`：进程 PID 文件名，确保网关可独立启停。
-    - `service_discovery.zk`：ZooKeeper 地址，用于节点注册。
-    - `mysql.dbs.default` / `redis.nodes`：数据库与缓存连接配置。
-- **`server.yaml`**：协议类型（http/ws/rock）、监听地址及超时参数。
-- **`log.yaml`**：日志级别与路径。建议设置为 `bin/log/gateway_xxx/` 以便区分。
-- **`media.yaml`**：媒体文件上传的基准路径与存储策略。
-
-## 测试
-
-- **单元测试**：构建产出物位于 `bin/tests/`。
-  ```bash
-  # 示例：运行媒体服务测试
-  ./bin/tests/test_media
-  ```
-
-
-## 常见问题
-
-- **端口冲突**：确保 `gateway_http` (8080) 与 `gateway_ws` (8081, 8060) 端口配置互不重叠。
-- **RPC 无法连通**：检查 `gateway_ws` 的 Rock RPC 端口是否放行，且后端服务能正确从 ZooKeeper 获取 `gateway-ws-rpc` 节点。
-- **工作目录写权限**：网关在启动时会尝试锁定 `work_path` 下的 PID 文件，请确保该目录对运行用户可见且可写。
-
-## 贡献
-
-欢迎提交 Issue 或 PR。在提交代码前建议运行 `.clang-format` 进行格式化，并确保所有单元测试通过。
+## 🙏 致谢
+- [Libevent](https://libevent.org/) - 网络底座
+- [hiredis-vip](https://github.com/vipshop/hiredis-vip) - Redis 客户端

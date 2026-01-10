@@ -8,7 +8,11 @@ PLATFORM=${PLATFORM:-web}
 TOKEN_FILE=${TOKEN_FILE:-/tmp/im_token}
 GROUP_FILE=${GROUP_FILE:-/tmp/im_group_id}
 
-ENC_PASS=$(printf %s "$PASS" | openssl pkeyutl -encrypt -pubin -inkey bin/keys/rsa_public_rsa_2048.pem -pkeyopt rsa_padding_mode:pkcs1 | base64 -w0)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")"
+KEY_PATH="$PROJECT_ROOT/bin/keys/rsa_public_rsa_2048.pem"
+
+ENC_PASS=$(printf %s "$PASS" | openssl pkeyutl -encrypt -pubin -inkey "$KEY_PATH" -pkeyopt rsa_padding_mode:pkcs1 | base64 -w0)
 
 LOGIN_JSON=$(curl -sS --max-time 5 -X POST "$BASE/api/v1/auth/login" \
   -H 'Content-Type: application/json' \

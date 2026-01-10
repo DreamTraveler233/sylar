@@ -1,4 +1,5 @@
 #include "core/util/trace_context.hpp"
+#include "core/io/coroutine.hpp"
 
 #include <random>
 #include <iomanip>
@@ -6,18 +7,26 @@
 
 namespace IM {
 
-thread_local std::string TraceContext::s_trace_id = "";
-
 std::string TraceContext::GetTraceId() {
-    return s_trace_id;
+    auto f = Coroutine::GetThis();
+    if (f) {
+        return f->getTraceId();
+    }
+    return "";
 }
 
 void TraceContext::SetTraceId(const std::string& traceId) {
-    s_trace_id = traceId;
+    auto f = Coroutine::GetThis();
+    if (f) {
+        f->setTraceId(traceId);
+    }
 }
 
 void TraceContext::Clear() {
-    s_trace_id = "";
+    auto f = Coroutine::GetThis();
+    if (f) {
+        f->setTraceId("");
+    }
 }
 
 std::string TraceContext::GenerateTraceId() {

@@ -14,9 +14,6 @@ public:
     static void SetTraceId(const std::string& traceId);
     static void Clear();
     static std::string GenerateTraceId();
-
-private:
-    static thread_local std::string s_trace_id;
 };
 
 class TraceGuard {

@@ -371,6 +371,13 @@ bool WsGatewayModule::onServerReady() {
         // 2.1 连接建立回调：鉴权、会话登记、欢迎包
         auto on_connect = [](IM::http::HttpRequest::ptr header,
                              IM::http::WSSession::ptr session) -> int32_t {
+            // 获取或生成 Trace ID
+            std::string trace_id = header->getHeader("X-Trace-ID");
+            if (trace_id.empty()) {
+                trace_id = TraceContext::GenerateTraceId();
+            }
+            TraceGuard guard(trace_id);
+
             // 读取查询串 ?token=...&platform=...
             const std::string query = header->getQuery();
             auto kv = ParseQueryKV(query);
@@ -429,8 +436,15 @@ bool WsGatewayModule::onServerReady() {
         };
 
         // 2.2 连接关闭回调：移除会话表
-        auto on_close = [this](IM::http::HttpRequest::ptr /*header*/,
+        auto on_close = [this](IM::http::HttpRequest::ptr header,
                                IM::http::WSSession::ptr session) -> int32_t {
+            // 获取或生成 Trace ID
+            std::string trace_id = header->getHeader("X-Trace-ID");
+            if (trace_id.empty()) {
+                trace_id = TraceContext::GenerateTraceId();
+            }
+            TraceGuard guard(trace_id);
+
             // 获取连接上下文
             ConnCtx ctx;
             {

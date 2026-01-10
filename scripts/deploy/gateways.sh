@@ -2,7 +2,8 @@
 
 # 网关分离部署启动脚本
 
-PROJECT_ROOT=$(pwd)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
 HTTP_BIN="${PROJECT_ROOT}/bin/im_gateway_http"
 WS_BIN="${PROJECT_ROOT}/bin/im_gateway_ws"
 PRESENCE_BIN="${PROJECT_ROOT}/bin/im_svc_presence"

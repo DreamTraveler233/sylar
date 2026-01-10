@@ -10,15 +10,15 @@
 
 - 列出迁移列表及状态：
 
-  scripts/sql/migrate.sh list
+  scripts/db/migrate.sh list
 
 - 查看摘要状态：
 
-  scripts/sql/migrate.sh status
+  scripts/db/migrate.sh status
 
 - 应用所有未执行的迁移：
 
-  scripts/sql/migrate.sh apply
+  scripts/db/migrate.sh apply
 
 如需显式指定连接参数，可追加：`--host --port --user --pass --name`
 

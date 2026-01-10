@@ -149,6 +149,16 @@ class Coroutine : public std::enable_shared_from_this<Coroutine>, Noncopyable {
          */
     static uint64_t GetCoroutineId();
 
+    /**
+     * @brief 获取Trace ID
+     */
+    const std::string& getTraceId() const { return m_traceId; }
+
+    /**
+     * @brief 设置Trace ID
+     */
+    void setTraceId(const std::string& v) { m_traceId = v; }
+
    private:
     uint64_t m_id = 0;            /// 协程id
     uint32_t m_stack_size = 0;    /// 协程栈大小
@@ -156,6 +166,7 @@ class Coroutine : public std::enable_shared_from_this<Coroutine>, Noncopyable {
     ucontext_t m_ctx;             /// 协程上下文，用于保存和切换上下文环境
     void* m_stack = nullptr;      /// 协程栈空间
     std::function<void()> m_cb;   /// 协程要执行的回调函数
+    std::string m_traceId;        /// Trace ID
 };
 
 /**
