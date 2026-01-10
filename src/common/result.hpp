@@ -1,3 +1,12 @@
+/**
+ * @file result.hpp
+ * @brief 公共组件
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 公共组件。
+ */
+
 #ifndef __IM_COMMON_RESULT_HPP__
 #define __IM_COMMON_RESULT_HPP__
 
@@ -26,7 +35,7 @@ struct Result {
     Result() : ok(false), code(500) {}
 
     // 成功构造
-    static Result<T> Success(const T& val) {
+    static Result<T> Success(const T &val) {
         Result<T> r;
         r.ok = true;
         r.code = 0;
@@ -35,7 +44,7 @@ struct Result {
     }
 
     // 失败构造
-    static Result<T> Error(int c, const std::string& msg) {
+    static Result<T> Error(int c, const std::string &msg) {
         Result<T> r;
         r.ok = false;
         r.code = c;
@@ -58,7 +67,7 @@ struct Result<void> {
         return r;
     }
 
-    static Result<void> Error(int c, const std::string& msg) {
+    static Result<void> Error(int c, const std::string &msg) {
         Result<void> r;
         r.ok = false;
         r.code = c;

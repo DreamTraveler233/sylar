@@ -1,3 +1,12 @@
+/**
+ * @file email.hpp
+ * @brief 邮件服务相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 邮件服务相关。
+ */
+
 #ifndef __IM_INFRA_EMAIL_EMAIL_HPP__
 #define __IM_INFRA_EMAIL_EMAIL_HPP__
 
@@ -22,14 +31,14 @@ class EMailEntity {
      * @param[in] filename 附件文件路径
      * @return 附件实体智能指针
      */
-    static EMailEntity::ptr CreateAttach(const std::string& filename);
+    static EMailEntity::ptr CreateAttach(const std::string &filename);
 
     /**
      * @brief 添加头部信息
      * @param[in] key 头部键名
      * @param[in] val 头部值
      */
-    void addHeader(const std::string& key, const std::string& val);
+    void addHeader(const std::string &key, const std::string &val);
 
     /**
      * @brief 获取头部信息
@@ -37,19 +46,19 @@ class EMailEntity {
      * @param[in] def 默认值
      * @return 头部值，如果不存在则返回默认值
      */
-    std::string getHeader(const std::string& key, const std::string& def = "");
+    std::string getHeader(const std::string &key, const std::string &def = "");
 
     /**
      * @brief 获取附件内容
      * @return 附件内容
      */
-    const std::string& getContent() const { return m_content; }
+    const std::string &getContent() const { return m_content; }
 
     /**
      * @brief 设置附件内容
      * @param[in] v 附件内容
      */
-    void setContent(const std::string& v) { m_content = v; }
+    void setContent(const std::string &v) { m_content = v; }
 
     /**
      * @brief 转换为字符串表示
@@ -82,95 +91,94 @@ class EMail {
      * @param[in] bcc_address 密送邮箱地址列表
      * @return 邮件对象智能指针
      */
-    static EMail::ptr Create(const std::string& from_address, const std::string& from_passwd,
-                             const std::string& title, const std::string& body,
-                             const std::vector<std::string>& to_address,
-                             const std::vector<std::string>& cc_address = {},
-                             const std::vector<std::string>& bcc_address = {});
+    static EMail::ptr Create(const std::string &from_address, const std::string &from_passwd, const std::string &title,
+                             const std::string &body, const std::vector<std::string> &to_address,
+                             const std::vector<std::string> &cc_address = {},
+                             const std::vector<std::string> &bcc_address = {});
 
     /**
      * @brief 获取发件人邮箱地址
      * @return 发件人邮箱地址
      */
-    const std::string& getFromEMailAddress() const { return m_fromEMailAddress; }
+    const std::string &getFromEMailAddress() const { return m_fromEMailAddress; }
 
     /**
      * @brief 获取发件人邮箱密码
      * @return 发件人邮箱密码
      */
-    const std::string& getFromEMailPasswd() const { return m_fromEMailPasswd; }
+    const std::string &getFromEMailPasswd() const { return m_fromEMailPasswd; }
 
     /**
      * @brief 获取邮件标题
      * @return 邮件标题
      */
-    const std::string& getTitle() const { return m_title; }
+    const std::string &getTitle() const { return m_title; }
 
     /**
      * @brief 获取邮件正文
      * @return 邮件正文
      */
-    const std::string& getBody() const { return m_body; }
+    const std::string &getBody() const { return m_body; }
 
     /**
      * @brief 设置发件人邮箱地址
      * @param[in] v 发件人邮箱地址
      */
-    void setFromEMailAddress(const std::string& v) { m_fromEMailAddress = v; }
+    void setFromEMailAddress(const std::string &v) { m_fromEMailAddress = v; }
 
     /**
      * @brief 设置发件人邮箱密码
      * @param[in] v 发件人邮箱密码
      */
-    void setFromEMailPasswd(const std::string& v) { m_fromEMailPasswd = v; }
+    void setFromEMailPasswd(const std::string &v) { m_fromEMailPasswd = v; }
 
     /**
      * @brief 设置邮件标题
      * @param[in] v 邮件标题
      */
-    void setTitle(const std::string& v) { m_title = v; }
+    void setTitle(const std::string &v) { m_title = v; }
 
     /**
      * @brief 设置邮件正文
      * @param[in] v 邮件正文
      */
-    void setBody(const std::string& v) { m_body = v; }
+    void setBody(const std::string &v) { m_body = v; }
 
     /**
      * @brief 获取收件人邮箱地址列表
      * @return 收件人邮箱地址列表
      */
-    const std::vector<std::string>& getToEMailAddress() const { return m_toEMailAddress; }
+    const std::vector<std::string> &getToEMailAddress() const { return m_toEMailAddress; }
 
     /**
      * @brief 获取抄送邮箱地址列表
      * @return 抄送邮箱地址列表
      */
-    const std::vector<std::string>& getCcEMailAddress() const { return m_ccEMailAddress; }
+    const std::vector<std::string> &getCcEMailAddress() const { return m_ccEMailAddress; }
 
     /**
      * @brief 获取密送邮箱地址列表
      * @return 密送邮箱地址列表
      */
-    const std::vector<std::string>& getBccEMailAddress() const { return m_bccEMailAddress; }
+    const std::vector<std::string> &getBccEMailAddress() const { return m_bccEMailAddress; }
 
     /**
      * @brief 设置收件人邮箱地址列表
      * @param[in] v 收件人邮箱地址列表
      */
-    void setToEMailAddress(const std::vector<std::string>& v) { m_toEMailAddress = v; }
+    void setToEMailAddress(const std::vector<std::string> &v) { m_toEMailAddress = v; }
 
     /**
      * @brief 设置抄送邮箱地址列表
      * @param[in] v 抄送邮箱地址列表
      */
-    void setCcEMailAddress(const std::vector<std::string>& v) { m_ccEMailAddress = v; }
+    void setCcEMailAddress(const std::vector<std::string> &v) { m_ccEMailAddress = v; }
 
     /**
      * @brief 设置密送邮箱地址列表
      * @param[in] v 密送邮箱地址列表
      */
-    void setBccEMailAddress(const std::vector<std::string>& v) { m_bccEMailAddress = v; }
+    void setBccEMailAddress(const std::vector<std::string> &v) { m_bccEMailAddress = v; }
 
     /**
      * @brief 添加附件实体
@@ -182,11 +190,11 @@ class EMail {
      * @brief 获取附件实体列表
      * @return 附件实体列表
      */
-    const std::vector<EMailEntity::ptr>& getEntitys() const { return m_entitys; }
+    const std::vector<EMailEntity::ptr> &getEntitys() const { return m_entitys; }
 
     // Auth user for SMTP AUTH (optional). If empty, SmtpClient will extract auth from from address.
-    const std::string& getAuthUser() const { return m_auth_user; }
-    void setAuthUser(const std::string& v) { m_auth_user = v; }
+    const std::string &getAuthUser() const { return m_auth_user; }
+    void setAuthUser(const std::string &v) { m_auth_user = v; }
 
    private:
     std::string m_fromEMailAddress;              /// 发件人邮箱地址（显示名称或纯地址）
@@ -202,4 +210,4 @@ class EMail {
 
 }  // namespace IM
 
-#endif // __IM_INFRA_EMAIL_EMAIL_HPP__
+#endif  // __IM_INFRA_EMAIL_EMAIL_HPP__

@@ -1,11 +1,12 @@
 #include "interface/api/common_api_module.hpp"
 
 #include "core/base/macro.hpp"
-#include "common/common.hpp"
 #include "core/net/http/http_server.hpp"
 #include "core/net/http/http_servlet.hpp"
 #include "core/system/application.hpp"
 #include "core/util/util.hpp"
+
+#include "common/common.hpp"
 
 namespace IM::api {
 
@@ -27,45 +28,45 @@ bool CommonApiModule::onServerReady() {
     // 初始化验证码清理定时器（幂等）
     m_common_service->InitCleanupTimer();
 
-    for (auto& s : httpServers) {
+    for (auto &s : httpServers) {
         auto http = std::dynamic_pointer_cast<IM::http::HttpServer>(s);
         if (!http) continue;
         auto dispatch = http->getServletDispatch();
 
         // 发送短信验证码
-        dispatch->addServlet("/api/v1/common/send-sms", [this](IM::http::HttpRequest::ptr req,
-                                                               IM::http::HttpResponse::ptr res,
-                                                               IM::http::HttpSession::ptr session) {
-            res->setHeader("Content-Type", "application/json");
+        dispatch->addServlet("/api/v1/common/send-sms",
+                             [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                    IM::http::HttpSession::ptr session) {
+                                 res->setHeader("Content-Type", "application/json");
 
-            std::string mobile, channel;
-            Json::Value body;
-            if (ParseBody(req->getBody(), body)) {
-                mobile = IM::JsonUtil::GetString(body, "mobile");
-                channel = IM::JsonUtil::GetString(body, "channel");
-            }
+                                 std::string mobile, channel;
+                                 Json::Value body;
+                                 if (ParseBody(req->getBody(), body)) {
+                                     mobile = IM::JsonUtil::GetString(body, "mobile");
+                                     channel = IM::JsonUtil::GetString(body, "channel");
+                                 }
 
-            /*判断手机号是否已经注册*/
-            auto ret = m_user_service->GetUserByMobile(mobile, channel);
-            if (!ret.ok) {
-                res->setStatus(ToHttpStatus(ret.code));
-                res->setBody(Error(ret.code, ret.err));
-                return 0;
-            }
+                                 /*判断手机号是否已经注册*/
+                                 auto ret = m_user_service->GetUserByMobile(mobile, channel);
+                                 if (!ret.ok) {
+                                     res->setStatus(ToHttpStatus(ret.code));
+                                     res->setBody(Error(ret.code, ret.err));
+                                     return 0;
+                                 }
 
-            /* 发送短信验证码 */
-            auto result = m_common_service->SendSmsCode(mobile, channel, session);
-            if (!result.ok) {
-                res->setStatus(ToHttpStatus(result.code));
-                res->setBody(Error(result.code, result.err));
-                return 0;
-            }
+                                 /* 发送短信验证码 */
+                                 auto result = m_common_service->SendSmsCode(mobile, channel, session);
+                                 if (!result.ok) {
+                                     res->setStatus(ToHttpStatus(result.code));
+                                     res->setBody(Error(result.code, result.err));
+                                     return 0;
+                                 }
 
-            Json::Value data;
-            data["sms_code"] = result.data.code;
-            res->setBody(Ok(data));
-            return 0;
-        });
+                                 Json::Value data;
+                                 data["sms_code"] = result.data.code;
+                                 res->setBody(Ok(data));
+                                 return 0;
+                             });
 
         // 注册邮箱服务
         dispatch->addServlet("/api/v1/common/send-email",
@@ -88,8 +89,7 @@ bool CommonApiModule::onServerReady() {
                                      return 0;
                                  }
 
-                                 auto result =
-                                     m_common_service->SendEmailCode(email, channel, session);
+                                 auto result = m_common_service->SendEmailCode(email, channel, session);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -117,8 +117,7 @@ bool CommonApiModule::onServerReady() {
                                      channel = IM::JsonUtil::GetString(body, "channel");
                                  }
 
-                                 auto result =
-                                     m_common_service->VerifyEmailCode(email, code, channel);
+                                 auto result = m_common_service->VerifyEmailCode(email, code, channel);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));

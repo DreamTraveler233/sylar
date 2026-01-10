@@ -1,14 +1,23 @@
+/**
+ * @file ns_protocol.hpp
+ * @brief 名称服务相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 名称服务相关。
+ */
+
 #ifndef __IM_NS_NS_PROTOCOL_HPP__
 #define __IM_NS_NS_PROTOCOL_HPP__
-
-#include <stdint.h>
 
 #include <iostream>
 #include <map>
 #include <memory>
+#include <stdint.h>
 #include <string>
 
 #include "core/io/lock.hpp"
+
 #include "ns_protobuf.pb.h"
 
 namespace IM::ns {
@@ -33,9 +42,9 @@ class NSNode {
    public:
     typedef std::shared_ptr<NSNode> ptr;
 
-    NSNode(const std::string& ip, uint16_t port, uint32_t weight);
+    NSNode(const std::string &ip, uint16_t port, uint32_t weight);
 
-    const std::string& getIp() const { return m_ip; }
+    const std::string &getIp() const { return m_ip; }
     uint16_t getPort() const { return m_port; }
     uint32_t getWeight() const { return m_weight; }
 
@@ -45,9 +54,9 @@ class NSNode {
 
     uint64_t getId() const { return m_id; }
 
-    static uint64_t GetID(const std::string& ip, uint16_t port);
-    std::ostream& dump(std::ostream& os, const std::string& prefix = "");
-    std::string toString(const std::string& prefix = "");
+    static uint64_t GetID(const std::string &ip, uint16_t port);
+    std::ostream &dump(std::ostream &os, const std::string &prefix = "");
+    std::string toString(const std::string &prefix = "");
 
    private:
     uint64_t m_id;
@@ -68,9 +77,9 @@ class NSNodeSet {
     uint32_t getCmd() const { return m_cmd; }
     void setCmd(uint32_t v) { m_cmd = v; }
 
-    void listAll(std::vector<NSNode::ptr>& infos);
-    std::ostream& dump(std::ostream& os, const std::string& prefix = "");
-    std::string toString(const std::string& prefix = "");
+    void listAll(std::vector<NSNode::ptr> &infos);
+    std::ostream &dump(std::ostream &os, const std::string &prefix = "");
+    std::string toString(const std::string &prefix = "");
 
     size_t size();
 
@@ -83,19 +92,19 @@ class NSNodeSet {
 class NSDomain {
    public:
     typedef std::shared_ptr<NSDomain> ptr;
-    NSDomain(const std::string& domain) : m_domain(domain) {}
+    NSDomain(const std::string &domain) : m_domain(domain) {}
 
-    const std::string& getDomain() const { return m_domain; }
-    void setDomain(const std::string& v) { m_domain = v; }
+    const std::string &getDomain() const { return m_domain; }
+    void setDomain(const std::string &v) { m_domain = v; }
 
     void add(NSNodeSet::ptr info);
     void add(uint32_t cmd, NSNode::ptr info);
     void del(uint32_t cmd);
     NSNode::ptr del(uint32_t cmd, uint64_t id);
     NSNodeSet::ptr get(uint32_t cmd);
-    void listAll(std::vector<NSNodeSet::ptr>& infos);
-    std::ostream& dump(std::ostream& os, const std::string& prefix = "");
-    std::string toString(const std::string& prefix = "");
+    void listAll(std::vector<NSNodeSet::ptr> &infos);
+    std::ostream &dump(std::ostream &os, const std::string &prefix = "");
+    std::string toString(const std::string &prefix = "");
     size_t size();
 
    private:
@@ -109,16 +118,16 @@ class NSDomainSet {
     typedef std::shared_ptr<NSDomainSet> ptr;
 
     void add(NSDomain::ptr info);
-    void del(const std::string& domain);
-    NSDomain::ptr get(const std::string& domain, bool auto_create = false);
+    void del(const std::string &domain);
+    NSDomain::ptr get(const std::string &domain, bool auto_create = false);
 
-    void del(const std::string& domain, uint32_t cmd, uint64_t id);
-    void listAll(std::vector<NSDomain::ptr>& infos);
+    void del(const std::string &domain, uint32_t cmd, uint64_t id);
+    void listAll(std::vector<NSDomain::ptr> &infos);
 
-    std::ostream& dump(std::ostream& os, const std::string& prefix = "");
-    std::string toString(const std::string& prefix = "");
+    std::ostream &dump(std::ostream &os, const std::string &prefix = "");
+    std::string toString(const std::string &prefix = "");
 
-    void swap(NSDomainSet& ds);
+    void swap(NSDomainSet &ds);
 
    private:
     RWMutex m_mutex;
@@ -127,4 +136,4 @@ class NSDomainSet {
 
 }  // namespace IM::ns
 
-#endif // __IM_NS_NS_PROTOCOL_HPP__
+#endif  // __IM_NS_NS_PROTOCOL_HPP__

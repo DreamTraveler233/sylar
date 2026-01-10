@@ -1,3 +1,12 @@
+/**
+ * @file message_type_map.hpp
+ * @brief 公共组件
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 公共组件。
+ */
+
 #ifndef __IM_COMMON_MESSAGE_TYPE_MAP_HPP__
 #define __IM_COMMON_MESSAGE_TYPE_MAP_HPP__
 

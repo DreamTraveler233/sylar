@@ -1,3 +1,12 @@
+/**
+ * @file rock_protocol.hpp
+ * @brief 网络通信相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 网络通信相关。
+ */
+
 #ifndef __IM_NET_ROCK_ROCK_PROTOCOL_HPP__
 #define __IM_NET_ROCK_ROCK_PROTOCOL_HPP__
 
@@ -11,8 +20,8 @@ class RockBody {
     typedef std::shared_ptr<RockBody> ptr;
     virtual ~RockBody() {}
 
-    void setBody(const std::string& v) { m_body = v; }
-    const std::string& getBody() const { return m_body; }
+    void setBody(const std::string &v) { m_body = v; }
+    const std::string &getBody() const { return m_body; }
 
     virtual bool serializeToByteArray(ByteArray::ptr bytearray);
     virtual bool parseFromByteArray(ByteArray::ptr bytearray);
@@ -30,7 +39,7 @@ class RockBody {
     }
 
     template <class T>
-    bool setAsPB(const T& v) {
+    bool setAsPB(const T &v) {
         try {
             return v.SerializeToString(&m_body);
         } catch (...) {
@@ -50,7 +59,7 @@ class RockRequest : public Request, public RockBody {
     std::shared_ptr<RockResponse> createResponse();
 
     virtual std::string toString() const override;
-    virtual const std::string& getName() const override;
+    virtual const std::string &getName() const override;
     virtual int32_t getType() const override;
 
     virtual bool serializeToByteArray(ByteArray::ptr bytearray) override;
@@ -62,7 +71,7 @@ class RockResponse : public Response, public RockBody {
     typedef std::shared_ptr<RockResponse> ptr;
 
     virtual std::string toString() const override;
-    virtual const std::string& getName() const override;
+    virtual const std::string &getName() const override;
     virtual int32_t getType() const override;
 
     virtual bool serializeToByteArray(ByteArray::ptr bytearray) override;
@@ -74,7 +83,7 @@ class RockNotify : public Notify, public RockBody {
     typedef std::shared_ptr<RockNotify> ptr;
 
     virtual std::string toString() const override;
-    virtual const std::string& getName() const override;
+    virtual const std::string &getName() const override;
     virtual int32_t getType() const override;
 
     virtual bool serializeToByteArray(ByteArray::ptr bytearray) override;
@@ -99,4 +108,4 @@ class RockMessageDecoder : public MessageDecoder {
 
 }  // namespace IM
 
-#endif // __IM_NET_ROCK_ROCK_PROTOCOL_HPP__
+#endif  // __IM_NET_ROCK_ROCK_PROTOCOL_HPP__

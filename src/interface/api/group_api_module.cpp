@@ -1,12 +1,14 @@
 #include "interface/api/group_api_module.hpp"
 
 #include <set>
+
 #include "core/base/macro.hpp"
-#include "common/common.hpp"
 #include "core/net/http/http_server.hpp"
 #include "core/net/http/http_servlet.hpp"
 #include "core/system/application.hpp"
 #include "core/util/util.hpp"
+
+#include "common/common.hpp"
 
 namespace IM::api {
 
@@ -25,7 +27,7 @@ bool GroupApiModule::onServerReady() {
         return true;
     }
 
-    for (auto& s : httpServers) {
+    for (auto &s : httpServers) {
         auto http = std::dynamic_pointer_cast<IM::http::HttpServer>(s);
         if (!http) continue;
         auto dispatch = http->getServletDispatch();
@@ -47,8 +49,7 @@ bool GroupApiModule::onServerReady() {
                                      return 0;
                                  }
                                  uint64_t apply_id = IM::JsonUtil::GetUint64(body, "apply_id");
-                                 auto result =
-                                     m_group_service->AgreeApply(uid_result.data, apply_id);
+                                 auto result = m_group_service->AgreeApply(uid_result.data, apply_id);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -76,7 +77,7 @@ bool GroupApiModule::onServerReady() {
                                  }
                                  Json::Value d;
                                  Json::Value list(Json::arrayValue);
-                                 for (const auto& item : result.data) {
+                                 for (const auto &item : result.data) {
                                      Json::Value v;
                                      v["id"] = (Json::UInt64)item.id;
                                      v["user_id"] = (Json::UInt64)item.user_id;
@@ -110,8 +111,7 @@ bool GroupApiModule::onServerReady() {
                                  }
                                  uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
                                  std::string remark = IM::JsonUtil::GetString(body, "remark");
-                                 auto result = m_group_service->CreateApply(uid_result.data,
-                                                                            group_id, remark);
+                                 auto result = m_group_service->CreateApply(uid_result.data, group_id, remark);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -138,8 +138,7 @@ bool GroupApiModule::onServerReady() {
                                  }
                                  uint64_t apply_id = IM::JsonUtil::GetUint64(body, "apply_id");
                                  std::string remark = IM::JsonUtil::GetString(body, "remark");
-                                 auto result = m_group_service->DeclineApply(uid_result.data,
-                                                                             apply_id, remark);
+                                 auto result = m_group_service->DeclineApply(uid_result.data, apply_id, remark);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -149,14 +148,13 @@ bool GroupApiModule::onServerReady() {
                                  return 0;
                              });
 
-        dispatch->addServlet(
-            "/api/v1/group-apply/delete",
-            [this](IM::http::HttpRequest::ptr /*req*/, IM::http::HttpResponse::ptr res,
-                   IM::http::HttpSession::ptr /*session*/) {
-                res->setHeader("Content-Type", "application/json");
-                res->setBody(Ok());
-                return 0;
-            });
+        dispatch->addServlet("/api/v1/group-apply/delete",
+                             [this](IM::http::HttpRequest::ptr /*req*/, IM::http::HttpResponse::ptr res,
+                                    IM::http::HttpSession::ptr /*session*/) {
+                                 res->setHeader("Content-Type", "application/json");
+                                 res->setBody(Ok());
+                                 return 0;
+                             });
 
         dispatch->addServlet("/api/v1/group-apply/list",
                              [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
@@ -174,8 +172,7 @@ bool GroupApiModule::onServerReady() {
                                      return 0;
                                  }
                                  uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
-                                 auto result =
-                                     m_group_service->GetApplyList(uid_result.data, group_id);
+                                 auto result = m_group_service->GetApplyList(uid_result.data, group_id);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -183,7 +180,7 @@ bool GroupApiModule::onServerReady() {
                                  }
                                  Json::Value d;
                                  Json::Value list(Json::arrayValue);
-                                 for (const auto& item : result.data) {
+                                 for (const auto &item : result.data) {
                                      Json::Value v;
                                      v["id"] = (Json::UInt64)item.id;
                                      v["user_id"] = (Json::UInt64)item.user_id;
@@ -209,8 +206,7 @@ bool GroupApiModule::onServerReady() {
                                      res->setBody(Error(uid_result.code, uid_result.err));
                                      return 0;
                                  }
-                                 auto result =
-                                     m_group_service->GetUnreadApplyCount(uid_result.data);
+                                 auto result = m_group_service->GetUnreadApplyCount(uid_result.data);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -240,8 +236,7 @@ bool GroupApiModule::onServerReady() {
                                  }
                                  uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
                                  std::string content = IM::JsonUtil::GetString(body, "content");
-                                 auto result = m_group_service->EditNotice(uid_result.data,
-                                                                           group_id, content);
+                                 auto result = m_group_service->EditNotice(uid_result.data, group_id, content);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -252,44 +247,43 @@ bool GroupApiModule::onServerReady() {
                              });
 
         // 群组投票
-        dispatch->addServlet("/api/v1/group-vote/create",
-                             [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
-                                    IM::http::HttpSession::ptr /*session*/) {
-                                 res->setHeader("Content-Type", "application/json");
-                                 auto uid_result = GetUidFromToken(req, res);
-                                 if (!uid_result.ok) {
-                                     res->setStatus(ToHttpStatus(uid_result.code));
-                                     res->setBody(Error(uid_result.code, uid_result.err));
-                                     return 0;
-                                 }
-                                 Json::Value body;
-                                 if (!ParseBody(req->getBody(), body)) {
-                                     res->setStatus(IM::http::HttpStatus::BAD_REQUEST);
-                                     return 0;
-                                 }
-                                 uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
-                                 std::string title = IM::JsonUtil::GetString(body, "title");
-                                 int answer_mode = IM::JsonUtil::GetInt32(body, "answer_mode");
-                                 int is_anonymous = IM::JsonUtil::GetInt32(body, "is_anonymous");
-                                 std::vector<std::string> options;
-                                 if (body.isMember("options") && body["options"].isArray()) {
-                                     for (const auto& opt : body["options"]) {
-                                         options.push_back(opt.asString());
-                                     }
-                                 }
-                                 auto result = m_group_service->CreateVote(
-                                     uid_result.data, group_id, title, answer_mode, is_anonymous,
-                                     options);
-                                 if (!result.ok) {
-                                     res->setStatus(ToHttpStatus(result.code));
-                                     res->setBody(Error(result.code, result.err));
-                                     return 0;
-                                 }
-                                 Json::Value d;
-                                 d["vote_id"] = (Json::UInt64)result.data;
-                                 res->setBody(Ok(d));
-                                 return 0;
-                             });
+        dispatch->addServlet(
+            "/api/v1/group-vote/create", [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                                IM::http::HttpSession::ptr /*session*/) {
+                res->setHeader("Content-Type", "application/json");
+                auto uid_result = GetUidFromToken(req, res);
+                if (!uid_result.ok) {
+                    res->setStatus(ToHttpStatus(uid_result.code));
+                    res->setBody(Error(uid_result.code, uid_result.err));
+                    return 0;
+                }
+                Json::Value body;
+                if (!ParseBody(req->getBody(), body)) {
+                    res->setStatus(IM::http::HttpStatus::BAD_REQUEST);
+                    return 0;
+                }
+                uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
+                std::string title = IM::JsonUtil::GetString(body, "title");
+                int answer_mode = IM::JsonUtil::GetInt32(body, "answer_mode");
+                int is_anonymous = IM::JsonUtil::GetInt32(body, "is_anonymous");
+                std::vector<std::string> options;
+                if (body.isMember("options") && body["options"].isArray()) {
+                    for (const auto &opt : body["options"]) {
+                        options.push_back(opt.asString());
+                    }
+                }
+                auto result =
+                    m_group_service->CreateVote(uid_result.data, group_id, title, answer_mode, is_anonymous, options);
+                if (!result.ok) {
+                    res->setStatus(ToHttpStatus(result.code));
+                    res->setBody(Error(result.code, result.err));
+                    return 0;
+                }
+                Json::Value d;
+                d["vote_id"] = (Json::UInt64)result.data;
+                res->setBody(Ok(d));
+                return 0;
+            });
 
         dispatch->addServlet("/api/v1/group-vote/detail",
                              [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
@@ -307,8 +301,7 @@ bool GroupApiModule::onServerReady() {
                                      return 0;
                                  }
                                  uint64_t vote_id = IM::JsonUtil::GetUint64(body, "vote_id");
-                                 auto result =
-                                     m_group_service->GetVoteDetail(uid_result.data, vote_id);
+                                 auto result = m_group_service->GetVoteDetail(uid_result.data, vote_id);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -325,14 +318,14 @@ bool GroupApiModule::onServerReady() {
                                  d["voted_count"] = result.data.voted_count;
                                  d["is_voted"] = result.data.is_voted;
                                  Json::Value opts(Json::arrayValue);
-                                 for (const auto& opt : result.data.options) {
+                                 for (const auto &opt : result.data.options) {
                                      Json::Value o;
                                      o["id"] = (Json::UInt64)opt.id;
                                      o["content"] = opt.content;
                                      o["count"] = opt.count;
                                      o["is_voted"] = opt.is_voted;
                                      Json::Value users(Json::arrayValue);
-                                     for (const auto& u : opt.users) {
+                                     for (const auto &u : opt.users) {
                                          users.append(u);
                                      }
                                      o["users"] = users;
@@ -361,12 +354,11 @@ bool GroupApiModule::onServerReady() {
                                  uint64_t vote_id = IM::JsonUtil::GetUint64(body, "vote_id");
                                  std::vector<std::string> options;
                                  if (body.isMember("options") && body["options"].isArray()) {
-                                     for (const auto& opt : body["options"]) {
+                                     for (const auto &opt : body["options"]) {
                                          options.push_back(opt.asString());
                                      }
                                  }
-                                 auto result =
-                                     m_group_service->CastVote(uid_result.data, vote_id, options);
+                                 auto result = m_group_service->CastVote(uid_result.data, vote_id, options);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -392,8 +384,7 @@ bool GroupApiModule::onServerReady() {
                                      return 0;
                                  }
                                  uint64_t vote_id = IM::JsonUtil::GetUint64(body, "vote_id");
-                                 auto result =
-                                     m_group_service->FinishVote(uid_result.data, vote_id);
+                                 auto result = m_group_service->FinishVote(uid_result.data, vote_id);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -419,8 +410,7 @@ bool GroupApiModule::onServerReady() {
                                      return 0;
                                  }
                                  uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
-                                 auto result =
-                                     m_group_service->GetVoteList(uid_result.data, group_id);
+                                 auto result = m_group_service->GetVoteList(uid_result.data, group_id);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -428,7 +418,7 @@ bool GroupApiModule::onServerReady() {
                                  }
                                  Json::Value d;
                                  Json::Value list(Json::arrayValue);
-                                 for (const auto& item : result.data) {
+                                 for (const auto &item : result.data) {
                                      Json::Value v;
                                      v["vote_id"] = (Json::UInt64)item.vote_id;
                                      v["title"] = item.title;
@@ -464,8 +454,7 @@ bool GroupApiModule::onServerReady() {
                                  uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
                                  uint64_t user_id = IM::JsonUtil::GetUint64(body, "user_id");
                                  int action = IM::JsonUtil::GetInt32(body, "action");
-                                 auto result = m_group_service->AssignAdmin(
-                                     uid_result.data, group_id, user_id, action);
+                                 auto result = m_group_service->AssignAdmin(uid_result.data, group_id, user_id, action);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -493,12 +482,11 @@ bool GroupApiModule::onServerReady() {
                                  std::string name = IM::JsonUtil::GetString(body, "name");
                                  std::vector<uint64_t> member_ids;
                                  if (body.isMember("user_ids") && body["user_ids"].isArray()) {
-                                     for (const auto& id : body["user_ids"]) {
+                                     for (const auto &id : body["user_ids"]) {
                                          member_ids.push_back(id.asUInt64());
                                      }
                                  }
-                                 auto result = m_group_service->CreateGroup(uid_result.data, name,
-                                                                            member_ids);
+                                 auto result = m_group_service->CreateGroup(uid_result.data, name, member_ids);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -526,8 +514,7 @@ bool GroupApiModule::onServerReady() {
                                      return 0;
                                  }
                                  uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
-                                 auto result =
-                                     m_group_service->GetGroupDetail(uid_result.data, group_id);
+                                 auto result = m_group_service->GetGroupDetail(uid_result.data, group_id);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -572,8 +559,7 @@ bool GroupApiModule::onServerReady() {
                                      return 0;
                                  }
                                  uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
-                                 auto result =
-                                     m_group_service->DismissGroup(uid_result.data, group_id);
+                                 auto result = m_group_service->DismissGroup(uid_result.data, group_id);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -583,93 +569,91 @@ bool GroupApiModule::onServerReady() {
                                  return 0;
                              });
 
-        dispatch->addServlet(
-            "/api/v1/group/get-invite-friends",
-            [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
-                   IM::http::HttpSession::ptr /*session*/) {
-                res->setHeader("Content-Type", "application/json");
-                auto uid_result = GetUidFromToken(req, res);
-                if (!uid_result.ok) {
-                    res->setStatus(ToHttpStatus(uid_result.code));
-                    res->setBody(Error(uid_result.code, uid_result.err));
-                    return 0;
-                }
-                Json::Value body;
-                if (!ParseBody(req->getBody(), body)) {
-                    res->setStatus(IM::http::HttpStatus::BAD_REQUEST);
-                    return 0;
-                }
-                uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
+        dispatch->addServlet("/api/v1/group/get-invite-friends",
+                             [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                    IM::http::HttpSession::ptr /*session*/) {
+                                 res->setHeader("Content-Type", "application/json");
+                                 auto uid_result = GetUidFromToken(req, res);
+                                 if (!uid_result.ok) {
+                                     res->setStatus(ToHttpStatus(uid_result.code));
+                                     res->setBody(Error(uid_result.code, uid_result.err));
+                                     return 0;
+                                 }
+                                 Json::Value body;
+                                 if (!ParseBody(req->getBody(), body)) {
+                                     res->setStatus(IM::http::HttpStatus::BAD_REQUEST);
+                                     return 0;
+                                 }
+                                 uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
 
-                // 1. Get all friends
-                auto friends_res = m_contact_service->ListFriends(uid_result.data);
-                if (!friends_res.ok) {
-                    res->setStatus(ToHttpStatus(friends_res.code));
-                    res->setBody(Error(friends_res.code, friends_res.err));
-                    return 0;
-                }
+                                 // 1. Get all friends
+                                 auto friends_res = m_contact_service->ListFriends(uid_result.data);
+                                 if (!friends_res.ok) {
+                                     res->setStatus(ToHttpStatus(friends_res.code));
+                                     res->setBody(Error(friends_res.code, friends_res.err));
+                                     return 0;
+                                 }
 
-                // 2. Get group members
-                auto members_res = m_group_service->GetGroupMemberList(uid_result.data, group_id);
-                if (!members_res.ok) {
-                    res->setStatus(ToHttpStatus(members_res.code));
-                    res->setBody(Error(members_res.code, members_res.err));
-                    return 0;
-                }
+                                 // 2. Get group members
+                                 auto members_res = m_group_service->GetGroupMemberList(uid_result.data, group_id);
+                                 if (!members_res.ok) {
+                                     res->setStatus(ToHttpStatus(members_res.code));
+                                     res->setBody(Error(members_res.code, members_res.err));
+                                     return 0;
+                                 }
 
-                // 3. Filter
-                std::set<uint64_t> member_ids;
-                for (const auto& m : members_res.data) {
-                    member_ids.insert(m.user_id);
-                }
+                                 // 3. Filter
+                                 std::set<uint64_t> member_ids;
+                                 for (const auto &m : members_res.data) {
+                                     member_ids.insert(m.user_id);
+                                 }
 
-                Json::Value d;
-                Json::Value list(Json::arrayValue);
-                for (const auto& f : friends_res.data) {
-                    if (member_ids.find(f.user_id) == member_ids.end()) {
-                        Json::Value v;
-                        v["user_id"] = (Json::UInt64)f.user_id;
-                        v["nickname"] = f.nickname;
-                        v["avatar"] = f.avatar;
-                        v["gender"] = f.gender;
-                        v["motto"] = f.motto;
-                        v["remark"] = f.remark;
-                        list.append(v);
-                    }
-                }
-                d["items"] = list;
-                res->setBody(Ok(d));
-                return 0;
-            });
+                                 Json::Value d;
+                                 Json::Value list(Json::arrayValue);
+                                 for (const auto &f : friends_res.data) {
+                                     if (member_ids.find(f.user_id) == member_ids.end()) {
+                                         Json::Value v;
+                                         v["user_id"] = (Json::UInt64)f.user_id;
+                                         v["nickname"] = f.nickname;
+                                         v["avatar"] = f.avatar;
+                                         v["gender"] = f.gender;
+                                         v["motto"] = f.motto;
+                                         v["remark"] = f.remark;
+                                         list.append(v);
+                                     }
+                                 }
+                                 d["items"] = list;
+                                 res->setBody(Ok(d));
+                                 return 0;
+                             });
 
-        dispatch->addServlet(
-            "/api/v1/group/handover",
-            [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
-                   IM::http::HttpSession::ptr /*session*/) {
-                res->setHeader("Content-Type", "application/json");
-                auto uid_result = GetUidFromToken(req, res);
-                if (!uid_result.ok) {
-                    res->setStatus(ToHttpStatus(uid_result.code));
-                    res->setBody(Error(uid_result.code, uid_result.err));
-                    return 0;
-                }
-                Json::Value body;
-                if (!ParseBody(req->getBody(), body)) {
-                    res->setStatus(IM::http::HttpStatus::BAD_REQUEST);
-                    return 0;
-                }
-                uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
-                uint64_t user_id = IM::JsonUtil::GetUint64(body, "user_id");
+        dispatch->addServlet("/api/v1/group/handover",
+                             [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                    IM::http::HttpSession::ptr /*session*/) {
+                                 res->setHeader("Content-Type", "application/json");
+                                 auto uid_result = GetUidFromToken(req, res);
+                                 if (!uid_result.ok) {
+                                     res->setStatus(ToHttpStatus(uid_result.code));
+                                     res->setBody(Error(uid_result.code, uid_result.err));
+                                     return 0;
+                                 }
+                                 Json::Value body;
+                                 if (!ParseBody(req->getBody(), body)) {
+                                     res->setStatus(IM::http::HttpStatus::BAD_REQUEST);
+                                     return 0;
+                                 }
+                                 uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
+                                 uint64_t user_id = IM::JsonUtil::GetUint64(body, "user_id");
 
-                auto result = m_group_service->HandoverGroup(uid_result.data, group_id, user_id);
-                if (!result.ok) {
-                    res->setStatus(ToHttpStatus(result.code));
-                    res->setBody(Error(result.code, result.err));
-                    return 0;
-                }
-                res->setBody(Ok());
-                return 0;
-            });
+                                 auto result = m_group_service->HandoverGroup(uid_result.data, group_id, user_id);
+                                 if (!result.ok) {
+                                     res->setStatus(ToHttpStatus(result.code));
+                                     res->setBody(Error(result.code, result.err));
+                                     return 0;
+                                 }
+                                 res->setBody(Ok());
+                                 return 0;
+                             });
 
         dispatch->addServlet("/api/v1/group/invite",
                              [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
@@ -689,12 +673,11 @@ bool GroupApiModule::onServerReady() {
                                  uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
                                  std::vector<uint64_t> user_ids;
                                  if (body.isMember("user_ids") && body["user_ids"].isArray()) {
-                                     for (const auto& id : body["user_ids"]) {
+                                     for (const auto &id : body["user_ids"]) {
                                          user_ids.push_back(id.asUInt64());
                                      }
                                  }
-                                 auto result = m_group_service->InviteGroup(uid_result.data,
-                                                                            group_id, user_ids);
+                                 auto result = m_group_service->InviteGroup(uid_result.data, group_id, user_ids);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -722,7 +705,7 @@ bool GroupApiModule::onServerReady() {
                                  }
                                  Json::Value d;
                                  Json::Value items(Json::arrayValue);
-                                 for (const auto& item : result.data) {
+                                 for (const auto &item : result.data) {
                                      Json::Value v;
                                      v["group_id"] = (Json::UInt64)item.group_id;
                                      v["group_name"] = item.group_name;
@@ -753,8 +736,7 @@ bool GroupApiModule::onServerReady() {
                                      return 0;
                                  }
                                  uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
-                                 auto result =
-                                     m_group_service->GetGroupMemberList(uid_result.data, group_id);
+                                 auto result = m_group_service->GetGroupMemberList(uid_result.data, group_id);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -762,7 +744,7 @@ bool GroupApiModule::onServerReady() {
                                  }
                                  Json::Value d;
                                  Json::Value list(Json::arrayValue);
-                                 for (const auto& item : result.data) {
+                                 for (const auto &item : result.data) {
                                      Json::Value v;
                                      v["user_id"] = (Json::UInt64)item.user_id;
                                      v["nickname"] = item.nickname;
@@ -778,32 +760,32 @@ bool GroupApiModule::onServerReady() {
                                  res->setBody(Ok(d));
                                  return 0;
                              });
-        dispatch->addServlet("/api/v1/group/mute", [this](IM::http::HttpRequest::ptr req,
-                                                          IM::http::HttpResponse::ptr res,
-                                                          IM::http::HttpSession::ptr /*session*/) {
-            res->setHeader("Content-Type", "application/json");
-            auto uid_result = GetUidFromToken(req, res);
-            if (!uid_result.ok) {
-                res->setStatus(ToHttpStatus(uid_result.code));
-                res->setBody(Error(uid_result.code, uid_result.err));
-                return 0;
-            }
-            Json::Value body;
-            if (!ParseBody(req->getBody(), body)) {
-                res->setStatus(IM::http::HttpStatus::BAD_REQUEST);
-                return 0;
-            }
-            uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
-            int action = IM::JsonUtil::GetInt32(body, "action");
-            auto result = m_group_service->MuteGroup(uid_result.data, group_id, action);
-            if (!result.ok) {
-                res->setStatus(ToHttpStatus(result.code));
-                res->setBody(Error(result.code, result.err));
-                return 0;
-            }
-            res->setBody(Ok());
-            return 0;
-        });
+        dispatch->addServlet("/api/v1/group/mute",
+                             [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                    IM::http::HttpSession::ptr /*session*/) {
+                                 res->setHeader("Content-Type", "application/json");
+                                 auto uid_result = GetUidFromToken(req, res);
+                                 if (!uid_result.ok) {
+                                     res->setStatus(ToHttpStatus(uid_result.code));
+                                     res->setBody(Error(uid_result.code, uid_result.err));
+                                     return 0;
+                                 }
+                                 Json::Value body;
+                                 if (!ParseBody(req->getBody(), body)) {
+                                     res->setStatus(IM::http::HttpStatus::BAD_REQUEST);
+                                     return 0;
+                                 }
+                                 uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
+                                 int action = IM::JsonUtil::GetInt32(body, "action");
+                                 auto result = m_group_service->MuteGroup(uid_result.data, group_id, action);
+                                 if (!result.ok) {
+                                     res->setStatus(ToHttpStatus(result.code));
+                                     res->setBody(Error(result.code, result.err));
+                                     return 0;
+                                 }
+                                 res->setBody(Ok());
+                                 return 0;
+                             });
         dispatch->addServlet("/api/v1/group/no-speak",
                              [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
                                     IM::http::HttpSession::ptr /*session*/) {
@@ -822,8 +804,7 @@ bool GroupApiModule::onServerReady() {
                                  uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
                                  uint64_t user_id = IM::JsonUtil::GetUint64(body, "user_id");
                                  int action = IM::JsonUtil::GetInt32(body, "action");
-                                 auto result = m_group_service->MuteMember(
-                                     uid_result.data, group_id, user_id, action);
+                                 auto result = m_group_service->MuteMember(uid_result.data, group_id, user_id, action);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -832,32 +813,32 @@ bool GroupApiModule::onServerReady() {
                                  res->setBody(Ok());
                                  return 0;
                              });
-        dispatch->addServlet("/api/v1/group/overt", [this](IM::http::HttpRequest::ptr req,
-                                                           IM::http::HttpResponse::ptr res,
-                                                           IM::http::HttpSession::ptr /*session*/) {
-            res->setHeader("Content-Type", "application/json");
-            auto uid_result = GetUidFromToken(req, res);
-            if (!uid_result.ok) {
-                res->setStatus(ToHttpStatus(uid_result.code));
-                res->setBody(Error(uid_result.code, uid_result.err));
-                return 0;
-            }
-            Json::Value body;
-            if (!ParseBody(req->getBody(), body)) {
-                res->setStatus(IM::http::HttpStatus::BAD_REQUEST);
-                return 0;
-            }
-            uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
-            int action = IM::JsonUtil::GetInt32(body, "action");
-            auto result = m_group_service->OvertGroup(uid_result.data, group_id, action);
-            if (!result.ok) {
-                res->setStatus(ToHttpStatus(result.code));
-                res->setBody(Error(result.code, result.err));
-                return 0;
-            }
-            res->setBody(Ok());
-            return 0;
-        });
+        dispatch->addServlet("/api/v1/group/overt",
+                             [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                    IM::http::HttpSession::ptr /*session*/) {
+                                 res->setHeader("Content-Type", "application/json");
+                                 auto uid_result = GetUidFromToken(req, res);
+                                 if (!uid_result.ok) {
+                                     res->setStatus(ToHttpStatus(uid_result.code));
+                                     res->setBody(Error(uid_result.code, uid_result.err));
+                                     return 0;
+                                 }
+                                 Json::Value body;
+                                 if (!ParseBody(req->getBody(), body)) {
+                                     res->setStatus(IM::http::HttpStatus::BAD_REQUEST);
+                                     return 0;
+                                 }
+                                 uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
+                                 int action = IM::JsonUtil::GetInt32(body, "action");
+                                 auto result = m_group_service->OvertGroup(uid_result.data, group_id, action);
+                                 if (!result.ok) {
+                                     res->setStatus(ToHttpStatus(result.code));
+                                     res->setBody(Error(result.code, result.err));
+                                     return 0;
+                                 }
+                                 res->setBody(Ok());
+                                 return 0;
+                             });
         dispatch->addServlet("/api/v1/group/overt-list",
                              [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
                                     IM::http::HttpSession::ptr /*session*/) {
@@ -877,7 +858,7 @@ bool GroupApiModule::onServerReady() {
                                  }
                                  Json::Value d;
                                  Json::Value list(Json::arrayValue);
-                                 for (const auto& item : result.data.first) {
+                                 for (const auto &item : result.data.first) {
                                      Json::Value v;
                                      v["group_id"] = (Json::UInt64)item.group_id;
                                      v["type"] = item.type;
@@ -895,35 +876,33 @@ bool GroupApiModule::onServerReady() {
                                  res->setBody(Ok(d));
                                  return 0;
                              });
-        dispatch->addServlet(
-            "/api/v1/group/remark-update",
-            [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
-                   IM::http::HttpSession::ptr /*session*/) {
-                res->setHeader("Content-Type", "application/json");
-                auto uid_result = GetUidFromToken(req, res);
-                if (!uid_result.ok) {
-                    res->setStatus(ToHttpStatus(uid_result.code));
-                    res->setBody(Error(uid_result.code, uid_result.err));
-                    return 0;
-                }
-                Json::Value body;
-                if (!ParseBody(req->getBody(), body)) {
-                    res->setStatus(IM::http::HttpStatus::BAD_REQUEST);
-                    return 0;
-                }
-                uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
-                std::string remark = IM::JsonUtil::GetString(body, "remark");
+        dispatch->addServlet("/api/v1/group/remark-update",
+                             [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                    IM::http::HttpSession::ptr /*session*/) {
+                                 res->setHeader("Content-Type", "application/json");
+                                 auto uid_result = GetUidFromToken(req, res);
+                                 if (!uid_result.ok) {
+                                     res->setStatus(ToHttpStatus(uid_result.code));
+                                     res->setBody(Error(uid_result.code, uid_result.err));
+                                     return 0;
+                                 }
+                                 Json::Value body;
+                                 if (!ParseBody(req->getBody(), body)) {
+                                     res->setStatus(IM::http::HttpStatus::BAD_REQUEST);
+                                     return 0;
+                                 }
+                                 uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
+                                 std::string remark = IM::JsonUtil::GetString(body, "remark");
 
-                auto result =
-                    m_group_service->UpdateMemberRemark(uid_result.data, group_id, remark);
-                if (!result.ok) {
-                    res->setStatus(ToHttpStatus(result.code));
-                    res->setBody(Error(result.code, result.err));
-                    return 0;
-                }
-                res->setBody(Ok());
-                return 0;
-            });
+                                 auto result = m_group_service->UpdateMemberRemark(uid_result.data, group_id, remark);
+                                 if (!result.ok) {
+                                     res->setStatus(ToHttpStatus(result.code));
+                                     res->setBody(Error(result.code, result.err));
+                                     return 0;
+                                 }
+                                 res->setBody(Ok());
+                                 return 0;
+                             });
         dispatch->addServlet("/api/v1/group/remove-member",
                              [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
                                     IM::http::HttpSession::ptr /*session*/) {
@@ -942,12 +921,11 @@ bool GroupApiModule::onServerReady() {
                                  uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
                                  std::vector<uint64_t> user_ids;
                                  if (body.isMember("user_ids") && body["user_ids"].isArray()) {
-                                     for (const auto& id : body["user_ids"]) {
+                                     for (const auto &id : body["user_ids"]) {
                                          user_ids.push_back(id.asUInt64());
                                      }
                                  }
-                                 auto result = m_group_service->RemoveMember(uid_result.data,
-                                                                             group_id, user_ids);
+                                 auto result = m_group_service->RemoveMember(uid_result.data, group_id, user_ids);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -972,8 +950,7 @@ bool GroupApiModule::onServerReady() {
                                      return 0;
                                  }
                                  uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
-                                 auto result =
-                                     m_group_service->SecedeGroup(uid_result.data, group_id);
+                                 auto result = m_group_service->SecedeGroup(uid_result.data, group_id);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -982,35 +959,34 @@ bool GroupApiModule::onServerReady() {
                                  res->setBody(Ok());
                                  return 0;
                              });
-        dispatch->addServlet("/api/v1/group/setting",
-                             [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
-                                    IM::http::HttpSession::ptr /*session*/) {
-                                 res->setHeader("Content-Type", "application/json");
-                                 auto uid_result = GetUidFromToken(req, res);
-                                 if (!uid_result.ok) {
-                                     res->setStatus(ToHttpStatus(uid_result.code));
-                                     res->setBody(Error(uid_result.code, uid_result.err));
-                                     return 0;
-                                 }
-                                 Json::Value body;
-                                 if (!ParseBody(req->getBody(), body)) {
-                                     res->setStatus(IM::http::HttpStatus::BAD_REQUEST);
-                                     return 0;
-                                 }
-                                 uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
-                                 std::string name = IM::JsonUtil::GetString(body, "group_name");
-                                 std::string avatar = IM::JsonUtil::GetString(body, "avatar");
-                                 std::string profile = IM::JsonUtil::GetString(body, "profile");
-                                 auto result = m_group_service->UpdateGroupSetting(
-                                     uid_result.data, group_id, name, avatar, profile);
-                                 if (!result.ok) {
-                                     res->setStatus(ToHttpStatus(result.code));
-                                     res->setBody(Error(result.code, result.err));
-                                     return 0;
-                                 }
-                                 res->setBody(Ok());
-                                 return 0;
-                             });
+        dispatch->addServlet(
+            "/api/v1/group/setting", [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                            IM::http::HttpSession::ptr /*session*/) {
+                res->setHeader("Content-Type", "application/json");
+                auto uid_result = GetUidFromToken(req, res);
+                if (!uid_result.ok) {
+                    res->setStatus(ToHttpStatus(uid_result.code));
+                    res->setBody(Error(uid_result.code, uid_result.err));
+                    return 0;
+                }
+                Json::Value body;
+                if (!ParseBody(req->getBody(), body)) {
+                    res->setStatus(IM::http::HttpStatus::BAD_REQUEST);
+                    return 0;
+                }
+                uint64_t group_id = IM::JsonUtil::GetUint64(body, "group_id");
+                std::string name = IM::JsonUtil::GetString(body, "group_name");
+                std::string avatar = IM::JsonUtil::GetString(body, "avatar");
+                std::string profile = IM::JsonUtil::GetString(body, "profile");
+                auto result = m_group_service->UpdateGroupSetting(uid_result.data, group_id, name, avatar, profile);
+                if (!result.ok) {
+                    res->setStatus(ToHttpStatus(result.code));
+                    res->setBody(Error(result.code, result.err));
+                    return 0;
+                }
+                res->setBody(Ok());
+                return 0;
+            });
     }
     return true;
 }

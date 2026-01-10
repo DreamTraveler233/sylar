@@ -1,3 +1,12 @@
+/**
+ * @file http_servlet.hpp
+ * @brief 网络通信相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 网络通信相关。
+ */
+
 #ifndef __IM_NET_HTTP_HTTP_SERVLET_HPP__
 #define __IM_NET_HTTP_HTTP_SERVLET_HPP__
 
@@ -7,46 +16,46 @@
 #include <unordered_map>
 #include <vector>
 
-#include "http.hpp"
-#include "http_session.hpp"
 #include "core/io/lock.hpp"
 #include "core/io/thread.hpp"
 #include "core/util/util.hpp"
 
+#include "http.hpp"
+#include "http_session.hpp"
+
 namespace IM::http {
 /**
-     * @brief Servlet封装
-     */
+ * @brief Servlet封装
+ */
 class Servlet {
    public:
     /// 智能指针类型定义
     typedef std::shared_ptr<Servlet> ptr;
 
     /**
-         * @brief 构造函数
-         * @param[in] name 名称
-         */
-    Servlet(const std::string& name);
+     * @brief 构造函数
+     * @param[in] name 名称
+     */
+    Servlet(const std::string &name);
 
     /**
-         * @brief 析构函数
-         */
+     * @brief 析构函数
+     */
     virtual ~Servlet();
 
     /**
-         * @brief 处理请求
-         * @param[in] request HTTP请求
-         * @param[in] response HTTP响应
-         * @param[in] session HTTP连接
-         * @return 是否处理成功
-         */
-    virtual int32_t handle(HttpRequest::ptr request, HttpResponse::ptr response,
-                           HttpSession::ptr session) = 0;
+     * @brief 处理请求
+     * @param[in] request HTTP请求
+     * @param[in] response HTTP响应
+     * @param[in] session HTTP连接
+     * @return 是否处理成功
+     */
+    virtual int32_t handle(HttpRequest::ptr request, HttpResponse::ptr response, HttpSession::ptr session) = 0;
 
     /**
-         * @brief 返回Servlet名称
-         */
-    const std::string& getName() const;
+     * @brief 返回Servlet名称
+     */
+    const std::string &getName() const;
 
    protected:
     /// 名称
@@ -54,24 +63,22 @@ class Servlet {
 };
 
 /**
-     * @brief 函数式Servlet
-     */
+ * @brief 函数式Servlet
+ */
 class FunctionServlet : public Servlet {
    public:
     /// 智能指针类型定义
     typedef std::shared_ptr<FunctionServlet> ptr;
     /// 函数回调类型定义
-    typedef std::function<int32_t(HttpRequest::ptr request, HttpResponse::ptr response,
-                                  HttpSession::ptr session)>
+    typedef std::function<int32_t(HttpRequest::ptr request, HttpResponse::ptr response, HttpSession::ptr session)>
         callback;
 
     /**
-         * @brief 构造函数
-         * @param[in] cb 回调函数
-         */
+     * @brief 构造函数
+     * @param[in] cb 回调函数
+     */
     FunctionServlet(callback cb);
-    virtual int32_t handle(HttpRequest::ptr request, HttpResponse::ptr response,
-                           HttpSession::ptr session) override;
+    virtual int32_t handle(HttpRequest::ptr request, HttpResponse::ptr response, HttpSession::ptr session) override;
 
    private:
     /// 回调函数
@@ -112,8 +119,8 @@ class ServletCreator : public IServletCreator {
 };
 
 /**
-     * @brief Servlet分发器
-     */
+ * @brief Servlet分发器
+ */
 class ServletDispatch : public Servlet {
    public:
     /// 智能指针类型定义
@@ -122,100 +129,99 @@ class ServletDispatch : public Servlet {
     using RWMutexType = RWMutex;
 
     /**
-         * @brief 构造函数
-         */
+     * @brief 构造函数
+     */
     ServletDispatch();
 
-    virtual int32_t handle(HttpRequest::ptr request, HttpResponse::ptr response,
-                           HttpSession::ptr session) override;
+    virtual int32_t handle(HttpRequest::ptr request, HttpResponse::ptr response, HttpSession::ptr session) override;
 
     /**
-         * @brief 添加servlet
-         * @param[in] uri uri
-         * @param[in] slt serlvet
-         */
-    void addServlet(const std::string& uri, Servlet::ptr slt);
+     * @brief 添加servlet
+     * @param[in] uri uri
+     * @param[in] slt serlvet
+     */
+    void addServlet(const std::string &uri, Servlet::ptr slt);
 
     /**
-         * @brief 添加servlet
-         * @param[in] uri uri
-         * @param[in] cb FunctionServlet回调函数
-         */
-    void addServlet(const std::string& uri, FunctionServlet::callback cb);
+     * @brief 添加servlet
+     * @param[in] uri uri
+     * @param[in] cb FunctionServlet回调函数
+     */
+    void addServlet(const std::string &uri, FunctionServlet::callback cb);
 
     /**
-         * @brief 添加模糊匹配servlet
-         * @param[in] uri uri 模糊匹配 /IM_*
-         * @param[in] slt servlet
-         */
-    void addGlobServlet(const std::string& uri, Servlet::ptr slt);
+     * @brief 添加模糊匹配servlet
+     * @param[in] uri uri 模糊匹配 /IM_*
+     * @param[in] slt servlet
+     */
+    void addGlobServlet(const std::string &uri, Servlet::ptr slt);
 
     /**
-         * @brief 添加模糊匹配servlet
-         * @param[in] uri uri 模糊匹配 /IM_*
-         * @param[in] cb FunctionServlet回调函数
-         */
-    void addGlobServlet(const std::string& uri, FunctionServlet::callback cb);
+     * @brief 添加模糊匹配servlet
+     * @param[in] uri uri 模糊匹配 /IM_*
+     * @param[in] cb FunctionServlet回调函数
+     */
+    void addGlobServlet(const std::string &uri, FunctionServlet::callback cb);
 
-    void addServletCreator(const std::string& uri, IServletCreator::ptr creator);
-    void addGlobServletCreator(const std::string& uri, IServletCreator::ptr creator);
+    void addServletCreator(const std::string &uri, IServletCreator::ptr creator);
+    void addGlobServletCreator(const std::string &uri, IServletCreator::ptr creator);
 
     template <class T>
-    void addServletCreator(const std::string& uri) {
+    void addServletCreator(const std::string &uri) {
         addServletCreator(uri, std::make_shared<ServletCreator<T>>());
     }
 
     template <class T>
-    void addGlobServletCreator(const std::string& uri) {
+    void addGlobServletCreator(const std::string &uri) {
         addGlobServletCreator(uri, std::make_shared<ServletCreator<T>>());
     }
 
     /**
-         * @brief 删除servlet
-         * @param[in] uri uri
-         */
-    void delServlet(const std::string& uri);
+     * @brief 删除servlet
+     * @param[in] uri uri
+     */
+    void delServlet(const std::string &uri);
 
     /**
-         * @brief 删除模糊匹配servlet
-         * @param[in] uri uri
-         */
-    void delGlobServlet(const std::string& uri);
+     * @brief 删除模糊匹配servlet
+     * @param[in] uri uri
+     */
+    void delGlobServlet(const std::string &uri);
 
     /**
-         * @brief 返回默认servlet
-         */
+     * @brief 返回默认servlet
+     */
     Servlet::ptr getDefault() const;
 
     /**
-         * @brief 设置默认servlet
-         * @param[in] v servlet
-         */
+     * @brief 设置默认servlet
+     * @param[in] v servlet
+     */
     void setDefault(Servlet::ptr v);
 
     /**
-         * @brief 通过uri获取servlet
-         * @param[in] uri uri
-         * @return 返回对应的servlet
-         */
-    Servlet::ptr getServlet(const std::string& uri);
+     * @brief 通过uri获取servlet
+     * @param[in] uri uri
+     * @return 返回对应的servlet
+     */
+    Servlet::ptr getServlet(const std::string &uri);
 
     /**
-         * @brief 通过uri获取模糊匹配servlet
-         * @param[in] uri uri
-         * @return 返回对应的servlet
-         */
-    Servlet::ptr getGlobServlet(const std::string& uri);
+     * @brief 通过uri获取模糊匹配servlet
+     * @param[in] uri uri
+     * @return 返回对应的servlet
+     */
+    Servlet::ptr getGlobServlet(const std::string &uri);
 
     /**
-         * @brief 通过uri获取servlet
-         * @param[in] uri uri
-         * @return 优先精准匹配,其次模糊匹配,最后返回默认
-         */
-    Servlet::ptr getMatchedServlet(const std::string& uri);
+     * @brief 通过uri获取servlet
+     * @param[in] uri uri
+     * @return 优先精准匹配,其次模糊匹配,最后返回默认
+     */
+    Servlet::ptr getMatchedServlet(const std::string &uri);
 
-    void listAllServletCreator(std::map<std::string, IServletCreator::ptr>& infos);
-    void listAllGlobServletCreator(std::map<std::string, IServletCreator::ptr>& infos);
+    void listAllServletCreator(std::map<std::string, IServletCreator::ptr> &infos);
+    void listAllGlobServletCreator(std::map<std::string, IServletCreator::ptr> &infos);
 
    private:
     /// 精准匹配servlet MAP
@@ -229,19 +235,18 @@ class ServletDispatch : public Servlet {
 };
 
 /**
-     * @brief NotFoundServlet(默认返回404)
-     */
+ * @brief NotFoundServlet(默认返回404)
+ */
 class NotFoundServlet : public Servlet {
    public:
     /// 智能指针类型定义
     typedef std::shared_ptr<NotFoundServlet> ptr;
     /**
-         * @brief 构造函数
-         */
-    NotFoundServlet(const std::string& name);
+     * @brief 构造函数
+     */
+    NotFoundServlet(const std::string &name);
 
-    virtual int32_t handle(HttpRequest::ptr request, HttpResponse::ptr response,
-                           HttpSession::ptr session) override;
+    virtual int32_t handle(HttpRequest::ptr request, HttpResponse::ptr response, HttpSession::ptr session) override;
 
    private:
     std::string m_name;
@@ -249,4 +254,4 @@ class NotFoundServlet : public Servlet {
 };
 }  // namespace IM::http
 
-#endif // __IM_NET_HTTP_HTTP_SERVLET_HPP__
+#endif  // __IM_NET_HTTP_HTTP_SERVLET_HPP__

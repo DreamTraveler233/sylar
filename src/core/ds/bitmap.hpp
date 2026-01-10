@@ -1,10 +1,18 @@
+/**
+ * @file bitmap.hpp
+ * @brief 数据结构相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 数据结构相关。
+ */
+
 #ifndef __IM_DS_BITMAP_HPP__
 #define __IM_DS_BITMAP_HPP__
 
-#include <stdint.h>
-
 #include <functional>
 #include <memory>
+#include <stdint.h>
 #include <string>
 #include <vector>
 
@@ -35,10 +43,10 @@ class Bitmap {
 #endif
 
     Bitmap(uint32_t size, uint8_t def = 0);
-    Bitmap(const Bitmap& b);
+    Bitmap(const Bitmap &b);
     ~Bitmap();
 
-    Bitmap& operator=(const Bitmap& b);
+    Bitmap &operator=(const Bitmap &b);
 
     std::string toString() const;
     bool get(uint32_t idx) const;
@@ -47,16 +55,16 @@ class Bitmap {
     void set(uint32_t from, uint32_t size, bool v);
     bool get(uint32_t from, uint32_t size, bool v) const;
 
-    Bitmap& operator&=(const Bitmap& b);
-    Bitmap& operator|=(const Bitmap& b);
+    Bitmap &operator&=(const Bitmap &b);
+    Bitmap &operator|=(const Bitmap &b);
 
-    Bitmap operator&(const Bitmap& b);
-    Bitmap operator|(const Bitmap& b);
+    Bitmap operator&(const Bitmap &b);
+    Bitmap operator|(const Bitmap &b);
 
-    Bitmap& operator~();
+    Bitmap &operator~();
 
-    bool operator==(const Bitmap& b) const;
-    bool operator!=(const Bitmap& b) const;
+    bool operator==(const Bitmap &b) const;
+    bool operator!=(const Bitmap &b) const;
 
     Bitmap::ptr compress() const;
     Bitmap::ptr uncompress() const;
@@ -69,7 +77,7 @@ class Bitmap {
 
     void resize(uint32_t size, bool v = false);
 
-    void listPosAsc(std::vector<uint32_t>& pos);
+    void listPosAsc(std::vector<uint32_t> &pos);
     // void listPosDesc(std::vector<uint32_t>& pos);
 
     void foreach (std::function<bool(uint32_t)> cb);
@@ -80,7 +88,7 @@ class Bitmap {
 
     // uncompress to compress
     // uncompress to uncompress
-    bool cross(const Bitmap& b) const;
+    bool cross(const Bitmap &b) const;
 
     float getCompressRate() const;
 
@@ -103,20 +111,20 @@ class Bitmap {
         int32_t m_size;
         int32_t m_dataSize;
         bool m_compress;
-        base_type* m_data;
+        base_type *m_data;
     };
 
     class iterator : public iterator_base {
        public:
         iterator() {}
-        iterator(Bitmap* b);
+        iterator(Bitmap *b);
         void next();
     };
 
     class iterator_reverse : public iterator_base {
        public:
         iterator_reverse() {}
-        iterator_reverse(Bitmap* b);
+        iterator_reverse(Bitmap *b);
         void next();
     };
 
@@ -128,16 +136,16 @@ class Bitmap {
     typename iterator_base::ptr rbegin_new();
 
    private:
-    bool normalCross(const Bitmap& b) const;
+    bool normalCross(const Bitmap &b) const;
     // uncompress to compress
-    bool compressCross(const Bitmap& b) const;
+    bool compressCross(const Bitmap &b) const;
     Bitmap();
 
    private:
     bool m_compress;
     uint32_t m_size;
     uint32_t m_dataSize;
-    base_type* m_data;
+    base_type *m_data;
 
    private:
     static const uint32_t VALUE_SIZE = sizeof(base_type) * 8 - 2;
@@ -158,4 +166,4 @@ class Bitmap {
 
 }  // namespace IM::ds
 
-#endif // __IM_DS_BITMAP_HPP__
+#endif  // __IM_DS_BITMAP_HPP__

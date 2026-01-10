@@ -22,7 +22,7 @@ constexpr uint32_t kCmdSaveContactGroup = 411;
 constexpr uint32_t kCmdGetContactGroupLists = 412;
 constexpr uint32_t kCmdChangeContactGroup = 413;
 
-Result<void> FromRockVoid(const IM::RockResult::ptr& rr, const std::string& unavailable_msg) {
+Result<void> FromRockVoid(const IM::RockResult::ptr &rr, const std::string &unavailable_msg) {
     Result<void> r;
     if (!rr || !rr->response) {
         r.code = 503;
@@ -38,19 +38,15 @@ Result<void> FromRockVoid(const IM::RockResult::ptr& rr, const std::string& unav
     return r;
 }
 
-} // namespace
+}  // namespace
 
 ContactServiceRpcClient::ContactServiceRpcClient()
-    : m_rpc_addr(IM::Config::Lookup("contact.rpc_addr", std::string(""),
-                                   "svc-contact rpc address ip:port")) {}
+    : m_rpc_addr(IM::Config::Lookup("contact.rpc_addr", std::string(""), "svc-contact rpc address ip:port")) {}
 
-IM::RockResult::ptr ContactServiceRpcClient::rockJsonRequest(const std::string& ip_port,
-                                                             uint32_t cmd,
-                                                             const Json::Value& body,
-                                                             uint32_t timeout_ms) {
+IM::RockResult::ptr ContactServiceRpcClient::rockJsonRequest(const std::string &ip_port, uint32_t cmd,
+                                                             const Json::Value &body, uint32_t timeout_ms) {
     if (ip_port.empty()) {
-        return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr,
-                                                nullptr);
+        return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr, nullptr);
     }
 
     IM::RockConnection::ptr conn;
@@ -65,13 +61,11 @@ IM::RockResult::ptr ContactServiceRpcClient::rockJsonRequest(const std::string& 
     if (!conn) {
         auto addr = IM::Address::LookupAny(ip_port);
         if (!addr) {
-            return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr,
-                                                    nullptr);
+            return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr, nullptr);
         }
         IM::RockConnection::ptr new_conn(new IM::RockConnection);
         if (!new_conn->connect(addr)) {
-            return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr,
-                                                    nullptr);
+            return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr, nullptr);
         }
         new_conn->start();
         {
@@ -93,9 +87,8 @@ std::string ContactServiceRpcClient::resolveSvcContactAddr() {
     if (!fixed.empty()) return fixed;
 
     if (auto sd = IM::Application::GetInstance()->getServiceDiscovery()) {
-        std::unordered_map<
-            std::string,
-            std::unordered_map<std::string, std::unordered_map<uint64_t, IM::ServiceItemInfo::ptr>>>
+        std::unordered_map<std::string,
+                           std::unordered_map<std::string, std::unordered_map<uint64_t, IM::ServiceItemInfo::ptr>>>
             infos;
         sd->listServer(infos);
         auto itD = infos.find("im");
@@ -114,7 +107,7 @@ std::string ContactServiceRpcClient::resolveSvcContactAddr() {
     return "";
 }
 
-bool ContactServiceRpcClient::parseTalkSession(const Json::Value& j, IM::dto::TalkSessionItem& out) {
+bool ContactServiceRpcClient::parseTalkSession(const Json::Value &j, IM::dto::TalkSessionItem &out) {
     if (!j.isObject()) return false;
     out.id = IM::JsonUtil::GetUint64(j, "id");
     out.talk_mode = IM::JsonUtil::GetUint8(j, "talk_mode");
@@ -131,7 +124,7 @@ bool ContactServiceRpcClient::parseTalkSession(const Json::Value& j, IM::dto::Ta
     return true;
 }
 
-bool ContactServiceRpcClient::parseUser(const Json::Value& j, IM::model::User& out) {
+bool ContactServiceRpcClient::parseUser(const Json::Value &j, IM::model::User &out) {
     if (!j.isObject()) return false;
     out.id = IM::JsonUtil::GetUint64(j, "user_id");
     out.mobile = IM::JsonUtil::GetString(j, "mobile");
@@ -142,7 +135,7 @@ bool ContactServiceRpcClient::parseUser(const Json::Value& j, IM::model::User& o
     return out.id != 0;
 }
 
-bool ContactServiceRpcClient::parseContactItem(const Json::Value& j, IM::dto::ContactItem& out) {
+bool ContactServiceRpcClient::parseContactItem(const Json::Value &j, IM::dto::ContactItem &out) {
     if (!j.isObject()) return false;
     out.user_id = IM::JsonUtil::GetUint64(j, "user_id");
     out.nickname = IM::JsonUtil::GetString(j, "nickname");
@@ -154,7 +147,7 @@ bool ContactServiceRpcClient::parseContactItem(const Json::Value& j, IM::dto::Co
     return out.user_id != 0;
 }
 
-bool ContactServiceRpcClient::parseContactApplyItem(const Json::Value& j, IM::dto::ContactApplyItem& out) {
+bool ContactServiceRpcClient::parseContactApplyItem(const Json::Value &j, IM::dto::ContactApplyItem &out) {
     if (!j.isObject()) return false;
     out.id = IM::JsonUtil::GetUint64(j, "id");
     out.apply_user_id = IM::JsonUtil::GetUint64(j, "apply_user_id");
@@ -166,7 +159,7 @@ bool ContactServiceRpcClient::parseContactApplyItem(const Json::Value& j, IM::dt
     return out.id != 0;
 }
 
-bool ContactServiceRpcClient::parseContactGroupItem(const Json::Value& j, IM::dto::ContactGroupItem& out) {
+bool ContactServiceRpcClient::parseContactGroupItem(const Json::Value &j, IM::dto::ContactGroupItem &out) {
     if (!j.isObject()) return false;
     out.id = IM::JsonUtil::GetUint64(j, "id");
     out.name = IM::JsonUtil::GetString(j, "name");
@@ -175,7 +168,7 @@ bool ContactServiceRpcClient::parseContactGroupItem(const Json::Value& j, IM::dt
     return out.id != 0;
 }
 
-bool ContactServiceRpcClient::parseContactDetails(const Json::Value& j, IM::dto::ContactDetails& out) {
+bool ContactServiceRpcClient::parseContactDetails(const Json::Value &j, IM::dto::ContactDetails &out) {
     if (!j.isObject()) return false;
     out.user_id = IM::JsonUtil::GetUint64(j, "user_id");
     out.avatar = IM::JsonUtil::GetString(j, "avatar");
@@ -190,9 +183,8 @@ bool ContactServiceRpcClient::parseContactDetails(const Json::Value& j, IM::dto:
     return out.user_id != 0;
 }
 
-Result<IM::dto::TalkSessionItem> ContactServiceRpcClient::AgreeApply(const uint64_t user_id,
-                                                                    const uint64_t apply_id,
-                                                                    const std::string& remark) {
+Result<IM::dto::TalkSessionItem> ContactServiceRpcClient::AgreeApply(const uint64_t user_id, const uint64_t apply_id,
+                                                                     const std::string &remark) {
     Result<IM::dto::TalkSessionItem> result;
 
     Json::Value req(Json::objectValue);
@@ -231,7 +223,7 @@ Result<IM::dto::TalkSessionItem> ContactServiceRpcClient::AgreeApply(const uint6
     return result;
 }
 
-Result<IM::model::User> ContactServiceRpcClient::SearchByMobile(const std::string& mobile) {
+Result<IM::model::User> ContactServiceRpcClient::SearchByMobile(const std::string &mobile) {
     Result<IM::model::User> result;
 
     Json::Value req(Json::objectValue);
@@ -340,7 +332,7 @@ Result<std::vector<IM::dto::ContactItem>> ContactServiceRpcClient::ListFriends(c
     }
 
     std::vector<IM::dto::ContactItem> items;
-    for (const auto& it : out["data"]["items"]) {
+    for (const auto &it : out["data"]["items"]) {
         IM::dto::ContactItem c;
         if (parseContactItem(it, c)) items.push_back(std::move(c));
     }
@@ -350,9 +342,8 @@ Result<std::vector<IM::dto::ContactItem>> ContactServiceRpcClient::ListFriends(c
     return result;
 }
 
-Result<void> ContactServiceRpcClient::CreateContactApply(const uint64_t apply_user_id,
-                                                         const uint64_t target_user_id,
-                                                         const std::string& remark) {
+Result<void> ContactServiceRpcClient::CreateContactApply(const uint64_t apply_user_id, const uint64_t target_user_id,
+                                                         const std::string &remark) {
     Json::Value req(Json::objectValue);
     req["apply_user_id"] = (Json::UInt64)apply_user_id;
     req["target_user_id"] = (Json::UInt64)target_user_id;
@@ -431,7 +422,7 @@ Result<std::vector<IM::dto::ContactApplyItem>> ContactServiceRpcClient::ListCont
     }
 
     std::vector<IM::dto::ContactApplyItem> items;
-    for (const auto& it : out["data"]["items"]) {
+    for (const auto &it : out["data"]["items"]) {
         IM::dto::ContactApplyItem a;
         if (parseContactApplyItem(it, a)) items.push_back(std::move(a));
     }
@@ -441,9 +432,8 @@ Result<std::vector<IM::dto::ContactApplyItem>> ContactServiceRpcClient::ListCont
     return result;
 }
 
-Result<void> ContactServiceRpcClient::RejectApply(const uint64_t handler_user_id,
-                                                  const uint64_t apply_user_id,
-                                                  const std::string& remark) {
+Result<void> ContactServiceRpcClient::RejectApply(const uint64_t handler_user_id, const uint64_t apply_user_id,
+                                                  const std::string &remark) {
     Json::Value req(Json::objectValue);
     req["handler_user_id"] = (Json::UInt64)handler_user_id;
     req["apply_user_id"] = (Json::UInt64)apply_user_id;
@@ -453,9 +443,8 @@ Result<void> ContactServiceRpcClient::RejectApply(const uint64_t handler_user_id
     return FromRockVoid(rr, "svc-contact unavailable");
 }
 
-Result<void> ContactServiceRpcClient::EditContactRemark(const uint64_t user_id,
-                                                        const uint64_t contact_id,
-                                                        const std::string& remark) {
+Result<void> ContactServiceRpcClient::EditContactRemark(const uint64_t user_id, const uint64_t contact_id,
+                                                        const std::string &remark) {
     Json::Value req(Json::objectValue);
     req["user_id"] = (Json::UInt64)user_id;
     req["contact_id"] = (Json::UInt64)contact_id;
@@ -475,13 +464,12 @@ Result<void> ContactServiceRpcClient::DeleteContact(const uint64_t user_id, cons
 }
 
 Result<void> ContactServiceRpcClient::SaveContactGroup(
-    const uint64_t user_id,
-    const std::vector<std::tuple<uint64_t, uint64_t, std::string>>& groupItems) {
+    const uint64_t user_id, const std::vector<std::tuple<uint64_t, uint64_t, std::string>> &groupItems) {
     Json::Value req(Json::objectValue);
     req["user_id"] = (Json::UInt64)user_id;
 
     Json::Value items(Json::arrayValue);
-    for (const auto& it : groupItems) {
+    for (const auto &it : groupItems) {
         Json::Value j(Json::objectValue);
         j["id"] = (Json::UInt64)std::get<0>(it);
         j["sort"] = (Json::UInt64)std::get<1>(it);
@@ -527,7 +515,7 @@ Result<std::vector<IM::dto::ContactGroupItem>> ContactServiceRpcClient::GetConta
     }
 
     std::vector<IM::dto::ContactGroupItem> items;
-    for (const auto& it : out["data"]["items"]) {
+    for (const auto &it : out["data"]["items"]) {
         IM::dto::ContactGroupItem g;
         if (parseContactGroupItem(it, g)) items.push_back(std::move(g));
     }
@@ -537,8 +525,7 @@ Result<std::vector<IM::dto::ContactGroupItem>> ContactServiceRpcClient::GetConta
     return result;
 }
 
-Result<void> ContactServiceRpcClient::ChangeContactGroup(const uint64_t user_id,
-                                                         const uint64_t contact_id,
+Result<void> ContactServiceRpcClient::ChangeContactGroup(const uint64_t user_id, const uint64_t contact_id,
                                                          const uint64_t group_id) {
     Json::Value req(Json::objectValue);
     req["user_id"] = (Json::UInt64)user_id;
@@ -549,4 +536,4 @@ Result<void> ContactServiceRpcClient::ChangeContactGroup(const uint64_t user_id,
     return FromRockVoid(rr, "svc-contact unavailable");
 }
 
-} // namespace IM::app::rpc
+}  // namespace IM::app::rpc

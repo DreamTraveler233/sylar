@@ -1,18 +1,16 @@
 #include "core/net/rock/rock_stream.hpp"
 
-#include "core/config/config.hpp"
 #include "core/base/macro.hpp"
-#include "core/util/time_util.hpp"
+#include "core/config/config.hpp"
 #include "core/io/worker.hpp"
+#include "core/util/time_util.hpp"
 #include "core/util/trace_context.hpp"
 
 namespace IM {
 static Logger::ptr g_logger = IM_LOG_NAME("system");
-static ConfigVar<std::unordered_map<std::string, std::unordered_map<std::string, std::string>>>::ptr
-    g_rock_services = Config::Lookup(
-        "rock_services",
-        std::unordered_map<std::string, std::unordered_map<std::string, std::string>>(),
-        "rock_services");
+static ConfigVar<std::unordered_map<std::string, std::unordered_map<std::string, std::string>>>::ptr g_rock_services =
+    Config::Lookup("rock_services", std::unordered_map<std::string, std::unordered_map<std::string, std::string>>(),
+                   "rock_services");
 
 std::string RockResult::toString() const {
     std::stringstream ss;
@@ -22,15 +20,12 @@ std::string RockResult::toString() const {
     return ss.str();
 }
 
-RockStream::RockStream(Socket::ptr sock)
-    : AsyncSocketStream(sock, true), m_decoder(new RockMessageDecoder) {
-    IM_LOG_DEBUG(g_logger) << "RockStream::RockStream " << this << " "
-                            << (sock ? sock->toString() : "");
+RockStream::RockStream(Socket::ptr sock) : AsyncSocketStream(sock, true), m_decoder(new RockMessageDecoder) {
+    IM_LOG_DEBUG(g_logger) << "RockStream::RockStream " << this << " " << (sock ? sock->toString() : "");
 }
 
 RockStream::~RockStream() {
-    IM_LOG_DEBUG(g_logger) << "RockStream::~RockStream " << this << " "
-                            << (m_socket ? m_socket->toString() : "");
+    IM_LOG_DEBUG(g_logger) << "RockStream::~RockStream " << this << " " << (m_socket ? m_socket->toString() : "");
 }
 
 int32_t RockStream::sendMessage(Message::ptr msg) {
@@ -57,12 +52,11 @@ RockResult::ptr RockStream::request(RockRequest::ptr req, uint32_t timeout_ms) {
         ctx->fiber = Coroutine::GetThis();
         addCtx(ctx);
         uint64_t ts = TimeUtil::NowToMS();
-        ctx->timer = IOManager::GetThis()->addTimer(
-            timeout_ms, std::bind(&RockStream::onTimeOut, shared_from_this(), ctx));
+        ctx->timer =
+            IOManager::GetThis()->addTimer(timeout_ms, std::bind(&RockStream::onTimeOut, shared_from_this(), ctx));
         enqueue(ctx);
         Coroutine::YieldToHold();
-        return std::make_shared<RockResult>(ctx->result, TimeUtil::NowToMS() - ts, ctx->response,
-                                            req);
+        return std::make_shared<RockResult>(ctx->result, TimeUtil::NowToMS() - ts, ctx->response, req);
     } else {
         return std::make_shared<RockResult>(AsyncSocketStream::NOT_CONNECT, 0, nullptr, req);
     }
@@ -73,8 +67,7 @@ bool RockStream::RockSendCtx::doSend(AsyncSocketStream::ptr stream) {
 }
 
 bool RockStream::RockCtx::doSend(AsyncSocketStream::ptr stream) {
-    return std::dynamic_pointer_cast<RockStream>(stream)->m_decoder->serializeTo(stream, request) >
-           0;
+    return std::dynamic_pointer_cast<RockStream>(stream)->m_decoder->serializeTo(stream, request) > 0;
 }
 
 AsyncSocketStream::Ctx::ptr RockStream::doRecv() {
@@ -89,8 +82,7 @@ AsyncSocketStream::Ctx::ptr RockStream::doRecv() {
     if (type == Message::RESPONSE) {
         auto rsp = std::dynamic_pointer_cast<RockResponse>(msg);
         if (!rsp) {
-            IM_LOG_WARN(g_logger)
-                << "RockStream doRecv response not RockResponse: " << msg->toString();
+            IM_LOG_WARN(g_logger) << "RockStream doRecv response not RockResponse: " << msg->toString();
             return nullptr;
         }
         RockCtx::ptr ctx = getAndDelCtxAs<RockCtx>(rsp->getSn());
@@ -104,35 +96,30 @@ AsyncSocketStream::Ctx::ptr RockStream::doRecv() {
     } else if (type == Message::REQUEST) {
         auto req = std::dynamic_pointer_cast<RockRequest>(msg);
         if (!req) {
-            IM_LOG_WARN(g_logger)
-                << "RockStream doRecv request not RockRequest: " << msg->toString();
+            IM_LOG_WARN(g_logger) << "RockStream doRecv request not RockRequest: " << msg->toString();
             return nullptr;
         }
         if (m_requestHandler) {
-            m_worker->schedule(std::bind(&RockStream::handleRequest,
-                                         std::dynamic_pointer_cast<RockStream>(shared_from_this()),
-                                         req));
+            m_worker->schedule(
+                std::bind(&RockStream::handleRequest, std::dynamic_pointer_cast<RockStream>(shared_from_this()), req));
         } else {
             IM_LOG_WARN(g_logger) << "unhandle request " << req->toString();
         }
     } else if (type == Message::NOTIFY) {
         auto nty = std::dynamic_pointer_cast<RockNotify>(msg);
         if (!nty) {
-            IM_LOG_WARN(g_logger)
-                << "RockStream doRecv notify not RockNotify: " << msg->toString();
+            IM_LOG_WARN(g_logger) << "RockStream doRecv notify not RockNotify: " << msg->toString();
             return nullptr;
         }
 
         if (m_notifyHandler) {
-            m_worker->schedule(std::bind(&RockStream::handleNotify,
-                                         std::dynamic_pointer_cast<RockStream>(shared_from_this()),
-                                         nty));
+            m_worker->schedule(
+                std::bind(&RockStream::handleNotify, std::dynamic_pointer_cast<RockStream>(shared_from_this()), nty));
         } else {
             IM_LOG_WARN(g_logger) << "unhandle notify " << nty->toString();
         }
     } else {
-        IM_LOG_WARN(g_logger) << "RockStream recv unknow type=" << type
-                               << " msg: " << msg->toString();
+        IM_LOG_WARN(g_logger) << "RockStream recv unknow type=" << type << " msg: " << msg->toString();
     }
     return nullptr;
 }
@@ -194,7 +181,7 @@ void RockSDLoadBalance::start() {
 }
 
 void RockSDLoadBalance::start(
-    const std::unordered_map<std::string, std::unordered_map<std::string, std::string>>& confs) {
+    const std::unordered_map<std::string, std::unordered_map<std::string, std::string>> &confs) {
     m_cb = create_rock_stream;
     initConf(confs);
     SDLoadBalance::start();
@@ -204,9 +191,8 @@ void RockSDLoadBalance::stop() {
     SDLoadBalance::stop();
 }
 
-RockResult::ptr RockSDLoadBalance::request(const std::string& domain, const std::string& service,
-                                           RockRequest::ptr req, uint32_t timeout_ms,
-                                           uint64_t idx) {
+RockResult::ptr RockSDLoadBalance::request(const std::string &domain, const std::string &service, RockRequest::ptr req,
+                                           uint32_t timeout_ms, uint64_t idx) {
     auto lb = get(domain, service);
     if (!lb) {
         return std::make_shared<RockResult>(ILoadBalance::NO_SERVICE, 0, nullptr, req);
@@ -216,7 +202,7 @@ RockResult::ptr RockSDLoadBalance::request(const std::string& domain, const std:
         return std::make_shared<RockResult>(ILoadBalance::NO_CONNECTION, 0, nullptr, req);
     }
     uint64_t ts = TimeUtil::NowToMS();
-    auto& stats = conn->get(ts / 1000);
+    auto &stats = conn->get(ts / 1000);
     stats.incDoing(1);
     stats.incTotal(1);
     auto r = conn->getStreamAs<RockStream>()->request(req, timeout_ms);

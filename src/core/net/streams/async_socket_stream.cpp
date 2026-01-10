@@ -9,8 +9,8 @@ static Logger::ptr g_logger = IM_LOG_NAME("system");
 AsyncSocketStream::Ctx::Ctx() : sn(0), timeout(0), result(0), timed(false), scheduler(nullptr) {}
 
 void AsyncSocketStream::Ctx::doRsp() {
-    Scheduler* scd = scheduler;
-    if (!Atomic::compareAndSwapBool(scheduler, scd, (Scheduler*)nullptr)) {
+    Scheduler *scd = scheduler;
+    if (!Atomic::compareAndSwapBool(scheduler, scd, (Scheduler *)nullptr)) {
         return;
     }
     if (!scd || !fiber) {
@@ -28,12 +28,7 @@ void AsyncSocketStream::Ctx::doRsp() {
 }
 
 AsyncSocketStream::AsyncSocketStream(Socket::ptr sock, bool owner)
-    : SocketStream(sock, owner),
-      m_waitSem(2),
-      m_sn(0),
-      m_autoConnect(false),
-      m_iomanager(nullptr),
-      m_worker(nullptr) {}
+    : SocketStream(sock, owner), m_waitSem(2), m_sn(0), m_autoConnect(false), m_iomanager(nullptr), m_worker(nullptr) {}
 
 bool AsyncSocketStream::start() {
     if (!m_iomanager) {
@@ -80,8 +75,7 @@ bool AsyncSocketStream::start() {
             m_timer = nullptr;
         }
 
-        m_timer = m_iomanager->addTimer(2 * 1000,
-                                        std::bind(&AsyncSocketStream::start, shared_from_this()));
+        m_timer = m_iomanager->addTimer(2 * 1000, std::bind(&AsyncSocketStream::start, shared_from_this()));
     }
     return false;
 }
@@ -117,7 +111,7 @@ void AsyncSocketStream::doWrite() {
                 m_queue.swap(ctxs);
             }
             auto self = shared_from_this();
-            for (auto& i : ctxs) {
+            for (auto &i : ctxs) {
                 if (!i->doSend(self)) {
                     innerClose();
                     break;
@@ -203,7 +197,7 @@ bool AsyncSocketStream::innerClose() {
         RWMutexType::WriteLock lock(m_queueMutex);
         m_queue.clear();
     }
-    for (auto& i : ctxs) {
+    for (auto &i : ctxs) {
         i.second->result = IO_ERROR;
         i.second->doRsp();
     }
@@ -243,19 +237,19 @@ void AsyncSocketStreamManager::add(AsyncSocketStream::ptr stream) {
 
 void AsyncSocketStreamManager::clear() {
     RWMutexType::WriteLock lock(m_mutex);
-    for (auto& i : m_datas) {
+    for (auto &i : m_datas) {
         i->close();
     }
     m_datas.clear();
     m_size = 0;
 }
-void AsyncSocketStreamManager::setConnection(const std::vector<AsyncSocketStream::ptr>& streams) {
+void AsyncSocketStreamManager::setConnection(const std::vector<AsyncSocketStream::ptr> &streams) {
     auto cs = streams;
     RWMutexType::WriteLock lock(m_mutex);
     cs.swap(m_datas);
     m_size = m_datas.size();
     if (m_connectCb || m_disconnectCb) {
-        for (auto& i : m_datas) {
+        for (auto &i : m_datas) {
             if (m_connectCb) {
                 i->setConnectCb(m_connectCb);
             }
@@ -266,7 +260,7 @@ void AsyncSocketStreamManager::setConnection(const std::vector<AsyncSocketStream
     }
     lock.unlock();
 
-    for (auto& i : cs) {
+    for (auto &i : cs) {
         i->close();
     }
 }
@@ -285,7 +279,7 @@ AsyncSocketStream::ptr AsyncSocketStreamManager::get() {
 void AsyncSocketStreamManager::setConnectCb(connect_callback v) {
     m_connectCb = v;
     RWMutexType::WriteLock lock(m_mutex);
-    for (auto& i : m_datas) {
+    for (auto &i : m_datas) {
         i->setConnectCb(m_connectCb);
     }
 }
@@ -293,7 +287,7 @@ void AsyncSocketStreamManager::setConnectCb(connect_callback v) {
 void AsyncSocketStreamManager::setDisconnectCb(disconnect_callback v) {
     m_disconnectCb = v;
     RWMutexType::WriteLock lock(m_mutex);
-    for (auto& i : m_datas) {
+    for (auto &i : m_datas) {
         i->setDisconnectCb(m_disconnectCb);
     }
 }

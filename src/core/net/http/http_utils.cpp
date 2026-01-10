@@ -1,14 +1,15 @@
 #include "core/net/http/http_utils.hpp"
+
 #include "core/util/json_util.hpp"
 #include "core/util/jwt_util.hpp"
 
 namespace IM::http {
 
-std::string Ok(const Json::Value& data) {
+std::string Ok(const Json::Value &data) {
     return IM::JsonUtil::ToString(data);
 }
 
-std::string Error(const int code, const std::string& msg) {
+std::string Error(const int code, const std::string &msg) {
     Json::Value root;
     root["code"] = code;
     root["message"] = msg;
@@ -16,7 +17,7 @@ std::string Error(const int code, const std::string& msg) {
     return IM::JsonUtil::ToString(root);
 }
 
-bool ParseBody(const std::string& body, Json::Value& out) {
+bool ParseBody(const std::string &body, Json::Value &out) {
     if (body.empty()) return false;
     if (!IM::JsonUtil::FromString(out, body)) return false;
     return out.isObject();
@@ -105,4 +106,4 @@ IM::http::HttpStatus ToHttpStatus(const int code) {
     }
 }
 
-} // namespace IM::http
+}  // namespace IM::http

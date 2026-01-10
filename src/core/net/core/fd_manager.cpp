@@ -20,17 +20,17 @@ FdCtx::FdCtx(int fd)
 }
 
 /**
-     * @brief 初始化文件描述符上下文
-     * @details 检查文件描述符的有效性，判断是否为socket，
-     *          并设置非阻塞模式等相关属性
-     * @return 初始化成功返回true，失败返回false
-     *
-     * 1.检查文件描述符是否已经初始化
-     * 2.设置接收和发送超时时间为-1（无限等待）
-     * 3.使用fstat检查文件描述符状态，并判断是否为socket类型
-     * 4.如果文件描述符是socket，则设置非阻塞模式
-     * 5.初始化各种标志位
-     */
+ * @brief 初始化文件描述符上下文
+ * @details 检查文件描述符的有效性，判断是否为socket，
+ *          并设置非阻塞模式等相关属性
+ * @return 初始化成功返回true，失败返回false
+ *
+ * 1.检查文件描述符是否已经初始化
+ * 2.设置接收和发送超时时间为-1（无限等待）
+ * 3.使用fstat检查文件描述符状态，并判断是否为socket类型
+ * 4.如果文件描述符是socket，则设置非阻塞模式
+ * 5.初始化各种标志位
+ */
 bool FdCtx::init() {
     // 检查文件描述符是否已经初始化
     if (m_isInit) {
@@ -182,9 +182,9 @@ bool FileDescriptor::isValid() const {
     return m_fd != -1;
 }
 
-FileDescriptor::FileDescriptor(FileDescriptor&& other) noexcept : m_fd(other.release()) {}
+FileDescriptor::FileDescriptor(FileDescriptor &&other) noexcept : m_fd(other.release()) {}
 
-FileDescriptor& FileDescriptor::operator=(FileDescriptor&& other) noexcept {
+FileDescriptor &FileDescriptor::operator=(FileDescriptor &&other) noexcept {
     if (this != &other) {
         reset(other.release());
     }

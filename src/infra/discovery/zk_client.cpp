@@ -29,8 +29,8 @@ ZKClient::~ZKClient() {
     }
 }
 
-void ZKClient::OnWatcher(zhandle_t* zh, int type, int stat, const char* path, void* watcherCtx) {
-    ZKClient* client = (ZKClient*)watcherCtx;
+void ZKClient::OnWatcher(zhandle_t *zh, int type, int stat, const char *path, void *watcherCtx) {
+    ZKClient *client = (ZKClient *)watcherCtx;
     client->m_watcherCb(type, stat, path);
 }
 
@@ -38,27 +38,24 @@ bool ZKClient::reconnect() {
     if (m_handle) {
         zookeeper_close(m_handle);
     }
-    m_handle = zookeeper_init2(m_hosts.c_str(), &ZKClient::OnWatcher, m_recvTimeout, nullptr, this,
-                               0, m_logCb);
+    m_handle = zookeeper_init2(m_hosts.c_str(), &ZKClient::OnWatcher, m_recvTimeout, nullptr, this, 0, m_logCb);
     return m_handle != nullptr;
 }
 
-bool ZKClient::init(const std::string& hosts, int recv_timeout, watcher_callback cb,
-                    log_callback lcb) {
+bool ZKClient::init(const std::string &hosts, int recv_timeout, watcher_callback cb, log_callback lcb) {
     if (m_handle) {
         return true;
     }
     m_hosts = hosts;
     m_recvTimeout = recv_timeout;
-    m_watcherCb = std::bind(cb, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3,
-                            shared_from_this());
+    m_watcherCb =
+        std::bind(cb, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, shared_from_this());
     m_logCb = lcb;
-    m_handle =
-        zookeeper_init2(hosts.c_str(), &ZKClient::OnWatcher, m_recvTimeout, nullptr, this, 0, lcb);
+    m_handle = zookeeper_init2(hosts.c_str(), &ZKClient::OnWatcher, m_recvTimeout, nullptr, this, 0, lcb);
     return m_handle != nullptr;
 }
 
-int32_t ZKClient::setServers(const std::string& hosts) {
+int32_t ZKClient::setServers(const std::string &hosts) {
     auto rt = zoo_set_servers(m_handle, hosts.c_str());
     if (rt == 0) {
         m_hosts = hosts;
@@ -66,21 +63,20 @@ int32_t ZKClient::setServers(const std::string& hosts) {
     return rt;
 }
 
-int32_t ZKClient::create(const std::string& path, const std::string& val, std::string& new_path,
-                         const struct ACL_vector* acl, int flags) {
-    return zoo_create(m_handle, path.c_str(), val.c_str(), val.size(), acl, flags, &new_path[0],
-                      new_path.size());
+int32_t ZKClient::create(const std::string &path, const std::string &val, std::string &new_path,
+                         const struct ACL_vector *acl, int flags) {
+    return zoo_create(m_handle, path.c_str(), val.c_str(), val.size(), acl, flags, &new_path[0], new_path.size());
 }
 
-int32_t ZKClient::exists(const std::string& path, bool watch, Stat* stat) {
+int32_t ZKClient::exists(const std::string &path, bool watch, Stat *stat) {
     return zoo_exists(m_handle, path.c_str(), watch, stat);
 }
 
-int32_t ZKClient::del(const std::string& path, int version) {
+int32_t ZKClient::del(const std::string &path, int version) {
     return zoo_delete(m_handle, path.c_str(), version);
 }
 
-int32_t ZKClient::get(const std::string& path, std::string& val, bool watch, Stat* stat) {
+int32_t ZKClient::get(const std::string &path, std::string &val, bool watch, Stat *stat) {
     int len = val.size();
     int32_t rt = zoo_get(m_handle, path.c_str(), watch, &val[0], &len, stat);
     if (rt == ZOK) {
@@ -89,16 +85,15 @@ int32_t ZKClient::get(const std::string& path, std::string& val, bool watch, Sta
     return rt;
 }
 
-int32_t ZKClient::getConfig(std::string& val, bool watch, Stat* stat) {
+int32_t ZKClient::getConfig(std::string &val, bool watch, Stat *stat) {
     return get(ZOO_CONFIG_NODE, val, watch, stat);
 }
 
-int32_t ZKClient::set(const std::string& path, const std::string& val, int version, Stat* stat) {
+int32_t ZKClient::set(const std::string &path, const std::string &val, int version, Stat *stat) {
     return zoo_set2(m_handle, path.c_str(), val.c_str(), val.size(), version, stat);
 }
 
-int32_t ZKClient::getChildren(const std::string& path, std::vector<std::string>& val, bool watch,
-                              Stat* stat) {
+int32_t ZKClient::getChildren(const std::string &path, std::vector<std::string> &val, bool watch, Stat *stat) {
     String_vector strings;
     Stat tmp;
     if (stat == nullptr) {

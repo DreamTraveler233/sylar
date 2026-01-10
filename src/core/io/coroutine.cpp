@@ -2,9 +2,9 @@
 
 #include <atomic>
 
+#include "core/base/macro.hpp"
 #include "core/config/config.hpp"
 #include "core/io/scheduler.hpp"
-#include "core/base/macro.hpp"
 #include "core/util/util.hpp"
 
 namespace IM {
@@ -14,7 +14,7 @@ static std::atomic<uint64_t> s_coroutine_id = {0};     // 协程id
 static std::atomic<uint64_t> s_coroutine_count = {0};  // 全局协程计数器
 
 // 当前协程的协程对象
-static thread_local Coroutine* t_coroutine = nullptr;
+static thread_local Coroutine *t_coroutine = nullptr;
 // 当前线程的主协程
 static thread_local Coroutine::ptr t_thread_coroutine = nullptr;
 
@@ -27,9 +27,8 @@ static uint32_t s_coroutine_stack_size = 0;
 struct CoroutineInit {
     CoroutineInit() {
         s_coroutine_stack_size = g_coroutine_stack_size->getValue();
-        g_coroutine_stack_size->addListener([](const uint32_t& ole_val, const uint32_t& new_val) {
-            s_coroutine_stack_size = new_val;
-        });
+        g_coroutine_stack_size->addListener(
+            [](const uint32_t &ole_val, const uint32_t &new_val) { s_coroutine_stack_size = new_val; });
     }
 };
 static CoroutineInit __coroutine_init;
@@ -49,13 +48,12 @@ Coroutine::Coroutine() : m_state(State::EXEC) {
     IM_LOG_DEBUG(g_logger) << "Coroutine::Coroutine() id=" << m_id;
 }
 
-Coroutine::Coroutine(std::function<void()> cb, size_t stack_size, bool use_caller)
-    : m_id(++s_coroutine_id), m_cb(cb) {
+Coroutine::Coroutine(std::function<void()> cb, size_t stack_size, bool use_caller) : m_id(++s_coroutine_id), m_cb(cb) {
     IM_ASSERT(cb);
     ++s_coroutine_count;
 
     // 使用局部变量管理栈空间，确保异常安全性
-    void* stack = nullptr;
+    void *stack = nullptr;
     size_t stack_size_temp = stack_size ? stack_size : s_coroutine_stack_size;
 
     try {
@@ -103,7 +101,7 @@ Coroutine::~Coroutine() {
         IM_ASSERT(m_state == State::EXEC);
 
         // 将主协程指针置空
-        Coroutine* cur = t_coroutine;
+        Coroutine *cur = t_coroutine;
         if (cur == this) {
             SetThis(nullptr);
         }
@@ -176,7 +174,7 @@ void Coroutine::setState(State state) {
     m_state = state;
 }
 
-void Coroutine::SetThis(Coroutine* val) {
+void Coroutine::SetThis(Coroutine *val) {
     t_coroutine = val;
 }
 
@@ -221,11 +219,10 @@ void Coroutine::MainFunc() {
         cur->m_cb();  // 执行协程的回调函数
         cur->m_cb = nullptr;
         cur->m_state = State::TERM;
-    } catch (std::exception& ex) {
+    } catch (std::exception &ex) {
         cur->m_state = State::EXCEPT;
-        IM_LOG_ERROR(g_logger) << "coroutine exception: " << ex.what()
-                                << " coroutine id: " << cur->getId() << std::endl
-                                << BacktraceToString();
+        IM_LOG_ERROR(g_logger) << "coroutine exception: " << ex.what() << " coroutine id: " << cur->getId() << std::endl
+                               << BacktraceToString();
     } catch (...) {
         cur->m_state = State::EXCEPT;
         IM_LOG_ERROR(g_logger) << "Coroutine exception";
@@ -248,11 +245,10 @@ void Coroutine::CallerMainFunc() {
         cur->m_cb();  // 执行协程的回调函数
         cur->m_cb = nullptr;
         cur->m_state = State::TERM;
-    } catch (std::exception& ex) {
+    } catch (std::exception &ex) {
         cur->m_state = State::EXCEPT;
-        IM_LOG_ERROR(g_logger) << "coroutine exception: " << ex.what()
-                                << " coroutine id: " << cur->getId() << std::endl
-                                << BacktraceToString();
+        IM_LOG_ERROR(g_logger) << "coroutine exception: " << ex.what() << " coroutine id: " << cur->getId() << std::endl
+                               << BacktraceToString();
     } catch (...) {
         cur->m_state = State::EXCEPT;
         IM_LOG_ERROR(g_logger) << "Coroutine exception";
@@ -270,11 +266,11 @@ uint64_t Coroutine::GetCoroutineId() {
     return t_coroutine ? t_coroutine->m_id : 0;
 }
 
-void* MallocStackAllocator::Alloc(size_t size) {
+void *MallocStackAllocator::Alloc(size_t size) {
     return malloc(size);
 }
 
-void MallocStackAllocator::Dealloc(void* ptr, size_t size) {
+void MallocStackAllocator::Dealloc(void *ptr, size_t size) {
     free(ptr);
 }
 }  // namespace IM

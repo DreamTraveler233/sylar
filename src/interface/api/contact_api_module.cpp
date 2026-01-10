@@ -1,12 +1,14 @@
 #include "interface/api/contact_api_module.hpp"
 
-#include "interface/api/ws_gateway_module.hpp"
 #include "core/base/macro.hpp"
-#include "common/common.hpp"
 #include "core/net/http/http_server.hpp"
 #include "core/net/http/http_servlet.hpp"
 #include "core/system/application.hpp"
 #include "core/util/util.hpp"
+
+#include "interface/api/ws_gateway_module.hpp"
+
+#include "common/common.hpp"
 
 namespace IM::api {
 
@@ -25,7 +27,7 @@ bool ContactApiModule::onServerReady() {
         return true;
     }
 
-    for (auto& s : httpServers) {
+    for (auto &s : httpServers) {
         auto http = std::dynamic_pointer_cast<IM::http::HttpServer>(s);
         if (!http) continue;
         auto dispatch = http->getServletDispatch();
@@ -52,8 +54,7 @@ bool ContactApiModule::onServerReady() {
                                  }
 
                                  /*调用业务逻辑处理接受好友申请（服务端已创建会话并返回）*/
-                                 auto session_result = m_contact_service->AgreeApply(
-                                     uid_result.data, apply_id, remark);
+                                 auto session_result = m_contact_service->AgreeApply(uid_result.data, apply_id, remark);
                                  if (!session_result.ok) {
                                      res->setStatus(ToHttpStatus(session_result.code));
                                      res->setBody(Error(session_result.code, session_result.err));
@@ -104,8 +105,7 @@ bool ContactApiModule::onServerReady() {
                                  }
 
                                  /*调用业务逻辑处理添加联系人申请*/
-                                 auto result = m_contact_service->CreateContactApply(
-                                     uid_result.data, to_id, remark);
+                                 auto result = m_contact_service->CreateContactApply(uid_result.data, to_id, remark);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -138,8 +138,7 @@ bool ContactApiModule::onServerReady() {
                                  }
 
                                  /*调用业务逻辑处理接受好友申请*/
-                                 auto result = m_contact_service->RejectApply(uid_result.data,
-                                                                              apply_id, remark);
+                                 auto result = m_contact_service->RejectApply(uid_result.data, apply_id, remark);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -164,8 +163,7 @@ bool ContactApiModule::onServerReady() {
                                  }
 
                                  /*获取未处理的好友申请列表*/
-                                 auto result =
-                                     m_contact_service->ListContactApplies(uid_result.data);
+                                 auto result = m_contact_service->ListContactApplies(uid_result.data);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -174,7 +172,7 @@ bool ContactApiModule::onServerReady() {
 
                                  Json::Value d;
                                  Json::Value items;
-                                 for (const auto& item : result.data) {
+                                 for (const auto &item : result.data) {
                                      Json::Value jitem;
                                      jitem["id"] = item.id;
                                      jitem["user_id"] = item.target_user_id;
@@ -191,31 +189,30 @@ bool ContactApiModule::onServerReady() {
                              });
 
         /*获取未读好友申请数量接口*/
-        dispatch->addServlet(
-            "/api/v1/contact-apply/unread-num",
-            [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
-                   IM::http::HttpSession::ptr /*session*/) {
-                res->setHeader("Content-Type", "application/json");
+        dispatch->addServlet("/api/v1/contact-apply/unread-num",
+                             [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                    IM::http::HttpSession::ptr /*session*/) {
+                                 res->setHeader("Content-Type", "application/json");
 
-                auto uid_result = GetUidFromToken(req, res);
-                if (!uid_result.ok) {
-                    res->setStatus(ToHttpStatus(uid_result.code));
-                    res->setBody(Error(uid_result.code, uid_result.err));
-                    return 0;
-                }
+                                 auto uid_result = GetUidFromToken(req, res);
+                                 if (!uid_result.ok) {
+                                     res->setStatus(ToHttpStatus(uid_result.code));
+                                     res->setBody(Error(uid_result.code, uid_result.err));
+                                     return 0;
+                                 }
 
-                auto result = m_contact_service->GetPendingContactApplyCount(uid_result.data);
-                if (!result.ok) {
-                    res->setStatus(ToHttpStatus(result.code));
-                    res->setBody(Error(result.code, result.err));
-                    return 0;
-                }
+                                 auto result = m_contact_service->GetPendingContactApplyCount(uid_result.data);
+                                 if (!result.ok) {
+                                     res->setStatus(ToHttpStatus(result.code));
+                                     res->setBody(Error(result.code, result.err));
+                                     return 0;
+                                 }
 
-                Json::Value data;
-                data["num"] = result.data;
-                res->setBody(Ok(data));
-                return 0;
-            });
+                                 Json::Value data;
+                                 data["num"] = result.data;
+                                 res->setBody(Ok(data));
+                                 return 0;
+                             });
 
         /*获取联系人分组列表接口*/
         dispatch->addServlet("/api/v1/contact-group/list",
@@ -231,8 +228,7 @@ bool ContactApiModule::onServerReady() {
                                  }
 
                                  /*调用业务逻辑处理获取联系人分组列表*/
-                                 auto result =
-                                     m_contact_service->GetContactGroupLists(uid_result.data);
+                                 auto result = m_contact_service->GetContactGroupLists(uid_result.data);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -241,7 +237,7 @@ bool ContactApiModule::onServerReady() {
 
                                  Json::Value items;
                                  Json::Value data;
-                                 for (const auto& item : result.data) {
+                                 for (const auto &item : result.data) {
                                      Json::Value jitem;
                                      jitem["id"] = item.id;
                                      jitem["name"] = item.name;
@@ -255,54 +251,21 @@ bool ContactApiModule::onServerReady() {
                              });
 
         /*保存联系人分组接口*/
-        dispatch->addServlet(
-            "/api/v1/contact-group/save",
-            [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
-                   IM::http::HttpSession::ptr /*session*/) {
-                res->setHeader("Content-Type", "application/json");
-
-                std::vector<std::tuple<uint64_t, uint64_t, std::string>> groupItems;
-                Json::Value body;
-                if (ParseBody(req->getBody(), body)) {
-                    auto items = body["items"];
-                    for (const auto& item : items) {
-                        uint64_t id = JsonUtil::GetUint64(item, "id");
-                        uint64_t sort = JsonUtil::GetUint64(item, "sort");
-                        std::string name = JsonUtil::GetString(item, "name");
-                        groupItems.emplace_back(id, sort, name);
-                    }
-                }
-
-                auto uid_result = GetUidFromToken(req, res);
-                if (!uid_result.ok) {
-                    res->setStatus(ToHttpStatus(uid_result.code));
-                    res->setBody(Error(uid_result.code, uid_result.err));
-                    return 0;
-                }
-
-                /*调用业务逻辑处理修改联系人分组*/
-                auto result = m_contact_service->SaveContactGroup(uid_result.data, groupItems);
-                if (!result.ok) {
-                    res->setStatus(ToHttpStatus(result.code));
-                    res->setBody(Error(result.code, result.err));
-                    return 0;
-                }
-
-                res->setBody(Ok());
-                return 0;
-            });
-
-        /*修改联系人分组接口*/
-        dispatch->addServlet("/api/v1/contact/change-group",
+        dispatch->addServlet("/api/v1/contact-group/save",
                              [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
                                     IM::http::HttpSession::ptr /*session*/) {
                                  res->setHeader("Content-Type", "application/json");
 
-                                 uint64_t contact_id = 0, group_id = 0;
+                                 std::vector<std::tuple<uint64_t, uint64_t, std::string>> groupItems;
                                  Json::Value body;
                                  if (ParseBody(req->getBody(), body)) {
-                                     contact_id = IM::JsonUtil::GetUint64(body, "user_id");
-                                     group_id = IM::JsonUtil::GetUint64(body, "group_id");
+                                     auto items = body["items"];
+                                     for (const auto &item : items) {
+                                         uint64_t id = JsonUtil::GetUint64(item, "id");
+                                         uint64_t sort = JsonUtil::GetUint64(item, "sort");
+                                         std::string name = JsonUtil::GetString(item, "name");
+                                         groupItems.emplace_back(id, sort, name);
+                                     }
                                  }
 
                                  auto uid_result = GetUidFromToken(req, res);
@@ -312,8 +275,8 @@ bool ContactApiModule::onServerReady() {
                                      return 0;
                                  }
 
-                                 auto result = m_contact_service->ChangeContactGroup(
-                                     uid_result.data, contact_id, group_id);
+                                 /*调用业务逻辑处理修改联系人分组*/
+                                 auto result = m_contact_service->SaveContactGroup(uid_result.data, groupItems);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -323,6 +286,37 @@ bool ContactApiModule::onServerReady() {
                                  res->setBody(Ok());
                                  return 0;
                              });
+
+        /*修改联系人分组接口*/
+        dispatch->addServlet(
+            "/api/v1/contact/change-group", [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                                   IM::http::HttpSession::ptr /*session*/) {
+                res->setHeader("Content-Type", "application/json");
+
+                uint64_t contact_id = 0, group_id = 0;
+                Json::Value body;
+                if (ParseBody(req->getBody(), body)) {
+                    contact_id = IM::JsonUtil::GetUint64(body, "user_id");
+                    group_id = IM::JsonUtil::GetUint64(body, "group_id");
+                }
+
+                auto uid_result = GetUidFromToken(req, res);
+                if (!uid_result.ok) {
+                    res->setStatus(ToHttpStatus(uid_result.code));
+                    res->setBody(Error(uid_result.code, uid_result.err));
+                    return 0;
+                }
+
+                auto result = m_contact_service->ChangeContactGroup(uid_result.data, contact_id, group_id);
+                if (!result.ok) {
+                    res->setStatus(ToHttpStatus(result.code));
+                    res->setBody(Error(result.code, result.err));
+                    return 0;
+                }
+
+                res->setBody(Ok());
+                return 0;
+            });
 
         /*删除联系人接口*/
         dispatch->addServlet("/api/v1/contact/delete",
@@ -344,8 +338,7 @@ bool ContactApiModule::onServerReady() {
                                  }
 
                                  /*调用业务逻辑处理删除联系人*/
-                                 auto result =
-                                     m_contact_service->DeleteContact(uid_result.data, contact_id);
+                                 auto result = m_contact_service->DeleteContact(uid_result.data, contact_id);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -374,8 +367,7 @@ bool ContactApiModule::onServerReady() {
                                      return 0;
                                  }
 
-                                 auto result = m_contact_service->GetContactDetail(uid_result.data,
-                                                                                   target_id);
+                                 auto result = m_contact_service->GetContactDetail(uid_result.data, target_id);
                                  if (!result.ok) {
                                      res->setStatus(ToHttpStatus(result.code));
                                      res->setBody(Error(result.code, result.err));
@@ -403,38 +395,37 @@ bool ContactApiModule::onServerReady() {
                              });
 
         /*编辑联系人备注接口*/
-        dispatch->addServlet("/api/v1/contact/edit-remark",
-                             [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
-                                    IM::http::HttpSession::ptr /*session*/) {
-                                 res->setHeader("Content-Type", "application/json");
+        dispatch->addServlet(
+            "/api/v1/contact/edit-remark", [this](IM::http::HttpRequest::ptr req, IM::http::HttpResponse::ptr res,
+                                                  IM::http::HttpSession::ptr /*session*/) {
+                res->setHeader("Content-Type", "application/json");
 
-                                 uint64_t contact_id = 0;
-                                 std::string remark;
-                                 Json::Value body;
-                                 if (ParseBody(req->getBody(), body)) {
-                                     contact_id = IM::JsonUtil::GetUint64(body, "user_id");
-                                     remark = IM::JsonUtil::GetString(body, "remark");
-                                 }
+                uint64_t contact_id = 0;
+                std::string remark;
+                Json::Value body;
+                if (ParseBody(req->getBody(), body)) {
+                    contact_id = IM::JsonUtil::GetUint64(body, "user_id");
+                    remark = IM::JsonUtil::GetString(body, "remark");
+                }
 
-                                 auto uid_result = GetUidFromToken(req, res);
-                                 if (!uid_result.ok) {
-                                     res->setStatus(ToHttpStatus(uid_result.code));
-                                     res->setBody(Error(uid_result.code, uid_result.err));
-                                     return 0;
-                                 }
+                auto uid_result = GetUidFromToken(req, res);
+                if (!uid_result.ok) {
+                    res->setStatus(ToHttpStatus(uid_result.code));
+                    res->setBody(Error(uid_result.code, uid_result.err));
+                    return 0;
+                }
 
-                                 /*调用业务逻辑处理编辑联系人备注*/
-                                 auto result = m_contact_service->EditContactRemark(
-                                     uid_result.data, contact_id, remark);
-                                 if (!result.ok) {
-                                     res->setStatus(ToHttpStatus(result.code));
-                                     res->setBody(Error(result.code, result.err));
-                                     return 0;
-                                 }
+                /*调用业务逻辑处理编辑联系人备注*/
+                auto result = m_contact_service->EditContactRemark(uid_result.data, contact_id, remark);
+                if (!result.ok) {
+                    res->setStatus(ToHttpStatus(result.code));
+                    res->setBody(Error(result.code, result.err));
+                    return 0;
+                }
 
-                                 res->setBody(Ok());
-                                 return 0;
-                             });
+                res->setBody(Ok());
+                return 0;
+            });
 
         /*获取联系人列表接口*/
         dispatch->addServlet("/api/v1/contact/list",
@@ -459,7 +450,7 @@ bool ContactApiModule::onServerReady() {
 
                                  Json::Value d;
                                  Json::Value items;
-                                 for (const auto& c : contacts.data) {
+                                 for (const auto &c : contacts.data) {
                                      Json::Value item;
                                      item["user_id"] = c.user_id;
                                      item["nickname"] = c.nickname;

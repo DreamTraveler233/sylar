@@ -1,12 +1,22 @@
+/**
+ * @file macro.hpp
+ * @brief 基础宏和基类
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 基础宏和基类。
+ */
+
 #ifndef __IM_BASE_MACRO_HPP__
 #define __IM_BASE_MACRO_HPP__
 
+#include <assert.h>
+#include <string.h>
+
+#include "core/io/thread.hpp"
 #include "core/log/logger.hpp"
 #include "core/log/logger_manager.hpp"
 #include "core/util/util.hpp"
-#include "core/io/thread.hpp"
-#include <string.h>
-#include <assert.h>
 
 /**
  * @brief 分支预测优化宏定义
@@ -20,15 +30,12 @@
 #else
 #define IM_LIKELY(x) (x)
 #define IM_UNLIKELY(x) (x)
-#endif // __IM_BASE_MACRO_HPP__
+#endif  // __IM_BASE_MACRO_HPP__
 
-#define IM_LOG(logger, level)                                         \
-    if (level >= logger->getLevel())                                  \
-    IM::LogEventWrap(                                                 \
-        IM::LogEvent::ptr(                                            \
-            new IM::LogEvent(logger, level, __FILE__, __LINE__, 0,    \
-                             IM::GetThreadId(), IM::GetCoroutineId(), \
-                             time(0), IM::Thread::GetName())))        \
+#define IM_LOG(logger, level)                                                                                    \
+    if (level >= logger->getLevel())                                                                             \
+    IM::LogEventWrap(IM::LogEvent::ptr(new IM::LogEvent(logger, level, __FILE__, __LINE__, 0, IM::GetThreadId(), \
+                                                        IM::GetCoroutineId(), time(0), IM::Thread::GetName())))  \
         .getSS()
 
 #define IM_LOG_DEBUG(logger) IM_LOG(logger, IM::Level::DEBUG)
@@ -37,14 +44,11 @@
 #define IM_LOG_ERROR(logger) IM_LOG(logger, IM::Level::ERROR)
 #define IM_LOG_FATAL(logger) IM_LOG(logger, IM::Level::FATAL)
 
-#define IM_LOG_FMT(logger, level, fmt, ...)                           \
-    if (level >= logger->getLevel())                                  \
-    IM::LogEventWrap(                                                 \
-        IM::LogEvent::ptr(                                            \
-            new IM::LogEvent(logger, level, __FILE__, __LINE__, 0,    \
-                             IM::GetThreadId(), IM::GetCoroutineId(), \
-                             time(0), IM::Thread::GetName())))        \
-        .getEvent()                                                   \
+#define IM_LOG_FMT(logger, level, fmt, ...)                                                                      \
+    if (level >= logger->getLevel())                                                                             \
+    IM::LogEventWrap(IM::LogEvent::ptr(new IM::LogEvent(logger, level, __FILE__, __LINE__, 0, IM::GetThreadId(), \
+                                                        IM::GetCoroutineId(), time(0), IM::Thread::GetName())))  \
+        .getEvent()                                                                                              \
         ->format(fmt, __VA_ARGS__)
 
 #define IM_LOG_FMT_DEBUG(logger, fmt, ...) IM_LOG_FMT(logger, IM::Level::DEBUG, fmt, __VA_ARGS__)
@@ -56,24 +60,18 @@
 #define IM_LOG_ROOT() IM::LoggerMgr::GetInstance()->getRoot()
 #define IM_LOG_NAME(name) IM::LoggerMgr::GetInstance()->getLogger(name)
 
-#define IM_ASSERT(X)                                                          \
-    if (IM_UNLIKELY(!(X)))                                                    \
-    {                                                                         \
-        IM_LOG_ERROR(IM_LOG_ROOT()) << "ASSERTION: " #X                       \
-                                    << "\nbacktrace:\n"                       \
-                                    << IM::BacktraceToString(100, 2, "    "); \
-        assert(X);                                                            \
+#define IM_ASSERT(X)                                                                                                  \
+    if (IM_UNLIKELY(!(X))) {                                                                                          \
+        IM_LOG_ERROR(IM_LOG_ROOT()) << "ASSERTION: " #X << "\nbacktrace:\n" << IM::BacktraceToString(100, 2, "    "); \
+        assert(X);                                                                                                    \
     }
 
 #define IM_ASSERT2(X, W)                                                      \
-    if (IM_UNLIKELY(!(X)))                                                    \
-    {                                                                         \
-        IM_LOG_ERROR(IM_LOG_ROOT()) << "ASSERTION: " #X                       \
-                                    << "\n"                                   \
-                                    << W                                      \
-                                    << "\nbacktrace:\n"                       \
+    if (IM_UNLIKELY(!(X))) {                                                  \
+        IM_LOG_ERROR(IM_LOG_ROOT()) << "ASSERTION: " #X << "\n"               \
+                                    << W << "\nbacktrace:\n"                  \
                                     << IM::BacktraceToString(100, 2, "    "); \
         assert(X);                                                            \
     }
 
-#endif // __IM_BASE_MACRO_HPP__
+#endif  // __IM_BASE_MACRO_HPP__

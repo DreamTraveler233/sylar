@@ -10,16 +10,14 @@ namespace IM::http {
 static IM::Logger::ptr g_logger = IM_LOG_NAME("system");
 
 static IM::ConfigVar<uint32_t>::ptr g_mempool_enable =
-    IM::Config::Lookup("mempool.enable", (uint32_t)1,
-                      "enable ngx-style memory pool for IO buffers");
+    IM::Config::Lookup("mempool.enable", (uint32_t)1, "enable ngx-style memory pool for IO buffers");
 
 // 是否允许客户端未掩码帧（仅用于兼容非标准客户端，默认关闭）
-static IM::ConfigVar<uint32_t>::ptr g_ws_allow_unmasked_client_frames =
-    IM::Config::Lookup("websocket.allow_unmasked_client_frames", (uint32_t)0,
-                        "allow unmasked websocket frames from client side");
+static IM::ConfigVar<uint32_t>::ptr g_ws_allow_unmasked_client_frames = IM::Config::Lookup(
+    "websocket.allow_unmasked_client_frames", (uint32_t)0, "allow unmasked websocket frames from client side");
 
-IM::ConfigVar<uint32_t>::ptr g_websocket_message_max_size = IM::Config::Lookup(
-    "websocket.message.max_size", (uint32_t)1024 * 1024 * 32, "websocket message max size");
+IM::ConfigVar<uint32_t>::ptr g_websocket_message_max_size =
+    IM::Config::Lookup("websocket.message.max_size", (uint32_t)1024 * 1024 * 32, "websocket message max size");
 
 WSSession::WSSession(Socket::ptr sock, bool owner) : HttpSession(sock, owner) {}
 
@@ -40,10 +38,9 @@ HttpRequest::ptr WSSession::handleShake() {
         {
             std::string conn = req->getHeader("Connection");
             std::string conn_lc = conn;
-            for (auto& c : conn_lc) c = ::tolower(c);
+            for (auto &c : conn_lc) c = ::tolower(c);
             if (conn_lc.find("upgrade") == std::string::npos) {
-                IM_LOG_INFO(g_logger)
-                    << "http header Connection not contains Upgrade, got: " << conn;
+                IM_LOG_INFO(g_logger) << "http header Connection not contains Upgrade, got: " << conn;
                 break;
             }
         }
@@ -80,13 +77,12 @@ HttpRequest::ptr WSSession::handleShake() {
     return nullptr;
 }
 
-WSFrameMessage::WSFrameMessage(int opcode, const std::string& data)
-    : m_opcode(opcode), m_data(data) {}
+WSFrameMessage::WSFrameMessage(int opcode, const std::string &data) : m_opcode(opcode), m_data(data) {}
 
 std::string WSFrameHead::toString() const {
     std::stringstream ss;
-    ss << "[WSFrameHead fin=" << fin << " rsv1=" << rsv1 << " rsv2=" << rsv2 << " rsv3=" << rsv3
-       << " opcode=" << opcode << " mask=" << mask << " payload=" << payload << "]";
+    ss << "[WSFrameHead fin=" << fin << " rsv1=" << rsv1 << " rsv2=" << rsv2 << " rsv3=" << rsv3 << " opcode=" << opcode
+       << " mask=" << mask << " payload=" << payload << "]";
     return ss.str();
 }
 
@@ -104,7 +100,7 @@ int32_t WSSession::sendMessage(WSFrameMessage::ptr msg, bool fin) {
     return WSSendMessage(this, msg, false, fin);
 }
 
-int32_t WSSession::sendMessage(const std::string& msg, int32_t opcode, bool fin) {
+int32_t WSSession::sendMessage(const std::string &msg, int32_t opcode, bool fin) {
     return WSSendMessage(this, std::make_shared<WSFrameMessage>(opcode, msg), false, fin);
 }
 
@@ -112,7 +108,7 @@ int32_t WSSession::ping() {
     return WSPing(this);
 }
 
-WSFrameMessage::ptr WSRecvMessage(Stream* stream, bool client, IM::NgxMemPool* pool) {
+WSFrameMessage::ptr WSRecvMessage(Stream *stream, bool client, IM::NgxMemPool *pool) {
     int opcode = 0;
     std::string data;
     int cur_len = 0;
@@ -149,9 +145,8 @@ WSFrameMessage::ptr WSRecvMessage(Stream* stream, bool client, IM::NgxMemPool* p
 
         // 检查最大长度限制
         if ((cur_len + length) >= g_websocket_message_max_size->getValue()) {
-            IM_LOG_WARN(g_logger)
-                << "WSFrameMessage length > " << g_websocket_message_max_size->getValue() << " ("
-                << (cur_len + length) << ")";
+            IM_LOG_WARN(g_logger) << "WSFrameMessage length > " << g_websocket_message_max_size->getValue() << " ("
+                                  << (cur_len + length) << ")";
             break;
         }
 
@@ -163,12 +158,12 @@ WSFrameMessage::ptr WSRecvMessage(Stream* stream, bool client, IM::NgxMemPool* p
 
         // 读取Payload数据：优先从pool申请临时缓冲区，避免频繁堆分配。
         const bool use_pool = (pool != nullptr);
-        char* payload_buf = nullptr;
+        char *payload_buf = nullptr;
         std::unique_ptr<char[]> heap_payload;
 
         if (length > 0) {
             if (use_pool) {
-                payload_buf = static_cast<char*>(pool->palloc(static_cast<size_t>(length)));
+                payload_buf = static_cast<char *>(pool->palloc(static_cast<size_t>(length)));
             }
             if (!payload_buf) {
                 heap_payload.reset(new char[static_cast<size_t>(length)]);
@@ -204,12 +199,11 @@ WSFrameMessage::ptr WSRecvMessage(Stream* stream, bool client, IM::NgxMemPool* p
             if (!client && !ws_head.mask) {
                 if (!g_ws_allow_unmasked_client_frames->getValue()) {
                     IM_LOG_WARN(g_logger) << "Unmasked WebSocket frame from client, closing "
-                                              "connection (enforce RFC6455)";
+                                             "connection (enforce RFC6455)";
                     WSClose(stream, 1002, "Client must mask frames");
                     break;
                 } else {
-                    IM_LOG_DEBUG(g_logger)
-                        << "Unmasked WebSocket frame from client, allowed by config (compat mode)";
+                    IM_LOG_DEBUG(g_logger) << "Unmasked WebSocket frame from client, allowed by config (compat mode)";
                 }
             }
 
@@ -234,7 +228,7 @@ WSFrameMessage::ptr WSRecvMessage(Stream* stream, bool client, IM::NgxMemPool* p
     return nullptr;
 }
 
-int32_t WSSendMessage(Stream* stream, WSFrameMessage::ptr msg, bool client, bool fin) {
+int32_t WSSendMessage(Stream *stream, WSFrameMessage::ptr msg, bool client, bool fin) {
     do {
         uint64_t size = msg->getData().size();
 
@@ -281,13 +275,11 @@ int32_t WSSendMessage(Stream* stream, WSFrameMessage::ptr msg, bool client, bool
                 masked[i] ^= mask[i % 4];
             }
             if (stream->writeFixSize(masked.data(), masked.size()) <= 0) break;
-            return (int32_t)(2 + (len_indicator == 126 ? 2 : (len_indicator == 127 ? 8 : 0)) + 4 +
-                             masked.size());
+            return (int32_t)(2 + (len_indicator == 126 ? 2 : (len_indicator == 127 ? 8 : 0)) + 4 + masked.size());
         } else {
             // 服务端发送不使用掩码
             if (stream->writeFixSize(msg->getData().data(), size) <= 0) break;
-            return (int32_t)(2 + (len_indicator == 126 ? 2 : (len_indicator == 127 ? 8 : 0)) +
-                             size);
+            return (int32_t)(2 + (len_indicator == 126 ? 2 : (len_indicator == 127 ? 8 : 0)) + size);
         }
     } while (0);
     stream->close();
@@ -298,7 +290,7 @@ int32_t WSSession::pong() {
     return WSPong(this);
 }
 
-int32_t WSPing(Stream* stream) {
+int32_t WSPing(Stream *stream) {
     uint8_t b1 = 0x80 | (uint8_t)WSFrameHead::PING;  // FIN + PING
     uint8_t b2 = 0x00;                               // 无掩码、长度0
     if (stream->writeFixSize(&b1, 1) <= 0) {
@@ -312,7 +304,7 @@ int32_t WSPing(Stream* stream) {
     return 2;
 }
 
-int32_t WSPong(Stream* stream) {
+int32_t WSPong(Stream *stream) {
     uint8_t b1 = 0x80 | (uint8_t)WSFrameHead::PONG;  // FIN + PONG
     uint8_t b2 = 0x00;                               // 无掩码、长度0
     if (stream->writeFixSize(&b1, 1) <= 0) {
@@ -326,7 +318,7 @@ int32_t WSPong(Stream* stream) {
     return 2;
 }
 
-int32_t WSClose(Stream* stream, uint16_t code, const std::string& reason) {
+int32_t WSClose(Stream *stream, uint16_t code, const std::string &reason) {
     // CLOSE 帧：FIN + OPCODE(CLOSE)
     uint8_t b1 = 0x80 | (uint8_t)WSFrameHead::CLOSE;
     std::string payload;

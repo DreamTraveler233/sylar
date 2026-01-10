@@ -23,7 +23,7 @@ constexpr uint32_t kCmdSaveContactGroup = 411;
 constexpr uint32_t kCmdGetContactGroupLists = 412;
 constexpr uint32_t kCmdChangeContactGroup = 413;
 
-void WriteOk(IM::RockResponse::ptr response, const Json::Value& data = Json::Value()) {
+void WriteOk(IM::RockResponse::ptr response, const Json::Value &data = Json::Value()) {
     Json::Value out(Json::objectValue);
     out["code"] = 200;
     if (!data.isNull()) {
@@ -34,18 +34,18 @@ void WriteOk(IM::RockResponse::ptr response, const Json::Value& data = Json::Val
     response->setResultStr("ok");
 }
 
-void WriteErr(IM::RockResponse::ptr response, int code, const std::string& err) {
+void WriteErr(IM::RockResponse::ptr response, int code, const std::string &err) {
     response->setResult(code == 0 ? 500 : code);
     response->setResultStr(err.empty() ? "error" : err);
 }
 
-bool ParseJsonBody(const IM::RockRequest::ptr& request, Json::Value& out) {
+bool ParseJsonBody(const IM::RockRequest::ptr &request, Json::Value &out) {
     if (!request) return false;
     if (!IM::JsonUtil::FromString(out, request->getBody())) return false;
     return out.isObject();
 }
 
-Json::Value TalkSessionToJson(const IM::dto::TalkSessionItem& s) {
+Json::Value TalkSessionToJson(const IM::dto::TalkSessionItem &s) {
     Json::Value out(Json::objectValue);
     out["id"] = (Json::UInt64)s.id;
     out["talk_mode"] = (Json::UInt)s.talk_mode;
@@ -62,7 +62,7 @@ Json::Value TalkSessionToJson(const IM::dto::TalkSessionItem& s) {
     return out;
 }
 
-Json::Value UserToJson(const IM::model::User& u) {
+Json::Value UserToJson(const IM::model::User &u) {
     Json::Value out(Json::objectValue);
     out["user_id"] = (Json::UInt64)u.id;
     out["mobile"] = u.mobile;
@@ -73,7 +73,7 @@ Json::Value UserToJson(const IM::model::User& u) {
     return out;
 }
 
-Json::Value ContactItemToJson(const IM::dto::ContactItem& c) {
+Json::Value ContactItemToJson(const IM::dto::ContactItem &c) {
     Json::Value out(Json::objectValue);
     out["user_id"] = (Json::UInt64)c.user_id;
     out["nickname"] = c.nickname;
@@ -85,7 +85,7 @@ Json::Value ContactItemToJson(const IM::dto::ContactItem& c) {
     return out;
 }
 
-Json::Value ContactApplyItemToJson(const IM::dto::ContactApplyItem& c) {
+Json::Value ContactApplyItemToJson(const IM::dto::ContactApplyItem &c) {
     Json::Value out(Json::objectValue);
     out["id"] = (Json::UInt64)c.id;
     out["apply_user_id"] = (Json::UInt64)c.apply_user_id;
@@ -97,7 +97,7 @@ Json::Value ContactApplyItemToJson(const IM::dto::ContactApplyItem& c) {
     return out;
 }
 
-Json::Value ContactGroupItemToJson(const IM::dto::ContactGroupItem& c) {
+Json::Value ContactGroupItemToJson(const IM::dto::ContactGroupItem &c) {
     Json::Value out(Json::objectValue);
     out["id"] = (Json::UInt64)c.id;
     out["name"] = c.name;
@@ -106,11 +106,10 @@ Json::Value ContactGroupItemToJson(const IM::dto::ContactGroupItem& c) {
     return out;
 }
 
-} // namespace
+}  // namespace
 
 ContactServiceModule::ContactServiceModule(IM::domain::service::IContactService::Ptr contact_service)
-    : RockModule("svc.contact.biz", "0.1.0", "builtin"),
-      m_contact_service(std::move(contact_service)) {}
+    : RockModule("svc.contact.biz", "0.1.0", "builtin"), m_contact_service(std::move(contact_service)) {}
 
 bool ContactServiceModule::onServerUp() {
     // 由现有 ContactModule(查询模块)负责 registerService("svc-contact")
@@ -118,7 +117,7 @@ bool ContactServiceModule::onServerUp() {
 }
 
 bool ContactServiceModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockResponse::ptr response,
-                                            IM::RockStream::ptr /*stream*/) {
+                                             IM::RockStream::ptr /*stream*/) {
     const auto cmd = request ? request->getCmd() : 0;
     if (cmd < kCmdAgreeApply || cmd > kCmdChangeContactGroup) {
         return false;
@@ -166,7 +165,7 @@ bool ContactServiceModule::handleRockRequest(IM::RockRequest::ptr request, IM::R
                 return true;
             }
             Json::Value arr(Json::arrayValue);
-            for (const auto& it : r.data) arr.append(ContactItemToJson(it));
+            for (const auto &it : r.data) arr.append(ContactItemToJson(it));
             Json::Value d(Json::objectValue);
             d["items"] = arr;
             WriteOk(response, d);
@@ -204,7 +203,7 @@ bool ContactServiceModule::handleRockRequest(IM::RockRequest::ptr request, IM::R
                 return true;
             }
             Json::Value arr(Json::arrayValue);
-            for (const auto& it : r.data) arr.append(ContactApplyItemToJson(it));
+            for (const auto &it : r.data) arr.append(ContactApplyItemToJson(it));
             Json::Value d(Json::objectValue);
             d["items"] = arr;
             WriteOk(response, d);
@@ -249,7 +248,7 @@ bool ContactServiceModule::handleRockRequest(IM::RockRequest::ptr request, IM::R
             const uint64_t user_id = IM::JsonUtil::GetUint64(body, "user_id");
             std::vector<std::tuple<uint64_t, uint64_t, std::string>> groupItems;
             if (body.isMember("items") && body["items"].isArray()) {
-                for (const auto& it : body["items"]) {
+                for (const auto &it : body["items"]) {
                     const uint64_t id = IM::JsonUtil::GetUint64(it, "id");
                     const uint64_t sort = IM::JsonUtil::GetUint64(it, "sort");
                     const std::string name = IM::JsonUtil::GetString(it, "name");
@@ -272,7 +271,7 @@ bool ContactServiceModule::handleRockRequest(IM::RockRequest::ptr request, IM::R
                 return true;
             }
             Json::Value arr(Json::arrayValue);
-            for (const auto& it : r.data) arr.append(ContactGroupItemToJson(it));
+            for (const auto &it : r.data) arr.append(ContactGroupItemToJson(it));
             Json::Value d(Json::objectValue);
             d["items"] = arr;
             WriteOk(response, d);
@@ -299,4 +298,4 @@ bool ContactServiceModule::handleRockNotify(IM::RockNotify::ptr /*notify*/, IM::
     return false;
 }
 
-} // namespace IM::contact
+}  // namespace IM::contact

@@ -1,3 +1,13 @@
+/**
+ * @file user.hpp
+ * @brief 用户实体模型定义文件
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件定义了用户信息的数据模型 User 结构体，
+ * 映射数据库中的用户表，包含用户的基本信息、账号状态等字段。
+ */
+
 #ifndef __IM_MODEL_USER_HPP__
 #define __IM_MODEL_USER_HPP__
 

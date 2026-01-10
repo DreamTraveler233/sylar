@@ -16,12 +16,7 @@ namespace IM {
 static auto g_logger = IM_LOG_NAME("system");
 
 LogFileManager::LogFileManager()
-    : m_lastYear(-1),
-      m_lastMonth(-1),
-      m_lastDay(-1),
-      m_lastHour(-1),
-      m_lastMinute(-1),
-      m_isInit(false) {
+    : m_lastYear(-1), m_lastMonth(-1), m_lastDay(-1), m_lastHour(-1), m_lastMinute(-1), m_isInit(false) {
     init();
 }
 
@@ -37,7 +32,7 @@ void LogFileManager::init() {
     }
     m_isInit = true;
 
-    IOManager* iom = IOManager::GetThis();
+    IOManager *iom = IOManager::GetThis();
     if (iom) {
         m_timer = iom->addTimer(1000, [this]() { onCheck(); }, true);
     }
@@ -55,8 +50,7 @@ void LogFileManager::onCheck() {
     TimeUtil::Now(year, month, day, hour, minute, second);
 
     // 如果是第一次检查
-    if (-1 == m_lastYear && -1 == m_lastMonth && -1 == m_lastDay && -1 == m_lastHour &&
-        -1 == m_lastMinute) {
+    if (-1 == m_lastYear && -1 == m_lastMonth && -1 == m_lastDay && -1 == m_lastHour && -1 == m_lastMinute) {
         m_lastYear = year;
         m_lastMonth = month;
         m_lastDay = day;
@@ -86,7 +80,7 @@ void LogFileManager::onCheck() {
 
     MutexType::Lock lock(m_mutex);
     // 遍历所有日志文件，根据轮转类型进行轮转
-    for (auto& log : m_logs) {
+    for (auto &log : m_logs) {
         if (minute_change && log.second->getRotateType() == RotateType::MINUTE) {
             rotateMinute(log.second);
         }
@@ -106,7 +100,7 @@ void LogFileManager::onCheck() {
     m_lastMinute = minute;
 }
 
-LogFile::ptr LogFileManager::getLogFile(const std::string& fileName) {
+LogFile::ptr LogFileManager::getLogFile(const std::string &fileName) {
     IM_ASSERT(!fileName.empty())
     MutexType::Lock lock(m_mutex);
     // 查找日志文件
@@ -122,7 +116,7 @@ LogFile::ptr LogFileManager::getLogFile(const std::string& fileName) {
     return log;
 }
 
-void LogFileManager::rotateBySize(const LogFile::ptr& file) {
+void LogFileManager::rotateBySize(const LogFile::ptr &file) {
     const uint64_t threshold = file->getMaxFileSize();
     if (threshold == 0) {
         return;
@@ -144,8 +138,8 @@ void LogFileManager::rotateBySize(const LogFile::ptr& file) {
     const uint64_t micro = TimeUtil::NowToUS();
 
     char buf[160] = {0};
-    snprintf(buf, sizeof(buf), "_%04d-%02d-%02dT%02d%02d%02d.%06lu", year, month, day, hour, minute,
-             second, static_cast<unsigned long>(micro % 1000000));
+    snprintf(buf, sizeof(buf), "_%04d-%02d-%02dT%02d%02d%02d.%06lu", year, month, day, hour, minute, second,
+             static_cast<unsigned long>(micro % 1000000));
 
     const std::string file_path = file->getFilePath();
     const std::string path = StringUtil::FilePath(file_path);
@@ -157,12 +151,11 @@ void LogFileManager::rotateBySize(const LogFile::ptr& file) {
     file->rotate(ss.str());
 }
 
-void LogFileManager::rotateMinute(const LogFile::ptr& file) {
+void LogFileManager::rotateMinute(const LogFile::ptr &file) {
     if (file->getFileSize() > 0) {
         char buf[120] = {0};
         // 文件名后缀格式：_YYYY-MM-DDTHHMM
-        sprintf(buf, "_%04d-%02d-%02dT%02d%02d", m_lastYear, m_lastMonth, m_lastDay, m_lastHour,
-                m_lastMinute);
+        sprintf(buf, "_%04d-%02d-%02dT%02d%02d", m_lastYear, m_lastMonth, m_lastDay, m_lastHour, m_lastMinute);
 
         std::string file_path = file->getFilePath();
         // 获取文件路径
@@ -181,7 +174,7 @@ void LogFileManager::rotateMinute(const LogFile::ptr& file) {
     }
 }
 
-void LogFileManager::rotateHours(const LogFile::ptr& file) {
+void LogFileManager::rotateHours(const LogFile::ptr &file) {
     if (file->getFileSize() > 0) {
         char buf[120] = {0};
         // 文件名后缀格式：_YYYY-MM-DDTHH
@@ -201,7 +194,7 @@ void LogFileManager::rotateHours(const LogFile::ptr& file) {
     }
 }
 
-void LogFileManager::rotateDays(const LogFile::ptr& file) {
+void LogFileManager::rotateDays(const LogFile::ptr &file) {
     if (file->getFileSize() > 0) {
         char buf[120] = {0};
         // 文件名后缀格式：_YYYY-MM-DD

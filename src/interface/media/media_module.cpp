@@ -18,7 +18,7 @@ constexpr uint32_t kCmdUploadFile = 803;
 constexpr uint32_t kCmdGetMediaFile = 804;
 constexpr uint32_t kCmdGetMediaFileByUploadId = 805;
 
-Json::Value UploadSessionToJson(const IM::model::UploadSession& s) {
+Json::Value UploadSessionToJson(const IM::model::UploadSession &s) {
     Json::Value j(Json::objectValue);
     j["upload_id"] = s.upload_id;
     j["user_id"] = (Json::UInt64)s.user_id;
@@ -33,7 +33,7 @@ Json::Value UploadSessionToJson(const IM::model::UploadSession& s) {
     return j;
 }
 
-Json::Value MediaFileToJson(const IM::model::MediaFile& m) {
+Json::Value MediaFileToJson(const IM::model::MediaFile &m) {
     Json::Value j(Json::objectValue);
     j["id"] = m.id;
     j["upload_id"] = m.upload_id;
@@ -68,7 +68,7 @@ bool MediaModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockRespon
         return true;
     }
 
-    auto set_error = [&](int code, const std::string& err) {
+    auto set_error = [&](int code, const std::string &err) {
         response->setResult(code);
         response->setResultStr(err);
         Json::Value out(Json::objectValue);

@@ -1,3 +1,21 @@
+#include "core/base/macro.hpp"
+#include "core/net/http/http_server.hpp"
+#include "core/net/http/multipart/multipart_parser.hpp"
+#include "core/system/application.hpp"
+
+#include "infra/db/mysql.hpp"
+#include "infra/module/crypto_module.hpp"
+#include "infra/module/module.hpp"
+#include "infra/repository/common_repository_impl.hpp"
+
+#include "application/app/common_service_impl.hpp"
+#include "application/rpc/contact_service_rpc_client.hpp"
+#include "application/rpc/group_service_rpc_client.hpp"
+#include "application/rpc/media_service_rpc_client.hpp"
+#include "application/rpc/message_service_rpc_client.hpp"
+#include "application/rpc/talk_service_rpc_client.hpp"
+#include "application/rpc/user_service_rpc_client.hpp"
+
 #include "interface/api/article_api_module.hpp"
 #include "interface/api/common_api_module.hpp"
 #include "interface/api/contact_api_module.hpp"
@@ -9,21 +27,6 @@
 #include "interface/api/talk_api_module.hpp"
 #include "interface/api/upload_api_module.hpp"
 #include "interface/api/user_api_module.hpp"
-#include "application/app/common_service_impl.hpp"
-#include "application/rpc/contact_service_rpc_client.hpp"
-#include "application/rpc/group_service_rpc_client.hpp"
-#include "application/rpc/media_service_rpc_client.hpp"
-#include "application/rpc/message_service_rpc_client.hpp"
-#include "application/rpc/talk_service_rpc_client.hpp"
-#include "application/rpc/user_service_rpc_client.hpp"
-#include "core/base/macro.hpp"
-#include "infra/db/mysql.hpp"
-#include "core/net/http/http_server.hpp"
-#include "core/net/http/multipart/multipart_parser.hpp"
-#include "infra/repository/common_repository_impl.hpp"
-#include "infra/module/crypto_module.hpp"
-#include "infra/module/module.hpp"
-#include "core/system/application.hpp"
 
 /**
  * @brief HTTP API 网关进程入口
@@ -33,11 +36,9 @@
  * 2. 处理用户登录、注册、资料管理
  * 3. 业务逻辑触发（调用后端服务）
  */
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     IM::Application app;
-    if (!app.init(argc, argv))
-    {
+    if (!app.init(argc, argv)) {
         IM_LOG_ERROR(IM_LOG_ROOT()) << "Gateway HTTP init failed";
         return 1;
     }
@@ -52,42 +53,33 @@ int main(int argc, char **argv)
     IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::EmoticonApiModule>());
     IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::OrganizeApiModule>());
 
-    auto db_manager =
-        std::shared_ptr<IM::MySQLManager>(IM::MySQLMgr::GetInstance(), [](IM::MySQLManager *) {});
+    auto db_manager = std::shared_ptr<IM::MySQLManager>(IM::MySQLMgr::GetInstance(), [](IM::MySQLManager *) {});
 
     // Repositories
     auto common_repo = std::make_shared<IM::infra::repository::CommonRepositoryImpl>(db_manager);
     // Media service (RPC)
-    IM::domain::service::IMediaService::Ptr media_service =
-        std::make_shared<IM::app::rpc::MediaServiceRpcClient>();
+    IM::domain::service::IMediaService::Ptr media_service = std::make_shared<IM::app::rpc::MediaServiceRpcClient>();
     auto multipart_parser = IM::http::multipart::CreateMultipartParser();
     auto common_service = std::make_shared<IM::app::CommonServiceImpl>(common_repo);
-    IM::domain::service::IUserService::Ptr user_service =
-        std::make_shared<IM::app::rpc::UserServiceRpcClient>();
+    IM::domain::service::IUserService::Ptr user_service = std::make_shared<IM::app::rpc::UserServiceRpcClient>();
     IM::domain::service::IMessageService::Ptr message_service =
         std::make_shared<IM::app::rpc::MessageServiceRpcClient>();
 
     IM::domain::service::IContactService::Ptr contact_service =
         std::make_shared<IM::app::rpc::ContactServiceRpcClient>();
-    IM::domain::service::IGroupService::Ptr group_service =
-        std::make_shared<IM::app::rpc::GroupServiceRpcClient>();
+    IM::domain::service::IGroupService::Ptr group_service = std::make_shared<IM::app::rpc::GroupServiceRpcClient>();
 
-    IM::domain::service::ITalkService::Ptr talk_service =
-        std::make_shared<IM::app::rpc::TalkServiceRpcClient>();
+    IM::domain::service::ITalkService::Ptr talk_service = std::make_shared<IM::app::rpc::TalkServiceRpcClient>();
 
     // Register API modules
     IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::UserApiModule>(user_service));
-    IM::ModuleMgr::GetInstance()->add(
-        std::make_shared<IM::api::ContactApiModule>(contact_service, user_service));
-    IM::ModuleMgr::GetInstance()->add(
-        std::make_shared<IM::api::CommonApiModule>(common_service, user_service));
-    IM::ModuleMgr::GetInstance()->add(
-        std::make_shared<IM::api::UploadApiModule>(media_service, multipart_parser));
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::ContactApiModule>(contact_service, user_service));
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::CommonApiModule>(common_service, user_service));
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::UploadApiModule>(media_service, multipart_parser));
     IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::MessageApiModule>(message_service));
     IM::ModuleMgr::GetInstance()->add(
         std::make_shared<IM::api::TalkApiModule>(talk_service, user_service, message_service));
-    IM::ModuleMgr::GetInstance()->add(
-        std::make_shared<IM::api::GroupApiModule>(group_service, contact_service));
+    IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::GroupApiModule>(group_service, contact_service));
 
     // 静态文件服务模块
     IM::ModuleMgr::GetInstance()->add(std::make_shared<IM::api::StaticFileModule>());

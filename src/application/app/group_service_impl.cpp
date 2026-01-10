@@ -1,26 +1,28 @@
 #include "application/app/group_service_impl.hpp"
 
-#include "interface/api/ws_gateway_module.hpp"
 #include "core/base/macro.hpp"
-#include "infra/db/mysql.hpp"
 #include "core/util/time_util.hpp"
+
+#include "infra/db/mysql.hpp"
+
+#include "interface/api/ws_gateway_module.hpp"
 
 namespace IM::app {
 
 static auto g_logger = IM_LOG_NAME("root");
-static constexpr const char* kDBName = "default";
+static constexpr const char *kDBName = "default";
 
 GroupServiceImpl::GroupServiceImpl(domain::repository::IGroupRepository::Ptr group_repo,
-                                                                     domain::service::IUserService::Ptr user_service,
+                                   domain::service::IUserService::Ptr user_service,
                                    domain::service::IMessageService::Ptr message_service,
                                    domain::service::ITalkService::Ptr talk_service)
     : m_group_repo(std::move(group_repo)),
-            m_user_service(std::move(user_service)),
+      m_user_service(std::move(user_service)),
       m_message_service(std::move(message_service)),
       m_talk_service(std::move(talk_service)) {}
 
-Result<uint64_t> GroupServiceImpl::CreateGroup(uint64_t user_id, const std::string& name,
-                                               const std::vector<uint64_t>& member_ids) {
+Result<uint64_t> GroupServiceImpl::CreateGroup(uint64_t user_id, const std::string &name,
+                                               const std::vector<uint64_t> &member_ids) {
     Result<uint64_t> result;
     std::string err;
 
@@ -216,10 +218,8 @@ Result<std::vector<dto::GroupItem>> GroupServiceImpl::GetGroupList(uint64_t user
     return result;
 }
 
-Result<void> GroupServiceImpl::UpdateGroupSetting(uint64_t user_id, uint64_t group_id,
-                                                  const std::string& name,
-                                                  const std::string& avatar,
-                                                  const std::string& profile) {
+Result<void> GroupServiceImpl::UpdateGroupSetting(uint64_t user_id, uint64_t group_id, const std::string &name,
+                                                  const std::string &avatar, const std::string &profile) {
     Result<void> result;
     std::string err;
     auto trans = IM::MySQLMgr::GetInstance()->openTransaction(kDBName, false);
@@ -266,8 +266,7 @@ Result<void> GroupServiceImpl::UpdateGroupSetting(uint64_t user_id, uint64_t gro
     return result;
 }
 
-Result<void> GroupServiceImpl::HandoverGroup(uint64_t user_id, uint64_t group_id,
-                                             uint64_t new_owner_id) {
+Result<void> GroupServiceImpl::HandoverGroup(uint64_t user_id, uint64_t group_id, uint64_t new_owner_id) {
     // Check if user is owner
     // Update user role to member
     // Update new_owner role to owner
@@ -278,8 +277,7 @@ Result<void> GroupServiceImpl::HandoverGroup(uint64_t user_id, uint64_t group_id
     return result;
 }
 
-Result<void> GroupServiceImpl::AssignAdmin(uint64_t user_id, uint64_t group_id, uint64_t target_id,
-                                           int action) {
+Result<void> GroupServiceImpl::AssignAdmin(uint64_t user_id, uint64_t group_id, uint64_t target_id, int action) {
     Result<void> result;
     std::string err;
     auto trans = IM::MySQLMgr::GetInstance()->openTransaction(kDBName, false);
@@ -298,8 +296,7 @@ Result<void> GroupServiceImpl::AssignAdmin(uint64_t user_id, uint64_t group_id, 
         return result;
     }
 
-    int new_role =
-        (action == 1) ? 2 : 1;  // 1: set admin, 2: remove admin (assuming action 1=add, 2=remove)
+    int new_role = (action == 1) ? 2 : 1;  // 1: set admin, 2: remove admin (assuming action 1=add, 2=remove)
     // Wait, frontend says action: number. Usually 1=add, 2=remove.
     // If action=1, set role=2. If action=2, set role=1.
 
@@ -331,8 +328,7 @@ Result<void> GroupServiceImpl::MuteGroup(uint64_t user_id, uint64_t group_id, in
     auto db = trans->getMySQL();
 
     model::GroupMember member;
-    if (!m_group_repo->GetMember(db, group_id, user_id, member, &err) ||
-        (member.role != 2 && member.role != 3)) {
+    if (!m_group_repo->GetMember(db, group_id, user_id, member, &err) || (member.role != 2 && member.role != 3)) {
         trans->rollback();
         result.code = 403;
         result.err = "permission denied";
@@ -398,8 +394,8 @@ Result<void> GroupServiceImpl::OvertGroup(uint64_t user_id, uint64_t group_id, i
     return result;
 }
 
-Result<std::pair<std::vector<dto::GroupOvertItem>, bool>> GroupServiceImpl::GetOvertGroupList(
-    int page, const std::string& name) {
+Result<std::pair<std::vector<dto::GroupOvertItem>, bool>> GroupServiceImpl::GetOvertGroupList(int page,
+                                                                                              const std::string &name) {
     Result<std::pair<std::vector<dto::GroupOvertItem>, bool>> result;
     std::string err;
     auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
@@ -420,8 +416,7 @@ Result<std::pair<std::vector<dto::GroupOvertItem>, bool>> GroupServiceImpl::GetO
     return result;
 }
 
-Result<std::vector<dto::GroupMemberItem>> GroupServiceImpl::GetGroupMemberList(uint64_t user_id,
-                                                                               uint64_t group_id) {
+Result<std::vector<dto::GroupMemberItem>> GroupServiceImpl::GetGroupMemberList(uint64_t user_id, uint64_t group_id) {
     Result<std::vector<dto::GroupMemberItem>> result;
     std::string err;
     auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
@@ -444,7 +439,7 @@ Result<std::vector<dto::GroupMemberItem>> GroupServiceImpl::GetGroupMemberList(u
 }
 
 Result<void> GroupServiceImpl::InviteGroup(uint64_t user_id, uint64_t group_id,
-                                           const std::vector<uint64_t>& member_ids) {
+                                           const std::vector<uint64_t> &member_ids) {
     Result<void> result;
     std::string err;
     auto trans = IM::MySQLMgr::GetInstance()->openTransaction(kDBName, false);
@@ -489,7 +484,7 @@ Result<void> GroupServiceImpl::InviteGroup(uint64_t user_id, uint64_t group_id,
 }
 
 Result<void> GroupServiceImpl::RemoveMember(uint64_t user_id, uint64_t group_id,
-                                            const std::vector<uint64_t>& member_ids) {
+                                            const std::vector<uint64_t> &member_ids) {
     Result<void> result;
     std::string err;
     auto trans = IM::MySQLMgr::GetInstance()->openTransaction(kDBName, false);
@@ -579,8 +574,7 @@ Result<void> GroupServiceImpl::SecedeGroup(uint64_t user_id, uint64_t group_id) 
     return result;
 }
 
-Result<void> GroupServiceImpl::UpdateMemberRemark(uint64_t user_id, uint64_t group_id,
-                                                  const std::string& remark) {
+Result<void> GroupServiceImpl::UpdateMemberRemark(uint64_t user_id, uint64_t group_id, const std::string &remark) {
     // Update visit_card
     Result<void> result;
     // ...
@@ -588,8 +582,7 @@ Result<void> GroupServiceImpl::UpdateMemberRemark(uint64_t user_id, uint64_t gro
     return result;
 }
 
-Result<void> GroupServiceImpl::MuteMember(uint64_t user_id, uint64_t group_id, uint64_t target_id,
-                                          int action) {
+Result<void> GroupServiceImpl::MuteMember(uint64_t user_id, uint64_t group_id, uint64_t target_id, int action) {
     Result<void> result;
     std::string err;
     auto trans = IM::MySQLMgr::GetInstance()->openTransaction(kDBName, false);
@@ -644,8 +637,7 @@ Result<void> GroupServiceImpl::MuteMember(uint64_t user_id, uint64_t group_id, u
     return result;
 }
 
-Result<void> GroupServiceImpl::CreateApply(uint64_t user_id, uint64_t group_id,
-                                           const std::string& remark) {
+Result<void> GroupServiceImpl::CreateApply(uint64_t user_id, uint64_t group_id, const std::string &remark) {
     Result<void> result;
     std::string err;
     auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
@@ -734,8 +726,7 @@ Result<void> GroupServiceImpl::AgreeApply(uint64_t user_id, uint64_t apply_id) {
     return result;
 }
 
-Result<void> GroupServiceImpl::DeclineApply(uint64_t user_id, uint64_t apply_id,
-                                            const std::string& remark) {
+Result<void> GroupServiceImpl::DeclineApply(uint64_t user_id, uint64_t apply_id, const std::string &remark) {
     Result<void> result;
     std::string err;
     auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
@@ -756,8 +747,7 @@ Result<void> GroupServiceImpl::DeclineApply(uint64_t user_id, uint64_t apply_id,
     return result;
 }
 
-Result<std::vector<dto::GroupApplyItem>> GroupServiceImpl::GetApplyList(uint64_t user_id,
-                                                                        uint64_t group_id) {
+Result<std::vector<dto::GroupApplyItem>> GroupServiceImpl::GetApplyList(uint64_t user_id, uint64_t group_id) {
     Result<std::vector<dto::GroupApplyItem>> result;
     std::string err;
     auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
@@ -814,8 +804,7 @@ Result<int> GroupServiceImpl::GetUnreadApplyCount(uint64_t user_id) {
     return result;
 }
 
-Result<void> GroupServiceImpl::EditNotice(uint64_t user_id, uint64_t group_id,
-                                          const std::string& content) {
+Result<void> GroupServiceImpl::EditNotice(uint64_t user_id, uint64_t group_id, const std::string &content) {
     Result<void> result;
     std::string err;
     auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
@@ -839,10 +828,9 @@ Result<void> GroupServiceImpl::EditNotice(uint64_t user_id, uint64_t group_id,
     return result;
 }
 
-Result<uint64_t> GroupServiceImpl::CreateVote(uint64_t user_id, uint64_t group_id,
-                                              const std::string& title, int answer_mode,
-                                              int is_anonymous,
-                                              const std::vector<std::string>& options) {
+Result<uint64_t> GroupServiceImpl::CreateVote(uint64_t user_id, uint64_t group_id, const std::string &title,
+                                              int answer_mode, int is_anonymous,
+                                              const std::vector<std::string> &options) {
     Result<uint64_t> result;
     std::string err;
     auto trans = IM::MySQLMgr::GetInstance()->openTransaction(kDBName, false);
@@ -872,7 +860,7 @@ Result<uint64_t> GroupServiceImpl::CreateVote(uint64_t user_id, uint64_t group_i
 
     std::vector<model::GroupVoteOption> vote_options;
     int sort = 1;
-    for (const auto& opt_val : options) {
+    for (const auto &opt_val : options) {
         model::GroupVoteOption opt;
         opt.opt_value = opt_val;
         opt.opt_key = std::to_string(sort);  // Simple key
@@ -897,8 +885,7 @@ Result<uint64_t> GroupServiceImpl::CreateVote(uint64_t user_id, uint64_t group_i
     return result;
 }
 
-Result<std::vector<dto::GroupVoteItem>> GroupServiceImpl::GetVoteList(uint64_t user_id,
-                                                                      uint64_t group_id) {
+Result<std::vector<dto::GroupVoteItem>> GroupServiceImpl::GetVoteList(uint64_t user_id, uint64_t group_id) {
     Result<std::vector<dto::GroupVoteItem>> result;
     std::string err;
     auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
@@ -915,7 +902,7 @@ Result<std::vector<dto::GroupVoteItem>> GroupServiceImpl::GetVoteList(uint64_t u
         return result;
     }
 
-    for (const auto& v : votes) {
+    for (const auto &v : votes) {
         dto::GroupVoteItem item;
         item.vote_id = v.id;
         item.title = v.title;
@@ -975,7 +962,7 @@ Result<dto::GroupVoteDetail> GroupServiceImpl::GetVoteDetail(uint64_t user_id, u
         std::map<std::string, std::vector<uint64_t>> option_users;
         std::set<uint64_t> voted_uids;
 
-        for (const auto& ans : answers) {
+        for (const auto &ans : answers) {
             counts[ans.opt_key]++;
             option_users[ans.opt_key].push_back(ans.user_id);
             voted_uids.insert(ans.user_id);
@@ -985,14 +972,14 @@ Result<dto::GroupVoteDetail> GroupServiceImpl::GetVoteDetail(uint64_t user_id, u
         }
         result.data.voted_count = voted_uids.size();
 
-        for (const auto& opt : options) {
+        for (const auto &opt : options) {
             dto::GroupVoteOptionItem item;
             item.id = opt.id;
             item.content = opt.opt_value;
             item.count = counts[opt.opt_key];
 
             // Check if current user voted for this option
-            for (const auto& ans : answers) {
+            for (const auto &ans : answers) {
                 if (ans.user_id == user_id && ans.opt_key == opt.opt_key) {
                     item.is_voted = true;
                     break;
@@ -1021,8 +1008,7 @@ Result<dto::GroupVoteDetail> GroupServiceImpl::GetVoteDetail(uint64_t user_id, u
     return result;
 }
 
-Result<void> GroupServiceImpl::CastVote(uint64_t user_id, uint64_t vote_id,
-                                        const std::vector<std::string>& options) {
+Result<void> GroupServiceImpl::CastVote(uint64_t user_id, uint64_t vote_id, const std::vector<std::string> &options) {
     Result<void> result;
     std::string err;
     auto trans = IM::MySQLMgr::GetInstance()->openTransaction(kDBName, false);
@@ -1051,7 +1037,7 @@ Result<void> GroupServiceImpl::CastVote(uint64_t user_id, uint64_t vote_id,
     // Check if already voted?
     std::vector<model::GroupVoteAnswer> answers;
     if (m_group_repo->GetVoteAnswers(db, vote_id, answers, &err)) {
-        for (const auto& ans : answers) {
+        for (const auto &ans : answers) {
             if (ans.user_id == user_id) {
                 trans->rollback();
                 result.code = 400;
@@ -1068,11 +1054,11 @@ Result<void> GroupServiceImpl::CastVote(uint64_t user_id, uint64_t vote_id,
     std::vector<model::GroupVoteOption> db_options;
     m_group_repo->GetVoteOptions(db, vote_id, db_options, &err);
 
-    for (const auto& opt_id_str : options) {
+    for (const auto &opt_id_str : options) {
         uint64_t opt_id = std::stoull(opt_id_str);
         std::string opt_key;
         bool found = false;
-        for (const auto& db_opt : db_options) {
+        for (const auto &db_opt : db_options) {
             if (db_opt.id == opt_id) {
                 opt_key = db_opt.opt_key;
                 found = true;
@@ -1083,7 +1069,7 @@ Result<void> GroupServiceImpl::CastVote(uint64_t user_id, uint64_t vote_id,
         if (!found) {
             // Maybe they sent keys directly?
             // Let's try to see if opt_id_str matches any key
-            for (const auto& db_opt : db_options) {
+            for (const auto &db_opt : db_options) {
                 if (db_opt.opt_key == opt_id_str) {
                     opt_key = db_opt.opt_key;
                     found = true;

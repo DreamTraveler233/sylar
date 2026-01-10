@@ -4,19 +4,19 @@
 
 namespace IM::infra::repository {
 
-static constexpr const char* kDBName = "default";
+static constexpr const char *kDBName = "default";
 static auto g_logger = IM_LOG_NAME("system");
 
 UserRepositoryImpl::UserRepositoryImpl(std::shared_ptr<IM::MySQLManager> db_manager)
     : m_db_manager(std::move(db_manager)) {}
 
-bool UserRepositoryImpl::CreateUser(const std::shared_ptr<IM::MySQL>& db, const model::User& u,
-                                    uint64_t& out_id, std::string* err) {
+bool UserRepositoryImpl::CreateUser(const std::shared_ptr<IM::MySQL> &db, const model::User &u, uint64_t &out_id,
+                                    std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "INSERT INTO im_user (mobile, email, nickname, avatar, avatar_media_id, motto, birthday, "
         "gender, "
         "online_status, last_online_at, is_qiye, is_robot, is_disabled, created_at, updated_at) "
@@ -66,14 +66,13 @@ bool UserRepositoryImpl::CreateUser(const std::shared_ptr<IM::MySQL>& db, const 
     return true;
 }
 
-bool UserRepositoryImpl::GetUserByMobile(const std::string& mobile, model::User& out,
-                                         std::string* err) {
+bool UserRepositoryImpl::GetUserByMobile(const std::string &mobile, model::User &out, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT id, mobile, email, nickname, avatar, avatar_media_id, motto, DATE_FORMAT(birthday, "
         "'%Y-%m-%d') as "
         "birthday, gender, online_status, last_online_at, is_qiye, is_robot, is_disabled, "
@@ -115,14 +114,13 @@ bool UserRepositoryImpl::GetUserByMobile(const std::string& mobile, model::User&
     return true;
 }
 
-bool UserRepositoryImpl::GetUserByEmail(const std::string& email, model::User& out,
-                                        std::string* err) {
+bool UserRepositoryImpl::GetUserByEmail(const std::string &email, model::User &out, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT id, mobile, email, nickname, avatar, avatar_media_id, motto, DATE_FORMAT(birthday, "
         "'%Y-%m-%d') as "
         "birthday, gender, online_status, last_online_at, is_qiye, is_robot, is_disabled, "
@@ -164,13 +162,13 @@ bool UserRepositoryImpl::GetUserByEmail(const std::string& email, model::User& o
     return true;
 }
 
-bool UserRepositoryImpl::GetUserById(const uint64_t id, model::User& out, std::string* err) {
+bool UserRepositoryImpl::GetUserById(const uint64_t id, model::User &out, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT id, mobile, email, nickname, avatar, avatar_media_id, motto, DATE_FORMAT(birthday, "
         "'%Y-%m-%d') as birthday, gender, online_status, last_online_at, is_robot, is_qiye, "
         "is_disabled, created_at, updated_at FROM im_user WHERE id = ? LIMIT 1";
@@ -211,18 +209,16 @@ bool UserRepositoryImpl::GetUserById(const uint64_t id, model::User& out, std::s
     return true;
 }
 
-bool UserRepositoryImpl::UpdateUserInfo(const uint64_t id, const std::string& nickname,
-                                        const std::string& avatar,
-                                        const std::string& avatar_media_id,
-                                        const std::string& motto, const uint8_t gender,
-                                        const std::string& birthday, std::string* err) {
+bool UserRepositoryImpl::UpdateUserInfo(const uint64_t id, const std::string &nickname, const std::string &avatar,
+                                        const std::string &avatar_media_id, const std::string &motto,
+                                        const uint8_t gender, const std::string &birthday, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
 
-    const char* sql =
+    const char *sql =
         "UPDATE im_user SET nickname = COALESCE(NULLIF(?, ''), nickname), avatar = ?, "
         "avatar_media_id = ?, motto = NULLIF(?, ''), gender = ?, "
         "birthday = ?, "
@@ -250,9 +246,8 @@ bool UserRepositoryImpl::UpdateUserInfo(const uint64_t id, const std::string& ni
     else
         stmt->bindNull(6);
     stmt->bindUint64(7, id);
-    IM_LOG_DEBUG(g_logger) << "UserDAO::UpdateUserInfo bind values: id=" << id << " nickname='"
-                           << nickname << "' avatar='" << avatar
-                           << "' avatar_media_id='" << avatar_media_id << "' motto='" << motto
+    IM_LOG_DEBUG(g_logger) << "UserDAO::UpdateUserInfo bind values: id=" << id << " nickname='" << nickname
+                           << "' avatar='" << avatar << "' avatar_media_id='" << avatar_media_id << "' motto='" << motto
                            << "' gender=" << (int)gender << " birthday='" << birthday << "'";
     if (stmt->execute() != 0) {
         if (err) *err = stmt->getErrStr();
@@ -261,18 +256,16 @@ bool UserRepositoryImpl::UpdateUserInfo(const uint64_t id, const std::string& ni
     return true;
 }
 
-bool UserRepositoryImpl::UpdateUserInfoWithConn(const std::shared_ptr<IM::MySQL>& db,
-                                               const uint64_t id, const std::string& nickname,
-                                               const std::string& avatar,
-                                               const std::string& avatar_media_id,
-                                               const std::string& motto, const uint8_t gender,
-                                               const std::string& birthday, std::string* err) {
+bool UserRepositoryImpl::UpdateUserInfoWithConn(const std::shared_ptr<IM::MySQL> &db, const uint64_t id,
+                                                const std::string &nickname, const std::string &avatar,
+                                                const std::string &avatar_media_id, const std::string &motto,
+                                                const uint8_t gender, const std::string &birthday, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
 
-    const char* sql =
+    const char *sql =
         "UPDATE im_user SET nickname = COALESCE(NULLIF(?, ''), nickname), avatar = ?, "
         "avatar_media_id = ?, motto = NULLIF(?, ''), gender = ?, "
         "birthday = ?, "
@@ -305,14 +298,13 @@ bool UserRepositoryImpl::UpdateUserInfoWithConn(const std::shared_ptr<IM::MySQL>
     return true;
 }
 
-bool UserRepositoryImpl::UpdateMobile(const uint64_t id, const std::string& new_mobile,
-                                      std::string* err) {
+bool UserRepositoryImpl::UpdateMobile(const uint64_t id, const std::string &new_mobile, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql = "UPDATE im_user SET mobile = ?, updated_at = NOW() WHERE id = ?";
+    const char *sql = "UPDATE im_user SET mobile = ?, updated_at = NOW() WHERE id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -327,14 +319,13 @@ bool UserRepositoryImpl::UpdateMobile(const uint64_t id, const std::string& new_
     return true;
 }
 
-bool UserRepositoryImpl::UpdateEmail(const uint64_t id, const std::string& new_email,
-                                     std::string* err) {
+bool UserRepositoryImpl::UpdateEmail(const uint64_t id, const std::string &new_email, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql = "UPDATE im_user SET email = ?, updated_at = NOW() WHERE id = ?";
+    const char *sql = "UPDATE im_user SET email = ?, updated_at = NOW() WHERE id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -349,13 +340,13 @@ bool UserRepositoryImpl::UpdateEmail(const uint64_t id, const std::string& new_e
     return true;
 }
 
-bool UserRepositoryImpl::UpdateOnlineStatus(const uint64_t id, std::string* err) {
+bool UserRepositoryImpl::UpdateOnlineStatus(const uint64_t id, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql = "UPDATE im_user SET online_status = ? WHERE id = ?";
+    const char *sql = "UPDATE im_user SET online_status = ? WHERE id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -370,13 +361,13 @@ bool UserRepositoryImpl::UpdateOnlineStatus(const uint64_t id, std::string* err)
     return true;
 }
 
-bool UserRepositoryImpl::UpdateOfflineStatus(const uint64_t id, std::string* err) {
+bool UserRepositoryImpl::UpdateOfflineStatus(const uint64_t id, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql = "UPDATE im_user SET online_status = ?, last_online_at = NOW() WHERE id = ?";
+    const char *sql = "UPDATE im_user SET online_status = ?, last_online_at = NOW() WHERE id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = db->getErrStr();
@@ -391,14 +382,13 @@ bool UserRepositoryImpl::UpdateOfflineStatus(const uint64_t id, std::string* err
     return true;
 }
 
-bool UserRepositoryImpl::GetOnlineStatus(const uint64_t id, std::string& out_status,
-                                         std::string* err) {
+bool UserRepositoryImpl::GetOnlineStatus(const uint64_t id, std::string &out_status, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql = "SELECT online_status FROM im_user WHERE id = ? LIMIT 1";
+    const char *sql = "SELECT online_status FROM im_user WHERE id = ? LIMIT 1";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = db->getErrStr();
@@ -421,14 +411,13 @@ bool UserRepositoryImpl::GetOnlineStatus(const uint64_t id, std::string& out_sta
     return true;
 }
 
-bool UserRepositoryImpl::GetUserInfoSimple(const uint64_t uid, dto::UserInfo& out,
-                                           std::string* err) {
+bool UserRepositoryImpl::GetUserInfoSimple(const uint64_t uid, dto::UserInfo &out, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT id, nickname, avatar, motto, gender, is_qiye, mobile, email "
         "FROM im_user WHERE id = ? LIMIT 1";
     auto stmt = db->prepare(sql);
@@ -460,13 +449,13 @@ bool UserRepositoryImpl::GetUserInfoSimple(const uint64_t uid, dto::UserInfo& ou
     return true;
 }
 
-bool UserRepositoryImpl::CreateUserAuth(const std::shared_ptr<IM::MySQL>& db,
-                                        const model::UserAuth& ua, std::string* err) {
+bool UserRepositoryImpl::CreateUserAuth(const std::shared_ptr<IM::MySQL> &db, const model::UserAuth &ua,
+                                        std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "INSERT INTO im_user_auth (user_id, password_hash, password_algo, password_version "
         ", last_reset_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
     auto stmt = db->prepare(sql);
@@ -489,14 +478,13 @@ bool UserRepositoryImpl::CreateUserAuth(const std::shared_ptr<IM::MySQL>& db,
     return true;
 }
 
-bool UserRepositoryImpl::GetUserAuthById(const uint64_t user_id, model::UserAuth& out,
-                                         std::string* err) {
+bool UserRepositoryImpl::GetUserAuthById(const uint64_t user_id, model::UserAuth &out, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT user_id, password_hash, password_algo, password_version, last_reset_at, "
         "created_at, updated_at "
         "FROM im_user_auth WHERE user_id = ? LIMIT 1";
@@ -523,16 +511,14 @@ bool UserRepositoryImpl::GetUserAuthById(const uint64_t user_id, model::UserAuth
     return true;
 }
 
-bool UserRepositoryImpl::UpdatePasswordHash(const uint64_t user_id,
-                                            const std::string& new_password_hash,
-                                            std::string* err) {
+bool UserRepositoryImpl::UpdatePasswordHash(const uint64_t user_id, const std::string &new_password_hash,
+                                            std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
-        "UPDATE im_user_auth SET password_hash = ?, updated_at = NOW() WHERE user_id = ?";
+    const char *sql = "UPDATE im_user_auth SET password_hash = ?, updated_at = NOW() WHERE user_id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = db->getErrStr();
@@ -547,13 +533,13 @@ bool UserRepositoryImpl::UpdatePasswordHash(const uint64_t user_id,
     return true;
 }
 
-bool UserRepositoryImpl::CreateUserLoginLog(const model::UserLoginLog& log, std::string* err) {
+bool UserRepositoryImpl::CreateUserLoginLog(const model::UserLoginLog &log, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "INSERT INTO im_auth_login_log (user_id, mobile, platform, ip, address, user_agent, "
         "success, reason, created_at) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
@@ -593,14 +579,14 @@ bool UserRepositoryImpl::CreateUserLoginLog(const model::UserLoginLog& log, std:
     return true;
 }
 
-bool UserRepositoryImpl::UpsertUserSettings(const model::UserSettings& settings, std::string* err) {
+bool UserRepositoryImpl::UpsertUserSettings(const model::UserSettings &settings, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
 
-    const char* sql =
+    const char *sql =
         "INSERT INTO im_user_setting (user_id, theme_mode, theme_bag_img, theme_color, "
         "notify_cue_tone, keyboard_event_notify, created_at, updated_at) "
         "VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW()) "
@@ -630,14 +616,13 @@ bool UserRepositoryImpl::UpsertUserSettings(const model::UserSettings& settings,
     return true;
 }
 
-bool UserRepositoryImpl::GetUserSettings(const uint64_t user_id, model::UserSettings& out,
-                                         std::string* err) {
+bool UserRepositoryImpl::GetUserSettings(const uint64_t user_id, model::UserSettings &out, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT user_id, theme_mode, theme_bag_img, theme_color, notify_cue_tone, "
         "keyboard_event_notify FROM im_user_setting WHERE user_id = ? LIMIT 1";
     auto stmt = db->prepare(sql);
@@ -662,4 +647,4 @@ bool UserRepositoryImpl::GetUserSettings(const uint64_t user_id, model::UserSett
     return false;
 }
 
-}  // namespace IM::infra
+}  // namespace IM::infra::repository

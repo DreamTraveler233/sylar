@@ -1,0 +1,68 @@
+# .clang-format for XinYu-IM-Backend
+Language: Cpp
+BasedOnStyle: Google
+
+# 基础缩进
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+# 访问修饰符缩进 (public/protected/private)
+# 项目中观察到 public: 缩进 3 格，对应 IndentWidth(4) + AccessModifierOffset(-1)
+AccessModifierOffset: -1
+
+# 每行最大长度
+ColumnLimit: 120
+
+# 指针/引用对齐方式 (Right: int *p)
+PointerAlignment: Right
+
+# 大括号换行风格
+# 项目中大多采用 Attach (大括号不换行)
+BreakBeforeBraces: Attach
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: true
+AllowShortLoopsOnASingleLine: true
+
+# 命名空间缩进
+NamespaceIndentation: None
+
+# 包含文件排序
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '^"core/.*'
+    Priority:        2
+  - Regex:           '^"infra/.*'
+    Priority:        3
+  - Regex:           '^"application/.*'
+    Priority:        4
+  - Regex:           '^"interface/.*'
+    Priority:        5
+  - Regex:           '^"domain/.*'
+    Priority:        6
+  - Regex:           '^"dto/.*'
+    Priority:        7
+  - Regex:           '^"model/.*'
+    Priority:        8
+  - Regex:           '^<.*'
+    Priority:        1
+  - Regex:           '.*'
+    Priority:        9
+
+# 构造函数初始化列表对齐
+ConstructorInitializerIndentWidth: 4
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+
+# 连续赋值对齐
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+
+# 括号内空格
+SpacesInContainerLiterals: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+
+# 其他
+Standard: Latest
+SortIncludes: true
+DerivePointerAlignment: false

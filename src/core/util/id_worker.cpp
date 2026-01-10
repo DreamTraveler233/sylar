@@ -8,7 +8,7 @@ namespace IM::util {
 
 IdWorker::IdWorker() : worker_id_(0), last_ts_(0), sequence_(0) {}
 
-IdWorker& IdWorker::GetInstance() {
+IdWorker &IdWorker::GetInstance() {
     static IdWorker inst;
     return inst;
 }
@@ -63,8 +63,7 @@ uint64_t IdWorker::NextId() {
     }
 
     uint64_t id = (timestamp << (kWorkerIdBits + kSequenceBits)) |
-                  ((static_cast<uint64_t>(worker_id_) & kMaxWorkerId) << kSequenceBits) |
-                  (sequence_ & kMaxSequence);
+                  ((static_cast<uint64_t>(worker_id_) & kMaxWorkerId) << kSequenceBits) | (sequence_ & kMaxSequence);
     return id;
 }
 

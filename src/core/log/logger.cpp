@@ -3,18 +3,18 @@
 #include "yaml-cpp/yaml.h"
 
 namespace IM {
-Logger::Logger(const std::string& name) : m_name(name), m_level(Level::DEBUG) {
+Logger::Logger(const std::string &name) : m_name(name), m_level(Level::DEBUG) {
     IM_ASSERT(!name.empty());
     // 时间 线程名称 线程号 协程号 TraceID [日志级别] [日志器名称] <文件名:行号> 日志信息 回车
     m_formatter = std::make_shared<LogFormatter>("%d%T%N%T%t%T%F%T%i%T[%p]%T[%c]%T<%f:%l>%T%m%n");
 }
 
 /**
-     * 日志分发机制：
-     *      1、首先检查日志级别是否达到记录标准
-     *      2、如果有附加器(appender)，则遍历所有附加器记录日志
-     *      3、如果没有附加器但有根日志器，则使用根日志器记录日志
-     */
+ * 日志分发机制：
+ *      1、首先检查日志级别是否达到记录标准
+ *      2、如果有附加器(appender)，则遍历所有附加器记录日志
+ *      3、如果没有附加器但有根日志器，则使用根日志器记录日志
+ */
 void Logger::log(Level level, LogEvent::ptr event) {
     IM_ASSERT(event);
     if (level >= m_level) {
@@ -28,7 +28,7 @@ void Logger::log(Level level, LogEvent::ptr event) {
         }
         // 如果有附加器，则遍历所有附加器记录日志
         if (!appenders.empty()) {
-            for (auto& i : appenders) {
+            for (auto &i : appenders) {
                 i->log(event);
             }
         }
@@ -89,7 +89,7 @@ void Logger::setLevel(Level level) {
     MutexType::Lock lock(m_mutex);
     m_level = level;
 }
-const std::string& Logger::getName() const {
+const std::string &Logger::getName() const {
     MutexType::Lock lock(m_mutex);
     return m_name;
 }
@@ -99,16 +99,15 @@ void Logger::setFormatter(LogFormatter::ptr val) {
     m_formatter = val;
 }
 /**
-     * 该函数根据传入的格式化字符串创建一个新的LogFormatter对象，
-     * 并检查该格式化器是否有效。如果有效，则将其设置为当前Logger的格式化器；
-     * 如果无效，则输出错误信息并返回。
-     */
-void Logger::setFormatter(const std::string& val) {
+ * 该函数根据传入的格式化字符串创建一个新的LogFormatter对象，
+ * 并检查该格式化器是否有效。如果有效，则将其设置为当前Logger的格式化器；
+ * 如果无效，则输出错误信息并返回。
+ */
+void Logger::setFormatter(const std::string &val) {
     IM_ASSERT(!val.empty());
     auto new_val = std::make_shared<LogFormatter>(val);
     if (new_val->isError()) {
-        std::cout << "Logger setFormatter name=" << m_name << " value=" << val
-                  << " invalid formatter" << std::endl;
+        std::cout << "Logger setFormatter name=" << m_name << " value=" << val << " invalid formatter" << std::endl;
         return;
     }
     setFormatter(new_val);
@@ -129,7 +128,7 @@ std::string Logger::toYamlString() {
     if (m_formatter) {
         node["formatter"] = m_formatter->getPattern();
     }
-    for (auto& i : m_appenders) {
+    for (auto &i : m_appenders) {
         node["appenders"].push_back(YAML::Load(i->toYamlString()));
     }
     std::stringstream ss;

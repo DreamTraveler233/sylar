@@ -9,7 +9,7 @@ static auto g_logger = IM_LOG_NAME("root");
 
 namespace {
 
-static void WriteOk(const IM::RockResponse::ptr& response, const Json::Value& data) {
+static void WriteOk(const IM::RockResponse::ptr &response, const Json::Value &data) {
     if (!response) return;
     Json::Value out(Json::objectValue);
     out["code"] = 200;
@@ -18,7 +18,7 @@ static void WriteOk(const IM::RockResponse::ptr& response, const Json::Value& da
     response->setBody(IM::JsonUtil::ToString(out));
 }
 
-static void WriteErr(const IM::RockResponse::ptr& response, int code, const std::string& msg) {
+static void WriteErr(const IM::RockResponse::ptr &response, int code, const std::string &msg) {
     if (!response) return;
     Json::Value out(Json::objectValue);
     out["code"] = code;
@@ -29,7 +29,7 @@ static void WriteErr(const IM::RockResponse::ptr& response, int code, const std:
     response->setBody(IM::JsonUtil::ToString(out));
 }
 
-static Json::Value TalkSessionItemToJson(const IM::dto::TalkSessionItem& it) {
+static Json::Value TalkSessionItemToJson(const IM::dto::TalkSessionItem &it) {
     Json::Value j(Json::objectValue);
     j["id"] = (Json::UInt64)it.id;
     j["talk_mode"] = it.talk_mode;
@@ -61,10 +61,10 @@ constexpr uint32_t kCmdListUsersByTalkId = 708;
 }  // namespace
 
 TalkModule::TalkModule(IM::domain::service::ITalkService::Ptr talk_service,
-                                             IM::domain::repository::ITalkRepository::Ptr talk_repo)
-        : RockModule("svc.talk", "0.1.0", "builtin"),
-            m_talk_service(std::move(talk_service)),
-            m_talk_repo(std::move(talk_repo)) {}
+                       IM::domain::repository::ITalkRepository::Ptr talk_repo)
+    : RockModule("svc.talk", "0.1.0", "builtin"),
+      m_talk_service(std::move(talk_service)),
+      m_talk_repo(std::move(talk_repo)) {}
 
 bool TalkModule::onServerUp() {
     registerService("rock", "im", "svc-talk");
@@ -72,7 +72,7 @@ bool TalkModule::onServerUp() {
 }
 
 bool TalkModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockResponse::ptr response,
-                                  IM::RockStream::ptr /*stream*/) {
+                                   IM::RockStream::ptr /*stream*/) {
     const auto cmd = request ? request->getCmd() : 0;
 
     if (!m_talk_service) {
@@ -95,7 +95,7 @@ bool TalkModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockRespons
                 return true;
             }
             Json::Value items(Json::arrayValue);
-            for (const auto& it : r.data) items.append(TalkSessionItemToJson(it));
+            for (const auto &it : r.data) items.append(TalkSessionItemToJson(it));
             Json::Value d(Json::objectValue);
             d["items"] = items;
             WriteOk(response, d);

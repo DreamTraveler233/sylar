@@ -4,16 +4,16 @@
 
 namespace IM::infra::repository {
 
-static constexpr const char* kDBName = "default";
+static constexpr const char *kDBName = "default";
 static auto g_logger = IM_LOG_NAME("root");
 
 namespace {
 // 统一列选择片段
-static const char* kSelectCols =
+static const char *kSelectCols =
     "id,talk_id,sequence,talk_mode,msg_type,sender_id,receiver_id,group_id,content_text,extra,"
     "quote_msg_id,is_revoked,status,revoke_by,revoke_time,created_at,updated_at";
 
-inline void order_pair(uint64_t a, uint64_t b, uint64_t& mn, uint64_t& mx) {
+inline void order_pair(uint64_t a, uint64_t b, uint64_t &mn, uint64_t &mx) {
     if (a <= b) {
         mn = a;
         mx = b;
@@ -27,14 +27,13 @@ inline void order_pair(uint64_t a, uint64_t b, uint64_t& mn, uint64_t& mx) {
 MessageRepositoryImpl::MessageRepositoryImpl(std::shared_ptr<IM::MySQLManager> db_manager)
     : m_db_manager(std::move(db_manager)) {}
 
-bool MessageRepositoryImpl::Create(const std::shared_ptr<IM::MySQL>& db, const model::Message& m,
-                                   std::string* err) {
+bool MessageRepositoryImpl::Create(const std::shared_ptr<IM::MySQL> &db, const model::Message &m, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
 
-    const char* sql =
+    const char *sql =
         "INSERT INTO im_message "
         "(id,talk_id,sequence,talk_mode,msg_type,sender_id,receiver_id,group_id,"  // 9
         "content_text,extra,quote_msg_id,is_revoked,status,revoke_by,revoke_time,created_at,"
@@ -89,8 +88,7 @@ bool MessageRepositoryImpl::Create(const std::shared_ptr<IM::MySQL>& db, const m
     return true;
 }
 
-bool MessageRepositoryImpl::GetById(const std::string& msg_id, model::Message& out,
-                                    std::string* err) {
+bool MessageRepositoryImpl::GetById(const std::string &msg_id, model::Message &out, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
@@ -140,9 +138,8 @@ bool MessageRepositoryImpl::GetById(const std::string& msg_id, model::Message& o
     return true;
 }
 
-bool MessageRepositoryImpl::ListRecentDesc(const uint64_t talk_id, const uint64_t anchor_seq,
-                                           const size_t limit, std::vector<model::Message>& out,
-                                           std::string* err) {
+bool MessageRepositoryImpl::ListRecentDesc(const uint64_t talk_id, const uint64_t anchor_seq, const size_t limit,
+                                           std::vector<model::Message> &out, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
@@ -206,17 +203,18 @@ bool MessageRepositoryImpl::ListRecentDesc(const uint64_t talk_id, const uint64_
     return true;
 }
 
-bool MessageRepositoryImpl::ListRecentDescWithFilter(
-    const uint64_t talk_id, const uint64_t anchor_seq, const size_t limit, const uint64_t user_id,
-    const uint16_t msg_type, std::vector<model::Message>& out, std::string* err) {
+bool MessageRepositoryImpl::ListRecentDescWithFilter(const uint64_t talk_id, const uint64_t anchor_seq,
+                                                     const size_t limit, const uint64_t user_id,
+                                                     const uint16_t msg_type, std::vector<model::Message> &out,
+                                                     std::string *err) {
     auto db = m_db_manager->get(kDBName);
     return ListRecentDescWithFilter(db, talk_id, anchor_seq, limit, user_id, msg_type, out, err);
 }
 
-bool MessageRepositoryImpl::ListRecentDescWithFilter(
-    const std::shared_ptr<IM::MySQL>& db, const uint64_t talk_id, const uint64_t anchor_seq,
-    const size_t limit, const uint64_t user_id, const uint16_t msg_type,
-    std::vector<model::Message>& out, std::string* err) {
+bool MessageRepositoryImpl::ListRecentDescWithFilter(const std::shared_ptr<IM::MySQL> &db, const uint64_t talk_id,
+                                                     const uint64_t anchor_seq, const size_t limit,
+                                                     const uint64_t user_id, const uint16_t msg_type,
+                                                     std::vector<model::Message> &out, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
@@ -286,8 +284,8 @@ bool MessageRepositoryImpl::ListRecentDescWithFilter(
 
 // ListAllIdsByTalkId removed — replaced by MessageRepositoryImpl::MarkAllMessagesDeletedByUserInTalk
 
-bool MessageRepositoryImpl::GetByIds(const std::vector<std::string>& ids,
-                                     std::vector<model::Message>& out, std::string* err) {
+bool MessageRepositoryImpl::GetByIds(const std::vector<std::string> &ids, std::vector<model::Message> &out,
+                                     std::string *err) {
     if (ids.empty()) {
         out.clear();
         return true;
@@ -349,9 +347,8 @@ bool MessageRepositoryImpl::GetByIds(const std::vector<std::string>& ids,
     return true;
 }
 
-bool MessageRepositoryImpl::GetByIdsWithFilter(const std::vector<std::string>& ids,
-                                               const uint64_t user_id,
-                                               std::vector<model::Message>& out, std::string* err) {
+bool MessageRepositoryImpl::GetByIdsWithFilter(const std::vector<std::string> &ids, const uint64_t user_id,
+                                               std::vector<model::Message> &out, std::string *err) {
     if (ids.empty()) {
         out.clear();
         return true;
@@ -421,17 +418,15 @@ bool MessageRepositoryImpl::GetByIdsWithFilter(const std::vector<std::string>& i
     return true;
 }
 
-bool MessageRepositoryImpl::ListAfterAsc(const uint64_t talk_id, const uint64_t after_seq,
-                                         const size_t limit, std::vector<model::Message>& out,
-                                         std::string* err) {
+bool MessageRepositoryImpl::ListAfterAsc(const uint64_t talk_id, const uint64_t after_seq, const size_t limit,
+                                         std::vector<model::Message> &out, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
     std::ostringstream oss;
-    oss << "SELECT " << kSelectCols
-        << " FROM im_message WHERE talk_id=? AND sequence>? ORDER BY sequence ASC LIMIT ?";
+    oss << "SELECT " << kSelectCols << " FROM im_message WHERE talk_id=? AND sequence>? ORDER BY sequence ASC LIMIT ?";
     auto stmt = db->prepare(oss.str().c_str());
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -470,13 +465,13 @@ bool MessageRepositoryImpl::ListAfterAsc(const uint64_t talk_id, const uint64_t 
     return true;
 }
 
-bool MessageRepositoryImpl::Revoke(const std::shared_ptr<IM::MySQL>& db, const std::string& msg_id,
-                                   const uint64_t user_id, std::string* err) {
+bool MessageRepositoryImpl::Revoke(const std::shared_ptr<IM::MySQL> &db, const std::string &msg_id,
+                                   const uint64_t user_id, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "UPDATE im_message SET is_revoked=1, revoke_by=?, revoke_time=NOW(), updated_at=NOW() "
         "WHERE id=? AND is_revoked=2";
     auto stmt = db->prepare(sql);
@@ -493,13 +488,13 @@ bool MessageRepositoryImpl::Revoke(const std::shared_ptr<IM::MySQL>& db, const s
     return true;  // 不强制校验影响行数；由上层根据业务判断是否成功撤回
 }
 
-bool MessageRepositoryImpl::DeleteByTalkId(const std::shared_ptr<IM::MySQL>& db,
-                                           const uint64_t talk_id, std::string* err) {
+bool MessageRepositoryImpl::DeleteByTalkId(const std::shared_ptr<IM::MySQL> &db, const uint64_t talk_id,
+                                           std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql = "DELETE FROM im_message WHERE talk_id=?";
+    const char *sql = "DELETE FROM im_message WHERE talk_id=?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -513,13 +508,13 @@ bool MessageRepositoryImpl::DeleteByTalkId(const std::shared_ptr<IM::MySQL>& db,
     return true;
 }
 
-bool MessageRepositoryImpl::SetStatus(const std::shared_ptr<IM::MySQL>& db,
-                                      const std::string& msg_id, uint8_t status, std::string* err) {
+bool MessageRepositoryImpl::SetStatus(const std::shared_ptr<IM::MySQL> &db, const std::string &msg_id, uint8_t status,
+                                      std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql = "UPDATE im_message SET status=?, updated_at=NOW() WHERE id=?";
+    const char *sql = "UPDATE im_message SET status=?, updated_at=NOW() WHERE id=?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -534,16 +529,14 @@ bool MessageRepositoryImpl::SetStatus(const std::shared_ptr<IM::MySQL>& db,
     return true;
 }
 
-bool MessageRepositoryImpl::AddForwardMap(const std::shared_ptr<IM::MySQL>& db,
-                                          const std::string& forward_msg_id,
-                                          const std::vector<dto::ForwardSrc>& sources,
-                                          std::string* err) {
+bool MessageRepositoryImpl::AddForwardMap(const std::shared_ptr<IM::MySQL> &db, const std::string &forward_msg_id,
+                                          const std::vector<dto::ForwardSrc> &sources, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
     if (sources.empty()) return true;
-    const char* sql =
+    const char *sql =
         "INSERT INTO im_message_forward_map "
         "(forward_msg_id,src_msg_id,src_talk_id,src_sender_id,created_at) VALUES (?,?,?,?,NOW())";
     auto stmt = db->prepare(sql);
@@ -551,7 +544,7 @@ bool MessageRepositoryImpl::AddForwardMap(const std::shared_ptr<IM::MySQL>& db,
         if (err) *err = "prepare sql failed";
         return false;
     }
-    for (auto& s : sources) {
+    for (auto &s : sources) {
         stmt->bindString(1, forward_msg_id);
         stmt->bindString(2, s.src_msg_id);
         stmt->bindUint64(3, s.src_talk_id);
@@ -564,17 +557,14 @@ bool MessageRepositoryImpl::AddForwardMap(const std::shared_ptr<IM::MySQL>& db,
     return true;
 }
 
-bool MessageRepositoryImpl::AddMentions(const std::shared_ptr<IM::MySQL>& db,
-                                        const std::string& msg_id,
-                                        const std::vector<uint64_t>& mentioned_user_ids,
-                                        std::string* err) {
+bool MessageRepositoryImpl::AddMentions(const std::shared_ptr<IM::MySQL> &db, const std::string &msg_id,
+                                        const std::vector<uint64_t> &mentioned_user_ids, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
     if (mentioned_user_ids.empty()) return true;
-    const char* sql =
-        "INSERT IGNORE INTO im_message_mention (msg_id,mentioned_user_id) VALUES (?,?)";
+    const char *sql = "INSERT IGNORE INTO im_message_mention (msg_id,mentioned_user_id) VALUES (?,?)";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -591,15 +581,14 @@ bool MessageRepositoryImpl::AddMentions(const std::shared_ptr<IM::MySQL>& db,
     return true;
 }
 
-bool MessageRepositoryImpl::GetMentions(const std::string& msg_id, std::vector<uint64_t>& out,
-                                        std::string* err) {
+bool MessageRepositoryImpl::GetMentions(const std::string &msg_id, std::vector<uint64_t> &out, std::string *err) {
     out.clear();
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql = "SELECT mentioned_user_id FROM im_message_mention WHERE msg_id=?";
+    const char *sql = "SELECT mentioned_user_id FROM im_message_mention WHERE msg_id=?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -617,15 +606,13 @@ bool MessageRepositoryImpl::GetMentions(const std::string& msg_id, std::vector<u
     return true;
 }
 
-bool MessageRepositoryImpl::MarkRead(const std::string& msg_id, const uint64_t user_id,
-                                     std::string* err) {
+bool MessageRepositoryImpl::MarkRead(const std::string &msg_id, const uint64_t user_id, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
-        "INSERT IGNORE INTO im_message_read (msg_id,user_id,read_at) VALUES (?,?,NOW())";
+    const char *sql = "INSERT IGNORE INTO im_message_read (msg_id,user_id,read_at) VALUES (?,?,NOW())";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -640,15 +627,14 @@ bool MessageRepositoryImpl::MarkRead(const std::string& msg_id, const uint64_t u
     return true;
 }
 
-bool MessageRepositoryImpl::MarkReadByTalk(const uint64_t talk_id, const uint64_t user_id,
-                                           std::string* err) {
+bool MessageRepositoryImpl::MarkReadByTalk(const uint64_t talk_id, const uint64_t user_id, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
 
-    const char* sql =
+    const char *sql =
         "INSERT IGNORE INTO im_message_read (msg_id, user_id, read_at) "
         "SELECT id, ?, NOW() FROM im_message WHERE talk_id = ?";
     auto stmt = db->prepare(sql);
@@ -665,15 +651,13 @@ bool MessageRepositoryImpl::MarkReadByTalk(const uint64_t talk_id, const uint64_
     return true;
 }
 
-bool MessageRepositoryImpl::MarkUserDelete(const std::shared_ptr<IM::MySQL>& db,
-                                           const std::string& msg_id, const uint64_t user_id,
-                                           std::string* err) {
+bool MessageRepositoryImpl::MarkUserDelete(const std::shared_ptr<IM::MySQL> &db, const std::string &msg_id,
+                                           const uint64_t user_id, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
-        "INSERT IGNORE INTO im_message_user_delete (msg_id,user_id,deleted_at) VALUES (?,?,NOW())";
+    const char *sql = "INSERT IGNORE INTO im_message_user_delete (msg_id,user_id,deleted_at) VALUES (?,?,NOW())";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -688,17 +672,16 @@ bool MessageRepositoryImpl::MarkUserDelete(const std::shared_ptr<IM::MySQL>& db,
     return true;
 }
 
-bool MessageRepositoryImpl::MarkAllMessagesDeletedByUserInTalk(const std::shared_ptr<IM::MySQL>& db,
-                                                               const uint64_t talk_id,
-                                                               const uint64_t user_id,
-                                                               std::string* err) {
+bool MessageRepositoryImpl::MarkAllMessagesDeletedByUserInTalk(const std::shared_ptr<IM::MySQL> &db,
+                                                               const uint64_t talk_id, const uint64_t user_id,
+                                                               std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
 
     // 通过 INSERT ... SELECT 批量把 talk 中消息写入用户删除表；使用 INSERT IGNORE 避免重复
-    const char* sql =
+    const char *sql =
         "INSERT IGNORE INTO im_message_user_delete (msg_id, user_id, deleted_at) "
         "SELECT id, ?, NOW() FROM im_message WHERE talk_id = ?";
     auto stmt = db->prepare(sql);
@@ -715,4 +698,4 @@ bool MessageRepositoryImpl::MarkAllMessagesDeletedByUserInTalk(const std::shared
     return true;
 }
 
-}  // namespace IM::infra
+}  // namespace IM::infra::repository

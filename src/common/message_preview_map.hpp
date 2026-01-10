@@ -1,3 +1,12 @@
+/**
+ * @file message_preview_map.hpp
+ * @brief 公共组件
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 公共组件。
+ */
+
 #ifndef __IM_COMMON_MESSAGE_PREVIEW_MAP_HPP__
 #define __IM_COMMON_MESSAGE_PREVIEW_MAP_HPP__
 
@@ -33,8 +42,7 @@ static const std::map<MessageType, std::string> kMessagePreviewMap = {
     {MessageType::SysGroupMuted, "[群禁言消息]"},
     {MessageType::SysGroupCancelMuted, "[群解除禁言消息]"},
     {MessageType::SysGroupMemberMuted, "[群成员禁言消息]"},
-    {MessageType::SysGroupMemberCancelMuted, "[群成员解除禁言消息]"}
-};
+    {MessageType::SysGroupMemberCancelMuted, "[群成员解除禁言消息]"}};
 
 }  // namespace IM::common
 

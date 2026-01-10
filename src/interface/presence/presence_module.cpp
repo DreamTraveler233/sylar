@@ -2,11 +2,13 @@
 
 #include <jsoncpp/json/json.h>
 
-#include "common/common.hpp"
-#include "core/config/config.hpp"
 #include "core/base/macro.hpp"
+#include "core/config/config.hpp"
 #include "core/util/time_util.hpp"
+
 #include "infra/db/redis.hpp"
+
+#include "common/common.hpp"
 
 namespace IM::presence {
 
@@ -14,8 +16,7 @@ static auto g_logger = IM_LOG_NAME("root");
 
 static auto g_presence_redis_name =
     IM::Config::Lookup("presence.redis_name", std::string("default"), "presence redis name");
-static auto g_presence_ttl_sec =
-    IM::Config::Lookup("presence.ttl_sec", (uint32_t)120, "presence ttl seconds");
+static auto g_presence_ttl_sec = IM::Config::Lookup("presence.ttl_sec", (uint32_t)120, "presence ttl seconds");
 static auto g_presence_key_prefix =
     IM::Config::Lookup("presence.key_prefix", std::string("presence:"), "presence key prefix");
 
@@ -27,7 +28,7 @@ constexpr uint32_t kCmdGetRoute = 204;
 
 constexpr uint32_t kDefaultTtlSec = 120;
 
-static bool RedisSetPresence(uint64_t uid, const std::string& gateway_rpc, uint32_t ttl_sec) {
+static bool RedisSetPresence(uint64_t uid, const std::string &gateway_rpc, uint32_t ttl_sec) {
     if (uid == 0 || gateway_rpc.empty()) {
         return false;
     }
@@ -38,8 +39,8 @@ static bool RedisSetPresence(uint64_t uid, const std::string& gateway_rpc, uint3
     v["last_seen_ms"] = (Json::UInt64)IM::TimeUtil::NowToMS();
     const auto value = IM::JsonUtil::ToString(v);
 
-    auto r = IM::RedisUtil::Cmd(g_presence_redis_name->getValue(), "SET %s %s EX %u", key.c_str(),
-                               value.c_str(), ttl_sec);
+    auto r =
+        IM::RedisUtil::Cmd(g_presence_redis_name->getValue(), "SET %s %s EX %u", key.c_str(), value.c_str(), ttl_sec);
     return r != nullptr;
 }
 
@@ -52,8 +53,7 @@ static bool RedisDelPresence(uint64_t uid) {
     return r != nullptr;
 }
 
-static bool RedisGetPresence(uint64_t uid, std::string& gateway_rpc, uint64_t& last_seen_ms,
-                             int64_t& ttl_sec) {
+static bool RedisGetPresence(uint64_t uid, std::string &gateway_rpc, uint64_t &last_seen_ms, int64_t &ttl_sec) {
     if (uid == 0) {
         return false;
     }
@@ -105,11 +105,10 @@ bool PresenceModule::onServerUp() {
 }
 
 bool PresenceModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockResponse::ptr response,
-                                      IM::RockStream::ptr /*stream*/) {
+                                       IM::RockStream::ptr /*stream*/) {
     const auto cmd = request ? request->getCmd() : 0;
 
-    if (cmd != kCmdSetOnline && cmd != kCmdSetOffline && cmd != kCmdHeartbeat &&
-        cmd != kCmdGetRoute) {
+    if (cmd != kCmdSetOnline && cmd != kCmdSetOffline && cmd != kCmdHeartbeat && cmd != kCmdGetRoute) {
         return false;
     }
 

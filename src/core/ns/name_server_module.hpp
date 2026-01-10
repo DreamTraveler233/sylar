@@ -1,7 +1,17 @@
+/**
+ * @file name_server_module.hpp
+ * @brief 名称服务相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 名称服务相关。
+ */
+
 #ifndef __IM_NS_NAME_SERVER_MODULE_HPP__
 #define __IM_NS_NAME_SERVER_MODULE_HPP__
 
 #include "infra/module/module.hpp"
+
 #include "ns_protocol.hpp"
 
 namespace IM::ns {
@@ -31,8 +41,7 @@ class NameServerModule : public RockModule {
     virtual std::string statusString() override;
 
    private:
-    bool handleRegister(RockRequest::ptr request, RockResponse::ptr response,
-                        RockStream::ptr stream);
+    bool handleRegister(RockRequest::ptr request, RockResponse::ptr response, RockStream::ptr stream);
     bool handleQuery(RockRequest::ptr request, RockResponse::ptr response, RockStream::ptr stream);
     bool handleTick(RockRequest::ptr request, RockResponse::ptr response, RockStream::ptr stream);
 
@@ -40,11 +49,11 @@ class NameServerModule : public RockModule {
     NSClientInfo::ptr get(RockStream::ptr rs);
     void set(RockStream::ptr rs, NSClientInfo::ptr info);
 
-    void setQueryDomain(RockStream::ptr rs, const std::set<std::string>& ds);
+    void setQueryDomain(RockStream::ptr rs, const std::set<std::string> &ds);
 
-    void doNotify(std::set<std::string>& domains, std::shared_ptr<NotifyMessage> nty);
+    void doNotify(std::set<std::string> &domains, std::shared_ptr<NotifyMessage> nty);
 
-    std::set<RockStream::ptr> getStreams(const std::string& domain);
+    std::set<RockStream::ptr> getStreams(const std::string &domain);
 
    private:
     NSDomainSet::ptr m_domains;
@@ -60,4 +69,4 @@ class NameServerModule : public RockModule {
 
 }  // namespace IM::ns
 
-#endif // __IM_NS_NAME_SERVER_MODULE_HPP__
+#endif  // __IM_NS_NAME_SERVER_MODULE_HPP__

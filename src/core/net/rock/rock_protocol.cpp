@@ -1,18 +1,18 @@
 #include "core/net/rock/rock_protocol.hpp"
 
-#include "core/config/config.hpp"
 #include "core/base/endian.hpp"
 #include "core/base/macro.hpp"
+#include "core/config/config.hpp"
 #include "core/net/streams/zlib_stream.hpp"
 
 namespace IM {
 static auto g_logger = IM_LOG_NAME("system");
 
-static auto g_rock_protocol_max_length = Config::Lookup(
-    "rock.protocol.max_length", (uint32_t)(1024 * 1024 * 64), "rock protocol max length");
+static auto g_rock_protocol_max_length =
+    Config::Lookup("rock.protocol.max_length", (uint32_t)(1024 * 1024 * 64), "rock protocol max length");
 
-static auto g_rock_protocol_gzip_min_length = Config::Lookup(
-    "rock.protocol.gzip_min_length", (uint32_t)(1024 * 4), "rock protocol gizp min length");
+static auto g_rock_protocol_gzip_min_length =
+    Config::Lookup("rock.protocol.gzip_min_length", (uint32_t)(1024 * 4), "rock protocol gizp min length");
 
 bool RockBody::serializeToByteArray(ByteArray::ptr bytearray) {
     bytearray->writeStringVint(m_body);
@@ -38,8 +38,8 @@ std::string RockRequest::toString() const {
     return ss.str();
 }
 
-const std::string& RockRequest::getName() const {
-    static const std::string& s_name = "RockRequest";
+const std::string &RockRequest::getName() const {
+    static const std::string &s_name = "RockRequest";
     return s_name;
 }
 
@@ -73,13 +73,13 @@ bool RockRequest::parseFromByteArray(ByteArray::ptr bytearray) {
 
 std::string RockResponse::toString() const {
     std::stringstream ss;
-    ss << "[RockResponse sn=" << m_sn << " cmd=" << m_cmd << " result=" << m_result
-       << " result_msg=" << m_resultStr << " body.length=" << m_body.size() << "]";
+    ss << "[RockResponse sn=" << m_sn << " cmd=" << m_cmd << " result=" << m_result << " result_msg=" << m_resultStr
+       << " body.length=" << m_body.size() << "]";
     return ss.str();
 }
 
-const std::string& RockResponse::getName() const {
-    static const std::string& s_name = "RockResponse";
+const std::string &RockResponse::getName() const {
+    static const std::string &s_name = "RockResponse";
     return s_name;
 }
 
@@ -117,8 +117,8 @@ std::string RockNotify::toString() const {
     return ss.str();
 }
 
-const std::string& RockNotify::getName() const {
-    static const std::string& s_name = "RockNotify";
+const std::string &RockNotify::getName() const {
+    static const std::string &s_name = "RockNotify";
     return s_name;
 }
 
@@ -175,7 +175,7 @@ Message::ptr RockMessageDecoder::parseFrom(Stream::ptr stream) {
         header.length = ntoh(header.length);
         if ((uint32_t)header.length >= g_rock_protocol_max_length->getValue()) {
             IM_LOG_ERROR(g_logger) << "RockMessageDecoder head.length(" << header.length
-                                    << ") >=" << g_rock_protocol_max_length->getValue();
+                                   << ") >=" << g_rock_protocol_max_length->getValue();
             return nullptr;
         }
         ByteArray::ptr ba(new ByteArray);
@@ -215,12 +215,11 @@ Message::ptr RockMessageDecoder::parseFrom(Stream::ptr stream) {
         }
 
         if (!msg->parseFromByteArray(ba)) {
-            IM_LOG_ERROR(g_logger)
-                << "RockMessageDecoder parseFromByteArray fail type=" << (int)type;
+            IM_LOG_ERROR(g_logger) << "RockMessageDecoder parseFromByteArray fail type=" << (int)type;
             return nullptr;
         }
         return msg;
-    } catch (std::exception& e) {
+    } catch (std::exception &e) {
         IM_LOG_ERROR(g_logger) << "RockMessageDecoder except:" << e.what();
     } catch (...) {
         IM_LOG_ERROR(g_logger) << "RockMessageDecoder except";

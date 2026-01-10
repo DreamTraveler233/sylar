@@ -1,9 +1,17 @@
+/**
+ * @file uri.hpp
+ * @brief 网络通信相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 网络通信相关。
+ */
+
 #ifndef __IM_NET_HTTP_URI_HPP__
 #define __IM_NET_HTTP_URI_HPP__
 
-#include <stdint.h>
-
 #include <memory>
+#include <stdint.h>
 #include <string>
 
 #include "core/net/core/address.hpp"
@@ -17,123 +25,123 @@ namespace IM {
     */
 
 /**
-     * @brief URI类
-     */
+ * @brief URI类
+ */
 class Uri {
    public:
     /// 智能指针类型定义
     typedef std::shared_ptr<Uri> ptr;
 
     /**
-         * @brief 创建Uri对象
-         * @param uri uri字符串
-         * @return 解析成功返回Uri对象否则返回nullptr
-         */
-    static Uri::ptr Create(const std::string& uri);
+     * @brief 创建Uri对象
+     * @param uri uri字符串
+     * @return 解析成功返回Uri对象否则返回nullptr
+     */
+    static Uri::ptr Create(const std::string &uri);
 
     /**
-         * @brief 构造函数
-         */
+     * @brief 构造函数
+     */
     Uri();
 
     /**
-         * @brief 返回scheme
-         */
-    const std::string& getScheme() const;
+     * @brief 返回scheme
+     */
+    const std::string &getScheme() const;
 
     /**
-         * @brief 返回用户信息
-         */
-    const std::string& getUserinfo() const;
+     * @brief 返回用户信息
+     */
+    const std::string &getUserinfo() const;
 
     /**
-         * @brief 返回host
-         */
-    const std::string& getHost() const;
+     * @brief 返回host
+     */
+    const std::string &getHost() const;
 
     /**
-         * @brief 返回路径
-         */
-    const std::string& getPath() const;
+     * @brief 返回路径
+     */
+    const std::string &getPath() const;
 
     /**
-         * @brief 返回查询条件
-         */
-    const std::string& getQuery() const;
+     * @brief 返回查询条件
+     */
+    const std::string &getQuery() const;
 
     /**
-         * @brief 返回fragment
-         */
-    const std::string& getFragment() const;
+     * @brief 返回fragment
+     */
+    const std::string &getFragment() const;
 
     /**
-         * @brief 返回端口
-         */
+     * @brief 返回端口
+     */
     int32_t getPort() const;
 
     /**
-         * @brief 设置scheme
-         * @param v scheme
-         */
-    void setScheme(const std::string& v);
+     * @brief 设置scheme
+     * @param v scheme
+     */
+    void setScheme(const std::string &v);
 
     /**
-         * @brief 设置用户信息
-         * @param v 用户信息
-         */
-    void setUserinfo(const std::string& v);
+     * @brief 设置用户信息
+     * @param v 用户信息
+     */
+    void setUserinfo(const std::string &v);
 
     /**
-         * @brief 设置host信息
-         * @param v host
-         */
-    void setHost(const std::string& v);
+     * @brief 设置host信息
+     * @param v host
+     */
+    void setHost(const std::string &v);
 
     /**
-         * @brief 设置路径
-         * @param v 路径
-         */
-    void setPath(const std::string& v);
+     * @brief 设置路径
+     * @param v 路径
+     */
+    void setPath(const std::string &v);
 
     /**
-         * @brief 设置查询条件
-         * @param v
-         */
-    void setQuery(const std::string& v);
+     * @brief 设置查询条件
+     * @param v
+     */
+    void setQuery(const std::string &v);
 
     /**
-         * @brief 设置fragment
-         * @param v fragment
-         */
-    void setFragment(const std::string& v);
+     * @brief 设置fragment
+     * @param v fragment
+     */
+    void setFragment(const std::string &v);
 
     /**
-         * @brief 设置端口号
-         * @param v 端口
-         */
+     * @brief 设置端口号
+     * @param v 端口
+     */
     void setPort(int32_t v);
 
     /**
-         * @brief 序列化到输出流
-         * @param os 输出流
-         * @return 输出流
-         */
-    std::ostream& dump(std::ostream& os) const;
+     * @brief 序列化到输出流
+     * @param os 输出流
+     * @return 输出流
+     */
+    std::ostream &dump(std::ostream &os) const;
 
     /**
-         * @brief 转成字符串
-         */
+     * @brief 转成字符串
+     */
     std::string toString() const;
 
     /**
-         * @brief 获取Address
-         */
+     * @brief 获取Address
+     */
     Address::ptr createAddress() const;
 
    private:
     /**
-         * @brief 是否默认端口
-         */
+     * @brief 是否默认端口
+     */
     bool isDefaultPort() const;
 
    private:
@@ -147,4 +155,4 @@ class Uri {
 };
 }  // namespace IM
 
-#endif // __IM_NET_HTTP_URI_HPP__
+#endif  // __IM_NET_HTTP_URI_HPP__

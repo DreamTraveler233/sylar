@@ -3,7 +3,7 @@
 #include "core/base/macro.hpp"
 
 namespace IM {
-const char* LogLevel::ToString(Level level) {
+const char *LogLevel::ToString(Level level) {
     switch (level) {
 // 宏定义
 #define XX(name)      \
@@ -22,7 +22,7 @@ const char* LogLevel::ToString(Level level) {
     }
 }
 
-Level LogLevel::FromString(const std::string& str) {
+Level LogLevel::FromString(const std::string &str) {
     IM_ASSERT(!str.empty());
 #define XX(name, level) \
     if (str == #name) return Level::level;

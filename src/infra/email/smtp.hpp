@@ -1,10 +1,20 @@
+/**
+ * @file smtp.hpp
+ * @brief 邮件服务相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 邮件服务相关。
+ */
+
 #ifndef __IM_INFRA_EMAIL_SMTP_HPP__
 #define __IM_INFRA_EMAIL_SMTP_HPP__
 
 #include <sstream>
 
-#include "email.hpp"
 #include "core/net/streams/socket_stream.hpp"
+
+#include "email.hpp"
 
 namespace IM {
 
@@ -27,7 +37,7 @@ struct SmtpResult {
      * @param[in] r 结果码
      * @param[in] m 消息内容
      */
-    SmtpResult(int r, const std::string& m) : result(r), msg(m) {}
+    SmtpResult(int r, const std::string &m) : result(r), msg(m) {}
 
     int result;       /// 结果码
     std::string msg;  /// 消息内容
@@ -49,7 +59,7 @@ class SmtpClient : public SocketStream {
      * @param[in] ssl 是否使用SSL加密连接
      * @return SMTP客户端智能指针
      */
-    static SmtpClient::ptr Create(const std::string& host, uint32_t port, bool ssl = false);
+    static SmtpClient::ptr Create(const std::string &host, uint32_t port, bool ssl = false);
 
     /**
      * @brief 发送邮件
@@ -73,7 +83,7 @@ class SmtpClient : public SocketStream {
      * @param[in] debug 是否开启调试模式
      * @return SMTP操作结果
      */
-    SmtpResult::ptr doCmd(const std::string& cmd, bool debug);
+    SmtpResult::ptr doCmd(const std::string &cmd, bool debug);
 
    private:
     /**
@@ -90,4 +100,4 @@ class SmtpClient : public SocketStream {
 
 }  // namespace IM
 
-#endif // __IM_INFRA_EMAIL_SMTP_HPP__
+#endif  // __IM_INFRA_EMAIL_SMTP_HPP__

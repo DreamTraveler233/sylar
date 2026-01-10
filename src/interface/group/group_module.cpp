@@ -45,12 +45,12 @@ constexpr uint32_t kCmdGetVoteDetail = 626;
 constexpr uint32_t kCmdCastVote = 627;
 constexpr uint32_t kCmdFinishVote = 628;
 
-static void WriteErr(IM::RockResponse::ptr response, uint32_t code, const std::string& err) {
+static void WriteErr(IM::RockResponse::ptr response, uint32_t code, const std::string &err) {
     response->setResult(code);
     response->setResultStr(err);
 }
 
-static void WriteOk(IM::RockResponse::ptr response, const Json::Value& data) {
+static void WriteOk(IM::RockResponse::ptr response, const Json::Value &data) {
     Json::Value out(Json::objectValue);
     out["data"] = data;
     response->setBody(IM::JsonUtil::ToString(out));
@@ -58,7 +58,7 @@ static void WriteOk(IM::RockResponse::ptr response, const Json::Value& data) {
     response->setResultStr("ok");
 }
 
-static Json::Value GroupItemToJson(const IM::dto::GroupItem& it) {
+static Json::Value GroupItemToJson(const IM::dto::GroupItem &it) {
     Json::Value j(Json::objectValue);
     j["group_id"] = (Json::UInt64)it.group_id;
     j["group_name"] = it.group_name;
@@ -69,7 +69,7 @@ static Json::Value GroupItemToJson(const IM::dto::GroupItem& it) {
     return j;
 }
 
-static Json::Value GroupMemberItemToJson(const IM::dto::GroupMemberItem& it) {
+static Json::Value GroupMemberItemToJson(const IM::dto::GroupMemberItem &it) {
     Json::Value j(Json::objectValue);
     j["user_id"] = (Json::UInt64)it.user_id;
     j["nickname"] = it.nickname;
@@ -83,7 +83,7 @@ static Json::Value GroupMemberItemToJson(const IM::dto::GroupMemberItem& it) {
     return j;
 }
 
-static Json::Value GroupApplyItemToJson(const IM::dto::GroupApplyItem& it) {
+static Json::Value GroupApplyItemToJson(const IM::dto::GroupApplyItem &it) {
     Json::Value j(Json::objectValue);
     j["id"] = (Json::UInt64)it.id;
     j["user_id"] = (Json::UInt64)it.user_id;
@@ -96,7 +96,7 @@ static Json::Value GroupApplyItemToJson(const IM::dto::GroupApplyItem& it) {
     return j;
 }
 
-static Json::Value GroupOvertItemToJson(const IM::dto::GroupOvertItem& it) {
+static Json::Value GroupOvertItemToJson(const IM::dto::GroupOvertItem &it) {
     Json::Value j(Json::objectValue);
     j["group_id"] = (Json::UInt64)it.group_id;
     j["type"] = it.type;
@@ -110,7 +110,7 @@ static Json::Value GroupOvertItemToJson(const IM::dto::GroupOvertItem& it) {
     return j;
 }
 
-static Json::Value GroupDetailToJson(const IM::dto::GroupDetail& d) {
+static Json::Value GroupDetailToJson(const IM::dto::GroupDetail &d) {
     Json::Value j(Json::objectValue);
     j["group_id"] = (Json::UInt64)d.group_id;
     j["group_name"] = d.group_name;
@@ -133,7 +133,7 @@ static Json::Value GroupDetailToJson(const IM::dto::GroupDetail& d) {
     return j;
 }
 
-static Json::Value GroupVoteItemToJson(const IM::dto::GroupVoteItem& it) {
+static Json::Value GroupVoteItemToJson(const IM::dto::GroupVoteItem &it) {
     Json::Value j(Json::objectValue);
     j["vote_id"] = (Json::UInt64)it.vote_id;
     j["title"] = it.title;
@@ -146,7 +146,7 @@ static Json::Value GroupVoteItemToJson(const IM::dto::GroupVoteItem& it) {
     return j;
 }
 
-static Json::Value GroupVoteDetailToJson(const IM::dto::GroupVoteDetail& d) {
+static Json::Value GroupVoteDetailToJson(const IM::dto::GroupVoteDetail &d) {
     Json::Value j(Json::objectValue);
     j["vote_id"] = (Json::UInt64)d.vote_id;
     j["title"] = d.title;
@@ -159,14 +159,14 @@ static Json::Value GroupVoteDetailToJson(const IM::dto::GroupVoteDetail& d) {
     j["is_voted"] = d.is_voted;
 
     Json::Value opts(Json::arrayValue);
-    for (const auto& opt : d.options) {
+    for (const auto &opt : d.options) {
         Json::Value o(Json::objectValue);
         o["id"] = (Json::UInt64)opt.id;
         o["content"] = opt.content;
         o["count"] = opt.count;
         o["is_voted"] = opt.is_voted;
         Json::Value users(Json::arrayValue);
-        for (const auto& u : opt.users) {
+        for (const auto &u : opt.users) {
             users.append(u);
         }
         o["users"] = users;
@@ -176,12 +176,13 @@ static Json::Value GroupVoteDetailToJson(const IM::dto::GroupVoteDetail& d) {
     return j;
 }
 
-static std::vector<uint64_t> ParseUint64Array(const Json::Value& arr) {
+static std::vector<uint64_t> ParseUint64Array(const Json::Value &arr) {
     std::vector<uint64_t> out;
     if (!arr.isArray()) return out;
     out.reserve(arr.size());
-    for (const auto& v : arr) {
-        if (v.isUInt64()) out.push_back(v.asUInt64());
+    for (const auto &v : arr) {
+        if (v.isUInt64())
+            out.push_back(v.asUInt64());
         else if (v.isString()) {
             try {
                 out.push_back(std::stoull(v.asString()));
@@ -192,7 +193,7 @@ static std::vector<uint64_t> ParseUint64Array(const Json::Value& arr) {
     return out;
 }
 
-static std::vector<uint64_t> ParseUint64ArrayAlias(const Json::Value& obj, const char* k1, const char* k2) {
+static std::vector<uint64_t> ParseUint64ArrayAlias(const Json::Value &obj, const char *k1, const char *k2) {
     if (obj.isMember(k1)) {
         auto v = ParseUint64Array(obj[k1]);
         if (!v.empty()) return v;
@@ -203,18 +204,20 @@ static std::vector<uint64_t> ParseUint64ArrayAlias(const Json::Value& obj, const
     return {};
 }
 
-static std::vector<std::string> ParseStringArray(const Json::Value& arr) {
+static std::vector<std::string> ParseStringArray(const Json::Value &arr) {
     std::vector<std::string> out;
     if (!arr.isArray()) return out;
     out.reserve(arr.size());
-    for (const auto& v : arr) {
-        if (v.isString()) out.push_back(v.asString());
-        else if (v.isInt()) out.push_back(std::to_string(v.asInt()));
+    for (const auto &v : arr) {
+        if (v.isString())
+            out.push_back(v.asString());
+        else if (v.isInt())
+            out.push_back(std::to_string(v.asInt()));
     }
     return out;
 }
 
-} // namespace
+}  // namespace
 
 GroupModule::GroupModule(IM::domain::service::IGroupService::Ptr group_service)
     : RockModule("svc.group", "0.1.0", "builtin"), m_group_service(std::move(group_service)) {}
@@ -225,7 +228,7 @@ bool GroupModule::onServerUp() {
 }
 
 bool GroupModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockResponse::ptr response,
-                                   IM::RockStream::ptr /*stream*/) {
+                                    IM::RockStream::ptr /*stream*/) {
     const auto cmd = request ? request->getCmd() : 0;
 
     if (!m_group_service) {
@@ -284,7 +287,7 @@ bool GroupModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockRespon
                 return true;
             }
             Json::Value arr(Json::arrayValue);
-            for (const auto& it : r.data) arr.append(GroupItemToJson(it));
+            for (const auto &it : r.data) arr.append(GroupItemToJson(it));
             Json::Value d(Json::objectValue);
             d["items"] = arr;
             WriteOk(response, d);
@@ -362,7 +365,7 @@ bool GroupModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockRespon
                 return true;
             }
             Json::Value arr(Json::arrayValue);
-            for (const auto& it : r.data.first) arr.append(GroupOvertItemToJson(it));
+            for (const auto &it : r.data.first) arr.append(GroupOvertItemToJson(it));
             Json::Value d(Json::objectValue);
             d["items"] = arr;
             d["has_more"] = r.data.second;
@@ -378,7 +381,7 @@ bool GroupModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockRespon
                 return true;
             }
             Json::Value arr(Json::arrayValue);
-            for (const auto& it : r.data) arr.append(GroupMemberItemToJson(it));
+            for (const auto &it : r.data) arr.append(GroupMemberItemToJson(it));
             Json::Value d(Json::objectValue);
             d["items"] = arr;
             WriteOk(response, d);
@@ -488,7 +491,7 @@ bool GroupModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockRespon
                 return true;
             }
             Json::Value arr(Json::arrayValue);
-            for (const auto& it : r.data) arr.append(GroupApplyItemToJson(it));
+            for (const auto &it : r.data) arr.append(GroupApplyItemToJson(it));
             Json::Value d(Json::objectValue);
             d["items"] = arr;
             WriteOk(response, d);
@@ -502,7 +505,7 @@ bool GroupModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockRespon
                 return true;
             }
             Json::Value arr(Json::arrayValue);
-            for (const auto& it : r.data) arr.append(GroupApplyItemToJson(it));
+            for (const auto &it : r.data) arr.append(GroupApplyItemToJson(it));
             Json::Value d(Json::objectValue);
             d["items"] = arr;
             WriteOk(response, d);
@@ -558,7 +561,7 @@ bool GroupModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockRespon
                 return true;
             }
             Json::Value arr(Json::arrayValue);
-            for (const auto& it : r.data) arr.append(GroupVoteItemToJson(it));
+            for (const auto &it : r.data) arr.append(GroupVoteItemToJson(it));
             Json::Value d(Json::objectValue);
             d["items"] = arr;
             WriteOk(response, d);
@@ -607,4 +610,4 @@ bool GroupModule::handleRockNotify(IM::RockNotify::ptr /*notify*/, IM::RockStrea
     return false;
 }
 
-} // namespace IM::group
+}  // namespace IM::group

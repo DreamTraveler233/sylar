@@ -1,20 +1,20 @@
 /**
  * @file    ws_session.hpp
  * @brief   WebSocket协议会话与消息帧相关声明，提供服务端/客户端WebSocket消息收发、握手、心跳等功能。
- * @author  DreamTraveler233
- * @date    2025-11-01
+ * @author DreamTraveler233
+ * @date 2026-01-10
  * @note    依赖于config、http_session等基础模块。
  */
 
 #ifndef __IM_NET_HTTP_WS_SESSION_HPP__
 #define __IM_NET_HTTP_WS_SESSION_HPP__
 
-#include <stdint.h>
-
 #include <memory>
+#include <stdint.h>
 #include <string>
 
 #include "core/config/config.hpp"
+
 #include "http_session.hpp"
 
 namespace IM::http {
@@ -70,7 +70,7 @@ class WSFrameMessage {
      * @param   opcode  操作码，见WSFrameHead::OPCODE
      * @param   data    消息内容
      */
-    WSFrameMessage(int opcode = 0, const std::string& data = "");
+    WSFrameMessage(int opcode = 0, const std::string &data = "");
 
     /**
      * @brief   获取操作码
@@ -88,19 +88,19 @@ class WSFrameMessage {
      * @brief   获取消息内容（只读）
      * @return  消息内容字符串
      */
-    const std::string& getData() const { return m_data; }
+    const std::string &getData() const { return m_data; }
 
     /**
      * @brief   获取消息内容（可写）
      * @return  消息内容字符串引用
      */
-    std::string& getData() { return m_data; }
+    std::string &getData() { return m_data; }
 
     /**
      * @brief   设置消息内容
      * @param   v 消息内容
      */
-    void setData(const std::string& v) { m_data = v; }
+    void setData(const std::string &v) { m_data = v; }
 
    private:
     int m_opcode;        ///< 帧操作码
@@ -155,8 +155,7 @@ class WSSession : public HttpSession {
      * @param   fin    是否为消息最后一帧
      * @return  实际发送字节数，失败返回负值
      */
-    int32_t sendMessage(const std::string& msg, int32_t opcode = WSFrameHead::TEXT_FRAME,
-                        bool fin = true);
+    int32_t sendMessage(const std::string &msg, int32_t opcode = WSFrameHead::TEXT_FRAME, bool fin = true);
 
     /**
      * @brief   主动发送PING帧
@@ -197,7 +196,7 @@ extern IM::ConfigVar<uint32_t>::ptr g_websocket_message_max_size;
  * @param   client  是否为客户端模式
  * @return  WSFrameMessage智能指针，失败返回nullptr
  */
-WSFrameMessage::ptr WSRecvMessage(Stream* stream, bool client, IM::NgxMemPool* pool = nullptr);
+WSFrameMessage::ptr WSRecvMessage(Stream *stream, bool client, IM::NgxMemPool *pool = nullptr);
 
 /**
  * @brief   发送一条WebSocket消息到流
@@ -207,21 +206,21 @@ WSFrameMessage::ptr WSRecvMessage(Stream* stream, bool client, IM::NgxMemPool* p
  * @param   fin     是否为消息最后一帧
  * @return  实际发送字节数，失败返回负值
  */
-int32_t WSSendMessage(Stream* stream, WSFrameMessage::ptr msg, bool client, bool fin);
+int32_t WSSendMessage(Stream *stream, WSFrameMessage::ptr msg, bool client, bool fin);
 
 /**
  * @brief   发送PING帧到流
  * @param   stream  数据流指针
  * @return  发送结果
  */
-int32_t WSPing(Stream* stream);
+int32_t WSPing(Stream *stream);
 
 /**
  * @brief   发送PONG帧到流
  * @param   stream  数据流指针
  * @return  发送结果
  */
-int32_t WSPong(Stream* stream);
+int32_t WSPong(Stream *stream);
 
 /**
  * @brief   发送关闭帧到流（可带状态码与原因）
@@ -230,7 +229,7 @@ int32_t WSPong(Stream* stream);
  * @param   reason  关闭原因（可选，UTF-8）
  * @return  发送结果
  */
-int32_t WSClose(Stream* stream, uint16_t code = 1000, const std::string& reason = "");
+int32_t WSClose(Stream *stream, uint16_t code = 1000, const std::string &reason = "");
 
 }  // namespace IM::http
 

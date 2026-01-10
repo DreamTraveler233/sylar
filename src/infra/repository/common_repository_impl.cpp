@@ -2,19 +2,19 @@
 
 namespace IM::infra::repository {
 
-static constexpr const char* kDBName = "default";
+static constexpr const char *kDBName = "default";
 
 CommonRepositoryImpl::CommonRepositoryImpl(std::shared_ptr<IM::MySQLManager> db_manager)
     : m_db_manager(std::move(db_manager)) {}
 
-bool CommonRepositoryImpl::CreateEmailCode(const model::EmailVerifyCode& code, std::string* err) {
+bool CommonRepositoryImpl::CreateEmailCode(const model::EmailVerifyCode &code, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
 
-    const char* sql =
+    const char *sql =
         "INSERT INTO im_email_verify_code (email, channel, code, status, sent_ip, sent_at, "
         "expire_at, used_at, created_at) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, NOW())";
     auto stmt = db->prepare(sql);
@@ -43,15 +43,15 @@ bool CommonRepositoryImpl::CreateEmailCode(const model::EmailVerifyCode& code, s
     return true;
 }
 
-bool CommonRepositoryImpl::VerifyEmailCode(const std::string& email, const std::string& code,
-                                           const std::string& channel, std::string* err) {
+bool CommonRepositoryImpl::VerifyEmailCode(const std::string &email, const std::string &code,
+                                           const std::string &channel, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
 
-    const char* sql =
+    const char *sql =
         "SELECT id FROM im_email_verify_code WHERE email = ? AND code = ? AND channel = ? AND "
         "status = 1 AND expire_at > NOW() ORDER BY created_at DESC LIMIT 1";
     auto stmt = db->prepare(sql);
@@ -78,14 +78,14 @@ bool CommonRepositoryImpl::VerifyEmailCode(const std::string& email, const std::
     return MarkEmailCodeAsUsed(id, err);
 }
 
-bool CommonRepositoryImpl::MarkEmailCodeAsUsed(const uint64_t id, std::string* err) {
+bool CommonRepositoryImpl::MarkEmailCodeAsUsed(const uint64_t id, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
 
-    const char* sql = "UPDATE im_email_verify_code SET status = 2, used_at = NOW() WHERE id = ?";
+    const char *sql = "UPDATE im_email_verify_code SET status = 2, used_at = NOW() WHERE id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -99,14 +99,13 @@ bool CommonRepositoryImpl::MarkEmailCodeAsUsed(const uint64_t id, std::string* e
     return true;
 }
 
-bool CommonRepositoryImpl::MarkEmailCodeExpiredAsInvalid(std::string* err) {
+bool CommonRepositoryImpl::MarkEmailCodeExpiredAsInvalid(std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
-        "UPDATE im_email_verify_code SET status = 3 WHERE expire_at < NOW() AND status = 1";
+    const char *sql = "UPDATE im_email_verify_code SET status = 3 WHERE expire_at < NOW() AND status = 1";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -119,14 +118,14 @@ bool CommonRepositoryImpl::MarkEmailCodeExpiredAsInvalid(std::string* err) {
     return true;
 }
 
-bool CommonRepositoryImpl::DeleteInvalidEmailCode(std::string* err) {
+bool CommonRepositoryImpl::DeleteInvalidEmailCode(std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
 
-    const char* sql = "DELETE FROM im_email_verify_code WHERE status = 3";
+    const char *sql = "DELETE FROM im_email_verify_code WHERE status = 3";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -139,14 +138,14 @@ bool CommonRepositoryImpl::DeleteInvalidEmailCode(std::string* err) {
     return true;
 }
 
-bool CommonRepositoryImpl::CreateSmsCode(const model::SmsVerifyCode& code, std::string* err) {
+bool CommonRepositoryImpl::CreateSmsCode(const model::SmsVerifyCode &code, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
 
-    const char* sql =
+    const char *sql =
         "INSERT INTO im_sms_verify_code (mobile, channel, code, status, sent_ip, sent_at, "
         "expire_at, used_at, created_at) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, NOW())";
     auto stmt = db->prepare(sql);
@@ -175,15 +174,15 @@ bool CommonRepositoryImpl::CreateSmsCode(const model::SmsVerifyCode& code, std::
     return true;
 }
 
-bool CommonRepositoryImpl::VerifySmsCode(const std::string& mobile, const std::string& code,
-                                         const std::string& channel, std::string* err) {
+bool CommonRepositoryImpl::VerifySmsCode(const std::string &mobile, const std::string &code, const std::string &channel,
+                                         std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
 
-    const char* sql =
+    const char *sql =
         "SELECT id FROM im_sms_verify_code WHERE mobile = ? AND code = ? AND channel = ? AND "
         "status = 1 AND expire_at > NOW() ORDER BY created_at DESC LIMIT 1";
     auto stmt = db->prepare(sql);
@@ -210,14 +209,14 @@ bool CommonRepositoryImpl::VerifySmsCode(const std::string& mobile, const std::s
     return MarkSmsCodeAsUsed(id, err);
 }
 
-bool CommonRepositoryImpl::MarkSmsCodeAsUsed(const uint64_t id, std::string* err) {
+bool CommonRepositoryImpl::MarkSmsCodeAsUsed(const uint64_t id, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
 
-    const char* sql = "UPDATE im_sms_verify_code SET status = 2, used_at = NOW() WHERE id = ?";
+    const char *sql = "UPDATE im_sms_verify_code SET status = 2, used_at = NOW() WHERE id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -231,14 +230,13 @@ bool CommonRepositoryImpl::MarkSmsCodeAsUsed(const uint64_t id, std::string* err
     return true;
 }
 
-bool CommonRepositoryImpl::MarkSmsCodeExpiredAsInvalid(std::string* err) {
+bool CommonRepositoryImpl::MarkSmsCodeExpiredAsInvalid(std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
-        "UPDATE im_sms_verify_code SET status = 3 WHERE expire_at < NOW() AND status = 1";
+    const char *sql = "UPDATE im_sms_verify_code SET status = 3 WHERE expire_at < NOW() AND status = 1";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -251,14 +249,14 @@ bool CommonRepositoryImpl::MarkSmsCodeExpiredAsInvalid(std::string* err) {
     return true;
 }
 
-bool CommonRepositoryImpl::DeleteInvalidSmsCode(std::string* err) {
+bool CommonRepositoryImpl::DeleteInvalidSmsCode(std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
 
-    const char* sql = "DELETE FROM im_sms_verify_code WHERE status = 3";
+    const char *sql = "DELETE FROM im_sms_verify_code WHERE status = 3";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -271,4 +269,4 @@ bool CommonRepositoryImpl::DeleteInvalidSmsCode(std::string* err) {
     return true;
 }
 
-}  // namespace IM::infra
+}  // namespace IM::infra::repository

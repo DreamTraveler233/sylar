@@ -9,22 +9,21 @@ namespace IM {
 static Logger::ptr g_logger = IM_LOG_NAME("system");
 
 static ConfigVar<std::map<std::string, std::map<std::string, std::string>>>::ptr g_sqlite3_dbs =
-    Config::Lookup("sqlite3.dbs", std::map<std::string, std::map<std::string, std::string>>(),
-                   "sqlite3 dbs");
+    Config::Lookup("sqlite3.dbs", std::map<std::string, std::map<std::string, std::string>>(), "sqlite3 dbs");
 
-SQLite3::SQLite3(sqlite3* db) : m_db(db) {}
+SQLite3::SQLite3(sqlite3 *db) : m_db(db) {}
 
 SQLite3::~SQLite3() {
     close();
 }
 
-SQLite3::ptr SQLite3::Create(sqlite3* db) {
+SQLite3::ptr SQLite3::Create(sqlite3 *db) {
     SQLite3::ptr rt(new SQLite3(db));
     return rt;
 }
 
-SQLite3::ptr SQLite3::Create(const std::string& dbname, int flags) {
-    sqlite3* db;
+SQLite3::ptr SQLite3::Create(const std::string &dbname, int flags) {
+    sqlite3 *db;
     if (sqlite3_open_v2(dbname.c_str(), &db, flags, nullptr) == SQLITE_OK) {
         return SQLite3::ptr(new SQLite3(db));
     }
@@ -58,11 +57,11 @@ int SQLite3::close() {
     return rc;
 }
 
-IStmt::ptr SQLite3::prepare(const std::string& stmt) {
+IStmt::ptr SQLite3::prepare(const std::string &stmt) {
     return SQLite3Stmt::Create(shared_from_this(), stmt.c_str());
 }
 
-int SQLite3::execute(const char* format, ...) {
+int SQLite3::execute(const char *format, ...) {
     va_list ap;
     va_start(ap, format);
     int rt = execute(format, ap);
@@ -70,12 +69,12 @@ int SQLite3::execute(const char* format, ...) {
     return rt;
 }
 
-int SQLite3::execute(const char* format, va_list ap) {
+int SQLite3::execute(const char *format, va_list ap) {
     std::shared_ptr<char> sql(sqlite3_vmprintf(format, ap), sqlite3_free);
     return sqlite3_exec(m_db, sql.get(), 0, 0, 0);
 }
 
-ISQLData::ptr SQLite3::query(const char* format, ...) {
+ISQLData::ptr SQLite3::query(const char *format, ...) {
     va_list ap;
     va_start(ap, format);
     std::shared_ptr<char> sql(sqlite3_vmprintf(format, ap), sqlite3_free);
@@ -87,7 +86,7 @@ ISQLData::ptr SQLite3::query(const char* format, ...) {
     return stmt->query();
 }
 
-ISQLData::ptr SQLite3::query(const std::string& sql) {
+ISQLData::ptr SQLite3::query(const std::string &sql) {
     auto stmt = SQLite3Stmt::Create(shared_from_this(), sql.c_str());
     if (!stmt) {
         return nullptr;
@@ -95,7 +94,7 @@ ISQLData::ptr SQLite3::query(const std::string& sql) {
     return stmt->query();
 }
 
-int SQLite3::execute(const std::string& sql) {
+int SQLite3::execute(const std::string &sql) {
     return sqlite3_exec(m_db, sql.c_str(), 0, 0, 0);
 }
 
@@ -103,7 +102,7 @@ int64_t SQLite3::getLastInsertId() {
     return sqlite3_last_insert_rowid(m_db);
 }
 
-SQLite3Stmt::ptr SQLite3Stmt::Create(SQLite3::ptr db, const char* stmt) {
+SQLite3Stmt::ptr SQLite3Stmt::Create(SQLite3::ptr db, const char *stmt) {
     SQLite3Stmt::ptr rt(new SQLite3Stmt(db));
     if (rt->prepare(stmt) != SQLITE_OK) {
         return nullptr;
@@ -115,63 +114,63 @@ int64_t SQLite3Stmt::getLastInsertId() {
     return m_db->getLastInsertId();
 }
 
-int SQLite3Stmt::bindInt8(int idx, const int8_t& value) {
+int SQLite3Stmt::bindInt8(int idx, const int8_t &value) {
     return bind(idx, (int32_t)value);
 }
 
-int SQLite3Stmt::bindUint8(int idx, const uint8_t& value) {
+int SQLite3Stmt::bindUint8(int idx, const uint8_t &value) {
     return bind(idx, (int32_t)value);
 }
 
-int SQLite3Stmt::bindInt16(int idx, const int16_t& value) {
+int SQLite3Stmt::bindInt16(int idx, const int16_t &value) {
     return bind(idx, (int32_t)value);
 }
 
-int SQLite3Stmt::bindUint16(int idx, const uint16_t& value) {
+int SQLite3Stmt::bindUint16(int idx, const uint16_t &value) {
     return bind(idx, (int32_t)value);
 }
 
-int SQLite3Stmt::bindInt32(int idx, const int32_t& value) {
+int SQLite3Stmt::bindInt32(int idx, const int32_t &value) {
     return bind(idx, (int32_t)value);
 }
 
-int SQLite3Stmt::bindUint32(int idx, const uint32_t& value) {
+int SQLite3Stmt::bindUint32(int idx, const uint32_t &value) {
     return bind(idx, (int32_t)value);
 }
 
-int SQLite3Stmt::bindInt64(int idx, const int64_t& value) {
+int SQLite3Stmt::bindInt64(int idx, const int64_t &value) {
     return bind(idx, (int64_t)value);
 }
 
-int SQLite3Stmt::bindUint64(int idx, const uint64_t& value) {
+int SQLite3Stmt::bindUint64(int idx, const uint64_t &value) {
     return bind(idx, (int64_t)value);
 }
 
-int SQLite3Stmt::bindFloat(int idx, const float& value) {
+int SQLite3Stmt::bindFloat(int idx, const float &value) {
     return bind(idx, (double)value);
 }
 
-int SQLite3Stmt::bindDouble(int idx, const double& value) {
+int SQLite3Stmt::bindDouble(int idx, const double &value) {
     return bind(idx, (double)value);
 }
 
-int SQLite3Stmt::bindString(int idx, const char* value) {
+int SQLite3Stmt::bindString(int idx, const char *value) {
     return bind(idx, value);
 }
 
-int SQLite3Stmt::bindString(int idx, const std::string& value) {
+int SQLite3Stmt::bindString(int idx, const std::string &value) {
     return bind(idx, value);
 }
 
-int SQLite3Stmt::bindBlob(int idx, const void* value, int64_t size) {
+int SQLite3Stmt::bindBlob(int idx, const void *value, int64_t size) {
     return bind(idx, value, size);
 }
 
-int SQLite3Stmt::bindBlob(int idx, const std::string& value) {
-    return bind(idx, (void*)&value[0], value.size());
+int SQLite3Stmt::bindBlob(int idx, const std::string &value) {
+    return bind(idx, (void *)&value[0], value.size());
 }
 
-int SQLite3Stmt::bindTime(int idx, const time_t& value) {
+int SQLite3Stmt::bindTime(int idx, const time_t &value) {
     return bind(idx, TimeUtil::TimeToStr(value));
 }
 
@@ -207,66 +206,63 @@ int SQLite3Stmt::bind(int idx, uint64_t value) {
     return sqlite3_bind_int64(m_stmt, idx, value);
 }
 
-int SQLite3Stmt::bind(int idx, const char* value, Type type) {
-    return sqlite3_bind_text(m_stmt, idx, value, strlen(value),
-                             type == COPY ? SQLITE_TRANSIENT : SQLITE_STATIC);
+int SQLite3Stmt::bind(int idx, const char *value, Type type) {
+    return sqlite3_bind_text(m_stmt, idx, value, strlen(value), type == COPY ? SQLITE_TRANSIENT : SQLITE_STATIC);
 }
 
-int SQLite3Stmt::bind(int idx, const void* value, int len, Type type) {
-    return sqlite3_bind_blob(m_stmt, idx, value, len,
-                             type == COPY ? SQLITE_TRANSIENT : SQLITE_STATIC);
+int SQLite3Stmt::bind(int idx, const void *value, int len, Type type) {
+    return sqlite3_bind_blob(m_stmt, idx, value, len, type == COPY ? SQLITE_TRANSIENT : SQLITE_STATIC);
 }
 
-int SQLite3Stmt::bind(int idx, const std::string& value, Type type) {
-    return sqlite3_bind_text(m_stmt, idx, value.c_str(), value.size(),
-                             type == COPY ? SQLITE_TRANSIENT : SQLITE_STATIC);
+int SQLite3Stmt::bind(int idx, const std::string &value, Type type) {
+    return sqlite3_bind_text(m_stmt, idx, value.c_str(), value.size(), type == COPY ? SQLITE_TRANSIENT : SQLITE_STATIC);
 }
 
 int SQLite3Stmt::bind(int idx) {
     return sqlite3_bind_null(m_stmt, idx);
 }
 
-int SQLite3Stmt::bind(const char* name, int32_t value) {
+int SQLite3Stmt::bind(const char *name, int32_t value) {
     auto idx = sqlite3_bind_parameter_index(m_stmt, name);
     return bind(idx, value);
 }
 
-int SQLite3Stmt::bind(const char* name, uint32_t value) {
+int SQLite3Stmt::bind(const char *name, uint32_t value) {
     auto idx = sqlite3_bind_parameter_index(m_stmt, name);
     return bind(idx, value);
 }
 
-int SQLite3Stmt::bind(const char* name, double value) {
+int SQLite3Stmt::bind(const char *name, double value) {
     auto idx = sqlite3_bind_parameter_index(m_stmt, name);
     return bind(idx, value);
 }
 
-int SQLite3Stmt::bind(const char* name, int64_t value) {
+int SQLite3Stmt::bind(const char *name, int64_t value) {
     auto idx = sqlite3_bind_parameter_index(m_stmt, name);
     return bind(idx, value);
 }
 
-int SQLite3Stmt::bind(const char* name, uint64_t value) {
+int SQLite3Stmt::bind(const char *name, uint64_t value) {
     auto idx = sqlite3_bind_parameter_index(m_stmt, name);
     return bind(idx, value);
 }
 
-int SQLite3Stmt::bind(const char* name, const char* value, Type type) {
+int SQLite3Stmt::bind(const char *name, const char *value, Type type) {
     auto idx = sqlite3_bind_parameter_index(m_stmt, name);
     return bind(idx, value, type);
 }
 
-int SQLite3Stmt::bind(const char* name, const void* value, int len, Type type) {
+int SQLite3Stmt::bind(const char *name, const void *value, int len, Type type) {
     auto idx = sqlite3_bind_parameter_index(m_stmt, name);
     return bind(idx, value, len, type);
 }
 
-int SQLite3Stmt::bind(const char* name, const std::string& value, Type type) {
+int SQLite3Stmt::bind(const char *name, const std::string &value, Type type) {
     auto idx = sqlite3_bind_parameter_index(m_stmt, name);
     return bind(idx, value, type);
 }
 
-int SQLite3Stmt::bind(const char* name) {
+int SQLite3Stmt::bind(const char *name) {
     auto idx = sqlite3_bind_parameter_index(m_stmt, name);
     return bind(idx);
 }
@@ -279,7 +275,7 @@ int SQLite3Stmt::reset() {
     return sqlite3_reset(m_stmt);
 }
 
-int SQLite3Stmt::prepare(const char* stmt) {
+int SQLite3Stmt::prepare(const char *stmt) {
     auto rt = finish();
     if (rt != SQLITE_OK) {
         return rt;
@@ -314,7 +310,7 @@ int SQLite3Stmt::execute() {
     return rt;
 }
 
-SQLite3Data::SQLite3Data(std::shared_ptr<SQLite3Stmt> stmt, int err, const char* errstr)
+SQLite3Data::SQLite3Data(std::shared_ptr<SQLite3Stmt> stmt, int err, const char *errstr)
     : m_errno(err), m_first(true), m_errstr(errstr), m_stmt(stmt) {}
 
 int SQLite3Data::getDataCount() {
@@ -334,7 +330,7 @@ int SQLite3Data::getColumnType(int idx) {
 }
 
 std::string SQLite3Data::getColumnName(int idx) {
-    const char* name = sqlite3_column_name(m_stmt->m_stmt, idx);
+    const char *name = sqlite3_column_name(m_stmt->m_stmt, idx);
     if (name) {
         return name;
     }
@@ -387,7 +383,7 @@ double SQLite3Data::getDouble(int idx) {
 }
 
 std::string SQLite3Data::getString(int idx) {
-    const char* v = (const char*)sqlite3_column_text(m_stmt->m_stmt, idx);
+    const char *v = (const char *)sqlite3_column_text(m_stmt->m_stmt, idx);
     if (v) {
         return std::string(v, getColumnBytes(idx));
     }
@@ -395,7 +391,7 @@ std::string SQLite3Data::getString(int idx) {
 }
 
 std::string SQLite3Data::getBlob(int idx) {
-    const char* v = (const char*)sqlite3_column_blob(m_stmt->m_stmt, idx);
+    const char *v = (const char *)sqlite3_column_blob(m_stmt->m_stmt, idx);
     if (v) {
         return std::string(v, getColumnType(idx));
     }
@@ -434,7 +430,7 @@ SQLite3Transaction::~SQLite3Transaction() {
     }
 }
 
-int SQLite3Transaction::execute(const char* format, ...) {
+int SQLite3Transaction::execute(const char *format, ...) {
     va_list ap;
     va_start(ap, format);
     int rt = m_db->execute(format, ap);
@@ -442,7 +438,7 @@ int SQLite3Transaction::execute(const char* format, ...) {
     return rt;
 }
 
-int SQLite3Transaction::execute(const std::string& sql) {
+int SQLite3Transaction::execute(const std::string &sql) {
     return m_db->execute(sql);
 }
 
@@ -452,7 +448,7 @@ int64_t SQLite3Transaction::getLastInsertId() {
 
 bool SQLite3Transaction::begin() {
     if (m_status == 0) {
-        const char* sql = "BEGIN";
+        const char *sql = "BEGIN";
         if (m_type == IMMEDIATE) {
             sql = "BEGIN IMMEDIATE";
         } else if (m_type == EXCLUSIVE) {
@@ -492,23 +488,22 @@ bool SQLite3Transaction::rollback() {
 SQLite3Manager::SQLite3Manager() : m_maxConn(10) {}
 
 SQLite3Manager::~SQLite3Manager() {
-    for (auto& i : m_conns) {
-        for (auto& n : i.second) {
+    for (auto &i : m_conns) {
+        for (auto &n : i.second) {
             delete n;
         }
     }
 }
 
-SQLite3::ptr SQLite3Manager::get(const std::string& name) {
+SQLite3::ptr SQLite3Manager::get(const std::string &name) {
     MutexType::Lock lock(m_mutex);
     auto it = m_conns.find(name);
     if (it != m_conns.end()) {
         if (!it->second.empty()) {
-            SQLite3* rt = it->second.front();
+            SQLite3 *rt = it->second.front();
             it->second.pop_front();
             lock.unlock();
-            return SQLite3::ptr(
-                rt, std::bind(&SQLite3Manager::freeSQLite3, this, name, std::placeholders::_1));
+            return SQLite3::ptr(rt, std::bind(&SQLite3Manager::freeSQLite3, this, name, std::placeholders::_1));
         }
     }
     auto config = g_sqlite3_dbs->getValue();
@@ -535,13 +530,13 @@ SQLite3::ptr SQLite3Manager::get(const std::string& name) {
         path = EnvMgr::GetInstance()->getAbsoluteWorkPath(path);
     }
 
-    sqlite3* db;
+    sqlite3 *db;
     if (sqlite3_open_v2(path.c_str(), &db, SQLite3::CREATE | SQLite3::READWRITE, nullptr)) {
         IM_LOG_ERROR(g_logger) << "open db name=" << name << " path=" << path << " fail";
         return nullptr;
     }
 
-    SQLite3* rt = new SQLite3(db);
+    SQLite3 *rt = new SQLite3(db);
     std::string sql = GetParamValue<std::string>(args, "sql");
     if (!sql.empty()) {
         if (rt->execute(sql)) {
@@ -552,21 +547,19 @@ SQLite3::ptr SQLite3Manager::get(const std::string& name) {
         }
     }
     rt->m_lastUsedTime = time(0);
-    return SQLite3::ptr(rt,
-                        std::bind(&SQLite3Manager::freeSQLite3, this, name, std::placeholders::_1));
+    return SQLite3::ptr(rt, std::bind(&SQLite3Manager::freeSQLite3, this, name, std::placeholders::_1));
 }
 
-void SQLite3Manager::registerSQLite3(const std::string& name,
-                                     const std::map<std::string, std::string>& params) {
+void SQLite3Manager::registerSQLite3(const std::string &name, const std::map<std::string, std::string> &params) {
     MutexType::Lock lock(m_mutex);
     m_dbDefines[name] = params;
 }
 
 void SQLite3Manager::checkConnection(int sec) {
     time_t now = time(0);
-    std::vector<SQLite3*> conns;
+    std::vector<SQLite3 *> conns;
     MutexType::Lock lock(m_mutex);
-    for (auto& i : m_conns) {
+    for (auto &i : m_conns) {
         for (auto it = i.second.begin(); it != i.second.end();) {
             if ((int)(now - (*it)->m_lastUsedTime) >= sec) {
                 auto tmp = *it;
@@ -578,12 +571,12 @@ void SQLite3Manager::checkConnection(int sec) {
         }
     }
     lock.unlock();
-    for (auto& i : conns) {
+    for (auto &i : conns) {
         delete i;
     }
 }
 
-int SQLite3Manager::execute(const std::string& name, const char* format, ...) {
+int SQLite3Manager::execute(const std::string &name, const char *format, ...) {
     va_list ap;
     va_start(ap, format);
     int rt = execute(name, format, ap);
@@ -591,17 +584,16 @@ int SQLite3Manager::execute(const std::string& name, const char* format, ...) {
     return rt;
 }
 
-int SQLite3Manager::execute(const std::string& name, const char* format, va_list ap) {
+int SQLite3Manager::execute(const std::string &name, const char *format, va_list ap) {
     auto conn = get(name);
     if (!conn) {
-        IM_LOG_ERROR(g_logger) << "SQLite3Manager::execute, get(" << name
-                               << ") fail, format=" << format;
+        IM_LOG_ERROR(g_logger) << "SQLite3Manager::execute, get(" << name << ") fail, format=" << format;
         return -1;
     }
     return conn->execute(format, ap);
 }
 
-int SQLite3Manager::execute(const std::string& name, const std::string& sql) {
+int SQLite3Manager::execute(const std::string &name, const std::string &sql) {
     auto conn = get(name);
     if (!conn) {
         IM_LOG_ERROR(g_logger) << "SQLite3Manager::execute, get(" << name << ") fail, sql=" << sql;
@@ -610,7 +602,7 @@ int SQLite3Manager::execute(const std::string& name, const std::string& sql) {
     return conn->execute(sql);
 }
 
-ISQLData::ptr SQLite3Manager::query(const std::string& name, const char* format, ...) {
+ISQLData::ptr SQLite3Manager::query(const std::string &name, const char *format, ...) {
     va_list ap;
     va_start(ap, format);
     auto res = query(name, format, ap);
@@ -618,17 +610,16 @@ ISQLData::ptr SQLite3Manager::query(const std::string& name, const char* format,
     return res;
 }
 
-ISQLData::ptr SQLite3Manager::query(const std::string& name, const char* format, va_list ap) {
+ISQLData::ptr SQLite3Manager::query(const std::string &name, const char *format, va_list ap) {
     auto conn = get(name);
     if (!conn) {
-        IM_LOG_ERROR(g_logger) << "SQLite3Manager::query, get(" << name
-                               << ") fail, format=" << format;
+        IM_LOG_ERROR(g_logger) << "SQLite3Manager::query, get(" << name << ") fail, format=" << format;
         return nullptr;
     }
     return conn->query(format, ap);
 }
 
-ISQLData::ptr SQLite3Manager::query(const std::string& name, const std::string& sql) {
+ISQLData::ptr SQLite3Manager::query(const std::string &name, const std::string &sql) {
     auto conn = get(name);
     if (!conn) {
         IM_LOG_ERROR(g_logger) << "SQLite3Manager::query, get(" << name << ") fail, sql=" << sql;
@@ -637,7 +628,7 @@ ISQLData::ptr SQLite3Manager::query(const std::string& name, const std::string& 
     return conn->query(sql);
 }
 
-SQLite3Transaction::ptr SQLite3Manager::openTransaction(const std::string& name, bool auto_commit) {
+SQLite3Transaction::ptr SQLite3Manager::openTransaction(const std::string &name, bool auto_commit) {
     auto conn = get(name);
     if (!conn) {
         IM_LOG_ERROR(g_logger) << "SQLite3Manager::openTransaction, get(" << name << ") fail";
@@ -647,7 +638,7 @@ SQLite3Transaction::ptr SQLite3Manager::openTransaction(const std::string& name,
     return trans;
 }
 
-void SQLite3Manager::freeSQLite3(const std::string& name, SQLite3* m) {
+void SQLite3Manager::freeSQLite3(const std::string &name, SQLite3 *m) {
     if (m->m_db) {
         MutexType::Lock lock(m_mutex);
         if (m_conns[name].size() < m_maxConn) {

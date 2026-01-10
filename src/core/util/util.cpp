@@ -12,8 +12,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "core/io/coroutine.hpp"
 #include "core/base/macro.hpp"
+#include "core/io/coroutine.hpp"
 
 namespace IM {
 static auto g_logger = IM_LOG_NAME("system");
@@ -26,14 +26,14 @@ uint64_t GetCoroutineId() {
     return Coroutine::GetCoroutineId();
 }
 
-void Backtrace(std::vector<std::string>& bt, int size, int skip) {
+void Backtrace(std::vector<std::string> &bt, int size, int skip) {
     // 分配存储堆栈地址的数组空间
-    void** array = (void**)malloc(sizeof(void*) * size);
+    void **array = (void **)malloc(sizeof(void *) * size);
     // 获取函数调用堆栈地址
     size_t s = ::backtrace(array, size);
 
     // 将地址转换为可读的符号字符串
-    char** strings = backtrace_symbols(array, s);
+    char **strings = backtrace_symbols(array, s);
     if (NULL == strings) {
         IM_LOG_ERROR(g_logger) << "backtrace_symbols error";
         free(array);
@@ -50,7 +50,7 @@ void Backtrace(std::vector<std::string>& bt, int size, int skip) {
     free(strings);
 }
 
-std::string BacktraceToString(int size, int skip, const std::string& prefix) {
+std::string BacktraceToString(int size, int skip, const std::string &prefix) {
     std::vector<std::string> bt;
     Backtrace(bt, size, skip);
     std::stringstream ss;
@@ -61,16 +61,15 @@ std::string BacktraceToString(int size, int skip, const std::string& prefix) {
     return ss.str();
 }
 
-void FSUtil::ListAllFile(std::vector<std::string>& files, const std::string& path,
-                         const std::string& subfix) {
+void FSUtil::ListAllFile(std::vector<std::string> &files, const std::string &path, const std::string &subfix) {
     if (access(path.c_str(), 0) != 0) {
         return;
     }
-    DIR* dir = opendir(path.c_str());
+    DIR *dir = opendir(path.c_str());
     if (dir == nullptr) {
         return;
     }
-    struct dirent* dp = nullptr;
+    struct dirent *dp = nullptr;
     while ((dp = readdir(dir)) != nullptr) {
         if (dp->d_type == DT_DIR) {
             if (!strcmp(dp->d_name, ".") || !strcmp(dp->d_name, "..")) {
@@ -94,7 +93,7 @@ void FSUtil::ListAllFile(std::vector<std::string>& files, const std::string& pat
     closedir(dir);
 }
 
-static int __lstat(const char* file, struct stat* st = nullptr) {
+static int __lstat(const char *file, struct stat *st = nullptr) {
     struct stat lst;
     int ret = lstat(file, &lst);
     if (st) {
@@ -103,19 +102,19 @@ static int __lstat(const char* file, struct stat* st = nullptr) {
     return ret;
 }
 
-static int __mkdir(const char* dirname) {
+static int __mkdir(const char *dirname) {
     if (access(dirname, F_OK) == 0) {
         return 0;
     }
     return mkdir(dirname, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
 
-bool FSUtil::Mkdir(const std::string& dirname) {
+bool FSUtil::Mkdir(const std::string &dirname) {
     if (__lstat(dirname.c_str()) == 0) {
         return true;
     }
-    char* path = strdup(dirname.c_str());
-    char* ptr = strchr(path + 1, '/');
+    char *path = strdup(dirname.c_str());
+    char *ptr = strchr(path + 1, '/');
     do {
         for (; ptr; *ptr = '/', ptr = strchr(ptr + 1, '/')) {
             *ptr = '\0';
@@ -135,7 +134,7 @@ bool FSUtil::Mkdir(const std::string& dirname) {
     return false;
 }
 
-bool FSUtil::IsRunningPidfile(const std::string& pidfile) {
+bool FSUtil::IsRunningPidfile(const std::string &pidfile) {
     if (__lstat(pidfile.c_str()) != 0) {
         return false;
     }
@@ -157,14 +156,14 @@ bool FSUtil::IsRunningPidfile(const std::string& pidfile) {
     return true;
 }
 
-bool FSUtil::Unlink(const std::string& filename, bool exist) {
+bool FSUtil::Unlink(const std::string &filename, bool exist) {
     if (!exist && __lstat(filename.c_str())) {
         return true;
     }
     return ::unlink(filename.c_str()) == 0;
 }
 
-bool FSUtil::Rm(const std::string& path) {
+bool FSUtil::Rm(const std::string &path) {
     struct stat st;
     if (lstat(path.c_str(), &st)) {
         return true;
@@ -173,13 +172,13 @@ bool FSUtil::Rm(const std::string& path) {
         return Unlink(path);
     }
 
-    DIR* dir = opendir(path.c_str());
+    DIR *dir = opendir(path.c_str());
     if (!dir) {
         return false;
     }
 
     bool ret = true;
-    struct dirent* dp = nullptr;
+    struct dirent *dp = nullptr;
     while ((dp = readdir(dir))) {
         if (!strcmp(dp->d_name, ".") || !strcmp(dp->d_name, "..")) {
             continue;
@@ -194,18 +193,18 @@ bool FSUtil::Rm(const std::string& path) {
     return ret;
 }
 
-bool FSUtil::Mv(const std::string& from, const std::string& to) {
+bool FSUtil::Mv(const std::string &from, const std::string &to) {
     if (!Rm(to)) {
         return false;
     }
     return rename(from.c_str(), to.c_str()) == 0;
 }
 
-bool FSUtil::Realpath(const std::string& path, std::string& rpath) {
+bool FSUtil::Realpath(const std::string &path, std::string &rpath) {
     if (__lstat(path.c_str())) {
         return false;
     }
-    char* ptr = ::realpath(path.c_str(), nullptr);
+    char *ptr = ::realpath(path.c_str(), nullptr);
     if (nullptr == ptr) {
         return false;
     }
@@ -214,14 +213,14 @@ bool FSUtil::Realpath(const std::string& path, std::string& rpath) {
     return true;
 }
 
-bool FSUtil::Symlink(const std::string& from, const std::string& to) {
+bool FSUtil::Symlink(const std::string &from, const std::string &to) {
     if (!Rm(to)) {
         return false;
     }
     return ::symlink(from.c_str(), to.c_str()) == 0;
 }
 
-std::string FSUtil::Dirname(const std::string& filename) {
+std::string FSUtil::Dirname(const std::string &filename) {
     if (filename.empty()) {
         return ".";
     }
@@ -235,7 +234,7 @@ std::string FSUtil::Dirname(const std::string& filename) {
     }
 }
 
-std::string FSUtil::Basename(const std::string& filename) {
+std::string FSUtil::Basename(const std::string &filename) {
     if (filename.empty()) {
         return filename;
     }
@@ -247,14 +246,12 @@ std::string FSUtil::Basename(const std::string& filename) {
     }
 }
 
-bool FSUtil::OpenForRead(std::ifstream& ifs, const std::string& filename,
-                         std::ios_base::openmode mode) {
+bool FSUtil::OpenForRead(std::ifstream &ifs, const std::string &filename, std::ios_base::openmode mode) {
     ifs.open(filename.c_str(), mode);
     return ifs.is_open();
 }
 
-bool FSUtil::OpenForWrite(std::ofstream& ofs, const std::string& filename,
-                          std::ios_base::openmode mode) {
+bool FSUtil::OpenForWrite(std::ofstream &ofs, const std::string &filename, std::ios_base::openmode mode) {
     ofs.open(filename.c_str(), mode);
     if (!ofs.is_open()) {
         std::string dir = Dirname(filename);
@@ -264,7 +261,7 @@ bool FSUtil::OpenForWrite(std::ofstream& ofs, const std::string& filename,
     return ofs.is_open();
 }
 
-bool YamlToJson(const YAML::Node& ynode, Json::Value& jnode) {
+bool YamlToJson(const YAML::Node &ynode, Json::Value &jnode) {
     try {
         if (ynode.IsScalar()) {
             Json::Value v(ynode.Scalar());
@@ -296,7 +293,7 @@ bool YamlToJson(const YAML::Node& ynode, Json::Value& jnode) {
     return true;
 }
 
-bool JsonToYaml(const Json::Value& jnode, YAML::Node& ynode) {
+bool JsonToYaml(const Json::Value &jnode, YAML::Node &ynode) {
     try {
         if (jnode.isArray()) {
             for (int i = 0; i < (int)jnode.size(); ++i) {
@@ -333,8 +330,8 @@ std::string GetHostName() {
 }
 
 in_addr_t GetIPv4Inet() {
-    struct ifaddrs* ifas = nullptr;
-    struct ifaddrs* ifa = nullptr;
+    struct ifaddrs *ifas = nullptr;
+    struct ifaddrs *ifa = nullptr;
 
     in_addr_t localhost = inet_addr("127.0.0.1");
     if (getifaddrs(&ifas)) {
@@ -351,7 +348,7 @@ in_addr_t GetIPv4Inet() {
         if (!strncasecmp(ifa->ifa_name, "lo", 2)) {
             continue;
         }
-        ipv4 = ((struct sockaddr_in*)ifa->ifa_addr)->sin_addr.s_addr;
+        ipv4 = ((struct sockaddr_in *)ifa->ifa_addr)->sin_addr.s_addr;
         if (ipv4 == localhost) {
             continue;
         }
@@ -375,54 +372,54 @@ std::string GetIPv4() {
     return ip;
 }
 
-std::string ToUpper(const std::string& name) {
+std::string ToUpper(const std::string &name) {
     std::string rt = name;
     std::transform(rt.begin(), rt.end(), rt.begin(), ::toupper);
     return rt;
 }
 
-std::string ToLower(const std::string& name) {
+std::string ToLower(const std::string &name) {
     std::string rt = name;
     std::transform(rt.begin(), rt.end(), rt.begin(), ::tolower);
     return rt;
 }
 
-int8_t TypeUtil::ToChar(const std::string& str) {
+int8_t TypeUtil::ToChar(const std::string &str) {
     if (str.empty()) {
         return 0;
     }
     return *str.begin();
 }
 
-int64_t TypeUtil::Atoi(const std::string& str) {
+int64_t TypeUtil::Atoi(const std::string &str) {
     if (str.empty()) {
         return 0;
     }
     return strtoull(str.c_str(), nullptr, 10);
 }
 
-double TypeUtil::Atof(const std::string& str) {
+double TypeUtil::Atof(const std::string &str) {
     if (str.empty()) {
         return 0;
     }
     return atof(str.c_str());
 }
 
-int8_t TypeUtil::ToChar(const char* str) {
+int8_t TypeUtil::ToChar(const char *str) {
     if (str == nullptr) {
         return 0;
     }
     return str[0];
 }
 
-int64_t TypeUtil::Atoi(const char* str) {
+int64_t TypeUtil::Atoi(const char *str) {
     if (str == nullptr) {
         return 0;
     }
     return strtoull(str, nullptr, 10);
 }
 
-double TypeUtil::Atof(const char* str) {
+double TypeUtil::Atof(const char *str) {
     if (str == nullptr) {
         return 0;
     }

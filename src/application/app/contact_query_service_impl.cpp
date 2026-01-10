@@ -3,7 +3,7 @@
 namespace IM::app {
 
 Result<IM::dto::ContactDetails> ContactQueryServiceImpl::GetContactDetail(const uint64_t owner_id,
-                                                                         const uint64_t target_id) {
+                                                                          const uint64_t target_id) {
     Result<IM::dto::ContactDetails> result;
 
     IM::dto::ContactDetails out;

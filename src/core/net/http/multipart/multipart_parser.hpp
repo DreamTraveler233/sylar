@@ -1,3 +1,12 @@
+/**
+ * @file multipart_parser.hpp
+ * @brief 网络通信相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 网络通信相关。
+ */
+
 #ifndef __IM_NET_HTTP_MULTIPART_PARSER_HPP__
 #define __IM_NET_HTTP_MULTIPART_PARSER_HPP__
 
@@ -25,12 +34,12 @@ class MultipartParser {
 
     // Parse using body string and content_type header (contains boundary)
     // On success return true and fill parts, otherwise false and optional err message
-    virtual bool Parse(const std::string& body, const std::string& content_type,
-                       const std::string& temp_dir, std::vector<Part>& parts,
-                       std::string* err = nullptr) = 0;
+    virtual bool Parse(const std::string &body, const std::string &content_type, const std::string &temp_dir,
+                       std::vector<Part> &parts, std::string *err = nullptr) = 0;
 
     // Optional helper: Parse from request (not strictly required for this PR)
-    // virtual bool ParseFromRequest(const IM::http::HttpRequest::ptr& req, std::vector<Part>& parts, std::string* err = nullptr) = 0;
+    // virtual bool ParseFromRequest(const IM::http::HttpRequest::ptr& req, std::vector<Part>& parts, std::string* err =
+    // nullptr) = 0;
 };
 
 // Factory helper to create a default implementation

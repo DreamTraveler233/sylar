@@ -1,7 +1,6 @@
-#include <sys/time.h>
-
 #include <cstring>
 #include <ctime>
+#include <sys/time.h>
 
 #include "core/util/time_util.hpp"
 
@@ -24,7 +23,7 @@ uint64_t TimeUtil::NowToS() {
     return tv.tv_sec;            // 返回秒数
 }
 
-uint64_t TimeUtil::Now(int& year, int& month, int& day, int& hour, int& minute, int& second) {
+uint64_t TimeUtil::Now(int &year, int &month, int &day, int &hour, int &minute, int &second) {
     struct tm tm;
     time_t t = time(nullptr);  // 获取当前时间戳（Unix 时间戳）
     localtime_r(&t, &tm);      // 线程安全地将时间戳转换为本地时间
@@ -48,7 +47,7 @@ std::string TimeUtil::NowToString() {
     return std::string(buf, n);  // 使用buf的前n个字符构造string对象
 }
 
-time_t TimeUtil::StrToTime(const char* str, const char* format) {
+time_t TimeUtil::StrToTime(const char *str, const char *format) {
     struct tm t;
     memset(&t, 0, sizeof(t));
     if (!strptime(str, format, &t)) {
@@ -57,7 +56,7 @@ time_t TimeUtil::StrToTime(const char* str, const char* format) {
     return mktime(&t);
 }
 
-std::string TimeUtil::TimeToStr(time_t timestamp, const std::string& format) {
+std::string TimeUtil::TimeToStr(time_t timestamp, const std::string &format) {
     struct tm tm;
     time_t t = timestamp;
     localtime_r(&t, &tm);  // 线程安全地将时间戳转换为本地时间

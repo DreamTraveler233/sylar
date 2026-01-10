@@ -1,9 +1,17 @@
+/**
+ * @file cache_status.hpp
+ * @brief 数据结构相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 数据结构相关。
+ */
+
 #ifndef __IM_DS_CACHE_STATUS_HPP__
 #define __IM_DS_CACHE_STATUS_HPP__
 
-#include <stdint.h>
-
 #include <sstream>
+#include <stdint.h>
 #include <string>
 
 #include "util.hpp"
@@ -36,7 +44,7 @@ class CacheStatus {
 
     double getHitRate() const { return m_get ? (m_hit * 1.0 / m_get) : 0; }
 
-    void merge(const CacheStatus& o) {
+    void merge(const CacheStatus &o) {
         m_get += o.m_get;
         m_set += o.m_set;
         m_del += o.m_del;
@@ -48,8 +56,7 @@ class CacheStatus {
     std::string toString() const {
         std::stringstream ss;
         ss << "get=" << m_get << " set=" << m_set << " del=" << m_del << " prune=" << m_prune
-           << " timeout=" << m_timeout << " hit=" << m_hit << " hit_rate=" << (getHitRate() * 100.0)
-           << "%";
+           << " timeout=" << m_timeout << " hit=" << m_hit << " hit_rate=" << (getHitRate() * 100.0) << "%";
         return ss.str();
     }
 
@@ -64,4 +71,4 @@ class CacheStatus {
 
 }  // namespace IM::ds
 
-#endif // __IM_DS_CACHE_STATUS_HPP__
+#endif  // __IM_DS_CACHE_STATUS_HPP__

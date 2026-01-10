@@ -1,3 +1,12 @@
+/**
+ * @file db.hpp
+ * @brief 数据库访问相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 数据库访问相关。
+ */
+
 #ifndef __IM_INFRA_DB_DB_HPP__
 #define __IM_INFRA_DB_DB_HPP__
 
@@ -11,7 +20,7 @@ class ISQLData {
     virtual ~ISQLData() = default;
 
     virtual int getErrno() const = 0;
-    virtual const std::string& getErrStr() const = 0;
+    virtual const std::string &getErrStr() const = 0;
 
     virtual int getDataCount() = 0;
     virtual int getColumnCount() = 0;
@@ -39,37 +48,37 @@ class ISQLData {
 class ISQLUpdate {
    public:
     virtual ~ISQLUpdate() = default;
-    virtual int execute(const char* format, ...) = 0;
-    virtual int execute(const std::string& sql) = 0;
+    virtual int execute(const char *format, ...) = 0;
+    virtual int execute(const std::string &sql) = 0;
     virtual int64_t getLastInsertId() = 0;
 };
 
 class ISQLQuery {
    public:
     virtual ~ISQLQuery() = default;
-    virtual ISQLData::ptr query(const char* format, ...) = 0;
-    virtual ISQLData::ptr query(const std::string& sql) = 0;
+    virtual ISQLData::ptr query(const char *format, ...) = 0;
+    virtual ISQLData::ptr query(const std::string &sql) = 0;
 };
 
 class IStmt {
    public:
     typedef std::shared_ptr<IStmt> ptr;
     virtual ~IStmt() = default;
-    virtual int bindInt8(int idx, const int8_t& value) = 0;
-    virtual int bindUint8(int idx, const uint8_t& value) = 0;
-    virtual int bindInt16(int idx, const int16_t& value) = 0;
-    virtual int bindUint16(int idx, const uint16_t& value) = 0;
-    virtual int bindInt32(int idx, const int32_t& value) = 0;
-    virtual int bindUint32(int idx, const uint32_t& value) = 0;
-    virtual int bindInt64(int idx, const int64_t& value) = 0;
-    virtual int bindUint64(int idx, const uint64_t& value) = 0;
-    virtual int bindFloat(int idx, const float& value) = 0;
-    virtual int bindDouble(int idx, const double& value) = 0;
-    virtual int bindString(int idx, const char* value) = 0;
-    virtual int bindString(int idx, const std::string& value) = 0;
-    virtual int bindBlob(int idx, const void* value, int64_t size) = 0;
-    virtual int bindBlob(int idx, const std::string& value) = 0;
-    virtual int bindTime(int idx, const time_t& value) = 0;
+    virtual int bindInt8(int idx, const int8_t &value) = 0;
+    virtual int bindUint8(int idx, const uint8_t &value) = 0;
+    virtual int bindInt16(int idx, const int16_t &value) = 0;
+    virtual int bindUint16(int idx, const uint16_t &value) = 0;
+    virtual int bindInt32(int idx, const int32_t &value) = 0;
+    virtual int bindUint32(int idx, const uint32_t &value) = 0;
+    virtual int bindInt64(int idx, const int64_t &value) = 0;
+    virtual int bindUint64(int idx, const uint64_t &value) = 0;
+    virtual int bindFloat(int idx, const float &value) = 0;
+    virtual int bindDouble(int idx, const double &value) = 0;
+    virtual int bindString(int idx, const char *value) = 0;
+    virtual int bindString(int idx, const std::string &value) = 0;
+    virtual int bindBlob(int idx, const void *value, int64_t size) = 0;
+    virtual int bindBlob(int idx, const std::string &value) = 0;
+    virtual int bindTime(int idx, const time_t &value) = 0;
     virtual int bindNull(int idx) = 0;
 
     virtual int execute() = 0;
@@ -94,7 +103,7 @@ class IDB : public ISQLUpdate, public ISQLQuery {
     typedef std::shared_ptr<IDB> ptr;
     virtual ~IDB() = default;
 
-    virtual IStmt::ptr prepare(const std::string& stmt) = 0;
+    virtual IStmt::ptr prepare(const std::string &stmt) = 0;
     virtual int getErrno() = 0;
     virtual std::string getErrStr() = 0;
     virtual ITransaction::ptr openTransaction(bool auto_commit = false) = 0;

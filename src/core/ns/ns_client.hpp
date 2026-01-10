@@ -1,8 +1,17 @@
+/**
+ * @file ns_client.hpp
+ * @brief 名称服务相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 名称服务相关。
+ */
+
 #ifndef __IM_NS_NS_CLIENT_HPP__
 #define __IM_NS_NS_CLIENT_HPP__
 
-#include "core/ns/ns_protocol.hpp"
 #include "core/net/rock/rock_stream.hpp"
+#include "core/ns/ns_protocol.hpp"
 
 namespace IM::ns {
 class NSClient : public RockConnection {
@@ -11,13 +20,13 @@ class NSClient : public RockConnection {
     NSClient();
     ~NSClient();
 
-    const std::set<std::string>& getQueryDomains();
-    void setQueryDomains(const std::set<std::string>& v);
+    const std::set<std::string> &getQueryDomains();
+    void setQueryDomains(const std::set<std::string> &v);
 
-    void addQueryDomain(const std::string& domain);
-    void delQueryDomain(const std::string& domain);
+    void addQueryDomain(const std::string &domain);
+    void delQueryDomain(const std::string &domain);
 
-    bool hasQueryDomain(const std::string& domain);
+    bool hasQueryDomain(const std::string &domain);
 
     RockResult::ptr query();
 
@@ -43,4 +52,4 @@ class NSClient : public RockConnection {
 
 }  // namespace IM::ns
 
-#endif // __IM_NS_NS_CLIENT_HPP__
+#endif  // __IM_NS_NS_CLIENT_HPP__

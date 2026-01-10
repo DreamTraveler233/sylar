@@ -1,3 +1,12 @@
+/**
+ * @file protocol.hpp
+ * @brief 网络通信相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 网络通信相关。
+ */
+
 #ifndef __IM_NET_PROTOCOL_HPP__
 #define __IM_NET_PROTOCOL_HPP__
 
@@ -19,11 +28,11 @@ class Message {
     virtual bool parseFromByteArray(ByteArray::ptr bytearray) = 0;
 
     virtual std::string toString() const = 0;
-    virtual const std::string& getName() const = 0;
+    virtual const std::string &getName() const = 0;
     virtual int32_t getType() const = 0;
 
-    const std::string& getTraceId() const { return m_traceId; }
-    void setTraceId(const std::string& v) { m_traceId = v; }
+    const std::string &getTraceId() const { return m_traceId; }
+    void setTraceId(const std::string &v) { m_traceId = v; }
 
    protected:
     std::string m_traceId;
@@ -67,12 +76,12 @@ class Response : public Message {
     uint32_t getSn() const { return m_sn; }
     uint32_t getCmd() const { return m_cmd; }
     uint32_t getResult() const { return m_result; }
-    const std::string& getResultStr() const { return m_resultStr; }
+    const std::string &getResultStr() const { return m_resultStr; }
 
     void setSn(uint32_t v) { m_sn = v; }
     void setCmd(uint32_t v) { m_cmd = v; }
     void setResult(uint32_t v) { m_result = v; }
-    void setResultStr(const std::string& v) { m_resultStr = v; }
+    void setResultStr(const std::string &v) { m_resultStr = v; }
 
     virtual bool serializeToByteArray(ByteArray::ptr bytearray) override;
     virtual bool parseFromByteArray(ByteArray::ptr bytearray) override;
@@ -101,4 +110,4 @@ class Notify : public Message {
 
 }  // namespace IM
 
-#endif // __IM_NET_PROTOCOL_HPP__
+#endif  // __IM_NET_PROTOCOL_HPP__

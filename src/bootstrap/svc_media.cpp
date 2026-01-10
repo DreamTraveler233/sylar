@@ -1,10 +1,12 @@
-#include "application/app/media_service_impl.hpp"
-
 #include "core/base/macro.hpp"
 #include "core/system/application.hpp"
+
 #include "infra/db/mysql.hpp"
 #include "infra/repository/media_repository_impl.hpp"
 #include "infra/storage/istorage.hpp"
+
+#include "application/app/media_service_impl.hpp"
+
 #include "interface/media/media_module.hpp"
 
 /**
@@ -15,19 +17,16 @@
  * - 合并分片并生成 MediaFile 记录
  * - 查询 MediaFile 信息（供 user/avatar 等业务使用）
  */
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     IM::Application app;
-    if (!app.init(argc, argv))
-    {
+    if (!app.init(argc, argv)) {
         IM_LOG_ERROR(IM_LOG_ROOT()) << "svc_media init failed";
         return 1;
     }
 
     std::srand(std::time(nullptr));
 
-    auto db_manager =
-        std::shared_ptr<IM::MySQLManager>(IM::MySQLMgr::GetInstance(), [](IM::MySQLManager *) {});
+    auto db_manager = std::shared_ptr<IM::MySQLManager>(IM::MySQLMgr::GetInstance(), [](IM::MySQLManager *) {});
 
     auto media_repo = std::make_shared<IM::infra::repository::MediaRepositoryImpl>(db_manager);
     auto storage_adapter = IM::infra::storage::CreateLocalStorageAdapter();

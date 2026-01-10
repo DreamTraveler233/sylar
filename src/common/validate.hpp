@@ -1,19 +1,26 @@
+/**
+ * @file validate.hpp
+ * @brief 公共组件
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 公共组件。
+ */
+
 #ifndef __IM_COMMON_VALIDATE_HPP__
 #define __IM_COMMON_VALIDATE_HPP__
 
 #include <jsoncpp/json/json.h>
-
 #include <string>
 #include <vector>
 
 namespace IM::common {
 
 // 判断字符串是否为 32 字符十六进制 (hex)
-inline bool isHex32(const std::string& s) {
+inline bool isHex32(const std::string &s) {
     if (s.size() != 32) return false;
     for (char c : s) {
-        if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')))
-            return false;
+        if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) return false;
     }
     return true;
 }
@@ -21,14 +28,13 @@ inline bool isHex32(const std::string& s) {
 // 从 JSON 数组中解析 msg_ids：支持字符串数组 (32 hex) 或数字数组 (uint64)
 // strict = true 时：只接受 string 且必须为 isHex32；返回 false 则表示解析失败
 // strict = false 时：可接收 uint64 -> 转成 string
-inline bool parseMsgIdsFromJson(const Json::Value& v, std::vector<std::string>& out,
-                                bool strict = true) {
+inline bool parseMsgIdsFromJson(const Json::Value &v, std::vector<std::string> &out, bool strict = true) {
     out.clear();
     if (!v.isArray()) {
         return false;
     }
 
-    for (auto& it : v) {
+    for (auto &it : v) {
         if (it.isString()) {
             auto s = it.asString();
             if (strict && !isHex32(s)) {

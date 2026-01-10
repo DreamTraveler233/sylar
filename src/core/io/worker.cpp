@@ -4,10 +4,10 @@
 #include "core/util/util.hpp"
 
 namespace IM {
-static auto g_worker_config = Config::Lookup(
-    "workers", std::map<std::string, std::map<std::string, std::string>>(), "worker config");
+static auto g_worker_config =
+    Config::Lookup("workers", std::map<std::string, std::map<std::string, std::string>>(), "worker config");
 
-WorkerGroup::WorkerGroup(uint32_t batch_size, Scheduler* s)
+WorkerGroup::WorkerGroup(uint32_t batch_size, Scheduler *s)
     : m_batchSize(batch_size), m_finish(false), m_scheduler(s), m_sem(batch_size) {}
 
 WorkerGroup::~WorkerGroup() {
@@ -39,7 +39,7 @@ void WorkerManager::add(Scheduler::ptr s) {
     m_datas[s->getName()].push_back(s);
 }
 
-Scheduler::ptr WorkerManager::get(const std::string& name) {
+Scheduler::ptr WorkerManager::get(const std::string &name) {
     auto it = m_datas.find(name);
     if (it == m_datas.end()) {
         return nullptr;
@@ -50,12 +50,12 @@ Scheduler::ptr WorkerManager::get(const std::string& name) {
     return it->second[rand() % it->second.size()];
 }
 
-IOManager::ptr WorkerManager::getAsIOManager(const std::string& name) {
+IOManager::ptr WorkerManager::getAsIOManager(const std::string &name) {
     return std::dynamic_pointer_cast<IOManager>(get(name));
 }
 
-bool WorkerManager::init(const std::map<std::string, std::map<std::string, std::string>>& v) {
-    for (auto& i : v) {
+bool WorkerManager::init(const std::map<std::string, std::map<std::string, std::string>> &v) {
+    for (auto &i : v) {
         std::string name = i.first;
         int32_t thread_num = GetParamValue(i.second, "thread_num", 1);
         int32_t worker_num = GetParamValue(i.second, "worker_num", 1);
@@ -83,8 +83,8 @@ void WorkerManager::stop() {
     if (m_stop) {
         return;
     }
-    for (auto& i : m_datas) {
-        for (auto& n : i.second) {
+    for (auto &i : m_datas) {
+        for (auto &n : i.second) {
             n->schedule([]() {});
             n->stop();
         }
@@ -97,9 +97,9 @@ uint32_t WorkerManager::getCount() {
     return m_datas.size();
 }
 
-std::ostream& WorkerManager::dump(std::ostream& os) {
-    for (auto& i : m_datas) {
-        for (auto& n : i.second) {
+std::ostream &WorkerManager::dump(std::ostream &os) {
+    for (auto &i : m_datas) {
+        for (auto &n : i.second) {
             n->dump(os) << std::endl;
         }
     }

@@ -8,16 +8,16 @@ namespace IM {
 static auto g_logger = IM_LOG_NAME("system");
 
 // 配置项：路径与填充
-static auto g_rsa_priv_path = IM::Config::Lookup<std::string>(
-    "crypto.rsa_private_key_path", std::string(""), "rsa private key path");
-static auto g_rsa_pub_path = IM::Config::Lookup<std::string>(
-    "crypto.rsa_public_key_path", std::string(""), "rsa public key path (PKCS#1)");
-static auto g_rsa_padding = IM::Config::Lookup<std::string>("crypto.padding", std::string("OAEP"),
-                                                            "rsa padding: OAEP|PKCS1|NOPAD");
+static auto g_rsa_priv_path =
+    IM::Config::Lookup<std::string>("crypto.rsa_private_key_path", std::string(""), "rsa private key path");
+static auto g_rsa_pub_path =
+    IM::Config::Lookup<std::string>("crypto.rsa_public_key_path", std::string(""), "rsa public key path (PKCS#1)");
+static auto g_rsa_padding =
+    IM::Config::Lookup<std::string>("crypto.padding", std::string("OAEP"), "rsa padding: OAEP|PKCS1|NOPAD");
 
 CryptoModule::CryptoModule() : Module("crypto", "0.1.0", "builtin") {}
 
-int CryptoModule::ParsePadding(const std::string& name) {
+int CryptoModule::ParsePadding(const std::string &name) {
     std::string up;
     up.resize(name.size());
     std::transform(name.begin(), name.end(), up.begin(),
@@ -29,7 +29,7 @@ int CryptoModule::ParsePadding(const std::string& name) {
     return RSA_PKCS1_OAEP_PADDING;
 }
 
-std::string CryptoModule::MakeAbsPath(const std::string& p) {
+std::string CryptoModule::MakeAbsPath(const std::string &p) {
     if (p.empty()) return p;
     // 绝对路径直接返回
     if (!p.empty() && p[0] == '/') return p;
@@ -44,7 +44,7 @@ std::string CryptoModule::MakeAbsPath(const std::string& p) {
     // work dir (server.work_path)
     candidates.push_back(env->getAbsoluteWorkPath(p));
 
-    for (auto& cand : candidates) {
+    for (auto &cand : candidates) {
         std::ifstream ifs;
         if (IM::FSUtil::OpenForRead(ifs, cand, std::ios::in)) {
             ifs.close();
@@ -65,8 +65,8 @@ bool CryptoModule::onLoad() {
     m_padding = ParsePadding(pad_cfg);
 
     if (priv_path.empty() || pub_path.empty()) {
-        IM_LOG_ERROR(g_logger) << "CryptoModule: rsa key path not configured: private='" << priv_cfg
-                               << "' public='" << pub_cfg << "'";
+        IM_LOG_ERROR(g_logger) << "CryptoModule: rsa key path not configured: private='" << priv_cfg << "' public='"
+                               << pub_cfg << "'";
         return false;
     }
 
@@ -74,8 +74,7 @@ bool CryptoModule::onLoad() {
     m_rsa = IM::RSACipher::Create(pub_path, priv_path);
     if (!m_rsa) {
         // 友好的提示：支持 PKCS#1 / PKCS#8 / SubjectPublicKeyInfo 多格式
-        IM_LOG_ERROR(g_logger) << "CryptoModule: load RSA keys failed. pub='" << pub_path
-                               << "' pri='" << priv_path
+        IM_LOG_ERROR(g_logger) << "CryptoModule: load RSA keys failed. pub='" << pub_path << "' pri='" << priv_path
                                << "'. Checked config/exe/work base paths and multiple PEM "
                                   "formats. Please verify file exists and readable.";
         return false;
@@ -85,14 +84,13 @@ bool CryptoModule::onLoad() {
     int pub_sz = m_rsa->getPubRSASize();
     int pri_sz = m_rsa->getPriRSASize();
     if (pub_sz <= 0 || pri_sz <= 0) {
-        IM_LOG_ERROR(g_logger) << "CryptoModule: RSA size invalid: pub=" << pub_sz
-                               << " pri=" << pri_sz;
+        IM_LOG_ERROR(g_logger) << "CryptoModule: RSA size invalid: pub=" << pub_sz << " pri=" << pri_sz;
         m_rsa.reset();
         return false;
     }
 
-    IM_LOG_INFO(g_logger) << "CryptoModule: RSA loaded. pub_size=" << pub_sz
-                          << " pri_size=" << pri_sz << " padding=" << pad_cfg;
+    IM_LOG_INFO(g_logger) << "CryptoModule: RSA loaded. pub_size=" << pub_sz << " pri_size=" << pri_sz
+                          << " padding=" << pad_cfg;
     return true;
 }
 
@@ -113,7 +111,7 @@ int CryptoModule::maxPlaintextLen() const {
     }
 }
 
-bool CryptoModule::PublicEncrypt(const std::string& plaintext, std::string& ciphertext) const {
+bool CryptoModule::PublicEncrypt(const std::string &plaintext, std::string &ciphertext) const {
     RWMutex::ReadLock lock(m_mutex);
     if (!m_rsa) return false;
     int k = m_rsa->getPubRSASize();
@@ -127,23 +125,21 @@ bool CryptoModule::PublicEncrypt(const std::string& plaintext, std::string& ciph
                                                            : (k - 11);
         if ((int)plaintext.size() > maxlen) return false;
     }
-    int32_t ret =
-        m_rsa->publicEncrypt(plaintext.data(), (int)plaintext.size(), ciphertext, m_padding);
+    int32_t ret = m_rsa->publicEncrypt(plaintext.data(), (int)plaintext.size(), ciphertext, m_padding);
     return ret >= 0;
 }
 
-bool CryptoModule::PrivateDecrypt(const std::string& ciphertext, std::string& plaintext) const {
+bool CryptoModule::PrivateDecrypt(const std::string &ciphertext, std::string &plaintext) const {
     RWMutex::ReadLock lock(m_mutex);
     if (!m_rsa) return false;
     int k = m_rsa->getPriRSASize();
     if (k <= 0) return false;
     if ((int)ciphertext.size() != k) return false;
-    int32_t ret =
-        m_rsa->privateDecrypt(ciphertext.data(), (int)ciphertext.size(), plaintext, m_padding);
+    int32_t ret = m_rsa->privateDecrypt(ciphertext.data(), (int)ciphertext.size(), plaintext, m_padding);
     return ret >= 0;
 }
 
-bool CryptoModule::PrivateEncrypt(const std::string& input, std::string& output) const {
+bool CryptoModule::PrivateEncrypt(const std::string &input, std::string &output) const {
     RWMutex::ReadLock lock(m_mutex);
     if (!m_rsa) return false;
     int k = m_rsa->getPriRSASize();
@@ -160,7 +156,7 @@ bool CryptoModule::PrivateEncrypt(const std::string& input, std::string& output)
     return ret >= 0;
 }
 
-bool CryptoModule::PublicDecrypt(const std::string& input, std::string& output) const {
+bool CryptoModule::PublicDecrypt(const std::string &input, std::string &output) const {
     RWMutex::ReadLock lock(m_mutex);
     if (!m_rsa) return false;
     int k = m_rsa->getPubRSASize();

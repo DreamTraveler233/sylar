@@ -1,7 +1,7 @@
 #include "core/net/http/http_server.hpp"
 
-#include "core/net/http/servlets/config_servlet.hpp"
 #include "core/base/macro.hpp"
+#include "core/net/http/servlets/config_servlet.hpp"
 #include "core/net/http/servlets/status_servlet.hpp"
 #include "core/util/trace_context.hpp"
 
@@ -9,8 +9,7 @@ namespace IM::http {
 
 static auto g_logger = IM_LOG_NAME("system");
 
-HttpServer::HttpServer(bool keepalive, IOManager* worker, IOManager* io_worker,
-                       IOManager* accept_worker)
+HttpServer::HttpServer(bool keepalive, IOManager *worker, IOManager *io_worker, IOManager *accept_worker)
     : TcpServer(worker, io_worker, accept_worker), m_isKeepalive(keepalive) {
     m_dispatch.reset(new ServletDispatch);
 
@@ -23,7 +22,7 @@ HttpServer::HttpServer(bool keepalive, IOManager* worker, IOManager* io_worker,
     });
 }
 
-void HttpServer::setName(const std::string& v) {
+void HttpServer::setName(const std::string &v) {
     TcpServer::setName(v);
     m_dispatch->setDefault(std::make_shared<NotFoundServlet>(v));
 }
@@ -37,9 +36,8 @@ void HttpServer::handleClient(Socket::ptr client) {
         IM_LOG_DEBUG(g_logger) << "waiting for http request from " << *client;
         auto req = session->recvRequest();
         if (!req) {
-            IM_LOG_DEBUG(g_logger)
-                << "recv http request fail, errno=" << errno << " errstr=" << strerror(errno)
-                << " cliet:" << *client << " keep_alive=" << m_isKeepalive;
+            IM_LOG_DEBUG(g_logger) << "recv http request fail, errno=" << errno << " errstr=" << strerror(errno)
+                                   << " cliet:" << *client << " keep_alive=" << m_isKeepalive;
             break;
         }
 
@@ -51,8 +49,7 @@ void HttpServer::handleClient(Socket::ptr client) {
         TraceGuard guard(trace_id);
 
         /* 处理 HTTP 请求 */
-        HttpResponse::ptr rsp(
-            new HttpResponse(req->getVersion(), req->isClose() || !m_isKeepalive));
+        HttpResponse::ptr rsp(new HttpResponse(req->getVersion(), req->isClose() || !m_isKeepalive));
         rsp->setHeader("Server", getName());
         rsp->setHeader("X-Trace-ID", trace_id);
         m_dispatch->handle(req, rsp, session);  // 路由分发

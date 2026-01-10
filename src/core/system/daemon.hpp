@@ -1,9 +1,17 @@
+/**
+ * @file daemon.hpp
+ * @brief 系统级功能相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 系统级功能相关。
+ */
+
 #ifndef __IM_SYSTEM_DAEMON_HPP__
 #define __IM_SYSTEM_DAEMON_HPP__
 
-#include <unistd.h>
-
 #include <functional>
+#include <unistd.h>
 
 #include "core/base/singleton.hpp"
 
@@ -27,16 +35,15 @@ struct ProcessInfo {
 using ProcessInfoMgr = Singleton<ProcessInfo>;
 
 /**
-     * @brief 启动程序可以选择用守护进程的方式
-     * @param[in] argc 参数个数
-     * @param[in] argv 参数值数组
-     * @param[in] main_cb 启动函数
-     * @param[in] is_daemon 是否守护进程的方式
-     * @return 返回程序的执行结果
-     */
-int start_daemon(int argc, char** argv, std::function<int(int argc, char** argv)> main_cb,
-                 bool is_daemon);
+ * @brief 启动程序可以选择用守护进程的方式
+ * @param[in] argc 参数个数
+ * @param[in] argv 参数值数组
+ * @param[in] main_cb 启动函数
+ * @param[in] is_daemon 是否守护进程的方式
+ * @return 返回程序的执行结果
+ */
+int start_daemon(int argc, char **argv, std::function<int(int argc, char **argv)> main_cb, bool is_daemon);
 
 }  // namespace IM
 
-#endif // __IM_SYSTEM_DAEMON_HPP__
+#endif  // __IM_SYSTEM_DAEMON_HPP__

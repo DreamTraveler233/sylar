@@ -5,7 +5,7 @@
 namespace IM::http {
 static auto g_logger = IM_LOG_NAME("system");
 
-WSServer::WSServer(IM::IOManager* worker, IM::IOManager* io_worker, IM::IOManager* accept_worker)
+WSServer::WSServer(IM::IOManager *worker, IM::IOManager *io_worker, IM::IOManager *accept_worker)
     : TcpServer(worker, io_worker, accept_worker) {
     m_dispatch.reset(new WSServletDispatch);
     m_type = "websocket_server";

@@ -1,14 +1,15 @@
 #include "infra/email/smtp.hpp"
 
-#include "core/base/macro.hpp"
 #include <cctype>
+
+#include "core/base/macro.hpp"
 
 namespace IM {
 static Logger::ptr g_logger = IM_LOG_NAME("system");
 
 SmtpClient::SmtpClient(Socket::ptr sock) : SocketStream(sock) {}
 
-SmtpClient::ptr SmtpClient::Create(const std::string& host, uint32_t port, bool ssl) {
+SmtpClient::ptr SmtpClient::Create(const std::string &host, uint32_t port, bool ssl) {
     IPAddress::ptr addr = Address::LookupAnyIpAddress(host);
     if (!addr) {
         IM_LOG_ERROR(g_logger) << "invalid smtp server: " << host << ":" << port << " ssl=" << ssl;
@@ -22,8 +23,7 @@ SmtpClient::ptr SmtpClient::Create(const std::string& host, uint32_t port, bool 
         sock = Socket::CreateTCP(addr);
     }
     if (!sock->connect(addr)) {
-        IM_LOG_ERROR(g_logger) << "connect smtp server: " << host << ":" << port << " ssl=" << ssl
-                               << " fail";
+        IM_LOG_ERROR(g_logger) << "connect smtp server: " << host << ":" << port << " ssl=" << ssl << " fail";
         return nullptr;
     }
     std::string buf;
@@ -42,7 +42,7 @@ SmtpClient::ptr SmtpClient::Create(const std::string& host, uint32_t port, bool 
     return rt;
 }
 
-SmtpResult::ptr SmtpClient::doCmd(const std::string& cmd, bool debug) {
+SmtpResult::ptr SmtpClient::doCmd(const std::string &cmd, bool debug) {
     if (writeFixSize(cmd.c_str(), cmd.size()) <= 0) {
         return std::make_shared<SmtpResult>(SmtpResult::IO_ERROR, "write io error");
     }
@@ -93,8 +93,7 @@ SmtpResult::ptr SmtpClient::doCmd(const std::string& cmd, bool debug) {
 
     int code = TypeUtil::Atoi(buf);
     if (code >= 400) {
-        return std::make_shared<SmtpResult>(code,
-                                            replace(buf.substr(buf.find(' ') + 1), "\r\n", ""));
+        return std::make_shared<SmtpResult>(code, replace(buf.substr(buf.find(' ') + 1), "\r\n", ""));
     }
     return nullptr;
 }
@@ -169,14 +168,14 @@ SmtpResult::ptr SmtpClient::send(EMail::ptr email, int64_t timeout_ms, bool debu
     DO_CMD();
     std::set<std::string> targets;
 #define XX(fun)                    \
-    for (auto& i : email->fun()) { \
+    for (auto &i : email->fun()) { \
         targets.insert(i);         \
     }
     XX(getToEMailAddress);
     XX(getCcEMailAddress);
     XX(getBccEMailAddress);
 #undef XX
-    for (auto& i : targets) {
+    for (auto &i : targets) {
         cmd = "RCPT TO: <" + i + ">\r\n";
         DO_CMD();
     }
@@ -184,7 +183,7 @@ SmtpResult::ptr SmtpClient::send(EMail::ptr email, int64_t timeout_ms, bool debu
     cmd = "DATA\r\n";
     DO_CMD();
 
-    auto& entitys = email->getEntitys();
+    auto &entitys = email->getEntitys();
 
     std::stringstream ss;
     // Build From header: support optional display name in the stored from string
@@ -198,7 +197,7 @@ SmtpResult::ptr SmtpClient::send(EMail::ptr email, int64_t timeout_ms, bool debu
        << "To: ";
 #define XX(fun)                                 \
     do {                                        \
-        auto& v = email->fun();                 \
+        auto &v = email->fun();                 \
         for (size_t i = 0; i < v.size(); ++i) { \
             if (i) {                            \
                 ss << ",";                      \
@@ -227,7 +226,7 @@ SmtpResult::ptr SmtpClient::send(EMail::ptr email, int64_t timeout_ms, bool debu
     ss << "Content-Type: text/html;charset=\"utf-8\"\r\n"
        << "\r\n"
        << email->getBody() << "\r\n";
-    for (auto& i : entitys) {
+    for (auto &i : entitys) {
         ss << "\r\n--" << boundary << "\r\n";
         ss << i->toString();
     }

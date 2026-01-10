@@ -1,3 +1,12 @@
+/**
+ * @file common_service_impl.hpp
+ * @brief 应用层服务实现
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 应用层服务实现。
+ */
+
 #ifndef __IM_APP_COMMON_SERVICE_IMPL_HPP__
 #define __IM_APP_COMMON_SERVICE_IMPL_HPP__
 
@@ -10,19 +19,17 @@ class CommonServiceImpl : public IM::domain::service::ICommonService {
     explicit CommonServiceImpl(IM::domain::repository::ICommonRepository::Ptr common_repo);
 
     // 发送短信验证码
-    Result<model::SmsVerifyCode> SendSmsCode(const std::string& mobile, const std::string& channel,
+    Result<model::SmsVerifyCode> SendSmsCode(const std::string &mobile, const std::string &channel,
                                              IM::http::HttpSession::ptr session) override;
 
     // 验证短信验证码
-    Result<void> VerifySmsCode(const std::string& mobile, const std::string& code,
-                               const std::string& channel) override;
+    Result<void> VerifySmsCode(const std::string &mobile, const std::string &code, const std::string &channel) override;
     // 发送邮箱验证码
-    Result<model::EmailVerifyCode> SendEmailCode(const std::string& email,
-                                                 const std::string& channel,
+    Result<model::EmailVerifyCode> SendEmailCode(const std::string &email, const std::string &channel,
                                                  IM::http::HttpSession::ptr session) override;
     // 验证邮箱验证码
-    Result<void> VerifyEmailCode(const std::string& email, const std::string& code,
-                                 const std::string& channel) override;
+    Result<void> VerifyEmailCode(const std::string &email, const std::string &code,
+                                 const std::string &channel) override;
 
     // 初始化验证码清理定时器（幂等）
     void InitCleanupTimer() override;
@@ -32,19 +39,19 @@ class CommonServiceImpl : public IM::domain::service::ICommonService {
 
    private:
     // 实际发送短信
-    bool SendRealSms(const std::string& mobile, const std::string& sms_code,
-                     const std::string& channel, std::string* err) override;
+    bool SendRealSms(const std::string &mobile, const std::string &sms_code, const std::string &channel,
+                     std::string *err) override;
 
     // 实际发送邮件
-    bool SendRealEmail(const std::string& email, const std::string& title, const std::string& body,
-                       std::string* err) override;
+    bool SendRealEmail(const std::string &email, const std::string &title, const std::string &body,
+                       std::string *err) override;
     // 阿里云短信发送
-    bool SendSmsViaAliyun(const std::string& mobile, const std::string& sms_code,
-                          const std::string& channel, std::string* err) override;
+    bool SendSmsViaAliyun(const std::string &mobile, const std::string &sms_code, const std::string &channel,
+                          std::string *err) override;
 
     // 腾讯云短信发送
-    bool SendSmsViaTencent(const std::string& mobile, const std::string& sms_code,
-                           const std::string& channel, std::string* err) override;
+    bool SendSmsViaTencent(const std::string &mobile, const std::string &sms_code, const std::string &channel,
+                           std::string *err) override;
 
    private:
     IM::domain::repository::ICommonRepository::Ptr m_common_repo;

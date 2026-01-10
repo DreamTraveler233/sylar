@@ -2,10 +2,10 @@
 
 #include <limits.h>
 
+#include "core/base/macro.hpp"
+#include "core/io/iomanager.hpp"
 #include "core/net/core/fd_manager.hpp"
 #include "core/net/core/hook.hpp"
-#include "core/io/iomanager.hpp"
-#include "core/base/macro.hpp"
 
 namespace IM {
 static auto g_logger = IM_LOG_NAME("system");
@@ -72,7 +72,9 @@ int64_t Socket::getSendTimeout() {
 }
 
 void Socket::setSendTimeout(int64_t v) {
-    struct timeval tv{int(v / 1000), int(v % 1000 * 1000)};
+    struct timeval tv {
+        int(v / 1000), int(v % 1000 * 1000)
+    };
     setOption(SOL_SOCKET, SO_SNDTIMEO, tv);
 }
 
@@ -85,26 +87,26 @@ int64_t Socket::getRecvTimeout() {
 }
 
 void Socket::setRecvTimeout(int64_t v) {
-    struct timeval tv{int(v / 1000), int(v % 1000 * 1000)};
+    struct timeval tv {
+        int(v / 1000), int(v % 1000 * 1000)
+    };
     setOption(SOL_SOCKET, SO_RCVTIMEO, tv);
 }
 
-bool Socket::getOption(int level, int option, void* result, socklen_t* len) {
-    int rt = getsockopt(m_sock, level, option, result, (socklen_t*)len);
+bool Socket::getOption(int level, int option, void *result, socklen_t *len) {
+    int rt = getsockopt(m_sock, level, option, result, (socklen_t *)len);
     if (rt) {
-        IM_LOG_DEBUG(g_logger) << "getOption sock=" << m_sock << " level=" << level
-                                << " option=" << option << " errno=" << errno
-                                << " errstr=" << strerror(errno);
+        IM_LOG_DEBUG(g_logger) << "getOption sock=" << m_sock << " level=" << level << " option=" << option
+                               << " errno=" << errno << " errstr=" << strerror(errno);
         return false;
     }
     return true;
 }
 
-bool Socket::setOption(int level, int option, const void* result, socklen_t len) {
+bool Socket::setOption(int level, int option, const void *result, socklen_t len) {
     if (setsockopt(m_sock, level, option, result, (socklen_t)len)) {
-        IM_LOG_DEBUG(g_logger) << "setOption sock=" << m_sock << " level=" << level
-                                << " option=" << option << " errno=" << errno
-                                << " errstr=" << strerror(errno);
+        IM_LOG_DEBUG(g_logger) << "setOption sock=" << m_sock << " level=" << level << " option=" << option
+                               << " errno=" << errno << " errstr=" << strerror(errno);
         return false;
     }
     return true;
@@ -117,8 +119,7 @@ Socket::ptr Socket::accept() {
     // 接受新连接，使用 hook 后的 accept
     int newsock = ::accept(m_sock, nullptr, nullptr);
     if (newsock == -1) {
-        IM_LOG_ERROR(g_logger) << "accept(" << m_sock << ") errno=" << errno
-                                << " errstr=" << strerror(errno);
+        IM_LOG_ERROR(g_logger) << "accept(" << m_sock << ") errno=" << errno << " errstr=" << strerror(errno);
         return nullptr;
     }
 
@@ -138,8 +139,8 @@ bool Socket::bind(const Address::ptr addr) {
     }
 
     if (IM_UNLIKELY(addr->getFamily() != m_family)) {
-        IM_LOG_ERROR(g_logger) << "bind sock.family(" << m_family << ") addr.family("
-                                << addr->getFamily() << ") not equal, addr=" << addr->toString();
+        IM_LOG_ERROR(g_logger) << "bind sock.family(" << m_family << ") addr.family(" << addr->getFamily()
+                               << ") not equal, addr=" << addr->toString();
         return false;
     }
 
@@ -183,23 +184,22 @@ bool Socket::connect(const Address::ptr addr, uint64_t timeout_ms) {
     }
 
     if (IM_UNLIKELY(addr->getFamily() != m_family)) {
-        IM_LOG_ERROR(g_logger) << "connect sock.family(" << m_family << ") addr.family("
-                                << addr->getFamily() << ") not equal, addr=" << addr->toString();
+        IM_LOG_ERROR(g_logger) << "connect sock.family(" << m_family << ") addr.family(" << addr->getFamily()
+                               << ") not equal, addr=" << addr->toString();
         return false;
     }
 
     if (timeout_ms == (uint64_t)-1) {
         if (::connect(m_sock, addr->getAddr(), addr->getAddrLen())) {
-            IM_LOG_ERROR(g_logger) << "sock=" << m_sock << " connect(" << addr->toString()
-                                    << ") error errno=" << errno << " errstr=" << strerror(errno);
+            IM_LOG_ERROR(g_logger) << "sock=" << m_sock << " connect(" << addr->toString() << ") error errno=" << errno
+                                   << " errstr=" << strerror(errno);
             close();
             return false;
         }
     } else {
         if (::connect_with_timeout(m_sock, addr->getAddr(), addr->getAddrLen(), timeout_ms)) {
-            IM_LOG_ERROR(g_logger) << "sock=" << m_sock << " connect(" << addr->toString()
-                                    << ") timeout=" << timeout_ms << " error errno=" << errno
-                                    << " errstr=" << strerror(errno);
+            IM_LOG_ERROR(g_logger) << "sock=" << m_sock << " connect(" << addr->toString() << ") timeout=" << timeout_ms
+                                   << " error errno=" << errno << " errstr=" << strerror(errno);
             close();
             return false;
         }
@@ -277,7 +277,7 @@ Address::ptr Socket::getRemoteAddress() {
     socklen_t addrlen = result->getAddrLen();
     if (getpeername(m_sock, result->getAddr(), &addrlen)) {
         IM_LOG_ERROR(g_logger) << "getpeername error sock=" << m_sock << " errno=" << errno
-                                << " errstr=" << strerror(errno);
+                               << " errstr=" << strerror(errno);
         return Address::ptr(new UnknownAddress(m_family));
     }
 
@@ -317,7 +317,7 @@ Address::ptr Socket::getLocalAddress() {
     socklen_t addrlen = result->getAddrLen();
     if (getsockname(m_sock, result->getAddr(), &addrlen)) {
         IM_LOG_ERROR(g_logger) << "getsockname error sock=" << m_sock << " errno=" << errno
-                                << " errstr=" << strerror(errno);
+                               << " errstr=" << strerror(errno);
         return Address::ptr(new UnknownAddress(m_family));
     }
 
@@ -343,36 +343,36 @@ bool Socket::close() {
     return false;
 }
 
-int Socket::send(const void* buffer, size_t length, int flags) {
+int Socket::send(const void *buffer, size_t length, int flags) {
     if (isConnected()) {
         return ::send(m_sock, buffer, length, flags);
     }
     return -1;
 }
 
-int Socket::send(const iovec* buffers, size_t length, int flags) {
+int Socket::send(const iovec *buffers, size_t length, int flags) {
     if (isConnected()) {
         msghdr msg;
         memset(&msg, 0, sizeof(msg));
-        msg.msg_iov = (iovec*)buffers;
+        msg.msg_iov = (iovec *)buffers;
         msg.msg_iovlen = length;
         return ::sendmsg(m_sock, &msg, flags);
     }
     return -1;
 }
 
-int Socket::sendTo(const void* buffer, size_t length, const Address::ptr to, int flags) {
+int Socket::sendTo(const void *buffer, size_t length, const Address::ptr to, int flags) {
     if (isConnected()) {
         return ::sendto(m_sock, buffer, length, flags, to->getAddr(), to->getAddrLen());
     }
     return -1;
 }
 
-int Socket::sendTo(const iovec* buffers, size_t length, const Address::ptr to, int flags) {
+int Socket::sendTo(const iovec *buffers, size_t length, const Address::ptr to, int flags) {
     if (isConnected()) {
         msghdr msg;
         memset(&msg, 0, sizeof(msg));
-        msg.msg_iov = (iovec*)buffers;
+        msg.msg_iov = (iovec *)buffers;
         msg.msg_iovlen = length;
         msg.msg_name = to->getAddr();
         msg.msg_namelen = to->getAddrLen();
@@ -381,25 +381,25 @@ int Socket::sendTo(const iovec* buffers, size_t length, const Address::ptr to, i
     return -1;
 }
 
-int Socket::recv(void* buffer, size_t length, int flags) {
+int Socket::recv(void *buffer, size_t length, int flags) {
     if (isConnected()) {
         return ::recv(m_sock, buffer, length, flags);
     }
     return -1;
 }
 
-int Socket::recv(iovec* buffers, size_t length, int flags) {
+int Socket::recv(iovec *buffers, size_t length, int flags) {
     if (isConnected()) {
         msghdr msg;
         memset(&msg, 0, sizeof(msg));
-        msg.msg_iov = (iovec*)buffers;
+        msg.msg_iov = (iovec *)buffers;
         msg.msg_iovlen = length;
         return ::recvmsg(m_sock, &msg, flags);
     }
     return -1;
 }
 
-int Socket::recvFrom(void* buffer, size_t length, Address::ptr from, int flags) {
+int Socket::recvFrom(void *buffer, size_t length, Address::ptr from, int flags) {
     if (isConnected()) {
         socklen_t len = from->getAddrLen();
         return ::recvfrom(m_sock, buffer, length, flags, from->getAddr(), &len);
@@ -407,11 +407,11 @@ int Socket::recvFrom(void* buffer, size_t length, Address::ptr from, int flags) 
     return -1;
 }
 
-int Socket::recvFrom(iovec* buffers, size_t length, Address::ptr from, int flags) {
+int Socket::recvFrom(iovec *buffers, size_t length, Address::ptr from, int flags) {
     if (isConnected()) {
         msghdr msg;
         memset(&msg, 0, sizeof(msg));
-        msg.msg_iov = (iovec*)buffers;
+        msg.msg_iov = (iovec *)buffers;
         msg.msg_iovlen = length;
         msg.msg_name = from->getAddr();
         msg.msg_namelen = from->getAddrLen();
@@ -449,9 +449,9 @@ int Socket::getError() {
     return error;
 }
 
-std::ostream& Socket::dump(std::ostream& os) const {
-    os << "[Socket sock=" << m_sock << " is_connected=" << m_isConnected << " family=" << m_family
-       << " type=" << m_type << " protocol=" << m_protocol;
+std::ostream &Socket::dump(std::ostream &os) const {
+    os << "[Socket sock=" << m_sock << " is_connected=" << m_isConnected << " family=" << m_family << " type=" << m_type
+       << " protocol=" << m_protocol;
     if (m_localAddress) {
         os << " local_address=" << m_localAddress->toString();
     }
@@ -493,8 +493,8 @@ void Socket::newSock() {
     if (IM_LIKELY(m_sock != -1)) {
         setDefaultOptions();
     } else {
-        IM_LOG_ERROR(g_logger) << "socket(" << m_family << ", " << m_type << ", " << m_protocol
-                                << ") errno=" << errno << " errstr=" << strerror(errno);
+        IM_LOG_ERROR(g_logger) << "socket(" << m_family << ", " << m_type << ", " << m_protocol << ") errno=" << errno
+                               << " errstr=" << strerror(errno);
     }
 }
 
@@ -518,8 +518,7 @@ Socket::ptr SSLSocket::accept() {
     SSLSocket::ptr sock(new SSLSocket(m_family, m_type, m_protocol));
     int newsock = ::accept(m_sock, nullptr, nullptr);
     if (newsock == -1) {
-        IM_LOG_ERROR(g_logger) << "accept(" << m_sock << ") errno=" << errno
-                                << " errstr=" << strerror(errno);
+        IM_LOG_ERROR(g_logger) << "accept(" << m_sock << ") errno=" << errno << " errstr=" << strerror(errno);
         return nullptr;
     }
     sock->m_ctx = m_ctx;
@@ -552,14 +551,14 @@ bool SSLSocket::close() {
     return Socket::close();
 }
 
-int SSLSocket::send(const void* buffer, size_t length, int flags) {
+int SSLSocket::send(const void *buffer, size_t length, int flags) {
     if (m_ssl) {
         return SSL_write(m_ssl.get(), buffer, length);
     }
     return -1;
 }
 
-int SSLSocket::send(const iovec* buffers, size_t length, int flags) {
+int SSLSocket::send(const iovec *buffers, size_t length, int flags) {
     if (!m_ssl) {
         return -1;
     }
@@ -577,24 +576,24 @@ int SSLSocket::send(const iovec* buffers, size_t length, int flags) {
     return total;
 }
 
-int SSLSocket::sendTo(const void* buffer, size_t length, const Address::ptr to, int flags) {
+int SSLSocket::sendTo(const void *buffer, size_t length, const Address::ptr to, int flags) {
     IM_ASSERT(false);
     return -1;
 }
 
-int SSLSocket::sendTo(const iovec* buffers, size_t length, const Address::ptr to, int flags) {
+int SSLSocket::sendTo(const iovec *buffers, size_t length, const Address::ptr to, int flags) {
     IM_ASSERT(false);
     return -1;
 }
 
-int SSLSocket::recv(void* buffer, size_t length, int flags) {
+int SSLSocket::recv(void *buffer, size_t length, int flags) {
     if (m_ssl) {
         return SSL_read(m_ssl.get(), buffer, length);
     }
     return -1;
 }
 
-int SSLSocket::recv(iovec* buffers, size_t length, int flags) {
+int SSLSocket::recv(iovec *buffers, size_t length, int flags) {
     if (!m_ssl) {
         return -1;
     }
@@ -612,12 +611,12 @@ int SSLSocket::recv(iovec* buffers, size_t length, int flags) {
     return total;
 }
 
-int SSLSocket::recvFrom(void* buffer, size_t length, Address::ptr from, int flags) {
+int SSLSocket::recvFrom(void *buffer, size_t length, Address::ptr from, int flags) {
     IM_ASSERT(false);
     return -1;
 }
 
-int SSLSocket::recvFrom(iovec* buffers, size_t length, Address::ptr from, int flags) {
+int SSLSocket::recvFrom(iovec *buffers, size_t length, Address::ptr from, int flags) {
     IM_ASSERT(false);
     return -1;
 }
@@ -632,7 +631,7 @@ bool SSLSocket::init(int sock) {
     return v;
 }
 
-bool SSLSocket::loadCertificates(const std::string& cert_file, const std::string& key_file) {
+bool SSLSocket::loadCertificates(const std::string &cert_file, const std::string &key_file) {
     m_ctx.reset(SSL_CTX_new(SSLv23_server_method()), SSL_CTX_free);
     if (SSL_CTX_use_certificate_chain_file(m_ctx.get(), cert_file.c_str()) != 1) {
         IM_LOG_ERROR(g_logger) << "SSL_CTX_use_certificate_chain_file(" << cert_file << ") error";
@@ -643,8 +642,7 @@ bool SSLSocket::loadCertificates(const std::string& cert_file, const std::string
         return false;
     }
     if (SSL_CTX_check_private_key(m_ctx.get()) != 1) {
-        IM_LOG_ERROR(g_logger) << "SSL_CTX_check_private_key cert_file=" << cert_file
-                                << " key_file=" << key_file;
+        IM_LOG_ERROR(g_logger) << "SSL_CTX_check_private_key cert_file=" << cert_file << " key_file=" << key_file;
         return false;
     }
     return true;
@@ -665,9 +663,9 @@ SSLSocket::ptr SSLSocket::CreateTCPSocket6() {
     return sock;
 }
 
-std::ostream& SSLSocket::dump(std::ostream& os) const {
-    os << "[SSLSocket sock=" << m_sock << " is_connected=" << m_isConnected
-       << " family=" << m_family << " type=" << m_type << " protocol=" << m_protocol;
+std::ostream &SSLSocket::dump(std::ostream &os) const {
+    os << "[SSLSocket sock=" << m_sock << " is_connected=" << m_isConnected << " family=" << m_family
+       << " type=" << m_type << " protocol=" << m_protocol;
     if (m_localAddress) {
         os << " local_address=" << m_localAddress->toString();
     }
@@ -678,7 +676,7 @@ std::ostream& SSLSocket::dump(std::ostream& os) const {
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const Socket& sock) {
+std::ostream &operator<<(std::ostream &os, const Socket &sock) {
     return sock.dump(os);
 }
 

@@ -1,18 +1,17 @@
 #include "core/log/log_file.hpp"
 
+#include <cstdio>
 #include <fcntl.h>
+#include <iostream>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-#include <cstdio>
-#include <iostream>
 
 #include "core/base/macro.hpp"
 
 namespace IM {
 
-LogFile::LogFile(const std::string& filePath)
+LogFile::LogFile(const std::string &filePath)
     : m_fd(-1), m_filePath(filePath), m_rotateType(RotateType::NONE), m_maxFileSize(0) {
     IM_ASSERT(!filePath.empty());
 }
@@ -51,13 +50,13 @@ bool LogFile::openFile() {
     return true;
 }
 
-size_t LogFile::writeLog(const std::string& logMsg) {
+size_t LogFile::writeLog(const std::string &logMsg) {
     IM_ASSERT(!logMsg.empty());
     int fd = m_fd == -1 ? 1 : m_fd;  // 如果未打开文件，则写到标准输出
     return ::write(fd, logMsg.data(), logMsg.size());
 }
 
-void LogFile::rotate(const std::string& newFilePath) {
+void LogFile::rotate(const std::string &newFilePath) {
     IM_ASSERT(!newFilePath.empty());
     // 如果旧文件未打开，则直接返回
     if (m_filePath.empty()) {
@@ -96,7 +95,7 @@ uint64_t LogFile::getMaxFileSize() const {
     return m_maxFileSize;
 }
 
-RotateType LogFile::rotateTypeFromString(const std::string& str) {
+RotateType LogFile::rotateTypeFromString(const std::string &str) {
     IM_ASSERT(!str.empty());
 #define XX(name, rotateType) \
     if (str == #name) return RotateType::rotateType;
@@ -140,7 +139,7 @@ int64_t LogFile::getFileSize() const {
     return ::lseek64(m_fd, 0, SEEK_END);
 }
 
-const std::string& LogFile::getFilePath() const {
+const std::string &LogFile::getFilePath() const {
     return m_filePath;
 }
 }  // namespace IM

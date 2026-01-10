@@ -1,3 +1,12 @@
+/**
+ * @file id_worker.hpp
+ * @brief 通用工具类
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 通用工具类。
+ */
+
 #ifndef __IM_UTIL_ID_WORKER_HPP__
 #define __IM_UTIL_ID_WORKER_HPP__
 
@@ -11,12 +20,13 @@ namespace IM::util {
 // 注意：当前项目已改为使用数据库自增 ID，雪花ID生成器保留为可选/兼容实现。
 // 64-bit 格式（从高位到低位）：
 // 1 bit sign(0) | 41 bit timestamp(ms since epoch) | 10 bit worker id | 12 bit sequence
-// 可通过 IdWorker::Init(worker_id) 初始化 worker id，随后调用 NextId() 获取唯一 ID（如需恢复分布式ID，请在启动时初始化）。
+// 可通过 IdWorker::Init(worker_id) 初始化 worker id，随后调用 NextId() 获取唯一
+// ID（如需恢复分布式ID，请在启动时初始化）。
 
 class IdWorker {
    public:
     // 获取单例实例
-    static IdWorker& GetInstance();
+    static IdWorker &GetInstance();
 
     // 初始化 worker id（0 ~ max_worker_id），可以多次调用但应在生成ID之前完成
     void Init(uint16_t worker_id);
@@ -32,8 +42,8 @@ class IdWorker {
     ~IdWorker() = default;
 
     // 禁止拷贝
-    IdWorker(const IdWorker&) = delete;
-    IdWorker& operator=(const IdWorker&) = delete;
+    IdWorker(const IdWorker &) = delete;
+    IdWorker &operator=(const IdWorker &) = delete;
 
     uint16_t worker_id_;
     std::mutex mutex_;

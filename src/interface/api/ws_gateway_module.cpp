@@ -1,24 +1,26 @@
 #include "interface/api/ws_gateway_module.hpp"
 
-#include <jwt-cpp/jwt.h>
-
 #include <atomic>
+#include <jwt-cpp/jwt.h>
 #include <unordered_map>
 #include <vector>
 
 #include "core/base/macro.hpp"
-#include "common/common.hpp"
 #include "core/config/config.hpp"
 #include "core/net/core/address.hpp"
-#include "core/net/rock/rock_stream.hpp"
 #include "core/net/http/ws_server.hpp"
 #include "core/net/http/ws_servlet.hpp"
 #include "core/net/http/ws_session.hpp"
+#include "core/net/rock/rock_stream.hpp"
 #include "core/system/application.hpp"
-#include "core/util/util.hpp"
 #include "core/util/trace_context.hpp"
-#include "domain/repository/talk_repository.hpp"
+#include "core/util/util.hpp"
+
 #include "application/rpc/talk_repository_rpc_client.hpp"
+
+#include "domain/repository/talk_repository.hpp"
+
+#include "common/common.hpp"
 
 namespace IM::api {
 
@@ -44,7 +46,7 @@ WsGatewayModule::WsGatewayModule(IM::domain::service::IUserService::Ptr user_ser
 }
 
 // 简易查询串解析（假设无需URL解码，前端传递 token 直接可用）
-static std::unordered_map<std::string, std::string> ParseQueryKV(const std::string& q) {
+static std::unordered_map<std::string, std::string> ParseQueryKV(const std::string &q) {
     std::unordered_map<std::string, std::string> kv;
     if (q.empty()) return kv;
     size_t start = 0;
@@ -80,11 +82,11 @@ struct ConnItem {
     ConnCtx ctx;
     std::weak_ptr<IM::http::WSSession> weak;
 };
-static std::unordered_map<void*, ConnItem> s_ws_conns;
+static std::unordered_map<void *, ConnItem> s_ws_conns;
 
 // Forward declarations for helper functions used in routing helpers
-static void SendEvent(IM::http::WSSession::ptr session, const std::string& event,
-                      const Json::Value& payload, const std::string& ackid);
+static void SendEvent(IM::http::WSSession::ptr session, const std::string &event, const Json::Value &payload,
+                      const std::string &ackid);
 static std::vector<IM::http::WSSession::ptr> CollectSessions(uint64_t uid);
 
 namespace {
@@ -105,7 +107,7 @@ static std::atomic<uint32_t> s_rock_req_sn{1};
 static auto g_presence_rpc_addr =
     IM::Config::Lookup("presence.rpc_addr", std::string(""), "presence rpc address ip:port");
 
-static bool SplitIpPort(const std::string& ip_port, std::string& ip, uint16_t& port) {
+static bool SplitIpPort(const std::string &ip_port, std::string &ip, uint16_t &port) {
     auto pos = ip_port.find(':');
     if (pos == std::string::npos) {
         return false;
@@ -128,9 +130,9 @@ static std::string GetLocalRockAddr() {
     if (!IM::Application::GetInstance()->getServer("rock", rockServers)) {
         return "";
     }
-    for (auto& s : rockServers) {
+    for (auto &s : rockServers) {
         auto socks = s->getSocks();
-        for (auto& sock : socks) {
+        for (auto &sock : socks) {
             auto addr = std::dynamic_pointer_cast<IM::IPv4Address>(sock->getLocalAddress());
             if (!addr) {
                 continue;
@@ -148,7 +150,7 @@ static std::string GetLocalRockAddr() {
     return "";
 }
 
-static IM::RockConnection::ptr GetOrCreateRpcConn(const std::string& ip_port) {
+static IM::RockConnection::ptr GetOrCreateRpcConn(const std::string &ip_port) {
     if (ip_port.empty()) {
         return nullptr;
     }
@@ -184,14 +186,13 @@ static IM::RockConnection::ptr GetOrCreateRpcConn(const std::string& ip_port) {
     return conn;
 }
 
-static IM::ServiceItemInfo::ptr PickService(const std::string& domain, const std::string& service) {
+static IM::ServiceItemInfo::ptr PickService(const std::string &domain, const std::string &service) {
     auto sd = IM::Application::GetInstance()->getServiceDiscovery();
     if (!sd) {
         return nullptr;
     }
-    std::unordered_map<
-        std::string,
-        std::unordered_map<std::string, std::unordered_map<uint64_t, IM::ServiceItemInfo::ptr>>>
+    std::unordered_map<std::string,
+                       std::unordered_map<std::string, std::unordered_map<uint64_t, IM::ServiceItemInfo::ptr>>>
         infos;
     sd->listServer(infos);
     auto itD = infos.find(domain);
@@ -208,12 +209,11 @@ static IM::ServiceItemInfo::ptr PickService(const std::string& domain, const std
     return itS->second.begin()->second;
 }
 
-static IM::RockResult::ptr RockJsonRequest(const std::string& ip_port, uint32_t cmd,
-                                          const Json::Value& body, uint32_t timeout_ms) {
+static IM::RockResult::ptr RockJsonRequest(const std::string &ip_port, uint32_t cmd, const Json::Value &body,
+                                           uint32_t timeout_ms) {
     auto conn = GetOrCreateRpcConn(ip_port);
     if (!conn || !conn->isConnected()) {
-        return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr,
-                                                nullptr);
+        return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr, nullptr);
     }
     IM::RockRequest::ptr req = std::make_shared<IM::RockRequest>();
     req->setSn(s_rock_req_sn.fetch_add(1));
@@ -222,8 +222,8 @@ static IM::RockResult::ptr RockJsonRequest(const std::string& ip_port, uint32_t 
     return conn->request(req, timeout_ms);
 }
 
-static std::string PresenceRequestGateway(uint32_t cmd, const Json::Value& body, uint32_t timeout_ms,
-                                         int32_t* out_code = nullptr) {
+static std::string PresenceRequestGateway(uint32_t cmd, const Json::Value &body, uint32_t timeout_ms,
+                                          int32_t *out_code = nullptr) {
     // 1) 优先使用固定地址（避免动态 queryServer 依赖 ZK 60s tick 的延迟）
     const auto fixed = g_presence_rpc_addr->getValue();
     if (!fixed.empty()) {
@@ -303,16 +303,16 @@ static std::string PresenceGetRoute(uint64_t uid) {
     return IM::JsonUtil::GetString(out, "gateway_rpc");
 }
 
-static void PushToUserLocalOnly(uint64_t uid, const std::string& event, const Json::Value& payload,
-                                const std::string& ackid) {
+static void PushToUserLocalOnly(uint64_t uid, const std::string &event, const Json::Value &payload,
+                                const std::string &ackid) {
     auto sessions = CollectSessions(uid);
-    for (auto& s : sessions) {
+    for (auto &s : sessions) {
         SendEvent(s, event, payload, ackid);
     }
 }
 
-static void DeliverToGatewayRpc(const std::string& gateway_rpc, uint64_t uid, const std::string& event,
-                                const Json::Value& payload) {
+static void DeliverToGatewayRpc(const std::string &gateway_rpc, uint64_t uid, const std::string &event,
+                                const Json::Value &payload) {
     if (gateway_rpc.empty() || uid == 0 || event.empty()) {
         return;
     }
@@ -325,8 +325,8 @@ static void DeliverToGatewayRpc(const std::string& gateway_rpc, uint64_t uid, co
 }  // namespace
 
 // 发送下行统一封装：{"event":"...","payload":{...},"ackid":"..."}
-static void SendEvent(IM::http::WSSession::ptr session, const std::string& event,
-                      const Json::Value& payload, const std::string& ackid = "") {
+static void SendEvent(IM::http::WSSession::ptr session, const std::string &event, const Json::Value &payload,
+                      const std::string &ackid = "") {
     Json::Value root;
     root["event"] = event;
     root["payload"] = payload.isNull() ? Json::Value(Json::objectValue) : payload;
@@ -340,8 +340,8 @@ static std::vector<IM::http::WSSession::ptr> CollectSessions(uint64_t uid) {
     {
         IM::RWMutex::ReadLock lock(s_ws_mutex);
         out.reserve(s_ws_conns.size());
-        for (auto& kv : s_ws_conns) {
-            const auto& item = kv.second;
+        for (auto &kv : s_ws_conns) {
+            const auto &item = kv.second;
             if (item.ctx.uid != uid) {
                 continue;
             }
@@ -362,15 +362,14 @@ bool WsGatewayModule::onServerReady() {
     }
 
     // 2. 遍历每个WebSocket服务器，注册路由与事件回调
-    for (auto& s : wsServers) {
+    for (auto &s : wsServers) {
         auto ws = std::dynamic_pointer_cast<IM::http::WSServer>(s);
         if (!ws) continue;
         auto dispatch = ws->getWSServletDispatch();
 
         /* 注册 WebSocket 路由回调 */
         // 2.1 连接建立回调：鉴权、会话登记、欢迎包
-        auto on_connect = [](IM::http::HttpRequest::ptr header,
-                             IM::http::WSSession::ptr session) -> int32_t {
+        auto on_connect = [](IM::http::HttpRequest::ptr header, IM::http::WSSession::ptr session) -> int32_t {
             // 获取或生成 Trace ID
             std::string trace_id = header->getHeader("X-Trace-ID");
             if (trace_id.empty()) {
@@ -420,7 +419,7 @@ bool WsGatewayModule::onServerReady() {
                 ConnItem item;
                 item.ctx = ctx;
                 item.weak = session;
-                s_ws_conns[(void*)session.get()] = std::move(item);
+                s_ws_conns[(void *)session.get()] = std::move(item);
             }
 
             // 4) 发送欢迎包，event="connect"
@@ -436,8 +435,7 @@ bool WsGatewayModule::onServerReady() {
         };
 
         // 2.2 连接关闭回调：移除会话表
-        auto on_close = [this](IM::http::HttpRequest::ptr header,
-                               IM::http::WSSession::ptr session) -> int32_t {
+        auto on_close = [this](IM::http::HttpRequest::ptr header, IM::http::WSSession::ptr session) -> int32_t {
             // 获取或生成 Trace ID
             std::string trace_id = header->getHeader("X-Trace-ID");
             if (trace_id.empty()) {
@@ -449,7 +447,7 @@ bool WsGatewayModule::onServerReady() {
             ConnCtx ctx;
             {
                 IM::RWMutex::ReadLock lock(s_ws_mutex);
-                auto it = s_ws_conns.find((void*)session.get());
+                auto it = s_ws_conns.find((void *)session.get());
                 if (it != s_ws_conns.end()) {
                     ctx = it->second.ctx;
                 }
@@ -459,8 +457,7 @@ bool WsGatewayModule::onServerReady() {
             if (ctx.uid != 0) {
                 auto offline_result = m_user_service->Offline(ctx.uid);
                 if (!offline_result.ok) {
-                    IM_LOG_ERROR(g_logger)
-                        << "Offline failed for uid=" << ctx.uid << ", err=" << offline_result.err;
+                    IM_LOG_ERROR(g_logger) << "Offline failed for uid=" << ctx.uid << ", err=" << offline_result.err;
                 }
 
                 // presence 下线
@@ -470,20 +467,19 @@ bool WsGatewayModule::onServerReady() {
             // 移除会话表
             {
                 IM::RWMutex::WriteLock lock(s_ws_mutex);
-                s_ws_conns.erase((void*)session.get());
+                s_ws_conns.erase((void *)session.get());
             }
             return 0;
         };
 
         // 2.3 消息处理回调：事件分发、心跳、回显等
-        auto on_message = [](IM::http::HttpRequest::ptr /*header*/,
-                             IM::http::WSFrameMessage::ptr msg,
+        auto on_message = [](IM::http::HttpRequest::ptr /*header*/, IM::http::WSFrameMessage::ptr msg,
                              IM::http::WSSession::ptr session) -> int32_t {
             // 仅处理文本帧，忽略二进制和控制帧
             if (!msg || msg->getOpcode() != IM::http::WSFrameHead::TEXT_FRAME) {
                 return 0;
             }
-            const std::string& data = msg->getData();
+            const std::string &data = msg->getData();
             Json::Value root;
             // 1) 解析JSON消息体，非对象型忽略
             if (!IM::JsonUtil::FromString(root, data) || !root.isObject()) {
@@ -491,8 +487,7 @@ bool WsGatewayModule::onServerReady() {
             }
             // 前端封装为 {"event": event, "payload": payload}
             const std::string event = IM::JsonUtil::GetString(root, "event");
-            const Json::Value payload =
-                root.isMember("payload") ? root["payload"] : Json::Value(Json::objectValue);
+            const Json::Value payload = root.isMember("payload") ? root["payload"] : Json::Value(Json::objectValue);
 
             std::string trace_id = IM::JsonUtil::GetString(root, "trace_id");
             if (trace_id.empty()) {
@@ -511,7 +506,7 @@ bool WsGatewayModule::onServerReady() {
                 ConnCtx ctx;
                 {
                     IM::RWMutex::ReadLock lock(s_ws_mutex);
-                    auto it = s_ws_conns.find((void*)session.get());
+                    auto it = s_ws_conns.find((void *)session.get());
                     if (it != s_ws_conns.end()) {
                         ctx = it->second.ctx;
                     }
@@ -546,7 +541,7 @@ bool WsGatewayModule::onServerReady() {
                     ConnCtx ctx;
                     {
                         IM::RWMutex::ReadLock lock(s_ws_mutex);
-                        auto it = s_ws_conns.find((void*)session.get());
+                        auto it = s_ws_conns.find((void *)session.get());
                         if (it != s_ws_conns.end()) {
                             ctx = it->second.ctx;
                         }
@@ -591,7 +586,7 @@ bool WsGatewayModule::onServerUp() {
 }
 
 bool WsGatewayModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockResponse::ptr response,
-                                       IM::RockStream::ptr stream) {
+                                        IM::RockStream::ptr stream) {
     // 处理指令：101 - 跨进程消息投递
     if (request->getCmd() == 101) {
         Json::Value body;
@@ -627,13 +622,13 @@ bool WsGatewayModule::handleRockNotify(IM::RockNotify::ptr notify, IM::RockStrea
 }
 
 // ===== 主动推送接口实现 =====
-void WsGatewayModule::PushToUser(uint64_t uid, const std::string& event, const Json::Value& payload,
-                                 const std::string& ackid) {
+void WsGatewayModule::PushToUser(uint64_t uid, const std::string &event, const Json::Value &payload,
+                                 const std::string &ackid) {
     // 1) 本机有连接则直接推送
     {
         auto sessions = CollectSessions(uid);
         if (!sessions.empty()) {
-            for (auto& s : sessions) {
+            for (auto &s : sessions) {
                 SendEvent(s, event, payload, ackid);
             }
             return;
@@ -655,8 +650,7 @@ void WsGatewayModule::PushToUser(uint64_t uid, const std::string& event, const J
     DeliverToGatewayRpc(gateway_rpc, uid, event, payload);
 }
 
-void WsGatewayModule::PushImMessage(uint8_t talk_mode, uint64_t to_from_id, uint64_t from_id,
-                                    const Json::Value& body) {
+void WsGatewayModule::PushImMessage(uint8_t talk_mode, uint64_t to_from_id, uint64_t from_id, const Json::Value &body) {
     Json::Value payload;
     payload["to_from_id"] = to_from_id;
     payload["from_id"] = from_id;
@@ -685,7 +679,7 @@ void WsGatewayModule::PushImMessage(uint8_t talk_mode, uint64_t to_from_id, uint
                     }
                 }
             }
-        } catch (const std::exception& ex) {
+        } catch (const std::exception &ex) {
             IM_LOG_WARN(g_logger) << "broadcast im.message failed: " << ex.what();
         }
     }

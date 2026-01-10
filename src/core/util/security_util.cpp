@@ -1,10 +1,12 @@
 #include "core/util/security_util.hpp"
-#include "infra/module/crypto_module.hpp"
+
 #include "core/util/hash_util.hpp"
+
+#include "infra/module/crypto_module.hpp"
 
 namespace IM::util {
 
-Result<std::string> DecryptPassword(const std::string& encrypted_password, std::string& out_plaintext) {
+Result<std::string> DecryptPassword(const std::string &encrypted_password, std::string &out_plaintext) {
     Result<std::string> result;
 
     // Base64 解码
@@ -30,4 +32,4 @@ Result<std::string> DecryptPassword(const std::string& encrypted_password, std::
     return result;
 }
 
-} // namespace IM::util
+}  // namespace IM::util

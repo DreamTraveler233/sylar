@@ -1,16 +1,17 @@
 /**
  * @file    ws_servlet.hpp
  * @brief   WebSocket服务端Servlet分发与回调接口声明，支持事件驱动的WS业务开发。
- * @author  DreamTraveler233
- * @date    2025-11-01
+ * @author DreamTraveler233
+ * @date 2026-01-10
  * @note    提供WebSocket消息、连接、关闭等事件的多路由分发与业务扩展能力。
  */
 
 #ifndef __IM_NET_HTTP_WS_SERVLET_HPP__
 #define __IM_NET_HTTP_WS_SERVLET_HPP__
 
-#include "http_servlet.hpp"
 #include "core/io/thread.hpp"
+
+#include "http_servlet.hpp"
 #include "ws_session.hpp"
 
 namespace IM::http {
@@ -31,7 +32,7 @@ class WSServlet : public Servlet {
      * @brief   构造函数
      * @param   name  servlet名称
      */
-    WSServlet(const std::string& name) : Servlet(name) {}
+    WSServlet(const std::string &name) : Servlet(name) {}
 
     /**
      * @brief   虚析构，便于继承
@@ -45,8 +46,7 @@ class WSServlet : public Servlet {
      * @param   session   HTTP会话对象
      * @return  固定返回0
      */
-    virtual int32_t handle(IM::http::HttpRequest::ptr request,
-                           IM::http::HttpResponse::ptr response,
+    virtual int32_t handle(IM::http::HttpRequest::ptr request, IM::http::HttpResponse::ptr response,
                            IM::http::HttpSession::ptr session) override {
         return 0;
     }
@@ -58,8 +58,7 @@ class WSServlet : public Servlet {
      * @return  0表示成功，非0表示拒绝连接
      * @note    返回非0将导致连接被关闭
      */
-    virtual int32_t onConnect(IM::http::HttpRequest::ptr header,
-                              IM::http::WSSession::ptr session) = 0;
+    virtual int32_t onConnect(IM::http::HttpRequest::ptr header, IM::http::WSSession::ptr session) = 0;
 
     /**
      * @brief   连接关闭事件回调（必须实现）
@@ -67,8 +66,7 @@ class WSServlet : public Servlet {
      * @param   session  WebSocket会话对象
      * @return  0表示正常
      */
-    virtual int32_t onClose(IM::http::HttpRequest::ptr header,
-                            IM::http::WSSession::ptr session) = 0;
+    virtual int32_t onClose(IM::http::HttpRequest::ptr header, IM::http::WSSession::ptr session) = 0;
 
     /**
      * @brief   消息处理事件回调（必须实现）
@@ -84,7 +82,7 @@ class WSServlet : public Servlet {
      * @brief   获取Servlet名称
      * @return  名称字符串
      */
-    const std::string& getName() const { return m_name; }
+    const std::string &getName() const { return m_name; }
 
    protected:
     std::string m_name;  ///< servlet名称
@@ -113,8 +111,7 @@ class FunctionWSServlet : public WSServlet {
      * @param   connect_cb  连接回调
      * @param   close_cb    关闭回调
      */
-    FunctionWSServlet(callback cb, on_connect_cb connect_cb = nullptr,
-                      on_close_cb close_cb = nullptr);
+    FunctionWSServlet(callback cb, on_connect_cb connect_cb = nullptr, on_close_cb close_cb = nullptr);
 
     /**
      * @brief   连接建立事件回调实现
@@ -139,8 +136,7 @@ class FunctionWSServlet : public WSServlet {
      * @param   session  WebSocket会话对象
      * @return  0表示正常，非0将关闭连接
      */
-    int32_t handle(HttpRequest::ptr header, WSFrameMessage::ptr msg,
-                   WSSession::ptr session) override;
+    int32_t handle(HttpRequest::ptr header, WSFrameMessage::ptr msg, WSSession::ptr session) override;
 
    protected:
     callback m_callback;        ///< 消息回调
@@ -172,7 +168,7 @@ class WSServletDispatch : public ServletDispatch {
      * @param   connect_cb  连接回调
      * @param   close_cb    关闭回调
      */
-    void addServlet(const std::string& uri, FunctionWSServlet::callback cb,
+    void addServlet(const std::string &uri, FunctionWSServlet::callback cb,
                     FunctionWSServlet::on_connect_cb connect_cb = nullptr,
                     FunctionWSServlet::on_close_cb close_cb = nullptr);
 
@@ -183,7 +179,7 @@ class WSServletDispatch : public ServletDispatch {
      * @param   connect_cb  连接回调
      * @param   close_cb    关闭回调
      */
-    void addGlobServlet(const std::string& uri, FunctionWSServlet::callback cb,
+    void addGlobServlet(const std::string &uri, FunctionWSServlet::callback cb,
                         FunctionWSServlet::on_connect_cb connect_cb = nullptr,
                         FunctionWSServlet::on_close_cb close_cb = nullptr);
 
@@ -192,7 +188,7 @@ class WSServletDispatch : public ServletDispatch {
      * @param   uri 路径
      * @return  匹配的WSServlet智能指针，未找到返回nullptr
      */
-    WSServlet::ptr getWSServlet(const std::string& uri);
+    WSServlet::ptr getWSServlet(const std::string &uri);
 };
 
 }  // namespace IM::http

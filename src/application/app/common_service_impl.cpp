@@ -2,6 +2,7 @@
 
 #include "core/base/macro.hpp"
 #include "core/config/config.hpp"
+
 #include "infra/email/email.hpp"
 #include "infra/email/smtp.hpp"
 
@@ -14,27 +15,22 @@ static auto g_sms_provider =
     IM::Config::Lookup<std::string>("sms.provider", "mock", "sms provider: aliyun/tencent/mock");
 static auto g_sms_code_ttl_secs =
     IM::Config::Lookup<uint32_t>("sms.code_ttl_secs", 60, "sms code time to live in seconds");
-static auto g_sms_code_cleanup_interval = IM::Config::Lookup<uint32_t>(
-    "sms.code_cleanup_interval", 60, "sms code cleanup interval in seconds");
+static auto g_sms_code_cleanup_interval =
+    IM::Config::Lookup<uint32_t>("sms.code_cleanup_interval", 60, "sms code cleanup interval in seconds");
 
-static auto g_email_enabled =
-    IM::Config::Lookup<bool>("email.enabled", false, "enable email sending");
+static auto g_email_enabled = IM::Config::Lookup<bool>("email.enabled", false, "enable email sending");
 static auto g_smtp_host = IM::Config::Lookup<std::string>("smtp.host", "", "smtp host");
 static auto g_smtp_port = IM::Config::Lookup<uint32_t>("smtp.port", 25, "smtp port");
 static auto g_smtp_ssl = IM::Config::Lookup<bool>("smtp.ssl", false, "smtp ssl");
 static auto g_smtp_debug = IM::Config::Lookup<bool>("smtp.debug", false, "smtp debug mode");
-static auto g_smtp_auth_user =
-    IM::Config::Lookup<std::string>("smtp.auth.user", "", "smtp auth user");
-static auto g_smtp_auth_pass =
-    IM::Config::Lookup<std::string>("smtp.auth.pass", "", "smtp auth pass");
-static auto g_smtp_from_name =
-    IM::Config::Lookup<std::string>("smtp.from.name", "", "smtp from display name");
-static auto g_smtp_from_address =
-    IM::Config::Lookup<std::string>("smtp.from.address", "", "smtp from address");
+static auto g_smtp_auth_user = IM::Config::Lookup<std::string>("smtp.auth.user", "", "smtp auth user");
+static auto g_smtp_auth_pass = IM::Config::Lookup<std::string>("smtp.auth.pass", "", "smtp auth pass");
+static auto g_smtp_from_name = IM::Config::Lookup<std::string>("smtp.from.name", "", "smtp from display name");
+static auto g_smtp_from_address = IM::Config::Lookup<std::string>("smtp.from.address", "", "smtp from address");
 static auto g_email_code_ttl_secs =
     IM::Config::Lookup<uint32_t>("email.code_ttl_secs", 300, "email code time to live in seconds");
-static auto g_email_code_cleanup_interval = IM::Config::Lookup<uint32_t>(
-    "email.code_cleanup_interval", 3600, "email code cleanup interval in seconds");
+static auto g_email_code_cleanup_interval =
+    IM::Config::Lookup<uint32_t>("email.code_cleanup_interval", 3600, "email code cleanup interval in seconds");
 
 // 验证码失效认证定时器
 static IM::Timer::ptr g_cleanup_timer;
@@ -44,8 +40,7 @@ static IM::Timer::ptr g_invalid_code_cleanup_timer;
 CommonServiceImpl::CommonServiceImpl(IM::domain::repository::ICommonRepository::Ptr common_repo)
     : m_common_repo(std::move(common_repo)) {}
 
-Result<model::SmsVerifyCode> CommonServiceImpl::SendSmsCode(const std::string& mobile,
-                                                            const std::string& channel,
+Result<model::SmsVerifyCode> CommonServiceImpl::SendSmsCode(const std::string &mobile, const std::string &channel,
                                                             IM::http::HttpSession::ptr session) {
     Result<model::SmsVerifyCode> result;
     std::string err;
@@ -88,8 +83,8 @@ Result<model::SmsVerifyCode> CommonServiceImpl::SendSmsCode(const std::string& m
     return result;
 }
 
-Result<void> CommonServiceImpl::VerifySmsCode(const std::string& mobile, const std::string& code,
-                                              const std::string& channel) {
+Result<void> CommonServiceImpl::VerifySmsCode(const std::string &mobile, const std::string &code,
+                                              const std::string &channel) {
     // 使用 DAO 层进行原子校验（同时校验未过期与未使用，并标记为已使用）
     Result<void> result;
     std::string err;
@@ -106,8 +101,8 @@ Result<void> CommonServiceImpl::VerifySmsCode(const std::string& mobile, const s
     return result;
 }
 
-Result<model::EmailVerifyCode> CommonServiceImpl::SendEmailCode(
-    const std::string& email, const std::string& channel, IM::http::HttpSession::ptr session) {
+Result<model::EmailVerifyCode> CommonServiceImpl::SendEmailCode(const std::string &email, const std::string &channel,
+                                                                IM::http::HttpSession::ptr session) {
     Result<model::EmailVerifyCode> result;
     std::string err;
 
@@ -122,9 +117,8 @@ Result<model::EmailVerifyCode> CommonServiceImpl::SendEmailCode(
     /* 根据配置决定是否发送真实邮件 */
     if (g_email_enabled->getValue()) {
         std::string title = "【心语IM】验证码";
-        std::string body =
-            "尊敬的用户：\r\n\r\n您好！\r\n\r\n您正在进行邮箱验证操作，本次验证码为：" + code +
-            "，请在5分钟内完成验证。\r\n\r\n如非本人操作，请忽略此邮件。\r\n\r\nIM即时通讯团队";
+        std::string body = "尊敬的用户：\r\n\r\n您好！\r\n\r\n您正在进行邮箱验证操作，本次验证码为：" + code +
+                           "，请在5分钟内完成验证。\r\n\r\n如非本人操作，请忽略此邮件。\r\n\r\nIM即时通讯团队";
         if (!SendRealEmail(email, title, body, &err)) {
             IM_LOG_ERROR(g_logger) << "发送邮件失败: " << err;
             result.code = 500;
@@ -156,8 +150,8 @@ Result<model::EmailVerifyCode> CommonServiceImpl::SendEmailCode(
     return result;
 }
 
-Result<void> CommonServiceImpl::VerifyEmailCode(const std::string& email, const std::string& code,
-                                                const std::string& channel) {
+Result<void> CommonServiceImpl::VerifyEmailCode(const std::string &email, const std::string &code,
+                                                const std::string &channel) {
     Result<void> result;
     std::string err;
 
@@ -173,8 +167,8 @@ Result<void> CommonServiceImpl::VerifyEmailCode(const std::string& email, const 
     return result;
 }
 
-bool CommonServiceImpl::SendRealEmail(const std::string& email_addr, const std::string& title,
-                                      const std::string& body, std::string* err) {
+bool CommonServiceImpl::SendRealEmail(const std::string &email_addr, const std::string &title, const std::string &body,
+                                      std::string *err) {
     auto smtp_host = g_smtp_host->getValue();
     auto smtp_port = g_smtp_port->getValue();
     auto smtp_ssl = g_smtp_ssl->getValue();
@@ -236,8 +230,8 @@ bool CommonServiceImpl::SendRealEmail(const std::string& email_addr, const std::
 }
 
 // 实际发送短信（根据提供商调用相应API）
-bool CommonServiceImpl::SendRealSms(const std::string& mobile, const std::string& sms_code,
-                                    const std::string& channel, std::string* err) {
+bool CommonServiceImpl::SendRealSms(const std::string &mobile, const std::string &sms_code, const std::string &channel,
+                                    std::string *err) {
     auto provider = g_sms_provider->getValue();
     if (provider == "aliyun") {
         return SendSmsViaAliyun(mobile, sms_code, channel, err);
@@ -251,8 +245,8 @@ bool CommonServiceImpl::SendRealSms(const std::string& mobile, const std::string
 }
 
 // 示例：阿里云短信发送（需要安装阿里云SDK并配置AK/SK）
-bool CommonServiceImpl::SendSmsViaAliyun(const std::string& mobile, const std::string& sms_code,
-                                         const std::string& channel, std::string* err) {
+bool CommonServiceImpl::SendSmsViaAliyun(const std::string &mobile, const std::string &sms_code,
+                                         const std::string &channel, std::string *err) {
     // TODO: 实现阿里云短信发送逻辑
     // 1. 获取配置：access_key_id, access_key_secret, sign_name, template_code
     // 2. 调用阿里云SMS API发送短信
@@ -264,8 +258,8 @@ bool CommonServiceImpl::SendSmsViaAliyun(const std::string& mobile, const std::s
 }
 
 // 示例：腾讯云短信发送
-bool CommonServiceImpl::SendSmsViaTencent(const std::string& mobile, const std::string& sms_code,
-                                          const std::string& channel, std::string* err) {
+bool CommonServiceImpl::SendSmsViaTencent(const std::string &mobile, const std::string &sms_code,
+                                          const std::string &channel, std::string *err) {
     // TODO: 实现腾讯云短信发送逻辑
     IM_LOG_INFO(g_logger) << "腾讯云短信发送到 " << mobile << ": " << sms_code;
     return true;
@@ -278,8 +272,7 @@ void CommonServiceImpl::InitCleanupTimer() {
         return;
     }
     // 定期将过期验证码标记为失效（取短信与邮箱中较小的 TTL，以保证及时处理）
-    uint32_t cleanup_timer_secs =
-        std::min(g_sms_code_ttl_secs->getValue(), g_email_code_ttl_secs->getValue());
+    uint32_t cleanup_timer_secs = std::min(g_sms_code_ttl_secs->getValue(), g_email_code_ttl_secs->getValue());
     g_cleanup_timer = IM::IOManager::GetThis()->addTimer(
         cleanup_timer_secs * 1000,
         [this]() {
@@ -300,8 +293,8 @@ void CommonServiceImpl::InitInvalidCodeCleanupTimer() {
         return;
     }
     // 删除失效验证码（取短信/邮件中较小的清理间隔）
-    uint32_t invalid_cleanup_secs = std::min(g_sms_code_cleanup_interval->getValue(),
-                                             g_email_code_cleanup_interval->getValue());
+    uint32_t invalid_cleanup_secs =
+        std::min(g_sms_code_cleanup_interval->getValue(), g_email_code_cleanup_interval->getValue());
     g_invalid_code_cleanup_timer = IM::IOManager::GetThis()->addTimer(
         invalid_cleanup_secs * 1000,
         [this]() {

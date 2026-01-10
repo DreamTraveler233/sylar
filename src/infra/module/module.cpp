@@ -1,33 +1,29 @@
 
 #include "infra/module/module.hpp"
 
-#include "core/config/config.hpp"
-#include "infra/module/library.hpp"
 #include "core/base/macro.hpp"
+#include "core/config/config.hpp"
 #include "core/system/application.hpp"
 #include "core/system/env.hpp"
 #include "core/util/util.hpp"
+
+#include "infra/module/library.hpp"
 
 namespace IM {
 static auto g_module_path = Config::Lookup("module.path", std::string("module"), "module path");
 
 static auto g_logger = IM_LOG_NAME("system");
 
-Module::Module(const std::string& name, const std::string& version, const std::string& filename,
-               uint32_t type)
-    : m_name(name),
-      m_version(version),
-      m_filename(filename),
-      m_id(name + "/" + version),
-      m_type(type) {}
+Module::Module(const std::string &name, const std::string &version, const std::string &filename, uint32_t type)
+    : m_name(name), m_version(version), m_filename(filename), m_id(name + "/" + version), m_type(type) {}
 
-void Module::onBeforeArgsParse(int argc, char** argv) {}
+void Module::onBeforeArgsParse(int argc, char **argv) {}
 
-void Module::onAfterArgsParse(int argc, char** argv) {}
+void Module::onAfterArgsParse(int argc, char **argv) {}
 
 bool Module::handleRequest(Message::ptr req, Message::ptr rsp, Stream::ptr stream) {
     IM_LOG_DEBUG(g_logger) << "handleRequest req=" << req->toString() << " rsp=" << rsp->toString()
-                            << " stream=" << stream;
+                           << " stream=" << stream;
     return true;
 }
 
@@ -60,8 +56,7 @@ bool Module::onServerUp() {
     return true;
 }
 
-void Module::registerService(const std::string& server_type, const std::string& domain,
-                             const std::string& service) {
+void Module::registerService(const std::string &server_type, const std::string &domain, const std::string &service) {
     auto sd = Application::GetInstance()->getServiceDiscovery();
     if (!sd) {
         return;
@@ -70,9 +65,9 @@ void Module::registerService(const std::string& server_type, const std::string& 
     if (!Application::GetInstance()->getServer(server_type, svrs)) {
         return;
     }
-    for (auto& i : svrs) {
+    for (auto &i : svrs) {
         auto socks = i->getSocks();
-        for (auto& s : socks) {
+        for (auto &s : socks) {
             auto addr = std::dynamic_pointer_cast<IPv4Address>(s->getLocalAddress());
             if (!addr) {
                 continue;
@@ -94,13 +89,11 @@ void Module::registerService(const std::string& server_type, const std::string& 
 
 std::string Module::statusString() {
     std::stringstream ss;
-    ss << "Module name=" << getName() << " version=" << getVersion()
-       << " filename=" << getFilename() << std::endl;
+    ss << "Module name=" << getName() << " version=" << getVersion() << " filename=" << getFilename() << std::endl;
     return ss.str();
 }
 
-RockModule::RockModule(const std::string& name, const std::string& version,
-                       const std::string& filename)
+RockModule::RockModule(const std::string &name, const std::string &version, const std::string &filename)
     : Module(name, version, filename, ROCK) {}
 
 bool RockModule::handleRequest(Message::ptr req, Message::ptr rsp, Stream::ptr stream) {
@@ -118,7 +111,7 @@ bool RockModule::handleNotify(Message::ptr notify, Stream::ptr stream) {
 
 ModuleManager::ModuleManager() {}
 
-Module::ptr ModuleManager::get(const std::string& name) {
+Module::ptr ModuleManager::get(const std::string &name) {
     RWMutexType::ReadLock lock(m_mutex);
     auto it = m_modules.find(name);
     return it == m_modules.end() ? nullptr : it->second;
@@ -131,7 +124,7 @@ void ModuleManager::add(Module::ptr m) {
     m_type2Modules[m->getType()][m->getId()] = m;
 }
 
-void ModuleManager::del(const std::string& name) {
+void ModuleManager::del(const std::string &name) {
     Module::ptr module;
     RWMutexType::WriteLock lock(m_mutex);
     auto it = m_modules.find(name);
@@ -153,7 +146,7 @@ void ModuleManager::delAll() {
     auto tmp = m_modules;
     lock.unlock();
 
-    for (auto& i : tmp) {
+    for (auto &i : tmp) {
         del(i.first);
     }
 }
@@ -165,18 +158,18 @@ void ModuleManager::init() {
     FSUtil::ListAllFile(files, path, ".so");
 
     std::sort(files.begin(), files.end());
-    for (auto& i : files) {
+    for (auto &i : files) {
         initModule(i);
     }
 }
 
-void ModuleManager::listByType(uint32_t type, std::vector<Module::ptr>& ms) {
+void ModuleManager::listByType(uint32_t type, std::vector<Module::ptr> &ms) {
     RWMutexType::ReadLock lock(m_mutex);
     auto it = m_type2Modules.find(type);
     if (it == m_type2Modules.end()) {
         return;
     }
-    for (auto& i : it->second) {
+    for (auto &i : it->second) {
         ms.push_back(i.second);
     }
 }
@@ -184,7 +177,7 @@ void ModuleManager::listByType(uint32_t type, std::vector<Module::ptr>& ms) {
 void ModuleManager::foreach (uint32_t type, std::function<void(Module::ptr)> cb) {
     std::vector<Module::ptr> ms;
     listByType(type, ms);
-    for (auto& i : ms) {
+    for (auto &i : ms) {
         cb(i);
     }
 }
@@ -193,7 +186,7 @@ void ModuleManager::onConnect(Stream::ptr stream) {
     std::vector<Module::ptr> ms;
     listAll(ms);
 
-    for (auto& m : ms) {
+    for (auto &m : ms) {
         m->onConnect(stream);
     }
 }
@@ -202,42 +195,42 @@ void ModuleManager::onDisconnect(Stream::ptr stream) {
     std::vector<Module::ptr> ms;
     listAll(ms);
 
-    for (auto& m : ms) {
+    for (auto &m : ms) {
         m->onDisconnect(stream);
     }
 }
 
-void ModuleManager::listAll(std::vector<Module::ptr>& ms) {
+void ModuleManager::listAll(std::vector<Module::ptr> &ms) {
     RWMutexType::ReadLock lock(m_mutex);
-    for (auto& i : m_modules) {
+    for (auto &i : m_modules) {
         ms.push_back(i.second);
     }
 }
 
-void ModuleManager::initModule(const std::string& path) {
+void ModuleManager::initModule(const std::string &path) {
     Module::ptr m = Library::GetModule(path);
     if (m) {
         add(m);
     }
 }
 
-const std::string& Module::getName() const {
+const std::string &Module::getName() const {
     return m_name;
 }
 
-const std::string& Module::getVersion() const {
+const std::string &Module::getVersion() const {
     return m_version;
 }
 
-const std::string& Module::getFilename() const {
+const std::string &Module::getFilename() const {
     return m_filename;
 }
 
-const std::string& Module::getId() const {
+const std::string &Module::getId() const {
     return m_id;
 }
 
-void Module::setFilename(const std::string& v) {
+void Module::setFilename(const std::string &v) {
     m_filename = v;
 }
 

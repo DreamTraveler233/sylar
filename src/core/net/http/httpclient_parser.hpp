@@ -34,6 +34,8 @@
 
 /**
  * @file httpclient_parser.hpp
+ * @author DreamTraveler233
+ * @date 2026-01-10
  * @brief HTTP客户端响应解析器
  *
  * 本文件定义了HTTP客户端响应解析器的核心结构和接口，用于解析HTTP响应数据。
@@ -72,7 +74,7 @@ typedef struct httpclient_parser {
     size_t field_start;  /// 当前HTTP头部字段开始位置
     size_t field_len;    /// 当前HTTP头部字段长度
 
-    void* data;  /// 用户自定义数据指针，用于回调函数传递数据
+    void *data;  /// 用户自定义数据指针，用于回调函数传递数据
 
     field_cb http_field;       /// HTTP头部字段回调函数指针
     element_cb reason_phrase;  /// 原因短语回调函数指针
@@ -89,14 +91,14 @@ typedef struct httpclient_parser {
  * @param[out] parser HTTP客户端解析器结构体指针
  * @return 初始化结果，成功返回0，失败返回非0值
  */
-int httpclient_parser_init(httpclient_parser* parser);
+int httpclient_parser_init(httpclient_parser *parser);
 
 /**
  * @brief 完成HTTP客户端解析
  * @param[in,out] parser HTTP客户端解析器结构体指针
  * @return 完成结果，成功返回0，失败返回非0值
  */
-int httpclient_parser_finish(httpclient_parser* parser);
+int httpclient_parser_finish(httpclient_parser *parser);
 
 /**
  * @brief 执行HTTP客户端解析
@@ -106,21 +108,21 @@ int httpclient_parser_finish(httpclient_parser* parser);
  * @param[in] off 解析起始偏移量
  * @return 解析结果，成功返回0，失败返回非0值
  */
-int httpclient_parser_execute(httpclient_parser* parser, const char* data, size_t len, size_t off);
+int httpclient_parser_execute(httpclient_parser *parser, const char *data, size_t len, size_t off);
 
 /**
  * @brief 检查解析过程中是否有错误
  * @param[in] parser HTTP客户端解析器结构体指针
  * @return 有错误返回非0值，无错误返回0
  */
-int httpclient_parser_has_error(httpclient_parser* parser);
+int httpclient_parser_has_error(httpclient_parser *parser);
 
 /**
  * @brief 检查解析是否已完成
  * @param[in] parser HTTP客户端解析器结构体指针
  * @return 已完成返回非0值，未完成返回0
  */
-int httpclient_parser_is_finished(httpclient_parser* parser);
+int httpclient_parser_is_finished(httpclient_parser *parser);
 
 /**
  * @brief 获取已读取的字节数
@@ -129,4 +131,4 @@ int httpclient_parser_is_finished(httpclient_parser* parser);
  */
 #define httpclient_parser_nread(parser) (parser)->nread
 
-#endif // __IM_NET_HTTP_HTTPCLIENT_PARSER_HPP__
+#endif  // __IM_NET_HTTP_HTTPCLIENT_PARSER_HPP__

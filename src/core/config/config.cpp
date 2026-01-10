@@ -8,17 +8,17 @@ namespace IM {
 static auto g_logger = IM_LOG_NAME("system");
 
 /**
-     * @brief 递归遍历YAML节点，将所有配置项的名称和节点存入输出列表
-     * @param prefix 配置项名称前缀
-     * @param node 当前处理的YAML节点
-     * @param output 用于存储配置项名称和对应节点的输出列表
-     *
-     * 该函数首先检查配置项名称是否合法，然后将当前节点加入输出列表。
-     * 如果当前节点是Map类型，则递归处理其所有子节点。
-     * 配置项名称只能包含字母、数字、下划线和点号。
-     */
-static void ListAllMember(const std::string& prefix, const YAML::Node& node,
-                          std::list<std::pair<std::string, const YAML::Node>>& output) {
+ * @brief 递归遍历YAML节点，将所有配置项的名称和节点存入输出列表
+ * @param prefix 配置项名称前缀
+ * @param node 当前处理的YAML节点
+ * @param output 用于存储配置项名称和对应节点的输出列表
+ *
+ * 该函数首先检查配置项名称是否合法，然后将当前节点加入输出列表。
+ * 如果当前节点是Map类型，则递归处理其所有子节点。
+ * 配置项名称只能包含字母、数字、下划线和点号。
+ */
+static void ListAllMember(const std::string &prefix, const YAML::Node &node,
+                          std::list<std::pair<std::string, const YAML::Node>> &output) {
     // 检查配置项名称是否合法，只能包含字母、数字、下划线和点号
     if (prefix.find_first_not_of("abcdefghijklmnopqrstuvwxyz0123456789._") != std::string::npos) {
         IM_LOG_ERROR(g_logger) << "Config invalid name " << prefix << " : " << node;
@@ -30,13 +30,12 @@ static void ListAllMember(const std::string& prefix, const YAML::Node& node,
     if (node.IsMap()) {
         for (auto it = node.begin(); it != node.end(); ++it) {
             // 根据是否有前缀，构建子节点的完整名称并递归处理
-            ListAllMember(prefix.empty() ? it->first.Scalar() : prefix + "." + it->first.Scalar(),
-                          it->second, output);
+            ListAllMember(prefix.empty() ? it->first.Scalar() : prefix + "." + it->first.Scalar(), it->second, output);
         }
     }
 }
 
-ConfigVariableBase::ptr Config::LookupBase(const std::string& name) {
+ConfigVariableBase::ptr Config::LookupBase(const std::string &name) {
     RWMutexType::ReadLock lock(GetMutex());
     auto it = GetDatas().find(name);
     return it == GetDatas().end() ? nullptr : it->second;
@@ -47,15 +46,15 @@ static std::map<std::string, uint64_t> s_file2modifytime;
 static IM::Mutex s_mutex;
 
 /**
-     * @brief 从指定目录加载配置文件
-     * @param path 配置文件目录路径
-     * @param force 是否强制加载，即使文件未修改也重新加载
-     *
-     * 该函数会遍历指定目录下的所有.yml文件，检查文件的修改时间，
-     * 如果文件有更新或者强制加载标志为true，则加载该配置文件。
-     * 加载成功后会通过LoadFromYaml函数将配置项注册到系统中。
-     */
-void Config::LoadFromConfigDir(const std::string& path, bool force) {
+ * @brief 从指定目录加载配置文件
+ * @param path 配置文件目录路径
+ * @param force 是否强制加载，即使文件未修改也重新加载
+ *
+ * 该函数会遍历指定目录下的所有.yml文件，检查文件的修改时间，
+ * 如果文件有更新或者强制加载标志为true，则加载该配置文件。
+ * 加载成功后会通过LoadFromYaml函数将配置项注册到系统中。
+ */
+void Config::LoadFromConfigDir(const std::string &path, bool force) {
     IM_ASSERT(!path.empty());
     // 获取绝对路径
     std::string absoulte_path = EnvMgr::GetInstance()->getAbsolutePath(path);
@@ -64,7 +63,7 @@ void Config::LoadFromConfigDir(const std::string& path, bool force) {
     // 遍历目录下所有.yml文件
     FSUtil::ListAllFile(files, absoulte_path, ".yaml");
     // 遍历所有找到的配置文件
-    for (auto& i : files) {
+    for (auto &i : files) {
         // 检查文件修改时间，避免重复加载未修改的文件
         {
             struct stat st;
@@ -90,21 +89,21 @@ void Config::LoadFromConfigDir(const std::string& path, bool force) {
 }
 
 /**
-     * @brief 从YAML节点加载配置项
-     * @param root YAML根节点
-     *
-     * 该函数递归遍历YAML节点树，将所有配置项的名称和值存入配置管理器中。
-     * 配置项名称会被转换为小写，并通过lookupBase查找已存在的配置项，
-     * 然后使用fromString方法更新配置项的值。
-     */
-void Config::LoadFromYaml(const YAML::Node& root) {
+ * @brief 从YAML节点加载配置项
+ * @param root YAML根节点
+ *
+ * 该函数递归遍历YAML节点树，将所有配置项的名称和值存入配置管理器中。
+ * 配置项名称会被转换为小写，并通过lookupBase查找已存在的配置项，
+ * 然后使用fromString方法更新配置项的值。
+ */
+void Config::LoadFromYaml(const YAML::Node &root) {
     IM_ASSERT(root);
 
     std::list<std::pair<std::string, const YAML::Node>> all_nodes;
     // 递归遍历YAML节点树，将所有配置项的名称和值存入列表
     ListAllMember("", root, all_nodes);
 
-    for (auto& i : all_nodes) {
+    for (auto &i : all_nodes) {
         std::string key = i.first;  // 配置项名称
         if (key.empty()) {
             continue;
@@ -135,7 +134,7 @@ void Config::LoadFromYaml(const YAML::Node& root) {
 void Config::Visit(std::function<void(ConfigVariableBase::ptr)> cb) {
     IM_ASSERT(cb);
     RWMutexType::ReadLock lock(GetMutex());
-    ConfigVarMap& m = GetDatas();
+    ConfigVarMap &m = GetDatas();
     for (auto it = m.begin(); it != m.end(); ++it) {
         cb(it->second);
     }

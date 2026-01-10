@@ -1,3 +1,12 @@
+/**
+ * @file async_socket_stream.hpp
+ * @brief 网络通信相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 网络通信相关。
+ */
+
 #ifndef __IM_NET_STREAMS_ASYNC_SOCKET_STREAM_HPP__
 #define __IM_NET_STREAMS_ASYNC_SOCKET_STREAM_HPP__
 
@@ -8,8 +17,7 @@
 #include "socket_stream.hpp"
 
 namespace IM {
-class AsyncSocketStream : public SocketStream,
-                          public std::enable_shared_from_this<AsyncSocketStream> {
+class AsyncSocketStream : public SocketStream, public std::enable_shared_from_this<AsyncSocketStream> {
    public:
     typedef std::shared_ptr<AsyncSocketStream> ptr;
     typedef RWMutex RWMutexType;
@@ -49,7 +57,7 @@ class AsyncSocketStream : public SocketStream,
         uint32_t result;
         bool timed;
 
-        Scheduler* scheduler;
+        Scheduler *scheduler;
         Coroutine::ptr fiber;
         Timer::ptr timer;
 
@@ -57,11 +65,11 @@ class AsyncSocketStream : public SocketStream,
     };
 
    public:
-    void setWorker(IOManager* v) { m_worker = v; }
-    IOManager* getWorker() const { return m_worker; }
+    void setWorker(IOManager *v) { m_worker = v; }
+    IOManager *getWorker() const { return m_worker; }
 
-    void setIOManager(IOManager* v) { m_iomanager = v; }
-    IOManager* getIOManager() const { return m_iomanager; }
+    void setIOManager(IOManager *v) { m_iomanager = v; }
+    IOManager *getIOManager() const { return m_iomanager; }
 
     bool isAutoConnect() const { return m_autoConnect; }
     void setAutoConnect(bool v) { m_autoConnect = v; }
@@ -72,7 +80,7 @@ class AsyncSocketStream : public SocketStream,
     void setDisconnectCb(disconnect_callback v) { m_disconnectCb = v; }
 
     template <class T>
-    void setData(const T& v) {
+    void setData(const T &v) {
         m_data = v;
     }
 
@@ -131,8 +139,8 @@ class AsyncSocketStream : public SocketStream,
     uint32_t m_sn;
     bool m_autoConnect;
     Timer::ptr m_timer;
-    IOManager* m_iomanager;
-    IOManager* m_worker;
+    IOManager *m_iomanager;
+    IOManager *m_worker;
 
     connect_callback m_connectCb;
     disconnect_callback m_disconnectCb;
@@ -151,7 +159,7 @@ class AsyncSocketStreamManager {
 
     void add(AsyncSocketStream::ptr stream);
     void clear();
-    void setConnection(const std::vector<AsyncSocketStream::ptr>& streams);
+    void setConnection(const std::vector<AsyncSocketStream::ptr> &streams);
     AsyncSocketStream::ptr get();
     template <class T>
     std::shared_ptr<T> getAs() {
@@ -178,4 +186,4 @@ class AsyncSocketStreamManager {
 
 }  // namespace IM
 
-#endif // __IM_NET_STREAMS_ASYNC_SOCKET_STREAM_HPP__
+#endif  // __IM_NET_STREAMS_ASYNC_SOCKET_STREAM_HPP__

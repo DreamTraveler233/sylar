@@ -1,17 +1,17 @@
 #include "core/io/scheduler.hpp"
 
-#include "core/net/core/hook.hpp"
 #include "core/base/macro.hpp"
+#include "core/net/core/hook.hpp"
 
 namespace IM {
 static auto g_logger = IM_LOG_NAME("system");
 
 // 当前线程的调度器对象
-static thread_local Scheduler* t_scheduler = nullptr;
+static thread_local Scheduler *t_scheduler = nullptr;
 // 当前线程的协程对象
-static thread_local Coroutine* t_coroutine = nullptr;
+static thread_local Coroutine *t_coroutine = nullptr;
 
-Scheduler::Scheduler(size_t threads, bool use_caller, const std::string& name) : m_name(name) {
+Scheduler::Scheduler(size_t threads, bool use_caller, const std::string &name) : m_name(name) {
     IM_ASSERT(threads > 0);
 
     // 如果使用调用线程，则将当前线程作为调度线程之一
@@ -20,7 +20,7 @@ Scheduler::Scheduler(size_t threads, bool use_caller, const std::string& name) :
         --threads;
 
         IM_ASSERT(GetThis() == nullptr);  // 当前线程的调度器实例为空
-        t_scheduler = this;                // 设置当前线程的调度器
+        t_scheduler = this;               // 设置当前线程的调度器
 
         // 创建根协程并绑定到当前调度器的run方法
         m_rootCoroutine.reset(new Coroutine(std::bind(&Scheduler::run, this), 0, true));
@@ -41,11 +41,11 @@ Scheduler::~Scheduler() {
     }
 }
 
-const std::string& Scheduler::getName() const {
+const std::string &Scheduler::getName() const {
     return m_name;
 }
 
-Scheduler* Scheduler::GetThis() {
+Scheduler *Scheduler::GetThis() {
     return t_scheduler;
 }
 void Scheduler::setThis() {
@@ -56,7 +56,7 @@ bool Scheduler::hasIdleThreads() {
     return m_idleThreadCount > 0;
 }
 
-Coroutine* Scheduler::GetMainCoroutine() {
+Coroutine *Scheduler::GetMainCoroutine() {
     return t_coroutine;
 }
 
@@ -73,8 +73,7 @@ void Scheduler::start() {
     m_threads.resize(m_threadCount);  // 提前分配内存
     for (size_t i = 0; i < m_threadCount; ++i) {
         // 创建工作线程，绑定调度器的run方法作为线程执行函数
-        m_threads[i].reset(
-            new Thread(std::bind(&Scheduler::run, this), m_name + "_" + std::to_string(i)));
+        m_threads[i].reset(new Thread(std::bind(&Scheduler::run, this), m_name + "_" + std::to_string(i)));
         m_threadIds.push_back(m_threads[i]->getId());
     }
 
@@ -136,7 +135,7 @@ void Scheduler::stop() {
     }
 
     // 等待所有工作线程结束
-    for (auto& i : thrs) {
+    for (auto &i : thrs) {
         i->join();
     }
 }
@@ -301,7 +300,7 @@ void Scheduler::run() {
     }
 }
 
-SchedulerSwitcher::SchedulerSwitcher(Scheduler* target) {
+SchedulerSwitcher::SchedulerSwitcher(Scheduler *target) {
     m_caller = Scheduler::GetThis();
     if (target) {
         target->switchTo();
@@ -314,10 +313,9 @@ SchedulerSwitcher::~SchedulerSwitcher() {
     }
 }
 
-std::ostream& Scheduler::dump(std::ostream& os) {
-    os << "[Scheduler name=" << m_name << " size=" << m_threadCount
-       << " active_count=" << m_activeThreadCount << " idle_count=" << m_idleThreadCount
-       << " Running=" << m_isRunning << " ]" << std::endl
+std::ostream &Scheduler::dump(std::ostream &os) {
+    os << "[Scheduler name=" << m_name << " size=" << m_threadCount << " active_count=" << m_activeThreadCount
+       << " idle_count=" << m_idleThreadCount << " Running=" << m_isRunning << " ]" << std::endl
        << "    ";
     for (size_t i = 0; i < m_threadIds.size(); ++i) {
         if (i) {

@@ -1,14 +1,15 @@
+#include <fstream>
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <fstream>
-
 #include "core/base/macro.hpp"
-#include "common/common.hpp"
 #include "core/config/config.hpp"
-#include "infra/storage/istorage.hpp"
 #include "core/system/env.hpp"
 #include "core/util/util.hpp"
+
+#include "infra/storage/istorage.hpp"
+
+#include "common/common.hpp"
 
 namespace IM {
 namespace infra {
@@ -19,8 +20,7 @@ class LocalStorageAdapter : public IStorageAdapter {
     LocalStorageAdapter() = default;
     ~LocalStorageAdapter() override = default;
 
-    bool MovePartFile(const std::string& src, const std::string& dest,
-                      std::string* err = nullptr) override {
+    bool MovePartFile(const std::string &src, const std::string &dest, std::string *err = nullptr) override {
         // Ensure dest dir exists
         auto dir = IM::FSUtil::Dirname(dest);
         if (!IM::FSUtil::Mkdir(dir)) {
@@ -50,8 +50,8 @@ class LocalStorageAdapter : public IStorageAdapter {
         return true;
     }
 
-    bool MergeParts(const std::vector<std::string>& parts, const std::string& dest,
-                    std::string* err = nullptr) override {
+    bool MergeParts(const std::vector<std::string> &parts, const std::string &dest,
+                    std::string *err = nullptr) override {
         auto dir = IM::FSUtil::Dirname(dest);
         if (!IM::FSUtil::Mkdir(dir)) {
             if (err) *err = "create dest directory failed";
@@ -62,7 +62,7 @@ class LocalStorageAdapter : public IStorageAdapter {
             if (err) *err = "open dest file failed";
             return false;
         }
-        for (auto& p : parts) {
+        for (auto &p : parts) {
             std::ifstream ifs(p, std::ios::binary);
             if (!ifs) {
                 if (err) *err = "open part file failed";
@@ -75,12 +75,11 @@ class LocalStorageAdapter : public IStorageAdapter {
         return true;
     }
 
-    std::string GetUrl(const std::string& storage_path) override {
+    std::string GetUrl(const std::string &storage_path) override {
         // Simple local mapping: replace upload base dir with '/media'
         std::string resolved = storage_path;
         std::string base = IM::EnvMgr::GetInstance()->getAbsoluteWorkPath(
-            IM::Config::Lookup<std::string>("media.upload_base_dir", std::string("data/uploads"))
-                ->getValue());
+            IM::Config::Lookup<std::string>("media.upload_base_dir", std::string("data/uploads"))->getValue());
         if (!base.empty() && resolved.find(base) == 0) {
             resolved.replace(0, base.length(), "/media");
         }

@@ -14,31 +14,31 @@ NSClient::~NSClient() {
     IM_LOG_DEBUG(g_logger) << "NSClient::~NSClient";
 }
 
-const std::set<std::string>& NSClient::getQueryDomains() {
+const std::set<std::string> &NSClient::getQueryDomains() {
     RWMutex::ReadLock lock(m_mutex);
     return m_queryDomains;
 }
 
-void NSClient::setQueryDomains(const std::set<std::string>& v) {
+void NSClient::setQueryDomains(const std::set<std::string> &v) {
     RWMutex::WriteLock lock(m_mutex);
     m_queryDomains = v;
     lock.unlock();
     onQueryDomainChange();
 }
 
-void NSClient::addQueryDomain(const std::string& domain) {
+void NSClient::addQueryDomain(const std::string &domain) {
     RWMutex::WriteLock lock(m_mutex);
     m_queryDomains.insert(domain);
     lock.unlock();
     onQueryDomainChange();
 }
 
-bool NSClient::hasQueryDomain(const std::string& domain) {
+bool NSClient::hasQueryDomain(const std::string &domain) {
     RWMutex::ReadLock lock(m_mutex);
     return m_queryDomains.count(domain) > 0;
 }
 
-void NSClient::delQueryDomain(const std::string& domain) {
+void NSClient::delQueryDomain(const std::string &domain) {
     RWMutex::WriteLock lock(m_mutex);
     m_queryDomains.erase(domain);
     lock.unlock();
@@ -52,7 +52,7 @@ RockResult::ptr NSClient::query() {
     auto data = std::make_shared<QueryRequest>();
 
     RWMutex::ReadLock lock(m_mutex);
-    for (auto& i : m_queryDomains) {
+    for (auto &i : m_queryDomains) {
         data->add_domains(i);
     }
     if (m_queryDomains.empty()) {
@@ -74,14 +74,14 @@ RockResult::ptr NSClient::query() {
         }
 
         NSDomainSet::ptr domains(new NSDomainSet);
-        for (auto& i : rsp->infos()) {
+        for (auto &i : rsp->infos()) {
             if (!hasQueryDomain(i.domain())) {
                 continue;
             }
             auto domain = domains->get(i.domain(), true);
             uint32_t cmd = i.cmd();
 
-            for (auto& n : i.nodes()) {
+            for (auto &n : i.nodes()) {
                 NSNode::ptr node(new NSNode(n.ip(), n.port(), n.weight()));
                 if (!(node->getId() >> 32)) {
                     IM_LOG_ERROR(g_logger) << "invalid node: " << node->toString();
@@ -105,8 +105,7 @@ void NSClient::init() {
     auto self = std::dynamic_pointer_cast<NSClient>(shared_from_this());
     setConnectCb(std::bind(&NSClient::onConnect, self, std::placeholders::_1));
     setDisconnectCb(std::bind(&NSClient::onDisconnect, self, std::placeholders::_1));
-    setNotifyHandler(
-        std::bind(&NSClient::onNotify, self, std::placeholders::_1, std::placeholders::_2));
+    setNotifyHandler(std::bind(&NSClient::onNotify, self, std::placeholders::_1, std::placeholders::_2));
 }
 
 void NSClient::uninit() {
@@ -152,7 +151,7 @@ bool NSClient::onNotify(RockNotify::ptr nty, RockStream::ptr stream) {
                 break;
             }
 
-            for (auto& i : nm->dels()) {
+            for (auto &i : nm->dels()) {
                 if (!hasQueryDomain(i.domain())) {
                     continue;
                 }
@@ -161,19 +160,19 @@ bool NSClient::onNotify(RockNotify::ptr nty, RockStream::ptr stream) {
                     continue;
                 }
                 int cmd = i.cmd();
-                for (auto& n : i.nodes()) {
+                for (auto &n : i.nodes()) {
                     NSNode::ptr node(new NSNode(n.ip(), n.port(), n.weight()));
                     domain->del(cmd, node->getId());
                 }
             }
 
-            for (auto& i : nm->updates()) {
+            for (auto &i : nm->updates()) {
                 if (!hasQueryDomain(i.domain())) {
                     continue;
                 }
                 auto domain = m_domains->get(i.domain(), true);
                 int cmd = i.cmd();
-                for (auto& n : i.nodes()) {
+                for (auto &n : i.nodes()) {
                     NSNode::ptr node(new NSNode(n.ip(), n.port(), n.weight()));
                     if (node->getId() >> 32) {
                         domain->add(cmd, node);

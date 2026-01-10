@@ -6,9 +6,8 @@
 #include "core/util/trace_context.hpp"
 
 namespace IM {
-LogEvent::LogEvent(std::shared_ptr<Logger> logger, Level level, const char* file_name, int32_t line,
-                   uint32_t elapse, uint32_t thread_id, uint32_t coroutine_id, uint64_t time,
-                   const std::string& thread_name)
+LogEvent::LogEvent(std::shared_ptr<Logger> logger, Level level, const char *file_name, int32_t line, uint32_t elapse,
+                   uint32_t thread_id, uint32_t coroutine_id, uint64_t time, const std::string &thread_name)
     : m_fileName(file_name),
       m_line(line),
       m_elapse(elapse),
@@ -20,7 +19,7 @@ LogEvent::LogEvent(std::shared_ptr<Logger> logger, Level level, const char* file
       m_logger(logger) {
     m_traceId = TraceContext::GetTraceId();
 }
-const char* LogEvent::getFileName() const {
+const char *LogEvent::getFileName() const {
     return m_fileName;
 }
 int32_t LogEvent::getLine() const {
@@ -32,7 +31,7 @@ uint32_t LogEvent::getElapse() const {
 uint32_t LogEvent::getThreadId() const {
     return m_threadId;
 }
-const std::string& LogEvent::getThreadName() const {
+const std::string &LogEvent::getThreadName() const {
     return m_threadName;
 }
 uint32_t LogEvent::getCoroutineId() const {
@@ -44,7 +43,7 @@ uint64_t LogEvent::getTime() const {
 std::string LogEvent::getMessage() const {
     return m_messageSS.str();
 }
-std::stringstream& LogEvent::getSS() {
+std::stringstream &LogEvent::getSS() {
     return m_messageSS;
 }
 std::shared_ptr<Logger> LogEvent::getLogger() const {
@@ -73,16 +72,16 @@ std::string LogEvent::getRelativeFileName() const {
     }
     return file_name;
 }
-void LogEvent::format(const char* fmt, ...) {
+void LogEvent::format(const char *fmt, ...) {
     IM_ASSERT(fmt);
     va_list al;
     va_start(al, fmt);
     format(fmt, al);
     va_end(al);
 }
-void LogEvent::format(const char* fmt, va_list al) {
+void LogEvent::format(const char *fmt, va_list al) {
     IM_ASSERT(fmt);
-    char* buf = nullptr;
+    char *buf = nullptr;
     int len = vasprintf(&buf, fmt, al);
     if (len != -1) {
         m_messageSS << std::string(buf, len);
@@ -99,7 +98,7 @@ LogEventWrap::~LogEventWrap() {
 LogEvent::ptr LogEventWrap::getEvent() const {
     return m_event;
 }
-std::stringstream& LogEventWrap::getSS() {
+std::stringstream &LogEventWrap::getSS() {
     return m_event->getSS();
 }
 }  // namespace IM

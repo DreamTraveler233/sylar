@@ -81,5 +81,4 @@ XinYu-IM-Backend/
 本项目基于 [MIT License](LICENSE) 开源。
 
 ## 🙏 致谢
-- [Libevent](https://libevent.org/) - 网络底座
-- [hiredis-vip](https://github.com/vipshop/hiredis-vip) - Redis 客户端
+- [sylar](https://github.com/sylar-yin/sylar) - 分布式高性能服务器框架

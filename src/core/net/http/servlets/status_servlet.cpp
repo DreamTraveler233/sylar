@@ -3,14 +3,15 @@
 #include <iomanip>
 #include <vector>
 
-#include "core/net/http/http_server.hpp"
 #include "core/io/worker.hpp"
 #include "core/log/logger_manager.hpp"
-#include "infra/module/module.hpp"
+#include "core/net/core/tcp_server.hpp"
+#include "core/net/http/http_server.hpp"
 #include "core/system/application.hpp"
 #include "core/system/daemon.hpp"
-#include "core/net/core/tcp_server.hpp"
 #include "core/util/time_util.hpp"
+
+#include "infra/module/module.hpp"
 
 namespace IM::http {
 StatusServlet::StatusServlet() : Servlet("StatusServlet") {}
@@ -41,8 +42,7 @@ std::string format_used_time(int64_t ts) {
     return ss.str();
 }
 
-int32_t StatusServlet::handle(HttpRequest::ptr request, HttpResponse::ptr response,
-                              HttpSession::ptr session) {
+int32_t StatusServlet::handle(HttpRequest::ptr request, HttpResponse::ptr response, HttpSession::ptr session) {
     response->setHeader("Content-Type", "text/text; charset=utf-8");
 #define XX(key) ss << std::setw(30) << std::right << key ": "
     std::stringstream ss;
@@ -64,17 +64,12 @@ int32_t StatusServlet::handle(HttpRequest::ptr request, HttpResponse::ptr respon
     XX("ipv4") << GetIPv4() << std::endl;
     XX("daemon_id") << ProcessInfoMgr::GetInstance()->parent_id << std::endl;
     XX("main_id") << ProcessInfoMgr::GetInstance()->main_id << std::endl;
-    XX("daemon_start") << TimeUtil::TimeToStr(ProcessInfoMgr::GetInstance()->parent_start_time)
-                       << std::endl;
-    XX("main_start") << TimeUtil::TimeToStr(ProcessInfoMgr::GetInstance()->main_start_time)
-                     << std::endl;
+    XX("daemon_start") << TimeUtil::TimeToStr(ProcessInfoMgr::GetInstance()->parent_start_time) << std::endl;
+    XX("main_start") << TimeUtil::TimeToStr(ProcessInfoMgr::GetInstance()->main_start_time) << std::endl;
     XX("restart_count") << ProcessInfoMgr::GetInstance()->restart_count << std::endl;
-    XX("daemon_running_time") << format_used_time(time(0) -
-                                                  ProcessInfoMgr::GetInstance()->parent_start_time)
+    XX("daemon_running_time") << format_used_time(time(0) - ProcessInfoMgr::GetInstance()->parent_start_time)
                               << std::endl;
-    XX("main_running_time") << format_used_time(time(0) -
-                                                ProcessInfoMgr::GetInstance()->main_start_time)
-                            << std::endl;
+    XX("main_running_time") << format_used_time(time(0) - ProcessInfoMgr::GetInstance()->main_start_time) << std::endl;
     ss << "===================================================" << std::endl;
     XX("fibers") << Coroutine::TotalCoroutines() << std::endl;
     ss << "===================================================" << std::endl;
@@ -110,7 +105,7 @@ int32_t StatusServlet::handle(HttpRequest::ptr request, HttpResponse::ptr respon
                 if (!infos.empty()) {
                     ss << "[Servlets]" << std::endl;
 #define XX2(key) ss << std::setw(30) << std::right << key << ": "
-                    for (auto& i : infos) {
+                    for (auto &i : infos) {
                         XX2(i.first) << i.second->getName() << std::endl;
                     }
                     infos.clear();
@@ -118,7 +113,7 @@ int32_t StatusServlet::handle(HttpRequest::ptr request, HttpResponse::ptr respon
                 sd->listAllGlobServletCreator(infos);
                 if (!infos.empty()) {
                     ss << "[Servlets.Globs]" << std::endl;
-                    for (auto& i : infos) {
+                    for (auto &i : infos) {
                         XX2(i.first) << i.second->getName() << std::endl;
                     }
                     infos.clear();

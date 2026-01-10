@@ -1,11 +1,11 @@
 #include "core/net/core/stream.hpp"
 
 namespace IM {
-int Stream::readFixSize(void* buffer, size_t length) {
+int Stream::readFixSize(void *buffer, size_t length) {
     size_t offset = 0;  // 偏移量
     int64_t left = length;
     while (left > 0) {
-        int64_t len = read((char*)buffer + offset, left);
+        int64_t len = read((char *)buffer + offset, left);
 
         // 如果读取失败（len<0）或流关闭（len=0），不再继续读
         if (len <= 0) {
@@ -30,11 +30,11 @@ int Stream::readFixSize(ByteArray::ptr ba, size_t length) {
     return length;
 }
 
-int Stream::writeFixSize(const void* buffer, size_t length) {
+int Stream::writeFixSize(const void *buffer, size_t length) {
     size_t offset = 0;
     int64_t left = length;
     while (left > 0) {
-        int64_t len = write((const char*)buffer + offset, left);
+        int64_t len = write((const char *)buffer + offset, left);
         if (len <= 0) {
             return len;
         }

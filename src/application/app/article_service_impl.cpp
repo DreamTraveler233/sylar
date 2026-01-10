@@ -4,14 +4,12 @@
 
 namespace IM::app {
 
-static constexpr const char* kDBName = "default";
+static constexpr const char *kDBName = "default";
 
-ArticleServiceImpl::ArticleServiceImpl(domain::repository::IArticleRepository::Ptr repo)
-    : repo_(repo) {}
+ArticleServiceImpl::ArticleServiceImpl(domain::repository::IArticleRepository::Ptr repo) : repo_(repo) {}
 
 // Classify
-Result<std::vector<dto::ArticleClassifyItem>> ArticleServiceImpl::GetClassifyList(
-    uint64_t user_id) {
+Result<std::vector<dto::ArticleClassifyItem>> ArticleServiceImpl::GetClassifyList(uint64_t user_id) {
     auto conn = IM::MySQLMgr::GetInstance()->get(kDBName);
     std::vector<dto::ArticleClassifyItem> list;
     std::string err;
@@ -21,8 +19,7 @@ Result<std::vector<dto::ArticleClassifyItem>> ArticleServiceImpl::GetClassifyLis
     return Result<std::vector<dto::ArticleClassifyItem>>::Success(list);
 }
 
-Result<void> ArticleServiceImpl::EditClassify(uint64_t user_id, uint64_t classify_id,
-                                              const std::string& name) {
+Result<void> ArticleServiceImpl::EditClassify(uint64_t user_id, uint64_t classify_id, const std::string &name) {
     auto conn = IM::MySQLMgr::GetInstance()->get(kDBName);
     std::string err;
     if (classify_id == 0) {
@@ -62,8 +59,7 @@ Result<void> ArticleServiceImpl::DeleteClassify(uint64_t user_id, uint64_t class
     return Result<void>::Success();
 }
 
-Result<void> ArticleServiceImpl::SortClassify(uint64_t user_id, uint64_t classify_id,
-                                              int sort_index) {
+Result<void> ArticleServiceImpl::SortClassify(uint64_t user_id, uint64_t classify_id, int sort_index) {
     auto conn = IM::MySQLMgr::GetInstance()->get(kDBName);
     std::string err;
     if (!repo_->SortClassify(conn, user_id, classify_id, sort_index, &err)) {
@@ -73,9 +69,9 @@ Result<void> ArticleServiceImpl::SortClassify(uint64_t user_id, uint64_t classif
 }
 
 // Article
-Result<uint64_t> ArticleServiceImpl::EditArticle(
-    uint64_t user_id, uint64_t article_id, const std::string& title, const std::string& abstract,
-    const std::string& content, const std::string& image, uint64_t classify_id, int status) {
+Result<uint64_t> ArticleServiceImpl::EditArticle(uint64_t user_id, uint64_t article_id, const std::string &title,
+                                                 const std::string &abstract, const std::string &content,
+                                                 const std::string &image, uint64_t classify_id, int status) {
     auto conn = IM::MySQLMgr::GetInstance()->get(kDBName);
     std::string err;
     if (article_id == 0) {
@@ -156,8 +152,7 @@ Result<void> ArticleServiceImpl::RecoverArticle(uint64_t user_id, uint64_t artic
     return Result<void>::Success();
 }
 
-Result<dto::ArticleDetail> ArticleServiceImpl::GetArticleDetail(uint64_t user_id,
-                                                                uint64_t article_id) {
+Result<dto::ArticleDetail> ArticleServiceImpl::GetArticleDetail(uint64_t user_id, uint64_t article_id) {
     auto conn = IM::MySQLMgr::GetInstance()->get(kDBName);
     std::string err;
     model::Article article;
@@ -201,28 +196,27 @@ Result<dto::ArticleDetail> ArticleServiceImpl::GetArticleDetail(uint64_t user_id
     return Result<dto::ArticleDetail>::Success(detail);
 }
 
-Result<std::pair<std::vector<dto::ArticleItem>, int>> ArticleServiceImpl::GetArticleList(
-    uint64_t user_id, int page, int size, uint64_t classify_id, const std::string& keyword,
-    int find_type) {
+Result<std::pair<std::vector<dto::ArticleItem>, int>> ArticleServiceImpl::GetArticleList(uint64_t user_id, int page,
+                                                                                         int size, uint64_t classify_id,
+                                                                                         const std::string &keyword,
+                                                                                         int find_type) {
     auto conn = IM::MySQLMgr::GetInstance()->get(kDBName);
     std::string err;
     std::vector<dto::ArticleItem> list;
     int total = 0;
-    if (!repo_->GetArticleList(conn, user_id, page, size, classify_id, keyword, find_type, list,
-                               total, &err)) {
+    if (!repo_->GetArticleList(conn, user_id, page, size, classify_id, keyword, find_type, list, total, &err)) {
         return Result<std::pair<std::vector<dto::ArticleItem>, int>>::Error(500, err);
     }
 
     // Fill tags for each article
-    for (auto& item : list) {
+    for (auto &item : list) {
         repo_->GetArticleTags(conn, item.id, item.tags, nullptr);
     }
 
     return Result<std::pair<std::vector<dto::ArticleItem>, int>>::Success({list, total});
 }
 
-Result<void> ArticleServiceImpl::MoveArticle(uint64_t user_id, uint64_t article_id,
-                                             uint64_t classify_id) {
+Result<void> ArticleServiceImpl::MoveArticle(uint64_t user_id, uint64_t article_id, uint64_t classify_id) {
     auto conn = IM::MySQLMgr::GetInstance()->get(kDBName);
     std::string err;
     model::Article article;
@@ -239,7 +233,7 @@ Result<void> ArticleServiceImpl::MoveArticle(uint64_t user_id, uint64_t article_
 }
 
 Result<void> ArticleServiceImpl::SetArticleTags(uint64_t user_id, uint64_t article_id,
-                                                const std::vector<std::string>& tags) {
+                                                const std::vector<std::string> &tags) {
     auto conn = IM::MySQLMgr::GetInstance()->get(kDBName);
     std::string err;
     model::Article article;
@@ -254,19 +248,20 @@ Result<void> ArticleServiceImpl::SetArticleTags(uint64_t user_id, uint64_t artic
     return Result<void>::Success();
 }
 
-Result<void> ArticleServiceImpl::SetArticleAsterisk(uint64_t user_id, uint64_t article_id,
-                                                    int type) {
+Result<void> ArticleServiceImpl::SetArticleAsterisk(uint64_t user_id, uint64_t article_id, int type) {
     auto conn = IM::MySQLMgr::GetInstance()->get(kDBName);
     std::string err;
     // Verify ownership? Or can I star others' articles?
     // Usually I can star others. But here let's assume I can star any visible article.
     // But wait, the table `im_article_asterisk` links user and article.
-    // The `im_article` table has `is_asterisk` which is redundant. If I star someone else's article, I shouldn't modify their `im_article` record's `is_asterisk` field if that field represents "Author's favorite" or something.
+    // The `im_article` table has `is_asterisk` which is redundant. If I star someone else's article, I shouldn't modify
+    // their `im_article` record's `is_asterisk` field if that field represents "Author's favorite" or something.
     // However, the SQL comment says "Redundant, real collection see table im_article_asterisk".
-    // If `is_asterisk` in `im_article` is just a cache for the *current user* (which is impossible if multiple users view it), or it means "Author starred it".
-    // Given the context of a personal blog/notes system (implied by "Article"), it's likely single-user or personal space.
-    // If it's a multi-user system where I can star others, the `is_asterisk` on `im_article` is confusing.
-    // Let's assume it's a personal knowledge base for now, or `is_asterisk` is updated only if `user_id` matches author.
+    // If `is_asterisk` in `im_article` is just a cache for the *current user* (which is impossible if multiple users
+    // view it), or it means "Author starred it". Given the context of a personal blog/notes system (implied by
+    // "Article"), it's likely single-user or personal space. If it's a multi-user system where I can star others, the
+    // `is_asterisk` on `im_article` is confusing. Let's assume it's a personal knowledge base for now, or `is_asterisk`
+    // is updated only if `user_id` matches author.
 
     // For now, I'll just call repo.
     bool is_star = (type == 1);
@@ -277,9 +272,8 @@ Result<void> ArticleServiceImpl::SetArticleAsterisk(uint64_t user_id, uint64_t a
 }
 
 // Annex
-Result<void> ArticleServiceImpl::UploadAnnex(uint64_t user_id, uint64_t article_id,
-                                             const std::string& name, int64_t size,
-                                             const std::string& path, const std::string& mime) {
+Result<void> ArticleServiceImpl::UploadAnnex(uint64_t user_id, uint64_t article_id, const std::string &name,
+                                             int64_t size, const std::string &path, const std::string &mime) {
     auto conn = IM::MySQLMgr::GetInstance()->get(kDBName);
     std::string err;
     model::ArticleAnnex annex;
@@ -341,8 +335,7 @@ Result<void> ArticleServiceImpl::RecoverAnnex(uint64_t user_id, uint64_t annex_i
     return Result<void>::Success();
 }
 
-Result<std::vector<dto::ArticleAnnexItem>> ArticleServiceImpl::GetRecycleAnnexList(
-    uint64_t user_id) {
+Result<std::vector<dto::ArticleAnnexItem>> ArticleServiceImpl::GetRecycleAnnexList(uint64_t user_id) {
     auto conn = IM::MySQLMgr::GetInstance()->get(kDBName);
     std::string err;
     std::vector<dto::ArticleAnnexItem> list;

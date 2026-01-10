@@ -1,12 +1,11 @@
-#include <stdint.h>
-
 #include <cstdarg>
 #include <cstring>
+#include <stdint.h>
 
 #include "core/util/string_util.hpp"
 
 namespace IM {
-bool StringUtil::StartsWith(const std::string& str, const std::string& sub) {
+bool StringUtil::StartsWith(const std::string &str, const std::string &sub) {
     // 如果字串为空，直接返回 true
     if (sub.empty()) {
         return true;
@@ -21,7 +20,7 @@ bool StringUtil::StartsWith(const std::string& str, const std::string& sub) {
     return str.compare(0, subLen, sub) == 0;
 }
 
-bool StringUtil::EndsWith(const std::string& str, const std::string& sub) {
+bool StringUtil::EndsWith(const std::string &str, const std::string &sub) {
     // 如果字串为空，直接返回 true
     if (sub.empty()) {
         return true;
@@ -36,7 +35,7 @@ bool StringUtil::EndsWith(const std::string& str, const std::string& sub) {
     return str.compare(strLen - subLen, subLen, sub) == 0;
 }
 
-std::string StringUtil::FilePath(const std::string& path) {
+std::string StringUtil::FilePath(const std::string &path) {
     auto pos = path.find_last_of("/\\");  // 查找最后一个'/'或'\'的位置（兼容Linux和Windows路径）
     if (pos != std::string::npos)         // 如果找到了分隔符
     {
@@ -47,10 +46,9 @@ std::string StringUtil::FilePath(const std::string& path) {
     }
 }
 
-std::string StringUtil::FileNameExt(const std::string& path) {
-    auto pos =
-        path.find_last_of("/\\");  // 查找路径中最后一个'/'或'\'的位置（兼容Linux和Windows路径）
-    if (pos != std::string::npos)  // 如果找到了分隔符
+std::string StringUtil::FileNameExt(const std::string &path) {
+    auto pos = path.find_last_of("/\\");  // 查找路径中最后一个'/'或'\'的位置（兼容Linux和Windows路径）
+    if (pos != std::string::npos)         // 如果找到了分隔符
     {
         if (pos + 1 < path.size())  // 并且分隔符后还有内容
         {
@@ -60,7 +58,7 @@ std::string StringUtil::FileNameExt(const std::string& path) {
     return path;  // 如果没有分隔符，直接返回原字符串（说明本身就是文件名）
 }
 
-std::string StringUtil::FileName(const std::string& path) {
+std::string StringUtil::FileName(const std::string &path) {
     std::string file_name = FileNameExt(path);  // 先获取文件名（含扩展名）
     auto pos = file_name.find_last_of(".");     // 查找最后一个'.'的位置（即扩展名前的点）
     if (pos != std::string::npos)               // 如果找到了'.'
@@ -73,7 +71,7 @@ std::string StringUtil::FileName(const std::string& path) {
     return file_name;  // 如果没有'.'，或'.'在第一个字符，直接返回整个文件名
 }
 
-std::string StringUtil::Extension(const std::string& path) {
+std::string StringUtil::Extension(const std::string &path) {
     std::string file_name = FileNameExt(path);  // 先获取文件名（含扩展名）
     auto pos = file_name.find_last_of(".");     // 查找最后一个'.'的位置
     if (pos != std::string::npos)               // 如果找到了'.'
@@ -86,8 +84,7 @@ std::string StringUtil::Extension(const std::string& path) {
     return std::string();  // 没有扩展名则返回空字符串
 }
 
-std::vector<std::string> StringUtil::SplitString(const std::string& str,
-                                                 const std::string& delimiter) {
+std::vector<std::string> StringUtil::SplitString(const std::string &str, const std::string &delimiter) {
     std::vector<std::string> result;  // 存放分割后的子串
     // 如果分隔符为空，直接返回空vector
     if (delimiter.empty()) {
@@ -112,7 +109,7 @@ std::vector<std::string> StringUtil::SplitString(const std::string& str,
     return result;  // 返回所有分割结果
 }
 
-std::string StringUtil::Format(const char* fmt, ...) {
+std::string StringUtil::Format(const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     auto v = Formatv(fmt, ap);
@@ -120,8 +117,8 @@ std::string StringUtil::Format(const char* fmt, ...) {
     return v;
 }
 
-std::string StringUtil::Formatv(const char* fmt, va_list ap) {
-    char* buf = nullptr;
+std::string StringUtil::Formatv(const char *fmt, va_list ap) {
+    char *buf = nullptr;
     auto len = vasprintf(&buf, fmt, ap);
     if (len == -1) {
         return "";
@@ -395,25 +392,24 @@ static const char uri_chars[256] = {
 };
 
 static const char xdigit_chars[256] = {
-    0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-    0, 0, 0, 0, 0, 0, 0, 10, 11, 12, 13, 14, 15, 0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  10, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0,
+    0, 10, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 10, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
 #define CHAR_IS_UNRESERVED(c) (uri_chars[(unsigned char)(c)])
 
 //-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~
-std::string StringUtil::UrlEncode(const std::string& str, bool space_as_plus) {
-    static const char* hexdigits = "0123456789ABCDEF";
-    std::string* ss = nullptr;
-    const char* end = str.c_str() + str.length();
-    for (const char* c = str.c_str(); c < end; ++c) {
+std::string StringUtil::UrlEncode(const std::string &str, bool space_as_plus) {
+    static const char *hexdigits = "0123456789ABCDEF";
+    std::string *ss = nullptr;
+    const char *end = str.c_str() + str.length();
+    for (const char *c = str.c_str(); c < end; ++c) {
         if (!CHAR_IS_UNRESERVED(*c)) {
             if (!ss) {
                 ss = new std::string;
@@ -440,10 +436,10 @@ std::string StringUtil::UrlEncode(const std::string& str, bool space_as_plus) {
     }
 }
 
-std::string StringUtil::UrlDecode(const std::string& str, bool space_as_plus) {
-    std::string* ss = nullptr;
-    const char* end = str.c_str() + str.length();
-    for (const char* c = str.c_str(); c < end; ++c) {
+std::string StringUtil::UrlDecode(const std::string &str, bool space_as_plus) {
+    std::string *ss = nullptr;
+    const char *end = str.c_str() + str.length();
+    for (const char *c = str.c_str(); c < end; ++c) {
         if (*c == '+' && space_as_plus) {
             if (!ss) {
                 ss = new std::string;
@@ -470,7 +466,7 @@ std::string StringUtil::UrlDecode(const std::string& str, bool space_as_plus) {
     }
 }
 
-std::string StringUtil::Trim(const std::string& str, const std::string& delimit) {
+std::string StringUtil::Trim(const std::string &str, const std::string &delimit) {
     auto begin = str.find_first_not_of(delimit);
     if (begin == std::string::npos) {
         return "";
@@ -479,7 +475,7 @@ std::string StringUtil::Trim(const std::string& str, const std::string& delimit)
     return str.substr(begin, end - begin + 1);
 }
 
-std::string StringUtil::TrimLeft(const std::string& str, const std::string& delimit) {
+std::string StringUtil::TrimLeft(const std::string &str, const std::string &delimit) {
     auto begin = str.find_first_not_of(delimit);
     if (begin == std::string::npos) {
         return "";
@@ -487,7 +483,7 @@ std::string StringUtil::TrimLeft(const std::string& str, const std::string& deli
     return str.substr(begin);
 }
 
-std::string StringUtil::TrimRight(const std::string& str, const std::string& delimit) {
+std::string StringUtil::TrimRight(const std::string &str, const std::string &delimit) {
     auto end = str.find_last_not_of(delimit);
     if (end == std::string::npos) {
         return "";
@@ -495,11 +491,11 @@ std::string StringUtil::TrimRight(const std::string& str, const std::string& del
     return str.substr(0, end);
 }
 
-std::string StringUtil::WStringToString(const std::wstring& ws) {
+std::string StringUtil::WStringToString(const std::wstring &ws) {
     std::string str_locale = setlocale(LC_ALL, "");
-    const wchar_t* wch_src = ws.c_str();
+    const wchar_t *wch_src = ws.c_str();
     size_t n_dest_size = wcstombs(NULL, wch_src, 0) + 1;
-    char* ch_dest = new char[n_dest_size];
+    char *ch_dest = new char[n_dest_size];
     memset(ch_dest, 0, n_dest_size);
     wcstombs(ch_dest, wch_src, n_dest_size);
     std::string str_result = ch_dest;
@@ -508,11 +504,11 @@ std::string StringUtil::WStringToString(const std::wstring& ws) {
     return str_result;
 }
 
-std::wstring StringUtil::StringToWString(const std::string& s) {
+std::wstring StringUtil::StringToWString(const std::string &s) {
     std::string str_locale = setlocale(LC_ALL, "");
-    const char* chSrc = s.c_str();
+    const char *chSrc = s.c_str();
     size_t n_dest_size = mbstowcs(NULL, chSrc, 0) + 1;
-    wchar_t* wch_dest = new wchar_t[n_dest_size];
+    wchar_t *wch_dest = new wchar_t[n_dest_size];
     wmemset(wch_dest, 0, n_dest_size);
     mbstowcs(wch_dest, chSrc, n_dest_size);
     std::wstring wstr_result = wch_dest;

@@ -1,14 +1,23 @@
+/**
+ * @file roaring_bitmap.hpp
+ * @brief 数据结构相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 数据结构相关。
+ */
+
 #ifndef __IM_DS_ROARING_BITMAP_HPP__
 #define __IM_DS_ROARING_BITMAP_HPP__
 
-#include <stdint.h>
-
 #include <functional>
 #include <memory>
+#include <stdint.h>
 #include <string>
 #include <vector>
 
 #include "core/net/core/byte_array.hpp"
+
 #include "roaring.hh"
 
 namespace IM::ds {
@@ -19,10 +28,10 @@ class RoaringBitmap {
 
     RoaringBitmap();
     RoaringBitmap(uint32_t size);
-    RoaringBitmap(const RoaringBitmap& b);
+    RoaringBitmap(const RoaringBitmap &b);
     ~RoaringBitmap();
 
-    RoaringBitmap& operator=(const RoaringBitmap& b);
+    RoaringBitmap &operator=(const RoaringBitmap &b);
 
     std::string toString() const;
     bool get(uint32_t idx) const;
@@ -31,27 +40,27 @@ class RoaringBitmap {
     void set(uint32_t from, uint32_t size, bool v);
     bool get(uint32_t from, uint32_t size, bool v) const;
 
-    RoaringBitmap& operator&=(const RoaringBitmap& b);
-    RoaringBitmap& operator|=(const RoaringBitmap& b);
-    RoaringBitmap& operator-=(const RoaringBitmap& b);
-    RoaringBitmap& operator^=(const RoaringBitmap& b);
+    RoaringBitmap &operator&=(const RoaringBitmap &b);
+    RoaringBitmap &operator|=(const RoaringBitmap &b);
+    RoaringBitmap &operator-=(const RoaringBitmap &b);
+    RoaringBitmap &operator^=(const RoaringBitmap &b);
 
-    RoaringBitmap operator&(const RoaringBitmap& b);
-    RoaringBitmap operator|(const RoaringBitmap& b);
-    RoaringBitmap operator-(const RoaringBitmap& b);
-    RoaringBitmap operator^(const RoaringBitmap& b);
+    RoaringBitmap operator&(const RoaringBitmap &b);
+    RoaringBitmap operator|(const RoaringBitmap &b);
+    RoaringBitmap operator-(const RoaringBitmap &b);
+    RoaringBitmap operator^(const RoaringBitmap &b);
 
     // RoaringBitmap& operator~();
 
-    bool operator==(const RoaringBitmap& b) const;
-    bool operator!=(const RoaringBitmap& b) const;
+    bool operator==(const RoaringBitmap &b) const;
+    bool operator!=(const RoaringBitmap &b) const;
 
     RoaringBitmap::ptr compress() const;
     RoaringBitmap::ptr uncompress() const;
 
     bool any() const;
 
-    void listPosAsc(std::vector<uint32_t>& pos);
+    void listPosAsc(std::vector<uint32_t> &pos);
 
     void foreach (std::function<bool(uint32_t)> cb);
     void rforeach(std::function<bool(uint32_t)> cb);
@@ -61,7 +70,7 @@ class RoaringBitmap {
 
     // uncompress to compress
     // uncompress to uncompress
-    bool cross(const RoaringBitmap& b) const;
+    bool cross(const RoaringBitmap &b) const;
 
     float getCompressRate() const;
 
@@ -78,7 +87,7 @@ class RoaringBitmap {
     reverse_iterator rend() const { return m_bitmap.rend(); }
 
    private:
-    RoaringBitmap(const Roaring& b);
+    RoaringBitmap(const Roaring &b);
 
    private:
     Roaring m_bitmap;
@@ -86,4 +95,4 @@ class RoaringBitmap {
 
 }  // namespace IM::ds
 
-#endif // __IM_DS_ROARING_BITMAP_HPP__
+#endif  // __IM_DS_ROARING_BITMAP_HPP__

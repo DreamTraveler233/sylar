@@ -8,8 +8,7 @@
 namespace IM::http {
 ConfigServlet::ConfigServlet() : Servlet("ConfigServlet") {}
 
-int32_t ConfigServlet::handle(HttpRequest::ptr request, HttpResponse::ptr response,
-                              HttpSession::ptr session) {
+int32_t ConfigServlet::handle(HttpRequest::ptr request, HttpResponse::ptr response, HttpSession::ptr session) {
     std::string type = request->getParam("type");
     if (type == "json") {
         response->setHeader("Content-Type", "text/json charset=utf-8");

@@ -4,12 +4,8 @@
 #include "core/util/time_util.hpp"
 
 namespace IM {
-Timer::Timer(uint64_t ms, std::function<void()> cb, bool recurring, TimerManager* manager)
-    : m_recurring(recurring),
-      m_ms(ms),
-      m_next(TimeUtil::NowToMS() + m_ms),
-      m_cb(cb),
-      m_manager(manager) {}
+Timer::Timer(uint64_t ms, std::function<void()> cb, bool recurring, TimerManager *manager)
+    : m_recurring(recurring), m_ms(ms), m_next(TimeUtil::NowToMS() + m_ms), m_cb(cb), m_manager(manager) {}
 
 Timer::Timer(uint64_t next) : m_next(next) {}
 
@@ -74,7 +70,7 @@ bool Timer::reset(uint64_t ms, bool from_now) {
     return true;
 }
 
-bool Timer::Comparator::operator()(const Timer::ptr& lhs, const Timer::ptr& rhs) const {
+bool Timer::Comparator::operator()(const Timer::ptr &lhs, const Timer::ptr &rhs) const {
     // 处理空指针情况
     if (!lhs && !rhs) {
         return false;
@@ -103,7 +99,7 @@ TimerManager::TimerManager() {
 }
 
 Timer::ptr TimerManager::addTimer(uint64_t ms, std::function<void()> cb, bool recurring) {
-    //IM_ASSERT(ms && cb);
+    // IM_ASSERT(ms && cb);
     Timer::ptr timer(new Timer(ms, cb, recurring, this));
     RWMutex::WriteLock lock(m_mutex);
     addTimer(timer, lock);
@@ -118,8 +114,8 @@ static void OnTimer(std::weak_ptr<void> weak_cond, std::function<void()> cb) {
     }
 }
 
-Timer::ptr TimerManager::addConditionTimer(uint64_t ms, std::function<void()> cb,
-                                           std::weak_ptr<void> weak_cond, bool recurring) {
+Timer::ptr TimerManager::addConditionTimer(uint64_t ms, std::function<void()> cb, std::weak_ptr<void> weak_cond,
+                                           bool recurring) {
     return addTimer(ms, std::bind(&OnTimer, weak_cond, cb), recurring);
 }
 
@@ -130,7 +126,7 @@ uint64_t TimerManager::getNextTimer() {
         return ~0ull;
     }
     // 获取最早执行的定时器
-    const Timer::ptr& next = *m_timers.begin();
+    const Timer::ptr &next = *m_timers.begin();
     uint64_t now = TimeUtil::NowToMS();
 
     if (now >= next->m_next) {
@@ -141,7 +137,7 @@ uint64_t TimerManager::getNextTimer() {
     }
 }
 
-void TimerManager::listExpiredCb(std::vector<std::function<void()>>& cbs) {
+void TimerManager::listExpiredCb(std::vector<std::function<void()>> &cbs) {
     uint64_t now_ms = TimeUtil::NowToMS();
     std::vector<Timer::ptr> expired;
 
@@ -181,7 +177,7 @@ void TimerManager::listExpiredCb(std::vector<std::function<void()>>& cbs) {
     cbs.reserve(expired.size());
 
     // 处理所有已到期的定时器
-    for (auto& timer : expired) {
+    for (auto &timer : expired) {
         cbs.push_back(timer->m_cb);
         if (timer->m_recurring) {
             // 对于重复执行的定时器，设置下次执行时间并重新插入队列
@@ -202,7 +198,7 @@ bool TimerManager::hasTimer() {
 /*
         将锁作为参数的目的：减小锁颗粒度
     */
-void TimerManager::addTimer(Timer::ptr val, RWMutexType::WriteLock& lock) {
+void TimerManager::addTimer(Timer::ptr val, RWMutexType::WriteLock &lock) {
     auto it = m_timers.insert(val).first;
     bool at_front = (it == m_timers.begin() && !m_tickled);
     if (at_front) {

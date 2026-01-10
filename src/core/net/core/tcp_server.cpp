@@ -1,17 +1,16 @@
 #include "core/net/core/tcp_server.hpp"
 
-#include "core/config/config.hpp"
 #include "core/base/macro.hpp"
+#include "core/config/config.hpp"
 
 namespace IM {
 static IM::Logger::ptr g_logger = IM_LOG_NAME("system");
 
 // 配置 TCP 读超时事件
-static auto g_tcp_server_read_timeout = IM::Config::Lookup(
-    "tcp_server.read_timeout", (uint64_t)(60 * 1000 * 2), "tcp server read timeout");
+static auto g_tcp_server_read_timeout =
+    IM::Config::Lookup("tcp_server.read_timeout", (uint64_t)(60 * 1000 * 2), "tcp server read timeout");
 
-TcpServer::TcpServer(IM::IOManager* worker, IM::IOManager* io_worker,
-                     IM::IOManager* accept_worker)
+TcpServer::TcpServer(IM::IOManager *worker, IM::IOManager *io_worker, IM::IOManager *accept_worker)
     : m_worker(worker),
       m_ioWorker(io_worker),
       m_acceptWorker(accept_worker),
@@ -20,13 +19,13 @@ TcpServer::TcpServer(IM::IOManager* worker, IM::IOManager* io_worker,
       m_isRun(false) {}
 
 TcpServer::~TcpServer() {
-    for (auto& i : m_socks) {
+    for (auto &i : m_socks) {
         i->close();
     }
     m_socks.clear();
 }
 
-void TcpServer::setConf(const TcpServerConf& v) {
+void TcpServer::setConf(const TcpServerConf &v) {
     m_conf.reset(new TcpServerConf(v));
 }
 
@@ -37,26 +36,24 @@ bool TcpServer::bind(IM::Address::ptr addr, bool ssl) {
     return bind(addrs, fails, ssl);
 }
 
-bool TcpServer::bind(const std::vector<Address::ptr>& addrs, std::vector<Address::ptr>& fails,
-                     bool ssl) {
+bool TcpServer::bind(const std::vector<Address::ptr> &addrs, std::vector<Address::ptr> &fails, bool ssl) {
     m_ssl = ssl;
-    for (auto& addr : addrs) {
+    for (auto &addr : addrs) {
         // 根据是否启用ssl加密创建 Socket
         Socket::ptr sock = ssl ? SSLSocket::CreateTCP(addr) : Socket::CreateTCP(addr);
 
         // 绑定地址
         if (!sock->bind(addr)) {
-            IM_LOG_ERROR(g_logger) << "bind fail errno=" << errno << " errstr=" << strerror(errno)
-                                    << " addr=[" << addr->toString() << "]";
+            IM_LOG_ERROR(g_logger) << "bind fail errno=" << errno << " errstr=" << strerror(errno) << " addr=["
+                                   << addr->toString() << "]";
             fails.push_back(addr);
             continue;
         }
 
         // 开启监听
         if (!sock->listen(4096)) {
-            IM_LOG_ERROR(g_logger)
-                << "listen fail errno=" << errno << " errstr=" << strerror(errno) << " addr=["
-                << addr->toString() << "]";
+            IM_LOG_ERROR(g_logger) << "listen fail errno=" << errno << " errstr=" << strerror(errno) << " addr=["
+                                   << addr->toString() << "]";
             fails.push_back(addr);
             continue;
         }
@@ -68,9 +65,9 @@ bool TcpServer::bind(const std::vector<Address::ptr>& addrs, std::vector<Address
         return false;
     }
 
-    for (auto& i : m_socks) {
+    for (auto &i : m_socks) {
         IM_LOG_INFO(g_logger) << "type=" << m_type << " name=" << m_name << " ssl=" << m_ssl
-                               << " server bind success: " << *i;
+                              << " server bind success: " << *i;
     }
     return true;
 }
@@ -81,7 +78,7 @@ bool TcpServer::start() {
     }
     m_isRun = true;
 
-    for (auto& sock : m_socks) {
+    for (auto &sock : m_socks) {
         m_acceptWorker->schedule(std::bind(&TcpServer::startAccept, shared_from_this(), sock));
     }
     return true;
@@ -94,8 +91,7 @@ void TcpServer::startAccept(Socket::ptr sock) {
         if (client_fd) {
             // 设置读超时时间
             client_fd->setRecvTimeout(m_recvTimeout);
-            m_ioWorker->schedule(
-                std::bind(&TcpServer::handleClient, shared_from_this(), client_fd));
+            m_ioWorker->schedule(std::bind(&TcpServer::handleClient, shared_from_this(), client_fd));
         } else {
             IM_LOG_ERROR(g_logger) << "accept errno=" << errno << " errstr=" << strerror(errno);
         }
@@ -110,7 +106,7 @@ void TcpServer::stop() {
     m_isRun = false;
     auto self = shared_from_this();
     m_acceptWorker->schedule([this, self]() {
-        for (auto& sock : m_socks) {
+        for (auto &sock : m_socks) {
             sock->cancelAll();
             sock->close();
         }
@@ -130,7 +126,7 @@ void TcpServer::setRecvTimeout(uint64_t v) {
     m_recvTimeout = v;
 }
 
-void TcpServer::setName(const std::string& v) {
+void TcpServer::setName(const std::string &v) {
     m_name = v;
 }
 
@@ -146,8 +142,8 @@ void TcpServer::setConf(TcpServerConf::ptr v) {
     m_conf = v;
 }
 
-bool TcpServer::loadCertificates(const std::string& cert_file, const std::string& key_file) {
-    for (auto& i : m_socks) {
+bool TcpServer::loadCertificates(const std::string &cert_file, const std::string &key_file) {
+    for (auto &i : m_socks) {
         auto ssl_socket = std::dynamic_pointer_cast<SSLSocket>(i);
         if (ssl_socket) {
             if (!ssl_socket->loadCertificates(cert_file, key_file)) {
@@ -158,14 +154,14 @@ bool TcpServer::loadCertificates(const std::string& cert_file, const std::string
     return true;
 }
 
-std::string TcpServer::toString(const std::string& prefix) {
+std::string TcpServer::toString(const std::string &prefix) {
     std::stringstream ss;
     ss << prefix << "[type=" << m_type << " name=" << m_name << " ssl=" << m_ssl
        << " worker=" << (m_worker ? m_worker->getName() : "")
-       << " accept=" << (m_acceptWorker ? m_acceptWorker->getName() : "")
-       << " recv_timeout=" << m_recvTimeout << "]" << std::endl;
+       << " accept=" << (m_acceptWorker ? m_acceptWorker->getName() : "") << " recv_timeout=" << m_recvTimeout << "]"
+       << std::endl;
     std::string pfx = prefix.empty() ? "    " : prefix;
-    for (auto& i : m_socks) {
+    for (auto &i : m_socks) {
         ss << pfx << pfx << *i << std::endl;
     }
     return ss.str();

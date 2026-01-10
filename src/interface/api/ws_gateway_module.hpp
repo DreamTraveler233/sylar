@@ -1,9 +1,19 @@
+/**
+ * @file ws_gateway_module.hpp
+ * @brief 接口定义与模块实现
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 接口定义与模块实现。
+ */
+
 #ifndef __IM_API_WS_GATEWAY_MODULE_HPP__
 #define __IM_API_WS_GATEWAY_MODULE_HPP__
 
-#include "domain/service/user_service.hpp"
-#include "domain/repository/talk_repository.hpp"
 #include "infra/module/module.hpp"
+
+#include "domain/repository/talk_repository.hpp"
+#include "domain/service/user_service.hpp"
 
 namespace IM::api {
 
@@ -25,13 +35,11 @@ class WsGatewayModule : public IM::RockModule {
     bool handleRockNotify(IM::RockNotify::ptr notify, IM::RockStream::ptr stream) override;
 
     // 主动推送通用事件到指定用户的所有在线连接
-    static void PushToUser(uint64_t uid, const std::string& event,
-                           const Json::Value& payload = Json::Value(),
-                           const std::string& ackid = "");
+    static void PushToUser(uint64_t uid, const std::string &event, const Json::Value &payload = Json::Value(),
+                           const std::string &ackid = "");
 
     // 主动推送一条 IM 消息事件
-    static void PushImMessage(uint8_t talk_mode, uint64_t to_from_id, uint64_t from_id,
-                              const Json::Value& body);
+    static void PushImMessage(uint8_t talk_mode, uint64_t to_from_id, uint64_t from_id, const Json::Value &body);
 
    private:
     IM::domain::service::IUserService::Ptr m_user_service;

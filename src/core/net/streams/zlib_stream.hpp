@@ -1,13 +1,21 @@
+/**
+ * @file zlib_stream.hpp
+ * @brief 网络通信相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 网络通信相关。
+ */
+
 #ifndef __IM_NET_STREAMS_ZLIB_STREAM_HPP__
 #define __IM_NET_STREAMS_ZLIB_STREAM_HPP__
 
-#include <stdint.h>
-#include <sys/uio.h>
-#include <zlib.h>
-
 #include <memory>
+#include <stdint.h>
 #include <string>
+#include <sys/uio.h>
 #include <vector>
+#include <zlib.h>
 
 #include "core/net/core/stream.hpp"
 
@@ -37,15 +45,15 @@ class ZlibStream : public Stream {
     static ZlibStream::ptr CreateZlib(bool encode, uint32_t buff_size = 4096);
     static ZlibStream::ptr CreateDeflate(bool encode, uint32_t buff_size = 4096);
     static ZlibStream::ptr Create(bool encode, uint32_t buff_size = 4096, Type type = DEFLATE,
-                                  int level = DEFAULT_COMPRESSION, int window_bits = 15,
-                                  int memlevel = 8, Strategy strategy = DEFAULT);
+                                  int level = DEFAULT_COMPRESSION, int window_bits = 15, int memlevel = 8,
+                                  Strategy strategy = DEFAULT);
 
     ZlibStream(bool encode, uint32_t buff_size = 4096);
     ~ZlibStream();
 
-    virtual int read(void* buffer, size_t length) override;
+    virtual int read(void *buffer, size_t length) override;
     virtual int read(ByteArray::ptr ba, size_t length) override;
-    virtual int write(const void* buffer, size_t length) override;
+    virtual int write(const void *buffer, size_t length) override;
     virtual int write(ByteArray::ptr ba, size_t length) override;
     virtual void close() override;
 
@@ -57,16 +65,16 @@ class ZlibStream : public Stream {
     bool isEncode() const { return m_encode; }
     void setEndcode(bool v) { m_encode = v; }
 
-    std::vector<iovec>& getBuffers() { return m_buffs; }
+    std::vector<iovec> &getBuffers() { return m_buffs; }
     std::string getResult() const;
     ByteArray::ptr getByteArray();
 
    private:
-    int init(Type type = DEFLATE, int level = DEFAULT_COMPRESSION, int window_bits = 15,
-             int memlevel = 8, Strategy strategy = DEFAULT);
+    int init(Type type = DEFLATE, int level = DEFAULT_COMPRESSION, int window_bits = 15, int memlevel = 8,
+             Strategy strategy = DEFAULT);
 
-    int encode(const iovec* v, const uint64_t& size, bool finish);
-    int decode(const iovec* v, const uint64_t& size, bool finish);
+    int encode(const iovec *v, const uint64_t &size, bool finish);
+    int decode(const iovec *v, const uint64_t &size, bool finish);
 
    private:
     z_stream m_zstream;
@@ -77,4 +85,4 @@ class ZlibStream : public Stream {
 };
 }  // namespace IM
 
-#endif // __IM_NET_STREAMS_ZLIB_STREAM_HPP__
+#endif  // __IM_NET_STREAMS_ZLIB_STREAM_HPP__

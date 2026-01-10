@@ -2,29 +2,26 @@
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <sstream>
 #include <sys/socket.h>
 
-#include <sstream>
-
 namespace IM::ns {
-NSNode::NSNode(const std::string& ip, uint16_t port, uint32_t weight)
-    : m_ip(ip), m_port(port), m_weight(weight) {
+NSNode::NSNode(const std::string &ip, uint16_t port, uint32_t weight) : m_ip(ip), m_port(port), m_weight(weight) {
     m_id = GetID(ip, port);
 }
 
-uint64_t NSNode::GetID(const std::string& ip, uint16_t port) {
+uint64_t NSNode::GetID(const std::string &ip, uint16_t port) {
     in_addr_t ip_addr = inet_addr(ip.c_str());
     uint64_t v = (((uint64_t)ip_addr) << 32) | port;
     return v;
 }
 
-std::ostream& NSNode::dump(std::ostream& os, const std::string& prefix) {
-    os << prefix << "[NSNode id=" << m_id << " ip=" << m_ip << " port=" << m_port
-       << " weight=" << m_weight << "]";
+std::ostream &NSNode::dump(std::ostream &os, const std::string &prefix) {
+    os << prefix << "[NSNode id=" << m_id << " ip=" << m_ip << " port=" << m_port << " weight=" << m_weight << "]";
     return os;
 }
 
-std::string NSNode::toString(const std::string& prefix) {
+std::string NSNode::toString(const std::string &prefix) {
     std::stringstream ss;
     dump(ss, prefix);
     return ss.str();
@@ -53,17 +50,17 @@ NSNode::ptr NSNodeSet::del(uint64_t id) {
     return rt;
 }
 
-std::ostream& NSNodeSet::dump(std::ostream& os, const std::string& prefix) {
+std::ostream &NSNodeSet::dump(std::ostream &os, const std::string &prefix) {
     os << prefix << "[NSNodeSet cmd=" << m_cmd;
     RWMutex::ReadLock lock(m_mutex);
     os << " size=" << m_datas.size() << "]" << std::endl;
-    for (auto& i : m_datas) {
+    for (auto &i : m_datas) {
         i.second->dump(os, prefix + "    ") << std::endl;
     }
     return os;
 }
 
-std::string NSNodeSet::toString(const std::string& prefix) {
+std::string NSNodeSet::toString(const std::string &prefix) {
     std::stringstream ss;
     dump(ss, prefix);
     return ss.str();
@@ -75,9 +72,9 @@ NSNode::ptr NSNodeSet::get(uint64_t id) {
     return it == m_datas.end() ? nullptr : it->second;
 }
 
-void NSNodeSet::listAll(std::vector<NSNode::ptr>& infos) {
+void NSNodeSet::listAll(std::vector<NSNode::ptr> &infos) {
     RWMutex::ReadLock lock(m_mutex);
-    for (auto& i : m_datas) {
+    for (auto &i : m_datas) {
         infos.push_back(i.second);
     }
 }
@@ -92,17 +89,17 @@ size_t NSDomain::size() {
     return m_datas.size();
 }
 
-std::ostream& NSDomain::dump(std::ostream& os, const std::string& prefix) {
+std::ostream &NSDomain::dump(std::ostream &os, const std::string &prefix) {
     os << prefix << "[NSDomain name=" << m_domain;
     RWMutex::ReadLock lock(m_mutex);
     os << " cmd_size=" << m_datas.size() << "]" << std::endl;
-    for (auto& i : m_datas) {
+    for (auto &i : m_datas) {
         i.second->dump(os, prefix + "    ") << std::endl;
     }
     return os;
 }
 
-std::string NSDomain::toString(const std::string& prefix) {
+std::string NSDomain::toString(const std::string &prefix) {
     std::stringstream ss;
     dump(ss, prefix);
     return ss.str();
@@ -140,9 +137,9 @@ NSNodeSet::ptr NSDomain::get(uint32_t cmd) {
     return it == m_datas.end() ? nullptr : it->second;
 }
 
-void NSDomain::listAll(std::vector<NSNodeSet::ptr>& infos) {
+void NSDomain::listAll(std::vector<NSNodeSet::ptr> &infos) {
     RWMutex::ReadLock lock(m_mutex);
-    for (auto& i : m_datas) {
+    for (auto &i : m_datas) {
         infos.push_back(i.second);
     }
 }
@@ -152,12 +149,12 @@ void NSDomainSet::add(NSDomain::ptr info) {
     m_datas[info->getDomain()] = info;
 }
 
-void NSDomainSet::del(const std::string& domain) {
+void NSDomainSet::del(const std::string &domain) {
     RWMutex::WriteLock lock(m_mutex);
     m_datas.erase(domain);
 }
 
-NSDomain::ptr NSDomainSet::get(const std::string& domain, bool auto_create) {
+NSDomain::ptr NSDomainSet::get(const std::string &domain, bool auto_create) {
     {
         RWMutex::ReadLock lock(m_mutex);
         auto it = m_datas.find(domain);
@@ -175,7 +172,7 @@ NSDomain::ptr NSDomainSet::get(const std::string& domain, bool auto_create) {
     return d;
 }
 
-void NSDomainSet::del(const std::string& domain, uint32_t cmd, uint64_t id) {
+void NSDomainSet::del(const std::string &domain, uint32_t cmd, uint64_t id) {
     auto d = get(domain);
     if (!d) {
         return;
@@ -187,30 +184,30 @@ void NSDomainSet::del(const std::string& domain, uint32_t cmd, uint64_t id) {
     ns->del(id);
 }
 
-void NSDomainSet::listAll(std::vector<NSDomain::ptr>& infos) {
+void NSDomainSet::listAll(std::vector<NSDomain::ptr> &infos) {
     RWMutex::ReadLock lock(m_mutex);
-    for (auto& i : m_datas) {
+    for (auto &i : m_datas) {
         infos.push_back(i.second);
     }
 }
 
-std::ostream& NSDomainSet::dump(std::ostream& os, const std::string& prefix) {
+std::ostream &NSDomainSet::dump(std::ostream &os, const std::string &prefix) {
     RWMutex::ReadLock lock(m_mutex);
     os << prefix << "[NSDomainSet domain_size=" << m_datas.size() << "]" << std::endl;
-    for (auto& i : m_datas) {
+    for (auto &i : m_datas) {
         os << prefix;
         i.second->dump(os, prefix + "    ") << std::endl;
     }
     return os;
 }
 
-std::string NSDomainSet::toString(const std::string& prefix) {
+std::string NSDomainSet::toString(const std::string &prefix) {
     std::stringstream ss;
     dump(ss, prefix);
     return ss.str();
 }
 
-void NSDomainSet::swap(NSDomainSet& ds) {
+void NSDomainSet::swap(NSDomainSet &ds) {
     if (this == &ds) {
         return;
     }

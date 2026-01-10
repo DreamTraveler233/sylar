@@ -1,33 +1,34 @@
 #include "application/app/media_service_impl.hpp"
 
-#include <dirent.h>
-#include <sys/stat.h>
-
 #include <cmath>
+#include <dirent.h>
 #include <fstream>
 #include <sstream>
+#include <sys/stat.h>
 
 #include "core/base/macro.hpp"
-#include "common/result.hpp"
 #include "core/config/config.hpp"
-#include "infra/storage/istorage.hpp"
 #include "core/system/env.hpp"
+
+#include "infra/storage/istorage.hpp"
+
+#include "common/result.hpp"
 
 namespace IM::app {
 
 static auto g_logger = IM_LOG_NAME("root");
 
 // 配置项，实际项目中应从配置文件读取
-static auto g_upload_base_dir = IM::Config::Lookup<std::string>(
-    "media.upload_base_dir", std::string("data/uploads"), "base dir for uploaded media files");
-static auto g_temp_base_dir = IM::Config::Lookup<std::string>(
-    "media.temp_base_dir", std::string("data/uploads/tmp"), "temp dir for multipart uploads");
-static auto g_shard_size_default = IM::Config::Lookup<uint32_t>(
-    "media.shard_size_default", (uint32_t)(5 * 1024 * 1024), "default shard size in bytes");
-static auto g_temp_cleanup_interval = IM::Config::Lookup<uint32_t>(
-    "media.temp_cleanup_interval", (uint32_t)3600, "temp dir cleanup interval seconds");
-static auto g_temp_retention_secs = IM::Config::Lookup<uint32_t>(
-    "media.temp_retention_secs", (uint32_t)(24 * 3600), "temp dir retention seconds");
+static auto g_upload_base_dir = IM::Config::Lookup<std::string>("media.upload_base_dir", std::string("data/uploads"),
+                                                                "base dir for uploaded media files");
+static auto g_temp_base_dir = IM::Config::Lookup<std::string>("media.temp_base_dir", std::string("data/uploads/tmp"),
+                                                              "temp dir for multipart uploads");
+static auto g_shard_size_default = IM::Config::Lookup<uint32_t>("media.shard_size_default", (uint32_t)(5 * 1024 * 1024),
+                                                                "default shard size in bytes");
+static auto g_temp_cleanup_interval =
+    IM::Config::Lookup<uint32_t>("media.temp_cleanup_interval", (uint32_t)3600, "temp dir cleanup interval seconds");
+static auto g_temp_retention_secs =
+    IM::Config::Lookup<uint32_t>("media.temp_retention_secs", (uint32_t)(24 * 3600), "temp dir retention seconds");
 static IM::Timer::ptr g_temp_cleanup_timer;
 
 static std::string GetResolvedUploadBaseDir() {
@@ -44,7 +45,7 @@ MediaServiceImpl::MediaServiceImpl(IM::domain::repository::IMediaRepository::Ptr
                                    IM::infra::storage::IStorageAdapter::Ptr storage_adapter)
     : m_media_repo(std::move(media_repo)), m_storage_adapter(std::move(storage_adapter)) {}
 
-std::string MediaServiceImpl::GetStoragePath(const std::string& file_name) {
+std::string MediaServiceImpl::GetStoragePath(const std::string &file_name) {
     time_t now = time(0);
     struct tm t;
     localtime_r(&now, &t);
@@ -63,12 +64,12 @@ std::string MediaServiceImpl::GetStoragePath(const std::string& file_name) {
     return GetResolvedUploadBaseDir() + date_path + id + ext;
 }
 
-std::string MediaServiceImpl::GetTempPath(const std::string& upload_id) {
+std::string MediaServiceImpl::GetTempPath(const std::string &upload_id) {
     return GetResolvedTempBaseDir() + "/" + upload_id;
 }
 
 Result<IM::model::UploadSession> MediaServiceImpl::InitMultipartUpload(const uint64_t user_id,
-                                                                       const std::string& file_name,
+                                                                       const std::string &file_name,
                                                                        const uint64_t file_size) {
     Result<IM::model::UploadSession> r;
     std::string out_upload_id = IM::md5(IM::random_string(32) + std::to_string(time(0)));
@@ -117,9 +118,9 @@ void MediaServiceImpl::InitTempCleanupTimer() {
         []() {
             try {
                 std::string temp_base = GetResolvedTempBaseDir();
-                DIR* dir = opendir(temp_base.c_str());
+                DIR *dir = opendir(temp_base.c_str());
                 if (!dir) return;
-                struct dirent* dp = nullptr;
+                struct dirent *dp = nullptr;
                 time_t now = time(0);
                 while ((dp = readdir(dir)) != nullptr) {
                     if (dp->d_type != DT_DIR) continue;
@@ -140,12 +141,12 @@ void MediaServiceImpl::InitTempCleanupTimer() {
         true);
 }
 
-std::string MediaServiceImpl::GetUploadTempPath(const std::string& upload_id) {
+std::string MediaServiceImpl::GetUploadTempPath(const std::string &upload_id) {
     return GetTempPath(upload_id);
 }
 
-Result<bool> MediaServiceImpl::UploadPart(const std::string& upload_id, uint32_t split_index,
-                                          uint32_t split_num, const std::string& temp_file_path) {
+Result<bool> MediaServiceImpl::UploadPart(const std::string &upload_id, uint32_t split_index, uint32_t split_num,
+                                          const std::string &temp_file_path) {
     Result<bool> r;
     model::UploadSession session;
     std::string repo_err;
@@ -170,8 +171,7 @@ Result<bool> MediaServiceImpl::UploadPart(const std::string& upload_id, uint32_t
         if (!m_storage_adapter) {
             // fallback to local move
             if (rename(temp_file_path.c_str(), part_path.c_str()) != 0) {
-                IM_LOG_ERROR(g_logger)
-                    << "rename part tmp file failed: " << temp_file_path << " -> " << part_path;
+                IM_LOG_ERROR(g_logger) << "rename part tmp file failed: " << temp_file_path << " -> " << part_path;
                 r.code = 500;
                 r.err = "write part file failed";
                 return r;
@@ -199,7 +199,7 @@ Result<bool> MediaServiceImpl::UploadPart(const std::string& upload_id, uint32_t
     std::vector<std::string> files_after;
     IM::FSUtil::ListAllFile(files_after, session.temp_path, "");
     int part_count_after = 0;
-    for (const auto& f : files_after) {
+    for (const auto &f : files_after) {
         if (f.find("part_") != std::string::npos) part_count_after++;
     }
     if (!m_media_repo->UpdateUploadedCount(upload_id, (uint32_t)part_count_after, &repo_err)) {
@@ -224,7 +224,7 @@ Result<bool> MediaServiceImpl::UploadPart(const std::string& upload_id, uint32_t
     IM::FSUtil::ListAllFile(files, session.temp_path, "");
     // 过滤出 part_ 开头的文件
     int part_count = 0;
-    for (const auto& f : files) {
+    for (const auto &f : files) {
         if (f.find("part_") != std::string::npos) {
             part_count++;
         }
@@ -248,7 +248,7 @@ Result<bool> MediaServiceImpl::UploadPart(const std::string& upload_id, uint32_t
     return r;
 }
 
-Result<IM::model::MediaFile> MediaServiceImpl::MergeParts(const model::UploadSession& session) {
+Result<IM::model::MediaFile> MediaServiceImpl::MergeParts(const model::UploadSession &session) {
     Result<IM::model::MediaFile> r;
     std::string final_path = GetStoragePath(session.file_name);
     std::string dir = IM::FSUtil::Dirname(final_path);
@@ -333,9 +333,8 @@ Result<IM::model::MediaFile> MediaServiceImpl::MergeParts(const model::UploadSes
     return r;
 }
 
-Result<IM::model::MediaFile> MediaServiceImpl::UploadFile(uint64_t user_id,
-                                                          const std::string& file_name,
-                                                          const std::string& data) {
+Result<IM::model::MediaFile> MediaServiceImpl::UploadFile(uint64_t user_id, const std::string &file_name,
+                                                          const std::string &data) {
     Result<IM::model::MediaFile> r;
     std::string final_path = GetStoragePath(file_name);
     std::string dir = IM::FSUtil::Dirname(final_path);
@@ -381,7 +380,7 @@ Result<IM::model::MediaFile> MediaServiceImpl::UploadFile(uint64_t user_id,
     return r;
 }
 
-Result<IM::model::MediaFile> MediaServiceImpl::GetMediaFile(const std::string& media_id) {
+Result<IM::model::MediaFile> MediaServiceImpl::GetMediaFile(const std::string &media_id) {
     Result<IM::model::MediaFile> r;
     IM::model::MediaFile media;
     std::string repo_err;
@@ -395,8 +394,7 @@ Result<IM::model::MediaFile> MediaServiceImpl::GetMediaFile(const std::string& m
     return r;
 }
 
-Result<IM::model::MediaFile> MediaServiceImpl::GetMediaFileByUploadId(
-    const std::string& upload_id) {
+Result<IM::model::MediaFile> MediaServiceImpl::GetMediaFileByUploadId(const std::string &upload_id) {
     Result<IM::model::MediaFile> r;
     IM::model::MediaFile media;
     std::string repo_err;

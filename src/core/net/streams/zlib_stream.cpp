@@ -15,8 +15,8 @@ ZlibStream::ptr ZlibStream::CreateDeflate(bool encode, uint32_t buff_size) {
     return Create(encode, buff_size, DEFLATE);
 }
 
-ZlibStream::ptr ZlibStream::Create(bool encode, uint32_t buff_size, Type type, int level,
-                                   int window_bits, int memlevel, Strategy strategy) {
+ZlibStream::ptr ZlibStream::Create(bool encode, uint32_t buff_size, Type type, int level, int window_bits, int memlevel,
+                                   Strategy strategy) {
     ZlibStream::ptr rt(new ZlibStream(encode, buff_size));
     if (rt->init(type, level, window_bits, memlevel, strategy) == Z_OK) {
         return rt;
@@ -24,12 +24,11 @@ ZlibStream::ptr ZlibStream::Create(bool encode, uint32_t buff_size, Type type, i
     return nullptr;
 }
 
-ZlibStream::ZlibStream(bool encode, uint32_t buff_size)
-    : m_buffSize(buff_size), m_encode(encode), m_free(true) {}
+ZlibStream::ZlibStream(bool encode, uint32_t buff_size) : m_buffSize(buff_size), m_encode(encode), m_free(true) {}
 
 ZlibStream::~ZlibStream() {
     if (m_free) {
-        for (auto& i : m_buffs) {
+        for (auto &i : m_buffs) {
             free(i.iov_base);
         }
     }
@@ -41,7 +40,7 @@ ZlibStream::~ZlibStream() {
     }
 }
 
-int ZlibStream::read(void* buffer, size_t length) {
+int ZlibStream::read(void *buffer, size_t length) {
     throw std::logic_error("ZlibStream::read is invalid");
 }
 
@@ -49,9 +48,9 @@ int ZlibStream::read(ByteArray::ptr ba, size_t length) {
     throw std::logic_error("ZlibStream::read is invalid");
 }
 
-int ZlibStream::write(const void* buffer, size_t length) {
+int ZlibStream::write(const void *buffer, size_t length) {
     iovec ivc;
-    ivc.iov_base = (void*)buffer;
+    ivc.iov_base = (void *)buffer;
     ivc.iov_len = length;
     if (m_encode) {
         return encode(&ivc, 1, false);
@@ -104,16 +103,16 @@ int ZlibStream::init(Type type, int level, int window_bits, int memlevel, Strate
     }
 }
 
-int ZlibStream::encode(const iovec* v, const uint64_t& size, bool finish) {
+int ZlibStream::encode(const iovec *v, const uint64_t &size, bool finish) {
     int ret = 0;
     int flush = 0;
     for (uint64_t i = 0; i < size; ++i) {
         m_zstream.avail_in = v[i].iov_len;
-        m_zstream.next_in = (Bytef*)v[i].iov_base;
+        m_zstream.next_in = (Bytef *)v[i].iov_base;
 
         flush = finish ? (i == size - 1 ? Z_FINISH : Z_NO_FLUSH) : Z_NO_FLUSH;
 
-        iovec* ivc = nullptr;
+        iovec *ivc = nullptr;
         do {
             if (!m_buffs.empty() && m_buffs.back().iov_len != m_buffSize) {
                 ivc = &m_buffs.back();
@@ -126,7 +125,7 @@ int ZlibStream::encode(const iovec* v, const uint64_t& size, bool finish) {
             }
 
             m_zstream.avail_out = m_buffSize - ivc->iov_len;
-            m_zstream.next_out = (Bytef*)ivc->iov_base + ivc->iov_len;
+            m_zstream.next_out = (Bytef *)ivc->iov_base + ivc->iov_len;
 
             ret = deflate(&m_zstream, flush);
             if (ret == Z_STREAM_ERROR) {
@@ -141,16 +140,16 @@ int ZlibStream::encode(const iovec* v, const uint64_t& size, bool finish) {
     return Z_OK;
 }
 
-int ZlibStream::decode(const iovec* v, const uint64_t& size, bool finish) {
+int ZlibStream::decode(const iovec *v, const uint64_t &size, bool finish) {
     int ret = 0;
     int flush = 0;
     for (uint64_t i = 0; i < size; ++i) {
         m_zstream.avail_in = v[i].iov_len;
-        m_zstream.next_in = (Bytef*)v[i].iov_base;
+        m_zstream.next_in = (Bytef *)v[i].iov_base;
 
         flush = finish ? (i == size - 1 ? Z_FINISH : Z_NO_FLUSH) : Z_NO_FLUSH;
 
-        iovec* ivc = nullptr;
+        iovec *ivc = nullptr;
         do {
             if (!m_buffs.empty() && m_buffs.back().iov_len != m_buffSize) {
                 ivc = &m_buffs.back();
@@ -163,7 +162,7 @@ int ZlibStream::decode(const iovec* v, const uint64_t& size, bool finish) {
             }
 
             m_zstream.avail_out = m_buffSize - ivc->iov_len;
-            m_zstream.next_out = (Bytef*)ivc->iov_base + ivc->iov_len;
+            m_zstream.next_out = (Bytef *)ivc->iov_base + ivc->iov_len;
 
             ret = inflate(&m_zstream, flush);
             if (ret == Z_STREAM_ERROR) {
@@ -193,15 +192,15 @@ int ZlibStream::flush() {
 
 std::string ZlibStream::getResult() const {
     std::string rt;
-    for (auto& i : m_buffs) {
-        rt.append((const char*)i.iov_base, i.iov_len);
+    for (auto &i : m_buffs) {
+        rt.append((const char *)i.iov_base, i.iov_len);
     }
     return rt;
 }
 
 IM::ByteArray::ptr ZlibStream::getByteArray() {
     IM::ByteArray::ptr ba(new IM::ByteArray);
-    for (auto& i : m_buffs) {
+    for (auto &i : m_buffs) {
         ba->write(i.iov_base, i.iov_len);
     }
     ba->setPosition(0);

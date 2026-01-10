@@ -1,3 +1,12 @@
+/**
+ * @file hash_multimap.hpp
+ * @brief 数据结构相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 数据结构相关。
+ */
+
 #ifndef __IM_DS_HASH_MULTIMAP_HPP__
 #define __IM_DS_HASH_MULTIMAP_HPP__
 
@@ -14,10 +23,10 @@ template <class K, class V, class PosHash = Murmur3Hash<K>>
 class HashMultimap {
    public:
     typedef std::shared_ptr<HashMultimap> ptr;
-    typedef std::function<bool(const K& k, const V* v, int)> rcallback;
-    typedef std::function<bool(const K& k, V* v, int)> wcallback;
+    typedef std::function<bool(const K &k, const V *v, int)> rcallback;
+    typedef std::function<bool(const K &k, V *v, int)> wcallback;
 
-    HashMultimap(const uint32_t& size = 10) : m_total(0), m_elements(0) {
+    HashMultimap(const uint32_t &size = 10) : m_total(0), m_elements(0) {
         m_size = basket(size);
         m_datas = new std::vector<Node>[m_size]();
     }
@@ -48,7 +57,7 @@ class HashMultimap {
         }
     }
 
-    SharedArray<V> get(const K& k, bool duplicate = true) {
+    SharedArray<V> get(const K &k, bool duplicate = true) {
         uint32_t hashvalue = m_posHash(k);
         RWMutex::ReadLock lock(m_mutex);
         uint32_t pos = hashvalue % m_size;
@@ -58,7 +67,7 @@ class HashMultimap {
             return SharedArray<V>();
         }
         if (duplicate) {
-            V* tmp = new V[it->size]();
+            V *tmp = new V[it->size]();
             memcpy(tmp, it->val, sizeof(V) * it->size);
             return SharedArray<V>(it->size, tmp);
         } else {
@@ -66,7 +75,7 @@ class HashMultimap {
         }
     }
 
-    bool get(const K& k, std::vector<V>& v) {
+    bool get(const K &k, std::vector<V> &v) {
         uint32_t hashvalue = m_posHash(k);
         RWMutex::ReadLock lock(m_mutex);
         uint32_t pos = hashvalue % m_size;
@@ -80,7 +89,7 @@ class HashMultimap {
         return true;
     }
 
-    bool get(const K& k, V& v) {
+    bool get(const K &k, V &v) {
         uint32_t hashvalue = m_posHash(k);
         RWMutex::ReadLock lock(m_mutex);
         uint32_t pos = hashvalue % m_size;
@@ -98,7 +107,7 @@ class HashMultimap {
         return false;
     }
 
-    bool exists(const K& k) {
+    bool exists(const K &k) {
         uint32_t hashvalue = m_posHash(k);
         RWMutex::ReadLock lock(m_mutex);
         uint32_t pos = hashvalue % m_size;
@@ -107,7 +116,7 @@ class HashMultimap {
         return it != m_datas[pos].end();
     }
 
-    bool exists(const K& k, const V& v) {
+    bool exists(const K &k, const V &v) {
         uint32_t hashvalue = m_posHash(k);
         RWMutex::ReadLock lock(m_mutex);
         uint32_t pos = hashvalue % m_size;
@@ -121,7 +130,7 @@ class HashMultimap {
         return iit != it->val + it->size;
     }
 
-    bool insert(const K& k, const V& v) {
+    bool insert(const K &k, const V &v) {
         if (needRehash()) {
             rehash();
         }
@@ -150,7 +159,7 @@ class HashMultimap {
                 *iit = v;
                 return true;
             }
-            V* datas = new V[it->size + 1]();
+            V *datas = new V[it->size + 1]();
             memcpy(datas, it->val, it->size * sizeof(V));
             datas[it->size] = v;
             ++it->size;
@@ -165,7 +174,7 @@ class HashMultimap {
         return true;
     }
 
-    bool insert(const K& k, const V* v, const uint32_t& size) {
+    bool insert(const K &k, const V *v, const uint32_t &size) {
         if (needRehash()) {
             rehash();
         }
@@ -200,10 +209,10 @@ class HashMultimap {
                 }
             }
 
-            V* datas = new V[it->size + news.size()]();
+            V *datas = new V[it->size + news.size()]();
             memcpy(datas, it->val, it->size * sizeof(V));
             int n = 0;
-            for (auto& i : news) {
+            for (auto &i : news) {
                 datas[it->size + n] = i;
                 ++n;
             }
@@ -218,7 +227,7 @@ class HashMultimap {
         return true;
     }
 
-    bool set(const K& k, const V* v, const uint32_t& size) {
+    bool set(const K &k, const V *v, const uint32_t &size) {
         if (needRehash()) {
             rehash();
         }
@@ -243,7 +252,7 @@ class HashMultimap {
             Atomic::addFetch(m_total);
             Atomic::addFetch(m_elements, (uint64_t)size);
         } else {
-            V* datas = new V[size]();
+            V *datas = new V[size]();
             memcpy(datas, v, size * sizeof(V));
             it->size = size;
             std::sort(datas, datas + it->size);
@@ -256,7 +265,7 @@ class HashMultimap {
         return true;
     }
 
-    bool del(const K& k) {
+    bool del(const K &k) {
         uint32_t hashvalue = m_posHash(k);
         RWMutex::ReadLock lock(m_mutex);
         uint32_t pos = hashvalue % m_size;
@@ -280,7 +289,7 @@ class HashMultimap {
         return true;
     }
 
-    bool del(const K& k, const V& v) {
+    bool del(const K &k, const V &v) {
         uint32_t hashvalue = m_posHash(k);
         RWMutex::ReadLock lock(m_mutex);
         uint32_t pos = hashvalue % m_size;
@@ -313,7 +322,7 @@ class HashMultimap {
                 return true;
             }
 
-            V* datas = new V[it->size - 1]();
+            V *datas = new V[it->size - 1]();
             memcpy(datas, it->val, (iit - it->val) * sizeof(V));
             memcpy(datas, it + 1, (it->size - (iit - it->val) - 1) * sizeof(V));
 
@@ -336,17 +345,17 @@ class HashMultimap {
     uint64_t getTotal() const { return m_total; }
     uint64_t getElements() const { return m_elements; }
 
-    std::ostream& dump(std::ostream& os) {
+    std::ostream &dump(std::ostream &os) {
         typename RWMutex::ReadLock lock(m_mutex);
-        os << "[HashMultimap total=" << m_total << " elements=" << m_elements
-           << " bucket=" << m_size << " rate=" << getRate() << "]" << std::endl;
+        os << "[HashMultimap total=" << m_total << " elements=" << m_elements << " bucket=" << m_size
+           << " rate=" << getRate() << "]" << std::endl;
         return os;
     }
 
     // for K,V is POD
-    bool writeTo(std::ostream& os, uint64_t speed = -1) {
+    bool writeTo(std::ostream &os, uint64_t speed = -1) {
         RWMutex::ReadLock lock(m_mutex);
-        os.write((const char*)&m_size, sizeof(m_size));
+        os.write((const char *)&m_size, sizeof(m_size));
 
         std::vector<V> vs;
         std::vector<Node> ns;
@@ -362,39 +371,39 @@ class HashMultimap {
                 }
                 size_t offset = vs.size();
                 vs.insert(vs.end(), n.val, n.val + n.size);
-                n.val = (V*)offset;
+                n.val = (V *)offset;
                 ns.push_back(n);
             }
         }
 
         uint64_t size = vs.size() * sizeof(V);
-        os.write((const char*)&size, sizeof(size));
+        os.write((const char *)&size, sizeof(size));
         if (speed == (uint64_t)-1) {
-            os.write((const char*)&vs[0], size);
+            os.write((const char *)&vs[0], size);
         } else {
-            WriteFixToStreamWithSpeed(os, (const char*)&vs[0], size, speed);
+            WriteFixToStreamWithSpeed(os, (const char *)&vs[0], size, speed);
         }
 
         size = ns.size() * sizeof(Node);
-        os.write((const char*)&size, sizeof(size));
+        os.write((const char *)&size, sizeof(size));
         if (speed == (uint64_t)-1) {
-            os.write((const char*)&ns[0], size);
+            os.write((const char *)&ns[0], size);
         } else {
-            WriteFixToStreamWithSpeed(os, (const char*)&ns[0], size, speed);
+            WriteFixToStreamWithSpeed(os, (const char *)&ns[0], size, speed);
         }
 
         // std::cout << "writeTo size: " << os.tellp() << std::endl;
         return (bool)os;
     }
 
-    bool readFrom(std::istream& is, uint64_t speed = -1) {
+    bool readFrom(std::istream &is, uint64_t speed = -1) {
         do {
             try {
                 freeDatas(m_datas, m_size);
                 if (!ReadFromStream(is, m_size)) {
                     break;
                 }
-                std::vector<V>& vs = m_values;
+                std::vector<V> &vs = m_values;
                 std::vector<Node> ns;
 
                 uint64_t size;
@@ -403,11 +412,11 @@ class HashMultimap {
                 }
                 vs.resize(size / sizeof(V));
                 if (speed == (uint64_t)-1) {
-                    if (!ReadFixFromStream(is, (char*)&vs[0], size)) {
+                    if (!ReadFixFromStream(is, (char *)&vs[0], size)) {
                         break;
                     }
                 } else {
-                    if (!ReadFixFromStreamWithSpeed(is, (char*)&vs[0], size, speed)) {
+                    if (!ReadFixFromStreamWithSpeed(is, (char *)&vs[0], size, speed)) {
                         break;
                     }
                 }
@@ -416,11 +425,11 @@ class HashMultimap {
                 }
                 ns.resize(size / sizeof(Node));
                 if (speed == (uint64_t)-1) {
-                    if (!ReadFixFromStream(is, (char*)&ns[0], size)) {
+                    if (!ReadFixFromStream(is, (char *)&ns[0], size)) {
                         break;
                     }
                 } else {
-                    if (!ReadFixFromStreamWithSpeed(is, (char*)&ns[0], size, speed)) {
+                    if (!ReadFixFromStreamWithSpeed(is, (char *)&ns[0], size, speed)) {
                         break;
                     }
                 }
@@ -428,7 +437,7 @@ class HashMultimap {
 
                 m_elements = 0;
                 m_datas = new std::vector<Node>[m_size]();
-                for (auto& n : ns) {
+                for (auto &n : ns) {
                     n.val = &vs[0] + (uint64_t)n.val;
                     m_datas[m_posHash(n.key) % m_size].push_back(n);
                     m_elements += n.size;
@@ -448,11 +457,11 @@ class HashMultimap {
     struct Node {
         K key;
         int size;
-        V* val;
+        V *val;
 
-        Node(const K& k = K()) : key(k), size(0), val(nullptr) {}
+        Node(const K &k = K()) : key(k), size(0), val(nullptr) {}
 
-        bool operator<(const Node& o) const { return key < o.key; }
+        bool operator<(const Node &o) const { return key < o.key; }
     };
 
     void rehashUnlock() {
@@ -460,9 +469,9 @@ class HashMultimap {
         if (size == m_size) {
             return;
         }
-        std::vector<Node>* datas = new std::vector<Node>[size]();
+        std::vector<Node> *datas = new std::vector<Node>[size]();
         for (size_t i = 0; i < m_size; ++i) {
-            for (auto& n : m_datas[i]) {
+            for (auto &n : m_datas[i]) {
                 datas[m_posHash(n.key) % size].push_back(n);
             }
         }
@@ -477,7 +486,7 @@ class HashMultimap {
         m_datas = datas;
     }
 
-    bool inValues(V* ptr) const {
+    bool inValues(V *ptr) const {
         if (!ptr) {
             return true;
         }
@@ -487,12 +496,12 @@ class HashMultimap {
         return ptr >= &m_values.front() && ptr <= &m_values.back();
     }
 
-    void freeDatas(std::vector<Node>*& datas, uint64_t size) {
+    void freeDatas(std::vector<Node> *&datas, uint64_t size) {
         if (!datas) {
             return;
         }
         for (size_t i = 0; i < size; ++i) {
-            for (auto& n : datas[i]) {
+            for (auto &n : datas[i]) {
                 if (n.size && !inValues(n.val)) {
                     delete[] n.val;
                 }
@@ -510,7 +519,7 @@ class HashMultimap {
     uint64_t m_size;
     uint64_t m_total;
     uint64_t m_elements;
-    std::vector<Node>* m_datas;
+    std::vector<Node> *m_datas;
     RWMutex m_mutex;
     PosHash m_posHash;
 
@@ -525,4 +534,4 @@ RWMutex HashMultimap<K, V, PosHash>::s_mutex[MAX_MUTEX];
 
 }  // namespace IM::ds
 
-#endif // __IM_DS_HASH_MULTIMAP_HPP__
+#endif  // __IM_DS_HASH_MULTIMAP_HPP__

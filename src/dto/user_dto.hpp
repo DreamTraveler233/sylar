@@ -1,3 +1,12 @@
+/**
+ * @file user_dto.hpp
+ * @brief 数据传输对象(DTO)
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 数据传输对象(DTO)。
+ */
+
 #ifndef __IM_DTO_USER_DTO_HPP__
 #define __IM_DTO_USER_DTO_HPP__
 
@@ -20,6 +29,6 @@ struct UserInfo {
     std::string email = "";     // 邮箱
 };
 
-} // namespace IM::dto
+}  // namespace IM::dto
 
-#endif // __IM_DTO_USER_DTO_HPP__
+#endif  // __IM_DTO_USER_DTO_HPP__

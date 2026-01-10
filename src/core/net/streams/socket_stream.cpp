@@ -15,7 +15,7 @@ bool SocketStream::isConnected() const {
     return m_socket && m_socket->isConnected();
 }
 
-int SocketStream::read(void* buffer, size_t length) {
+int SocketStream::read(void *buffer, size_t length) {
     if (!isConnected()) {
         return -1;
     }
@@ -38,7 +38,7 @@ int SocketStream::read(ByteArray::ptr ba, size_t length) {
     return rt;
 }
 
-int SocketStream::write(const void* buffer, size_t length) {
+int SocketStream::write(const void *buffer, size_t length) {
     if (!isConnected()) {
         return -1;
     }

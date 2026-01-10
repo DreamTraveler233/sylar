@@ -1,9 +1,9 @@
 #include "application/rpc/media_service_rpc_client.hpp"
 
 #include "core/system/application.hpp"
+#include "core/system/env.hpp"
 #include "core/util/hash_util.hpp"
 #include "core/util/json_util.hpp"
-#include "core/system/env.hpp"
 
 namespace IM::app::rpc {
 
@@ -20,15 +20,12 @@ constexpr uint32_t kCmdGetMediaFileByUploadId = 805;
 }  // namespace
 
 MediaServiceRpcClient::MediaServiceRpcClient()
-    : m_rpc_addr(IM::Config::Lookup("media.rpc_addr", std::string(""),
-                                   "svc-media rpc address ip:port")) {}
+    : m_rpc_addr(IM::Config::Lookup("media.rpc_addr", std::string(""), "svc-media rpc address ip:port")) {}
 
-IM::RockResult::ptr MediaServiceRpcClient::rockJsonRequest(const std::string& ip_port, uint32_t cmd,
-                                                           const Json::Value& body,
-                                                           uint32_t timeout_ms) {
+IM::RockResult::ptr MediaServiceRpcClient::rockJsonRequest(const std::string &ip_port, uint32_t cmd,
+                                                           const Json::Value &body, uint32_t timeout_ms) {
     if (ip_port.empty()) {
-        return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr,
-                                                nullptr);
+        return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr, nullptr);
     }
 
     IM::RockConnection::ptr conn;
@@ -43,13 +40,11 @@ IM::RockResult::ptr MediaServiceRpcClient::rockJsonRequest(const std::string& ip
     if (!conn) {
         auto addr = IM::Address::LookupAny(ip_port);
         if (!addr) {
-            return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr,
-                                                    nullptr);
+            return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr, nullptr);
         }
         IM::RockConnection::ptr new_conn(new IM::RockConnection);
         if (!new_conn->connect(addr)) {
-            return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr,
-                                                    nullptr);
+            return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr, nullptr);
         }
         new_conn->start();
         {
@@ -73,9 +68,8 @@ std::string MediaServiceRpcClient::resolveSvcMediaAddr() {
     }
 
     if (auto sd = IM::Application::GetInstance()->getServiceDiscovery()) {
-        std::unordered_map<
-            std::string,
-            std::unordered_map<std::string, std::unordered_map<uint64_t, IM::ServiceItemInfo::ptr>>>
+        std::unordered_map<std::string,
+                           std::unordered_map<std::string, std::unordered_map<uint64_t, IM::ServiceItemInfo::ptr>>>
             infos;
         sd->listServer(infos);
         auto itD = infos.find("im");
@@ -95,7 +89,7 @@ std::string MediaServiceRpcClient::resolveSvcMediaAddr() {
     return "";
 }
 
-bool MediaServiceRpcClient::parseUploadSession(const Json::Value& j, IM::model::UploadSession& out) {
+bool MediaServiceRpcClient::parseUploadSession(const Json::Value &j, IM::model::UploadSession &out) {
     if (!j.isObject()) return false;
     out.upload_id = IM::JsonUtil::GetString(j, "upload_id");
     out.user_id = IM::JsonUtil::GetUint64(j, "user_id");
@@ -110,7 +104,7 @@ bool MediaServiceRpcClient::parseUploadSession(const Json::Value& j, IM::model::
     return !out.upload_id.empty();
 }
 
-bool MediaServiceRpcClient::parseMediaFile(const Json::Value& j, IM::model::MediaFile& out) {
+bool MediaServiceRpcClient::parseMediaFile(const Json::Value &j, IM::model::MediaFile &out) {
     if (!j.isObject()) return false;
     out.id = IM::JsonUtil::GetString(j, "id");
     out.upload_id = IM::JsonUtil::GetString(j, "upload_id");
@@ -126,8 +120,9 @@ bool MediaServiceRpcClient::parseMediaFile(const Json::Value& j, IM::model::Medi
     return !out.id.empty();
 }
 
-Result<IM::model::UploadSession> MediaServiceRpcClient::InitMultipartUpload(
-    const uint64_t user_id, const std::string& file_name, const uint64_t file_size) {
+Result<IM::model::UploadSession> MediaServiceRpcClient::InitMultipartUpload(const uint64_t user_id,
+                                                                            const std::string &file_name,
+                                                                            const uint64_t file_size) {
     Result<IM::model::UploadSession> result;
 
     Json::Value req(Json::objectValue);
@@ -167,10 +162,8 @@ Result<IM::model::UploadSession> MediaServiceRpcClient::InitMultipartUpload(
     return result;
 }
 
-Result<bool> MediaServiceRpcClient::UploadPart(const std::string& upload_id,
-                                               const uint32_t split_index,
-                                               const uint32_t split_num,
-                                               const std::string& temp_file_path) {
+Result<bool> MediaServiceRpcClient::UploadPart(const std::string &upload_id, const uint32_t split_index,
+                                               const uint32_t split_num, const std::string &temp_file_path) {
     Result<bool> result;
 
     Json::Value req(Json::objectValue);
@@ -210,9 +203,8 @@ Result<bool> MediaServiceRpcClient::UploadPart(const std::string& upload_id,
     return result;
 }
 
-Result<IM::model::MediaFile> MediaServiceRpcClient::UploadFile(const uint64_t user_id,
-                                                               const std::string& file_name,
-                                                               const std::string& data) {
+Result<IM::model::MediaFile> MediaServiceRpcClient::UploadFile(const uint64_t user_id, const std::string &file_name,
+                                                               const std::string &data) {
     Result<IM::model::MediaFile> result;
 
     Json::Value req(Json::objectValue);
@@ -252,7 +244,7 @@ Result<IM::model::MediaFile> MediaServiceRpcClient::UploadFile(const uint64_t us
     return result;
 }
 
-Result<IM::model::MediaFile> MediaServiceRpcClient::GetMediaFile(const std::string& media_id) {
+Result<IM::model::MediaFile> MediaServiceRpcClient::GetMediaFile(const std::string &media_id) {
     Result<IM::model::MediaFile> result;
 
     Json::Value req(Json::objectValue);
@@ -290,8 +282,7 @@ Result<IM::model::MediaFile> MediaServiceRpcClient::GetMediaFile(const std::stri
     return result;
 }
 
-Result<IM::model::MediaFile> MediaServiceRpcClient::GetMediaFileByUploadId(
-    const std::string& upload_id) {
+Result<IM::model::MediaFile> MediaServiceRpcClient::GetMediaFileByUploadId(const std::string &upload_id) {
     Result<IM::model::MediaFile> result;
 
     Json::Value req(Json::objectValue);
@@ -333,30 +324,28 @@ void MediaServiceRpcClient::InitTempCleanupTimer() {
     // Cleanup is managed by svc_media; no-op on client side.
 }
 
-std::string MediaServiceRpcClient::GetUploadTempPath(const std::string& upload_id) {
+std::string MediaServiceRpcClient::GetUploadTempPath(const std::string &upload_id) {
     // Keep this a local computation so gateway can stage/move files without a remote call.
     // NOTE: This assumes gateway and svc_media share the same media.temp_base_dir.
-    const auto base = IM::Config::Lookup<std::string>("media.temp_base_dir", std::string("data/uploads/tmp"))
-                          ->getValue();
+    const auto base =
+        IM::Config::Lookup<std::string>("media.temp_base_dir", std::string("data/uploads/tmp"))->getValue();
     const auto abs_base = IM::EnvMgr::GetInstance()->getAbsoluteWorkPath(base);
     if (upload_id.empty()) return abs_base;
     return abs_base + "/" + upload_id;
 }
 
-std::string MediaServiceRpcClient::GetStoragePath(const std::string& file_name) {
-    const auto base = IM::Config::Lookup<std::string>("media.upload_base_dir", std::string("data/uploads"))
-                          ->getValue();
+std::string MediaServiceRpcClient::GetStoragePath(const std::string &file_name) {
+    const auto base = IM::Config::Lookup<std::string>("media.upload_base_dir", std::string("data/uploads"))->getValue();
     const auto abs_base = IM::EnvMgr::GetInstance()->getAbsoluteWorkPath(base);
     if (file_name.empty()) return abs_base;
     return abs_base + "/" + file_name;
 }
 
-std::string MediaServiceRpcClient::GetTempPath(const std::string& upload_id) {
+std::string MediaServiceRpcClient::GetTempPath(const std::string &upload_id) {
     return GetUploadTempPath(upload_id);
 }
 
-Result<IM::model::MediaFile> MediaServiceRpcClient::MergeParts(
-    const IM::model::UploadSession& /*session*/) {
+Result<IM::model::MediaFile> MediaServiceRpcClient::MergeParts(const IM::model::UploadSession & /*session*/) {
     return Result<IM::model::MediaFile>::Error(500, "MergeParts is not supported in rpc client");
 }
 

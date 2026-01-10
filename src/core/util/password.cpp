@@ -1,10 +1,9 @@
 #include "core/util/password.hpp"
 
+#include <iomanip>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <openssl/sha.h>
-
-#include <iomanip>
 #include <sstream>
 #include <vector>
 
@@ -19,7 +18,7 @@ namespace {
  * @param len 字节数组长度
  * @return 转换后的十六进制字符串
  */
-static std::string to_hex(const unsigned char* data, size_t len) {
+static std::string to_hex(const unsigned char *data, size_t len) {
     std::ostringstream oss;
     oss << std::hex << std::setfill('0');
     for (size_t i = 0; i < len; ++i) {
@@ -34,7 +33,7 @@ static std::string to_hex(const unsigned char* data, size_t len) {
  * @param out 输出的字节数组
  * @return 转换成功返回true，否则返回false
  */
-static bool from_hex(const std::string& hex, std::vector<unsigned char>& out) {
+static bool from_hex(const std::string &hex, std::vector<unsigned char> &out) {
     // 检查十六进制字符串长度是否为偶数
     if (hex.size() % 2 != 0) return false;
     out.resize(hex.size() / 2);
@@ -51,7 +50,7 @@ static bool from_hex(const std::string& hex, std::vector<unsigned char>& out) {
 
 }  // namespace
 
-std::string Password::Hash(const std::string& password, uint32_t iterations) {
+std::string Password::Hash(const std::string &password, uint32_t iterations) {
     const size_t salt_len = 16;  // 128-bit salt
     const size_t dk_len = 32;    // 256-bit derived key
 
@@ -63,21 +62,19 @@ std::string Password::Hash(const std::string& password, uint32_t iterations) {
 
     // 使用PBKDF2算法生成密钥
     std::vector<unsigned char> dk(dk_len);
-    int ok = PKCS5_PBKDF2_HMAC(password.c_str(), static_cast<int>(password.size()), salt,
-                               static_cast<int>(salt_len), static_cast<int>(iterations),
-                               EVP_sha256(), static_cast<int>(dk_len), dk.data());
+    int ok = PKCS5_PBKDF2_HMAC(password.c_str(), static_cast<int>(password.size()), salt, static_cast<int>(salt_len),
+                               static_cast<int>(iterations), EVP_sha256(), static_cast<int>(dk_len), dk.data());
     if (ok != 1) {
         return std::string();
     }
 
     // 构造存储格式的哈希字符串
     std::ostringstream oss;
-    oss << "pbkdf2_sha256$" << iterations << "$" << to_hex(salt, salt_len) << "$"
-        << to_hex(dk.data(), dk_len);
+    oss << "pbkdf2_sha256$" << iterations << "$" << to_hex(salt, salt_len) << "$" << to_hex(dk.data(), dk_len);
     return oss.str();
 }
 
-bool Password::Verify(const std::string& password, const std::string& stored_hash) {
+bool Password::Verify(const std::string &password, const std::string &stored_hash) {
     // expected format: pbkdf2_sha256$<iterations>$<salt_hex>$<hash_hex>
     const std::string prefix = "pbkdf2_sha256$";
     // 检查哈希字符串是否以正确的前缀开头
@@ -115,8 +112,8 @@ bool Password::Verify(const std::string& password, const std::string& stored_has
     // 使用提供的密码和解析出的盐值重新计算哈希
     std::vector<unsigned char> dk(dk_ref.size());
     int ok = PKCS5_PBKDF2_HMAC(password.c_str(), static_cast<int>(password.size()), salt.data(),
-                               static_cast<int>(salt.size()), static_cast<int>(iterations),
-                               EVP_sha256(), static_cast<int>(dk.size()), dk.data());
+                               static_cast<int>(salt.size()), static_cast<int>(iterations), EVP_sha256(),
+                               static_cast<int>(dk.size()), dk.data());
     if (ok != 1) return false;
 
     // 检查长度是否匹配

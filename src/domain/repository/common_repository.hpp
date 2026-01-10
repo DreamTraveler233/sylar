@@ -1,3 +1,12 @@
+/**
+ * @file common_repository.hpp
+ * @brief 领域仓库接口
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 领域仓库接口。
+ */
+
 #ifndef __IM_DOMAIN_REPOSITORY_COMMON_REPOSITORY_HPP__
 #define __IM_DOMAIN_REPOSITORY_COMMON_REPOSITORY_HPP__
 
@@ -14,37 +23,36 @@ class ICommonRepository {
     virtual ~ICommonRepository() = default;
 
     // 创建新的邮箱验证码
-    virtual bool CreateEmailCode(const model::EmailVerifyCode& code,
-                                 std::string* err = nullptr) = 0;
+    virtual bool CreateEmailCode(const model::EmailVerifyCode &code, std::string *err = nullptr) = 0;
 
     // 根据邮箱和验证码验证
-    virtual bool VerifyEmailCode(const std::string& email, const std::string& code,
-                                 const std::string& channel, std::string* err = nullptr) = 0;
+    virtual bool VerifyEmailCode(const std::string &email, const std::string &code, const std::string &channel,
+                                 std::string *err = nullptr) = 0;
 
     // 标记验证码为已使用
-    virtual bool MarkEmailCodeAsUsed(const uint64_t id, std::string* err = nullptr) = 0;
+    virtual bool MarkEmailCodeAsUsed(const uint64_t id, std::string *err = nullptr) = 0;
 
     // 将过期验证码标记为失效
-    virtual bool MarkEmailCodeExpiredAsInvalid(std::string* err = nullptr) = 0;
+    virtual bool MarkEmailCodeExpiredAsInvalid(std::string *err = nullptr) = 0;
 
     // 删除失效验证码
-    virtual bool DeleteInvalidEmailCode(std::string* err = nullptr) = 0;
+    virtual bool DeleteInvalidEmailCode(std::string *err = nullptr) = 0;
 
     // 创建新的短信验证码
-    virtual bool CreateSmsCode(const model::SmsVerifyCode& code, std::string* err = nullptr) = 0;
+    virtual bool CreateSmsCode(const model::SmsVerifyCode &code, std::string *err = nullptr) = 0;
 
     // 根据手机号和验证码验证
-    virtual bool VerifySmsCode(const std::string& mobile, const std::string& code,
-                               const std::string& channel, std::string* err = nullptr) = 0;
+    virtual bool VerifySmsCode(const std::string &mobile, const std::string &code, const std::string &channel,
+                               std::string *err = nullptr) = 0;
 
     // 标记验证码为已使用
-    virtual bool MarkSmsCodeAsUsed(const uint64_t id, std::string* err = nullptr) = 0;
+    virtual bool MarkSmsCodeAsUsed(const uint64_t id, std::string *err = nullptr) = 0;
 
     // 将过期验证码标记为失效
-    virtual bool MarkSmsCodeExpiredAsInvalid(std::string* err = nullptr) = 0;
+    virtual bool MarkSmsCodeExpiredAsInvalid(std::string *err = nullptr) = 0;
 
     // 删除失效验证码
-    virtual bool DeleteInvalidSmsCode(std::string* err = nullptr) = 0;
+    virtual bool DeleteInvalidSmsCode(std::string *err = nullptr) = 0;
 };
 
 }  // namespace IM::domain::repository

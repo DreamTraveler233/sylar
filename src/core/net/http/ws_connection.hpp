@@ -2,8 +2,8 @@
 /**
  * @file    ws_connection.hpp
  * @brief   WebSocket客户端连接类声明，支持主动握手、消息收发、心跳等。
- * @author  DreamTraveler233
- * @date    2025-11-01
+ * @author DreamTraveler233
+ * @date 2026-01-10
  * @note    依赖http_connection、ws_session等模块。
  */
 
@@ -42,9 +42,8 @@ class WSConnection : public HttpConnection {
      * @return  (HttpResult, WSConnection)对，失败时WSConnection为nullptr
      * @note    支持自定义头部（如token、cookie等）
      */
-    static std::pair<HttpResult::ptr, WSConnection::ptr> Create(
-        const std::string& url, uint64_t timeout_ms,
-        const std::map<std::string, std::string>& headers = {});
+    static std::pair<HttpResult::ptr, WSConnection::ptr> Create(const std::string &url, uint64_t timeout_ms,
+                                                                const std::map<std::string, std::string> &headers = {});
 
     /**
      * @brief   通过Uri对象发起WebSocket握手并建立连接
@@ -53,8 +52,8 @@ class WSConnection : public HttpConnection {
      * @param   headers     额外HTTP头
      * @return  (HttpResult, WSConnection)对，失败时WSConnection为nullptr
      */
-    static std::pair<HttpResult::ptr, WSConnection::ptr> Create(
-        Uri::ptr uri, uint64_t timeout_ms, const std::map<std::string, std::string>& headers = {});
+    static std::pair<HttpResult::ptr, WSConnection::ptr> Create(Uri::ptr uri, uint64_t timeout_ms,
+                                                                const std::map<std::string, std::string> &headers = {});
 
     /**
      * @brief   接收一条WebSocket消息
@@ -78,8 +77,7 @@ class WSConnection : public HttpConnection {
      * @param   fin    是否为消息最后一帧
      * @return  实际发送字节数，失败返回负值
      */
-    int32_t sendMessage(const std::string& msg, int32_t opcode = WSFrameHead::TEXT_FRAME,
-                        bool fin = true);
+    int32_t sendMessage(const std::string &msg, int32_t opcode = WSFrameHead::TEXT_FRAME, bool fin = true);
 
     /**
      * @brief   主动发送PING帧

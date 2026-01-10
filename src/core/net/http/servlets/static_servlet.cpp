@@ -1,20 +1,21 @@
 #include "core/net/http/servlets/static_servlet.hpp"
-#include "core/log/logger.hpp"
+
 #include <fstream>
 #include <sstream>
+
+#include "core/log/logger.hpp"
 
 namespace IM::http {
 
 static auto g_logger = IM_LOG_NAME("system");
 
-StaticServlet::StaticServlet(const std::string& path, const std::string& prefix)
-    : Servlet("StaticServlet"), m_path(path), m_prefix(prefix) {
-}
+StaticServlet::StaticServlet(const std::string &path, const std::string &prefix)
+    : Servlet("StaticServlet"), m_path(path), m_prefix(prefix) {}
 
 int32_t StaticServlet::handle(IM::http::HttpRequest::ptr request, IM::http::HttpResponse::ptr response,
                               IM::http::HttpSession::ptr session) {
     std::string path = request->getPath();
-    
+
     // Strip prefix
     if (path.find(m_prefix) == 0) {
         path = path.substr(m_prefix.length());
@@ -23,7 +24,7 @@ int32_t StaticServlet::handle(IM::http::HttpRequest::ptr request, IM::http::Http
         response->setStatus(HttpStatus::NOT_FOUND);
         return 0;
     }
-    
+
     // Prevent directory traversal
     if (path.find("..") != std::string::npos) {
         response->setStatus(HttpStatus::FORBIDDEN);
@@ -63,14 +64,20 @@ int32_t StaticServlet::handle(IM::http::HttpRequest::ptr request, IM::http::Http
         ext = full_path.substr(pos);
     }
 
-    if (ext == ".jpg" || ext == ".jpeg") response->setHeader("Content-Type", "image/jpeg");
-    else if (ext == ".png") response->setHeader("Content-Type", "image/png");
-    else if (ext == ".gif") response->setHeader("Content-Type", "image/gif");
-    else if (ext == ".bmp") response->setHeader("Content-Type", "image/bmp");
-    else if (ext == ".webp") response->setHeader("Content-Type", "image/webp");
-    else response->setHeader("Content-Type", "application/octet-stream");
+    if (ext == ".jpg" || ext == ".jpeg")
+        response->setHeader("Content-Type", "image/jpeg");
+    else if (ext == ".png")
+        response->setHeader("Content-Type", "image/png");
+    else if (ext == ".gif")
+        response->setHeader("Content-Type", "image/gif");
+    else if (ext == ".bmp")
+        response->setHeader("Content-Type", "image/bmp");
+    else if (ext == ".webp")
+        response->setHeader("Content-Type", "image/webp");
+    else
+        response->setHeader("Content-Type", "application/octet-stream");
 
     return 0;
 }
 
-}
+}  // namespace IM::http

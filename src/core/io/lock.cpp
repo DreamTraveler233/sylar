@@ -57,8 +57,7 @@ void CASLock::unlock() {
     std::atomic_flag_clear_explicit(&m_mutex, std::memory_order_release);
 }
 
-CoroutineSemaphore::CoroutineSemaphore(size_t initial_concurrency)
-    : m_concurrency(initial_concurrency) {}
+CoroutineSemaphore::CoroutineSemaphore(size_t initial_concurrency) : m_concurrency(initial_concurrency) {}
 
 CoroutineSemaphore::~CoroutineSemaphore() {
     IM_ASSERT(m_waiters.empty());

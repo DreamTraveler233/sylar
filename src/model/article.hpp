@@ -1,6 +1,16 @@
+/**
+ * @file article.hpp
+ * @brief 数据模型实体
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 数据模型实体。
+ */
+
 #pragma once
 #include <string>
 #include <vector>
+
 #include "core/base/macro.hpp"
 
 namespace IM::model {
@@ -14,8 +24,8 @@ struct Article {
     std::string abstract;
     std::string md_content;
     std::string image;
-    int is_asterisk = 2; // 1=收藏 2=未收藏 (冗余)
-    int status = 1;      // 1=正常 2=草稿
+    int is_asterisk = 2;  // 1=收藏 2=未收藏 (冗余)
+    int status = 1;       // 1=正常 2=草稿
     std::string deleted_at;
     std::string created_at;
     std::string updated_at;
@@ -26,7 +36,7 @@ struct ArticleClassify {
     uint64_t id = 0;
     uint64_t user_id = 0;
     std::string class_name;
-    int is_default = 2; // 1=是 2=否
+    int is_default = 2;  // 1=是 2=否
     int sort = 0;
     std::string created_at;
     std::string updated_at;
@@ -62,4 +72,4 @@ struct ArticleAsterisk {
     std::string created_at;
 };
 
-}
+}  // namespace IM::model

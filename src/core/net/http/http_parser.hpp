@@ -1,3 +1,12 @@
+/**
+ * @file http_parser.hpp
+ * @brief 网络通信相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 网络通信相关。
+ */
+
 #ifndef __IM_NET_HTTP_HTTP_PARSER_HPP__
 #define __IM_NET_HTTP_HTTP_PARSER_HPP__
 
@@ -12,60 +21,60 @@ class HttpRequestParser {
     typedef std::shared_ptr<HttpRequestParser> ptr;
 
     /**
-         * @brief 构造函数
-         */
+     * @brief 构造函数
+     */
     HttpRequestParser();
 
     /**
-         * @brief 解析协议
-         * @param[in, out] data 协议文本内存
-         * @param[in] len 协议文本内存长度
-         * @return 返回实际解析的长度,并且将已解析的数据移除
-         */
-    size_t execute(char* data, size_t len);
+     * @brief 解析协议
+     * @param[in, out] data 协议文本内存
+     * @param[in] len 协议文本内存长度
+     * @return 返回实际解析的长度,并且将已解析的数据移除
+     */
+    size_t execute(char *data, size_t len);
 
     /**
-         * @brief 是否解析完成
-         * @return 是否解析完成
-         */
+     * @brief 是否解析完成
+     * @return 是否解析完成
+     */
     int isFinished();
 
     /**
-         * @brief 是否有错误
-         * @return 是否有错误
-         */
+     * @brief 是否有错误
+     * @return 是否有错误
+     */
     int hasError();
 
     /**
-         * @brief 返回HttpRequest结构体
-         */
+     * @brief 返回HttpRequest结构体
+     */
     HttpRequest::ptr getData() const;
 
     /**
-         * @brief 设置错误
-         * @param[in] v 错误值
-         */
+     * @brief 设置错误
+     * @param[in] v 错误值
+     */
     void setError(int v);
 
     /**
-         * @brief 获取消息体长度
-         */
+     * @brief 获取消息体长度
+     */
     uint64_t getContentLength();
 
     /**
-         * @brief 获取http_parser结构体
-         */
-    const http_parser& getParser() const;
+     * @brief 获取http_parser结构体
+     */
+    const http_parser &getParser() const;
 
    public:
     /**
-         * @brief 返回HttpRequest协议解析的缓存大小
-         */
+     * @brief 返回HttpRequest协议解析的缓存大小
+     */
     static uint64_t GetHttpRequestBufferSize();
 
     /**
-         * @brief 返回HttpRequest协议的最大消息体大小
-         */
+     * @brief 返回HttpRequest协议的最大消息体大小
+     */
     static uint64_t GetHttpRequestMaxBodySize();
 
    private:
@@ -86,59 +95,59 @@ class HttpResponseParser {
     typedef std::shared_ptr<HttpResponseParser> ptr;
 
     /**
-         * @brief 构造函数
-         */
+     * @brief 构造函数
+     */
     HttpResponseParser();
 
     /**
-         * @brief 解析HTTP响应协议
-         * @param[in, out] data 协议数据内存
-         * @param[in] len 协议数据内存大小
-         * @param[in] chunck 是否在解析chunck
-         * @return 返回实际解析的长度,并且移除已解析的数据
-         */
-    size_t execute(char* data, size_t len, bool chunck);
+     * @brief 解析HTTP响应协议
+     * @param[in, out] data 协议数据内存
+     * @param[in] len 协议数据内存大小
+     * @param[in] chunck 是否在解析chunck
+     * @return 返回实际解析的长度,并且移除已解析的数据
+     */
+    size_t execute(char *data, size_t len, bool chunck);
 
     /**
-         * @brief 是否解析完成
-         */
+     * @brief 是否解析完成
+     */
     int isFinished();
 
     /**
-         * @brief 是否有错误
-         */
+     * @brief 是否有错误
+     */
     int hasError();
 
     /**
-         * @brief 返回HttpResponse
-         */
+     * @brief 返回HttpResponse
+     */
     HttpResponse::ptr getData() const;
 
     /**
-         * @brief 设置错误码
-         * @param[in] v 错误码
-         */
+     * @brief 设置错误码
+     * @param[in] v 错误码
+     */
     void setError(int v);
 
     /**
-         * @brief 获取消息体长度
-         */
+     * @brief 获取消息体长度
+     */
     uint64_t getContentLength();
 
     /**
-         * @brief 返回httpclient_parser
-         */
-    const httpclient_parser& getParser() const;
+     * @brief 返回httpclient_parser
+     */
+    const httpclient_parser &getParser() const;
 
    public:
     /**
-         * @brief 返回HTTP响应解析缓存大小
-         */
+     * @brief 返回HTTP响应解析缓存大小
+     */
     static uint64_t GetHttpResponseBufferSize();
 
     /**
-         * @brief 返回HTTP响应最大消息体大小
-         */
+     * @brief 返回HTTP响应最大消息体大小
+     */
     static uint64_t GetHttpResponseMaxBodySize();
 
    private:
@@ -153,4 +162,4 @@ class HttpResponseParser {
 };
 }  // namespace IM::http
 
-#endif // __IM_NET_HTTP_HTTP_PARSER_HPP__
+#endif  // __IM_NET_HTTP_HTTP_PARSER_HPP__

@@ -41,7 +41,7 @@ constexpr uint32_t kCmdGetVoteDetail = 626;
 constexpr uint32_t kCmdCastVote = 627;
 constexpr uint32_t kCmdFinishVote = 628;
 
-Result<void> FromRockVoid(const IM::RockResult::ptr& rr, const std::string& unavailable_msg) {
+Result<void> FromRockVoid(const IM::RockResult::ptr &rr, const std::string &unavailable_msg) {
     Result<void> r;
     if (!rr || !rr->response) {
         r.code = 503;
@@ -57,14 +57,13 @@ Result<void> FromRockVoid(const IM::RockResult::ptr& rr, const std::string& unav
     return r;
 }
 
-} // namespace
+}  // namespace
 
 GroupServiceRpcClient::GroupServiceRpcClient()
-    : m_rpc_addr(IM::Config::Lookup("group.rpc_addr", std::string(""),
-                                   "svc-group rpc address ip:port")) {}
+    : m_rpc_addr(IM::Config::Lookup("group.rpc_addr", std::string(""), "svc-group rpc address ip:port")) {}
 
-IM::RockResult::ptr GroupServiceRpcClient::rockJsonRequest(const std::string& ip_port, uint32_t cmd,
-                                                           const Json::Value& body, uint32_t timeout_ms) {
+IM::RockResult::ptr GroupServiceRpcClient::rockJsonRequest(const std::string &ip_port, uint32_t cmd,
+                                                           const Json::Value &body, uint32_t timeout_ms) {
     if (ip_port.empty()) {
         return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr, nullptr);
     }
@@ -107,9 +106,8 @@ std::string GroupServiceRpcClient::resolveSvcGroupAddr() {
     if (!fixed.empty()) return fixed;
 
     if (auto sd = IM::Application::GetInstance()->getServiceDiscovery()) {
-        std::unordered_map<
-            std::string,
-            std::unordered_map<std::string, std::unordered_map<uint64_t, IM::ServiceItemInfo::ptr>>>
+        std::unordered_map<std::string,
+                           std::unordered_map<std::string, std::unordered_map<uint64_t, IM::ServiceItemInfo::ptr>>>
             infos;
         sd->listServer(infos);
         auto itD = infos.find("im");
@@ -128,7 +126,7 @@ std::string GroupServiceRpcClient::resolveSvcGroupAddr() {
     return "";
 }
 
-bool GroupServiceRpcClient::parseGroupItem(const Json::Value& j, IM::dto::GroupItem& out) {
+bool GroupServiceRpcClient::parseGroupItem(const Json::Value &j, IM::dto::GroupItem &out) {
     if (!j.isObject()) return false;
     out.group_id = IM::JsonUtil::GetUint64(j, "group_id");
     out.group_name = IM::JsonUtil::GetString(j, "group_name");
@@ -139,7 +137,7 @@ bool GroupServiceRpcClient::parseGroupItem(const Json::Value& j, IM::dto::GroupI
     return out.group_id != 0;
 }
 
-bool GroupServiceRpcClient::parseGroupDetail(const Json::Value& j, IM::dto::GroupDetail& out) {
+bool GroupServiceRpcClient::parseGroupDetail(const Json::Value &j, IM::dto::GroupDetail &out) {
     if (!j.isObject()) return false;
     out.group_id = IM::JsonUtil::GetUint64(j, "group_id");
     out.group_name = IM::JsonUtil::GetString(j, "group_name");
@@ -152,7 +150,7 @@ bool GroupServiceRpcClient::parseGroupDetail(const Json::Value& j, IM::dto::Grou
     out.is_mute = IM::JsonUtil::GetInt32(j, "is_mute");
     out.is_overt = IM::JsonUtil::GetInt32(j, "is_overt");
     if (j.isMember("notice") && j["notice"].isObject()) {
-        const auto& n = j["notice"];
+        const auto &n = j["notice"];
         out.notice.content = IM::JsonUtil::GetString(n, "content");
         out.notice.created_at = IM::JsonUtil::GetString(n, "created_at");
         out.notice.updated_at = IM::JsonUtil::GetString(n, "updated_at");
@@ -161,7 +159,7 @@ bool GroupServiceRpcClient::parseGroupDetail(const Json::Value& j, IM::dto::Grou
     return out.group_id != 0;
 }
 
-bool GroupServiceRpcClient::parseGroupMemberItem(const Json::Value& j, IM::dto::GroupMemberItem& out) {
+bool GroupServiceRpcClient::parseGroupMemberItem(const Json::Value &j, IM::dto::GroupMemberItem &out) {
     if (!j.isObject()) return false;
     out.user_id = IM::JsonUtil::GetUint64(j, "user_id");
     out.nickname = IM::JsonUtil::GetString(j, "nickname");
@@ -175,7 +173,7 @@ bool GroupServiceRpcClient::parseGroupMemberItem(const Json::Value& j, IM::dto::
     return out.user_id != 0;
 }
 
-bool GroupServiceRpcClient::parseGroupApplyItem(const Json::Value& j, IM::dto::GroupApplyItem& out) {
+bool GroupServiceRpcClient::parseGroupApplyItem(const Json::Value &j, IM::dto::GroupApplyItem &out) {
     if (!j.isObject()) return false;
     out.id = IM::JsonUtil::GetUint64(j, "id");
     out.user_id = IM::JsonUtil::GetUint64(j, "user_id");
@@ -188,7 +186,7 @@ bool GroupServiceRpcClient::parseGroupApplyItem(const Json::Value& j, IM::dto::G
     return out.id != 0;
 }
 
-bool GroupServiceRpcClient::parseGroupOvertItem(const Json::Value& j, IM::dto::GroupOvertItem& out) {
+bool GroupServiceRpcClient::parseGroupOvertItem(const Json::Value &j, IM::dto::GroupOvertItem &out) {
     if (!j.isObject()) return false;
     out.group_id = IM::JsonUtil::GetUint64(j, "group_id");
     out.type = IM::JsonUtil::GetInt32(j, "type");
@@ -202,7 +200,7 @@ bool GroupServiceRpcClient::parseGroupOvertItem(const Json::Value& j, IM::dto::G
     return out.group_id != 0;
 }
 
-bool GroupServiceRpcClient::parseGroupVoteItem(const Json::Value& j, IM::dto::GroupVoteItem& out) {
+bool GroupServiceRpcClient::parseGroupVoteItem(const Json::Value &j, IM::dto::GroupVoteItem &out) {
     if (!j.isObject()) return false;
     out.vote_id = IM::JsonUtil::GetUint64(j, "vote_id");
     out.title = IM::JsonUtil::GetString(j, "title");
@@ -215,7 +213,7 @@ bool GroupServiceRpcClient::parseGroupVoteItem(const Json::Value& j, IM::dto::Gr
     return out.vote_id != 0;
 }
 
-bool GroupServiceRpcClient::parseGroupVoteDetail(const Json::Value& j, IM::dto::GroupVoteDetail& out) {
+bool GroupServiceRpcClient::parseGroupVoteDetail(const Json::Value &j, IM::dto::GroupVoteDetail &out) {
     if (!j.isObject()) return false;
     out.vote_id = IM::JsonUtil::GetUint64(j, "vote_id");
     out.title = IM::JsonUtil::GetString(j, "title");
@@ -229,7 +227,7 @@ bool GroupServiceRpcClient::parseGroupVoteDetail(const Json::Value& j, IM::dto::
 
     out.options.clear();
     if (j.isMember("options") && j["options"].isArray()) {
-        for (const auto& it : j["options"]) {
+        for (const auto &it : j["options"]) {
             if (!it.isObject()) continue;
             IM::dto::GroupVoteOptionItem opt;
             opt.id = IM::JsonUtil::GetUint64(it, "id");
@@ -237,7 +235,7 @@ bool GroupServiceRpcClient::parseGroupVoteDetail(const Json::Value& j, IM::dto::
             opt.count = IM::JsonUtil::GetInt32(it, "count");
             opt.is_voted = it.isMember("is_voted") ? it["is_voted"].asBool() : false;
             if (it.isMember("users") && it["users"].isArray()) {
-                for (const auto& u : it["users"]) {
+                for (const auto &u : it["users"]) {
                     if (u.isString()) opt.users.push_back(u.asString());
                 }
             }
@@ -250,8 +248,8 @@ bool GroupServiceRpcClient::parseGroupVoteDetail(const Json::Value& j, IM::dto::
 
 // ---- Methods ----
 
-Result<uint64_t> GroupServiceRpcClient::CreateGroup(uint64_t user_id, const std::string& name,
-                                                    const std::vector<uint64_t>& member_ids) {
+Result<uint64_t> GroupServiceRpcClient::CreateGroup(uint64_t user_id, const std::string &name,
+                                                    const std::vector<uint64_t> &member_ids) {
     Result<uint64_t> result;
 
     Json::Value req(Json::objectValue);
@@ -369,7 +367,7 @@ Result<std::vector<IM::dto::GroupItem>> GroupServiceRpcClient::GetGroupList(uint
     }
 
     std::vector<IM::dto::GroupItem> items;
-    for (const auto& it : out["data"]["items"]) {
+    for (const auto &it : out["data"]["items"]) {
         IM::dto::GroupItem g;
         if (parseGroupItem(it, g)) items.push_back(std::move(g));
     }
@@ -379,8 +377,8 @@ Result<std::vector<IM::dto::GroupItem>> GroupServiceRpcClient::GetGroupList(uint
     return result;
 }
 
-Result<void> GroupServiceRpcClient::UpdateGroupSetting(uint64_t user_id, uint64_t group_id, const std::string& name,
-                                                       const std::string& avatar, const std::string& profile) {
+Result<void> GroupServiceRpcClient::UpdateGroupSetting(uint64_t user_id, uint64_t group_id, const std::string &name,
+                                                       const std::string &avatar, const std::string &profile) {
     Json::Value req(Json::objectValue);
     req["user_id"] = (Json::UInt64)user_id;
     req["group_id"] = (Json::UInt64)group_id;
@@ -428,8 +426,8 @@ Result<void> GroupServiceRpcClient::OvertGroup(uint64_t user_id, uint64_t group_
     return FromRockVoid(rr, "svc-group unavailable");
 }
 
-Result<std::pair<std::vector<IM::dto::GroupOvertItem>, bool>> GroupServiceRpcClient::GetOvertGroupList(int page,
-                                                                                                       const std::string& name) {
+Result<std::pair<std::vector<IM::dto::GroupOvertItem>, bool>> GroupServiceRpcClient::GetOvertGroupList(
+    int page, const std::string &name) {
     Result<std::pair<std::vector<IM::dto::GroupOvertItem>, bool>> result;
 
     Json::Value req(Json::objectValue);
@@ -463,7 +461,7 @@ Result<std::pair<std::vector<IM::dto::GroupOvertItem>, bool>> GroupServiceRpcCli
     }
 
     std::vector<IM::dto::GroupOvertItem> items;
-    for (const auto& it : out["data"]["items"]) {
+    for (const auto &it : out["data"]["items"]) {
         IM::dto::GroupOvertItem g;
         if (parseGroupOvertItem(it, g)) items.push_back(std::move(g));
     }
@@ -510,7 +508,7 @@ Result<std::vector<IM::dto::GroupMemberItem>> GroupServiceRpcClient::GetGroupMem
     }
 
     std::vector<IM::dto::GroupMemberItem> items;
-    for (const auto& it : out["data"]["items"]) {
+    for (const auto &it : out["data"]["items"]) {
         IM::dto::GroupMemberItem m;
         if (parseGroupMemberItem(it, m)) items.push_back(std::move(m));
     }
@@ -521,7 +519,7 @@ Result<std::vector<IM::dto::GroupMemberItem>> GroupServiceRpcClient::GetGroupMem
 }
 
 Result<void> GroupServiceRpcClient::InviteGroup(uint64_t user_id, uint64_t group_id,
-                                                const std::vector<uint64_t>& member_ids) {
+                                                const std::vector<uint64_t> &member_ids) {
     Json::Value req(Json::objectValue);
     req["user_id"] = (Json::UInt64)user_id;
     req["group_id"] = (Json::UInt64)group_id;
@@ -533,7 +531,7 @@ Result<void> GroupServiceRpcClient::InviteGroup(uint64_t user_id, uint64_t group
 }
 
 Result<void> GroupServiceRpcClient::RemoveMember(uint64_t user_id, uint64_t group_id,
-                                                 const std::vector<uint64_t>& member_ids) {
+                                                 const std::vector<uint64_t> &member_ids) {
     Json::Value req(Json::objectValue);
     req["user_id"] = (Json::UInt64)user_id;
     req["group_id"] = (Json::UInt64)group_id;
@@ -552,7 +550,7 @@ Result<void> GroupServiceRpcClient::SecedeGroup(uint64_t user_id, uint64_t group
     return FromRockVoid(rr, "svc-group unavailable");
 }
 
-Result<void> GroupServiceRpcClient::UpdateMemberRemark(uint64_t user_id, uint64_t group_id, const std::string& remark) {
+Result<void> GroupServiceRpcClient::UpdateMemberRemark(uint64_t user_id, uint64_t group_id, const std::string &remark) {
     Json::Value req(Json::objectValue);
     req["user_id"] = (Json::UInt64)user_id;
     req["group_id"] = (Json::UInt64)group_id;
@@ -571,7 +569,7 @@ Result<void> GroupServiceRpcClient::MuteMember(uint64_t user_id, uint64_t group_
     return FromRockVoid(rr, "svc-group unavailable");
 }
 
-Result<void> GroupServiceRpcClient::CreateApply(uint64_t user_id, uint64_t group_id, const std::string& remark) {
+Result<void> GroupServiceRpcClient::CreateApply(uint64_t user_id, uint64_t group_id, const std::string &remark) {
     Json::Value req(Json::objectValue);
     req["user_id"] = (Json::UInt64)user_id;
     req["group_id"] = (Json::UInt64)group_id;
@@ -588,7 +586,7 @@ Result<void> GroupServiceRpcClient::AgreeApply(uint64_t user_id, uint64_t apply_
     return FromRockVoid(rr, "svc-group unavailable");
 }
 
-Result<void> GroupServiceRpcClient::DeclineApply(uint64_t user_id, uint64_t apply_id, const std::string& remark) {
+Result<void> GroupServiceRpcClient::DeclineApply(uint64_t user_id, uint64_t apply_id, const std::string &remark) {
     Json::Value req(Json::objectValue);
     req["user_id"] = (Json::UInt64)user_id;
     req["apply_id"] = (Json::UInt64)apply_id;
@@ -631,7 +629,7 @@ Result<std::vector<IM::dto::GroupApplyItem>> GroupServiceRpcClient::GetApplyList
     }
 
     std::vector<IM::dto::GroupApplyItem> items;
-    for (const auto& it : out["data"]["items"]) {
+    for (const auto &it : out["data"]["items"]) {
         IM::dto::GroupApplyItem a;
         if (parseGroupApplyItem(it, a)) items.push_back(std::move(a));
     }
@@ -674,7 +672,7 @@ Result<std::vector<IM::dto::GroupApplyItem>> GroupServiceRpcClient::GetUserApply
     }
 
     std::vector<IM::dto::GroupApplyItem> items;
-    for (const auto& it : out["data"]["items"]) {
+    for (const auto &it : out["data"]["items"]) {
         IM::dto::GroupApplyItem a;
         if (parseGroupApplyItem(it, a)) items.push_back(std::move(a));
     }
@@ -720,7 +718,7 @@ Result<int> GroupServiceRpcClient::GetUnreadApplyCount(uint64_t user_id) {
     return result;
 }
 
-Result<void> GroupServiceRpcClient::EditNotice(uint64_t user_id, uint64_t group_id, const std::string& content) {
+Result<void> GroupServiceRpcClient::EditNotice(uint64_t user_id, uint64_t group_id, const std::string &content) {
     Json::Value req(Json::objectValue);
     req["user_id"] = (Json::UInt64)user_id;
     req["group_id"] = (Json::UInt64)group_id;
@@ -729,9 +727,9 @@ Result<void> GroupServiceRpcClient::EditNotice(uint64_t user_id, uint64_t group_
     return FromRockVoid(rr, "svc-group unavailable");
 }
 
-Result<uint64_t> GroupServiceRpcClient::CreateVote(uint64_t user_id, uint64_t group_id, const std::string& title,
+Result<uint64_t> GroupServiceRpcClient::CreateVote(uint64_t user_id, uint64_t group_id, const std::string &title,
                                                    int answer_mode, int is_anonymous,
-                                                   const std::vector<std::string>& options) {
+                                                   const std::vector<std::string> &options) {
     Result<uint64_t> result;
 
     Json::Value req(Json::objectValue);
@@ -741,7 +739,7 @@ Result<uint64_t> GroupServiceRpcClient::CreateVote(uint64_t user_id, uint64_t gr
     req["answer_mode"] = answer_mode;
     req["is_anonymous"] = is_anonymous;
     Json::Value arr(Json::arrayValue);
-    for (const auto& o : options) arr.append(o);
+    for (const auto &o : options) arr.append(o);
     req["options"] = arr;
 
     auto rr = rockJsonRequest(resolveSvcGroupAddr(), kCmdCreateVote, req, kTimeoutMs);
@@ -808,7 +806,7 @@ Result<std::vector<IM::dto::GroupVoteItem>> GroupServiceRpcClient::GetVoteList(u
     }
 
     std::vector<IM::dto::GroupVoteItem> items;
-    for (const auto& it : out["data"]["items"]) {
+    for (const auto &it : out["data"]["items"]) {
         IM::dto::GroupVoteItem v;
         if (parseGroupVoteItem(it, v)) items.push_back(std::move(v));
     }
@@ -856,12 +854,13 @@ Result<IM::dto::GroupVoteDetail> GroupServiceRpcClient::GetVoteDetail(uint64_t u
     return result;
 }
 
-Result<void> GroupServiceRpcClient::CastVote(uint64_t user_id, uint64_t vote_id, const std::vector<std::string>& options) {
+Result<void> GroupServiceRpcClient::CastVote(uint64_t user_id, uint64_t vote_id,
+                                             const std::vector<std::string> &options) {
     Json::Value req(Json::objectValue);
     req["user_id"] = (Json::UInt64)user_id;
     req["vote_id"] = (Json::UInt64)vote_id;
     Json::Value arr(Json::arrayValue);
-    for (const auto& o : options) arr.append(o);
+    for (const auto &o : options) arr.append(o);
     req["options"] = arr;
     auto rr = rockJsonRequest(resolveSvcGroupAddr(), kCmdCastVote, req, kTimeoutMs);
     return FromRockVoid(rr, "svc-group unavailable");
@@ -875,4 +874,4 @@ Result<void> GroupServiceRpcClient::FinishVote(uint64_t user_id, uint64_t vote_i
     return FromRockVoid(rr, "svc-group unavailable");
 }
 
-} // namespace IM::app::rpc
+}  // namespace IM::app::rpc

@@ -1,7 +1,8 @@
 /**
  * @file scheduler.hpp
  * @brief 协程调度器实现
- * @author IM
+ * @author DreamTraveler233
+ * @date 2026-01-10
  *
  * 该文件定义了协程调度器Scheduler和调度切换器SchedulerSwitcher类。
  * Scheduler负责管理线程池和协程队列，实现协程的调度执行；
@@ -14,9 +15,10 @@
 #include <list>
 #include <vector>
 
+#include "core/base/noncopyable.hpp"
+
 #include "coroutine.hpp"
 #include "lock.hpp"
-#include "core/base/noncopyable.hpp"
 #include "thread.hpp"
 
 /*
@@ -111,9 +113,9 @@
 
 namespace IM {
 /**
-     * @brief 协程调度器类
-     * @details 负责协程的调度，维护线程池和协程队列，实现协程在不同线程间的分发执行
-     */
+ * @brief 协程调度器类
+ * @details 负责协程的调度，维护线程池和协程队列，实现协程在不同线程间的分发执行
+ */
 class Scheduler : public Noncopyable {
    public:
     /// 智能指针类型定义
@@ -122,52 +124,52 @@ class Scheduler : public Noncopyable {
     using MutexType = Mutex;
 
     /**
-         * @brief 构造函数
-         * @param[in] threads 线程数量，默认为1
-         * @param[in] use_caller 是否使用调用线程作为调度线程，默认为true
-         * @param[in] name 调度器名称，默认为空
-         */
-    Scheduler(size_t threads = 1, bool use_caller = true, const std::string& name = "");
+     * @brief 构造函数
+     * @param[in] threads 线程数量，默认为1
+     * @param[in] use_caller 是否使用调用线程作为调度线程，默认为true
+     * @param[in] name 调度器名称，默认为空
+     */
+    Scheduler(size_t threads = 1, bool use_caller = true, const std::string &name = "");
 
     /**
-         * @brief 析构函数
-         */
+     * @brief 析构函数
+     */
     virtual ~Scheduler();
 
     /**
-         * @brief 获取调度器名称
-         * @return const std::string& 调度器名称
-         */
-    const std::string& getName() const;
+     * @brief 获取调度器名称
+     * @return const std::string& 调度器名称
+     */
+    const std::string &getName() const;
 
     /**
-         * @brief 获取当前线程的调度器实例
-         * @return Scheduler* 当前线程的调度器实例
-         */
-    static Scheduler* GetThis();
+     * @brief 获取当前线程的调度器实例
+     * @return Scheduler* 当前线程的调度器实例
+     */
+    static Scheduler *GetThis();
 
     /**
-         * @brief 获取当前线程的主协程
-         * @return Coroutine* 当前线程的主协程
-         */
-    static Coroutine* GetMainCoroutine();
+     * @brief 获取当前线程的主协程
+     * @return Coroutine* 当前线程的主协程
+     */
+    static Coroutine *GetMainCoroutine();
 
     /**
-         * @brief 启动调度器
-         */
+     * @brief 启动调度器
+     */
     void start();
 
     /**
-         * @brief 停止调度器
-         */
+     * @brief 停止调度器
+     */
     void stop();
 
     /**
-         * @brief 用于调度单个协程或回调函数
-         *
-         * @param cb 要调度的协程或回调函数
-         * @param tid 指定执行该任务的线程ID，默认为-1表示任意线程都可以执行
-         */
+     * @brief 用于调度单个协程或回调函数
+     *
+     * @param cb 要调度的协程或回调函数
+     * @param tid 指定执行该任务的线程ID，默认为-1表示任意线程都可以执行
+     */
     template <class CoroutineOrcb>
     void schedule(CoroutineOrcb cb, uint64_t tid = -1) {
         bool need_tickle = false;  // 用于标记是否需要唤醒工作线程
@@ -181,11 +183,11 @@ class Scheduler : public Noncopyable {
     }
 
     /**
-         * @brief 用于批量调度协程或回调函数
-         *
-         * @param begin 任务列表的起始迭代器
-         * @param end 任务列表的结束迭代器
-         */
+     * @brief 用于批量调度协程或回调函数
+     *
+     * @param begin 任务列表的起始迭代器
+     * @param end 任务列表的结束迭代器
+     */
     template <class InputIterator>
     void schedule(InputIterator begin, InputIterator end) {
         bool need_tickle = false;  // 用于标记是否需要唤醒工作线程
@@ -203,60 +205,60 @@ class Scheduler : public Noncopyable {
     }
 
     /**
-         * @brief 切换到指定线程执行
-         * @param thread 指定的线程ID，默认为-1表示任意线程
-         */
+     * @brief 切换到指定线程执行
+     * @param thread 指定的线程ID，默认为-1表示任意线程
+     */
     void switchTo(int thread = -1);
 
     /**
-         * @brief 输出调度器信息到输出流
-         * @param os 输出流
-         * @return std::ostream& 输出流
-         */
-    std::ostream& dump(std::ostream& os);
+     * @brief 输出调度器信息到输出流
+     * @param os 输出流
+     * @return std::ostream& 输出流
+     */
+    std::ostream &dump(std::ostream &os);
 
    protected:
     /**
-         * @brief 唤醒空闲线程
-         */
+     * @brief 唤醒空闲线程
+     */
     virtual void tickle();
 
     /**
-         * @brief 判断调度器是否应该停止
-         * @return bool true表示应该停止
-         */
+     * @brief 判断调度器是否应该停止
+     * @return bool true表示应该停止
+     */
     virtual bool stopping();
 
     /**
-         * @brief 空闲时执行的函数
-         */
+     * @brief 空闲时执行的函数
+     */
     virtual void idle();
 
     /**
-         * @brief 线程运行函数
-         */
+     * @brief 线程运行函数
+     */
     void run();
 
     /**
-         * @brief 设置当前线程的调度器
-         */
+     * @brief 设置当前线程的调度器
+     */
     void setThis();
 
     /**
-         * @brief 判断是否有空闲线程
-         * @return bool true表示有空闲线程
-         */
+     * @brief 判断是否有空闲线程
+     * @return bool true表示有空闲线程
+     */
     bool hasIdleThreads();
 
    private:
     /**
-         * @brief 用于在不加锁的情况下将协程或回调函数添加到调度队列中
-         *
-         * @param cb 要调度的协程或回调函数
-         * @param tid 指定执行该任务的线程ID，默认为-1表示任意线程都可以执行
-         * @return true 需要唤醒工作线程
-         * @return false 不需要唤醒工作线程
-         */
+     * @brief 用于在不加锁的情况下将协程或回调函数添加到调度队列中
+     *
+     * @param cb 要调度的协程或回调函数
+     * @param tid 指定执行该任务的线程ID，默认为-1表示任意线程都可以执行
+     * @return true 需要唤醒工作线程
+     * @return false 不需要唤醒工作线程
+     */
     template <class CoroutineOrCb>
     bool scheduleNolock(CoroutineOrCb cb, uint64_t tid) {
         // 如果队列不为空，说明有其他任务正在等待处理，工作线程应该已经在运行或即将运行
@@ -271,50 +273,50 @@ class Scheduler : public Noncopyable {
 
    private:
     /**
-         * @brief 协程和线程的封装结构体
-         * @details 用于封装待执行的协程或回调函数及其指定执行线程的信息
-         */
+     * @brief 协程和线程的封装结构体
+     * @details 用于封装待执行的协程或回调函数及其指定执行线程的信息
+     */
     struct Task {
         Coroutine::ptr coroutine;  ///< 协程智能指针，存储待执行的协程对象
         std::function<void()> cb;  ///< 回调函数，存储待执行的普通函数对象
         pid_t threadId;            ///< 线程ID，指定该任务应在哪个线程上执行，-1表示任意线程
 
         /**
-             * @brief 构造函数，使用协程指针和线程ID初始化
-             * @param[in] c 协程智能指针
-             * @param[in] tid 线程ID
-             */
+         * @brief 构造函数，使用协程指针和线程ID初始化
+         * @param[in] c 协程智能指针
+         * @param[in] tid 线程ID
+         */
         Task(Coroutine::ptr c, uint64_t tid) : coroutine(c), threadId(tid) {}
 
         /**
-             * @brief 构造函数，使用协程指针引用和线程ID初始化
-             * @param[in] c 协程智能指针引用
-             * @param[in] tid 线程ID
-             */
-        Task(Coroutine::ptr* c, uint64_t tid) : threadId(tid) { coroutine.swap(*c); }
+         * @brief 构造函数，使用协程指针引用和线程ID初始化
+         * @param[in] c 协程智能指针引用
+         * @param[in] tid 线程ID
+         */
+        Task(Coroutine::ptr *c, uint64_t tid) : threadId(tid) { coroutine.swap(*c); }
 
         /**
-             * @brief 构造函数，使用回调函数和线程ID初始化
-             * @param[in] f 回调函数
-             * @param[in] tid 线程ID
-             */
+         * @brief 构造函数，使用回调函数和线程ID初始化
+         * @param[in] f 回调函数
+         * @param[in] tid 线程ID
+         */
         Task(std::function<void()> f, uint64_t tid) : cb(f), threadId(tid) {}
 
         /**
-             * @brief 构造函数，使用回调函数引用和线程ID初始化
-             * @param[in] f 回调函数引用
-             * @param[in] tid 线程ID
-             */
-        Task(std::function<void()>* f, uint64_t tid) : threadId(tid) { cb.swap(*f); }
+         * @brief 构造函数，使用回调函数引用和线程ID初始化
+         * @param[in] f 回调函数引用
+         * @param[in] tid 线程ID
+         */
+        Task(std::function<void()> *f, uint64_t tid) : threadId(tid) { cb.swap(*f); }
 
         /**
-             * @brief 默认构造函数
-             */
+         * @brief 默认构造函数
+         */
         Task() : threadId(-1) {}
 
         /**
-             * @brief 重置所有成员变量
-             */
+         * @brief 重置所有成员变量
+         */
         void reset() {
             coroutine = nullptr;
             cb = nullptr;
@@ -340,25 +342,25 @@ class Scheduler : public Noncopyable {
 };
 
 /**
-     * @brief 调度器切换器类
-     * @details 用于临时切换到指定的调度器上下文执行，析构时自动切换回原调度器
-     */
+ * @brief 调度器切换器类
+ * @details 用于临时切换到指定的调度器上下文执行，析构时自动切换回原调度器
+ */
 class SchedulerSwitcher : public Noncopyable {
    public:
     /**
-         * @brief 构造函数，切换到目标调度器
-         * @param[in] target 目标调度器，默认为nullptr
-         */
-    SchedulerSwitcher(Scheduler* target = nullptr);
+     * @brief 构造函数，切换到目标调度器
+     * @param[in] target 目标调度器，默认为nullptr
+     */
+    SchedulerSwitcher(Scheduler *target = nullptr);
 
     /**
-         * @brief 析构函数，自动切换回原调度器
-         */
+     * @brief 析构函数，自动切换回原调度器
+     */
     ~SchedulerSwitcher();
 
    private:
-    Scheduler* m_caller;  ///< 调用者调度器，用于保存原调度器上下文
+    Scheduler *m_caller;  ///< 调用者调度器，用于保存原调度器上下文
 };
 }  // namespace IM
 
-#endif // __IM_IO_SCHEDULER_HPP__
+#endif  // __IM_IO_SCHEDULER_HPP__

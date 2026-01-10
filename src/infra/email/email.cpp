@@ -6,7 +6,7 @@
 #include "core/util/util.hpp"
 
 namespace IM {
-EMailEntity::ptr EMailEntity::CreateAttach(const std::string& filename) {
+EMailEntity::ptr EMailEntity::CreateAttach(const std::string &filename) {
     std::ifstream ifs(filename, std::ios::binary);
     std::string buf;
     buf.resize(4096);
@@ -33,29 +33,27 @@ EMailEntity::ptr EMailEntity::CreateAttach(const std::string& filename) {
     return entity;
 }
 
-void EMailEntity::addHeader(const std::string& key, const std::string& val) {
+void EMailEntity::addHeader(const std::string &key, const std::string &val) {
     m_headers[key] = val;
 }
 
-std::string EMailEntity::getHeader(const std::string& key, const std::string& def) {
+std::string EMailEntity::getHeader(const std::string &key, const std::string &def) {
     auto it = m_headers.find(key);
     return it == m_headers.end() ? def : it->second;
 }
 
 std::string EMailEntity::toString() const {
     std::stringstream ss;
-    for (auto& i : m_headers) {
+    for (auto &i : m_headers) {
         ss << i.first << ": " << i.second << "\r\n";
     }
     ss << m_content << "\r\n";
     return ss.str();
 }
 
-EMail::ptr EMail::Create(const std::string& from_address, const std::string& from_passwd,
-                         const std::string& title, const std::string& body,
-                         const std::vector<std::string>& to_address,
-                         const std::vector<std::string>& cc_address,
-                         const std::vector<std::string>& bcc_address) {
+EMail::ptr EMail::Create(const std::string &from_address, const std::string &from_passwd, const std::string &title,
+                         const std::string &body, const std::vector<std::string> &to_address,
+                         const std::vector<std::string> &cc_address, const std::vector<std::string> &bcc_address) {
     EMail::ptr email(new EMail);
     email->setFromEMailAddress(from_address);
     email->setFromEMailPasswd(from_passwd);

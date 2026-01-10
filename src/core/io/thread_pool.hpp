@@ -1,3 +1,12 @@
+/**
+ * @file thread_pool.hpp
+ * @brief 线程、协程与IO调度相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 线程、协程与IO调度相关。
+ */
+
 #ifndef __IM_IO_THREAD_POOL_HPP__
 #define __IM_IO_THREAD_POOL_HPP__
 
@@ -31,8 +40,7 @@ class Thread {
     using ThreadFunc = std::function<void(size_t)>;
 
     // 构造函数
-    inline explicit Thread(ThreadFunc func)
-        : threadFunc_(std::move(func)), threadId_(generateId_++) {}
+    inline explicit Thread(ThreadFunc func) : threadFunc_(std::move(func)), threadId_(generateId_++) {}
 
     // 析构函数
     inline ~Thread() = default;
@@ -57,22 +65,22 @@ class Thread {
 std::atomic_uint Thread::generateId_ = 0;
 
 /**
-     * 1. 创建线程池对象
-     * ThreadPool pool;
-     * 2. 设置线程池模式（可选，默认为固定模式）
-     * pool.setMode(PoolMode::MODE_CACHED);
-     * 3. 设置任务队列最大大小（可选，默认为1024）
-     * pool.setTaskQueMaxSize(2048);
-     * 4. 设置线程池最大线程数（可选，默认为1024）
-     * pool.setThreadMaxSize(512);
-     * 5. 启动线程池，默认线程数为系统支持的并发线程数
-     * pool.start();
-     * 6. 提交任务到线程池
-     * auto result = pool.submitTask(Func, Args...);
-     * 7. 获取任务执行结果（可选）
-     * int sum = result.get();
-     * 8. 线程池会在析构时自动回收所有线程资源
-     */
+ * 1. 创建线程池对象
+ * ThreadPool pool;
+ * 2. 设置线程池模式（可选，默认为固定模式）
+ * pool.setMode(PoolMode::MODE_CACHED);
+ * 3. 设置任务队列最大大小（可选，默认为1024）
+ * pool.setTaskQueMaxSize(2048);
+ * 4. 设置线程池最大线程数（可选，默认为1024）
+ * pool.setThreadMaxSize(512);
+ * 5. 启动线程池，默认线程数为系统支持的并发线程数
+ * pool.start();
+ * 6. 提交任务到线程池
+ * auto result = pool.submitTask(Func, Args...);
+ * 7. 获取任务执行结果（可选）
+ * int sum = result.get();
+ * 8. 线程池会在析构时自动回收所有线程资源
+ */
 // 线程池类
 class ThreadPool {
    public:
@@ -127,19 +135,19 @@ class ThreadPool {
     }
 
     /**
-         * @brief 提交任务到线程池
-         *
-         * 该函数使用可变参模板编程，允许接受任意任务函数和任意数量的参数。任务会被打包并放入任务队列中，
-         * 返回一个std::future对象，用于获取任务的执行结果。
-         *
-         * @tparam Func 任务函数的类型
-         * @tparam Args 任务函数参数的类型
-         * @param func 要执行的任务函数
-         * @param args 任务函数的参数
-         * @return std::future<decltype(func(args...))> 返回一个std::future对象，用于获取任务的执行结果
-         */
+     * @brief 提交任务到线程池
+     *
+     * 该函数使用可变参模板编程，允许接受任意任务函数和任意数量的参数。任务会被打包并放入任务队列中，
+     * 返回一个std::future对象，用于获取任务的执行结果。
+     *
+     * @tparam Func 任务函数的类型
+     * @tparam Args 任务函数参数的类型
+     * @param func 要执行的任务函数
+     * @param args 任务函数的参数
+     * @return std::future<decltype(func(args...))> 返回一个std::future对象，用于获取任务的执行结果
+     */
     template <typename Func, typename... Args>
-    auto submitTask(Func&& func, Args&&... args) -> std::future<decltype(func(args...))> {
+    auto submitTask(Func &&func, Args &&...args) -> std::future<decltype(func(args...))> {
         // 使用std::packaged_task将任务函数和参数打包，并获取std::future对象
         using RType = decltype(func(args...));
         auto task = std::make_shared<std::packaged_task<RType()>>(
@@ -156,8 +164,7 @@ class ThreadPool {
             std::cerr << "task queue is full, submit task fail" << std::endl;
 
             // 返回一个空的std::future对象，表示任务提交失败
-            auto tempTask =
-                std::make_shared<std::packaged_task<RType()>>([]() -> RType { return RType(); });
+            auto tempTask = std::make_shared<std::packaged_task<RType()>>([]() -> RType { return RType(); });
             (*tempTask)();
             return tempTask->get_future();
         }
@@ -174,15 +181,14 @@ class ThreadPool {
             currentThreadSize_ < threadMaxSize_) {
             try {
                 // 创建新的线程对象，并启动线程
-                auto ptr = std::make_unique<Thread>(
-                    std::bind(&ThreadPool::threadFunc, this, std::placeholders::_1));
+                auto ptr = std::make_unique<Thread>(std::bind(&ThreadPool::threadFunc, this, std::placeholders::_1));
                 size_t threadId = ptr->getThreadId();
                 threads_.emplace(threadId, std::move(ptr));
                 threads_[threadId]->start();
                 // 更新线程相关成员变量
                 currentThreadSize_++;
                 idleThreadSize_++;
-            } catch (const std::system_error& e) {
+            } catch (const std::system_error &e) {
                 // 可以根据实际情况进行其他处理，比如记录日志、返回错误信息等
                 std::cerr << "Failed to create a new thread: " << e.what() << std::endl;
             }
@@ -193,13 +199,13 @@ class ThreadPool {
     }
 
     /**
-         * @brief 启动线程池，初始化并启动指定数量的线程。
-         *
-         * 该函数用于启动线程池，初始化线程数量，并启动所有线程。线程池的运行状态会被设置为 true，
-         * 表示线程池已启动。线程数量可以通过参数指定，默认值为系统支持的并发线程数。
-         *
-         * @param initThreadSize 初始线程数量，默认为系统支持的并发线程数。
-         */
+     * @brief 启动线程池，初始化并启动指定数量的线程。
+     *
+     * 该函数用于启动线程池，初始化线程数量，并启动所有线程。线程池的运行状态会被设置为 true，
+     * 表示线程池已启动。线程数量可以通过参数指定，默认值为系统支持的并发线程数。
+     *
+     * @param initThreadSize 初始线程数量，默认为系统支持的并发线程数。
+     */
     void start(size_t initThreadSize = std::thread::hardware_concurrency()) {
         // 若线程池已启动，直接返回
         if (poolIsRunning_) {
@@ -217,15 +223,13 @@ class ThreadPool {
         for (int i = 0; i < initThreadSize_; ++i) {
             try {
                 // 使用 std::bind 将线程函数绑定到线程对象，并使用 std::make_unique 创建线程对象
-                auto ptr = std::make_unique<Thread>(
-                    std::bind(&ThreadPool::threadFunc, this, std::placeholders::_1));
+                auto ptr = std::make_unique<Thread>(std::bind(&ThreadPool::threadFunc, this, std::placeholders::_1));
 
                 // 将线程对象移动到线程池的线程容器中，使用线程 ID 作为键
                 this->threads_.emplace(ptr->getThreadId(), std::move(ptr));
-            } catch (const std::system_error& e) {
+            } catch (const std::system_error &e) {
                 // 可以根据实际情况进行其他处理，比如减少初始线程数量、记录日志等
-                std::cerr << "Failed to create a new thread during startup: " << e.what()
-                          << std::endl;
+                std::cerr << "Failed to create a new thread during startup: " << e.what() << std::endl;
             }
         }
 
@@ -237,21 +241,21 @@ class ThreadPool {
     }
 
     // 禁止拷贝构造和赋值操作
-    ThreadPool(const ThreadPool&) = delete;
+    ThreadPool(const ThreadPool &) = delete;
 
-    ThreadPool& operator=(const ThreadPool&) = delete;
+    ThreadPool &operator=(const ThreadPool &) = delete;
 
    private:
     /**
-         * @brief 线程函数，用于从任务队列中取出任务并执行。
-         *
-         * @param threadId 当前线程的唯一标识符，用于在线程池中标识该线程。
-         *
-         * @details 该函数是线程池中每个线程的执行函数。线程会不断从任务队列中取出任务并执行。
-         * 如果任务队列为空，线程会根据线程池的运行模式和状态决定是否进入等待状态或回收线程。
-         * 在CACHED模式下，线程会在空闲时间超过指定阈值时被回收。
-         * 线程在执行任务时会更新空闲线程数量，并在任务完成后更新最后执行任务的时间。
-         */
+     * @brief 线程函数，用于从任务队列中取出任务并执行。
+     *
+     * @param threadId 当前线程的唯一标识符，用于在线程池中标识该线程。
+     *
+     * @details 该函数是线程池中每个线程的执行函数。线程会不断从任务队列中取出任务并执行。
+     * 如果任务队列为空，线程会根据线程池的运行模式和状态决定是否进入等待状态或回收线程。
+     * 在CACHED模式下，线程会在空闲时间超过指定阈值时被回收。
+     * 线程在执行任务时会更新空闲线程数量，并在任务完成后更新最后执行任务的时间。
+     */
     void threadFunc(size_t threadId) {
         // 记录线程第一次执行任务的时间
         auto lastTime = std::chrono::high_resolution_clock::now();
@@ -282,15 +286,12 @@ class ThreadPool {
                     // 在CACHED模式下，等待任务队列非空并每隔1s检查线程空闲时间是否超过60s
                     if (poolMode_ == PoolMode::MODE_CACHED) {
                         // 等待任务队列非空，超时时间为1秒，如果超时则需要判断是否需要回收线程
-                        if (std::cv_status::timeout ==
-                            taskQueNotEmpty_.wait_for(lock, std::chrono::seconds(1))) {
+                        if (std::cv_status::timeout == taskQueNotEmpty_.wait_for(lock, std::chrono::seconds(1))) {
                             auto now = std::chrono::high_resolution_clock::now();  // 当前时间
                             // 计算线程空闲时间
-                            auto dur =
-                                std::chrono::duration_cast<std::chrono::seconds>(now - lastTime);
+                            auto dur = std::chrono::duration_cast<std::chrono::seconds>(now - lastTime);
                             // 如果线程空闲时间超过60秒且当前线程数超过初始线程数，则回收该线程
-                            if (dur.count() >= THREAD_MAX_IDLE_TIME &&
-                                currentThreadSize_ > initThreadSize_) {
+                            if (dur.count() >= THREAD_MAX_IDLE_TIME && currentThreadSize_ > initThreadSize_) {
                                 // 回收线程
                                 threads_.erase(threadId);
                                 // 更新线程池相关变量
@@ -365,4 +366,4 @@ class ThreadPool {
 };
 }  // namespace IM
 
-#endif // __IM_IO_THREAD_POOL_HPP__
+#endif  // __IM_IO_THREAD_POOL_HPP__

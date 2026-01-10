@@ -4,14 +4,13 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 
-#include "core/util/hash_util.hpp"
 #include "core/base/macro.hpp"
+#include "core/util/hash_util.hpp"
 
 namespace IM {
 static Logger::ptr g_logger = IM_LOG_NAME("system");
 
-ServiceItemInfo::ptr ServiceItemInfo::Create(const std::string& ip_and_port,
-                                             const std::string& data) {
+ServiceItemInfo::ptr ServiceItemInfo::Create(const std::string &ip_and_port, const std::string &data) {
     auto pos = ip_and_port.find(':');
     if (pos == std::string::npos) {
         return nullptr;
@@ -33,52 +32,46 @@ ServiceItemInfo::ptr ServiceItemInfo::Create(const std::string& ip_and_port,
 
 std::string ServiceItemInfo::toString() const {
     std::stringstream ss;
-    ss << "[ServiceItemInfo id=" << m_id << " ip=" << m_ip << " port=" << m_port
-       << " data=" << m_data << "]";
+    ss << "[ServiceItemInfo id=" << m_id << " ip=" << m_ip << " port=" << m_port << " data=" << m_data << "]";
     return ss.str();
 }
 
-void IServiceDiscovery::setQueryServer(
-    const std::unordered_map<std::string, std::unordered_set<std::string>>& v) {
+void IServiceDiscovery::setQueryServer(const std::unordered_map<std::string, std::unordered_set<std::string>> &v) {
     RWMutex::WriteLock lock(m_mutex);
     m_queryInfos = v;
 }
 
-void IServiceDiscovery::registerServer(const std::string& domain, const std::string& service,
-                                       const std::string& ip_and_port, const std::string& data) {
+void IServiceDiscovery::registerServer(const std::string &domain, const std::string &service,
+                                       const std::string &ip_and_port, const std::string &data) {
     RWMutex::WriteLock lock(m_mutex);
     m_registerInfos[domain][service][ip_and_port] = data;
 }
 
-void IServiceDiscovery::queryServer(const std::string& domain, const std::string& service) {
+void IServiceDiscovery::queryServer(const std::string &domain, const std::string &service) {
     RWMutex::WriteLock lock(m_mutex);
     m_queryInfos[domain].insert(service);
 }
 
 void IServiceDiscovery::listServer(
-    std::unordered_map<
-        std::string,
-        std::unordered_map<std::string, std::unordered_map<uint64_t, ServiceItemInfo::ptr>>>&
-        infos) {
+    std::unordered_map<std::string, std::unordered_map<std::string, std::unordered_map<uint64_t, ServiceItemInfo::ptr>>>
+        &infos) {
     RWMutex::ReadLock lock(m_mutex);
     infos = m_datas;
 }
 
 void IServiceDiscovery::listRegisterServer(
-    std::unordered_map<
-        std::string, std::unordered_map<std::string, std::unordered_map<std::string, std::string>>>&
-        infos) {
+    std::unordered_map<std::string, std::unordered_map<std::string, std::unordered_map<std::string, std::string>>>
+        &infos) {
     RWMutex::ReadLock lock(m_mutex);
     infos = m_registerInfos;
 }
 
-void IServiceDiscovery::listQueryServer(
-    std::unordered_map<std::string, std::unordered_set<std::string>>& infos) {
+void IServiceDiscovery::listQueryServer(std::unordered_map<std::string, std::unordered_set<std::string>> &infos) {
     RWMutex::ReadLock lock(m_mutex);
     infos = m_queryInfos;
 }
 
-ZKServiceDiscovery::ZKServiceDiscovery(const std::string& hosts) : m_hosts(hosts) {}
+ZKServiceDiscovery::ZKServiceDiscovery(const std::string &hosts) : m_hosts(hosts) {}
 
 void ZKServiceDiscovery::start() {
     if (m_client) {
@@ -86,10 +79,9 @@ void ZKServiceDiscovery::start() {
     }
     auto self = shared_from_this();
     m_client.reset(new ZKClient);
-    bool b = m_client->init(
-        m_hosts, 6000,
-        std::bind(&ZKServiceDiscovery::onWatch, self, std::placeholders::_1, std::placeholders::_2,
-                  std::placeholders::_3, std::placeholders::_4));
+    bool b = m_client->init(m_hosts, 6000,
+                            std::bind(&ZKServiceDiscovery::onWatch, self, std::placeholders::_1, std::placeholders::_2,
+                                      std::placeholders::_3, std::placeholders::_4));
     if (!b) {
         IM_LOG_ERROR(g_logger) << "ZKClient init fail, hosts=" << m_hosts;
     }
@@ -114,16 +106,16 @@ void ZKServiceDiscovery::stop() {
     }
 }
 
-void ZKServiceDiscovery::onZKConnect(const std::string& path, ZKClient::ptr client) {
+void ZKServiceDiscovery::onZKConnect(const std::string &path, ZKClient::ptr client) {
     RWMutex::ReadLock lock(m_mutex);
     auto rinfo = m_registerInfos;
     auto qinfo = m_queryInfos;
     lock.unlock();
 
     bool ok = true;
-    for (auto& i : rinfo) {
-        for (auto& x : i.second) {
-            for (auto& v : x.second) {
+    for (auto &i : rinfo) {
+        for (auto &x : i.second) {
+            for (auto &v : x.second) {
                 ok &= registerInfo(i.first, x.first, v.first, v.second);
             }
         }
@@ -134,8 +126,8 @@ void ZKServiceDiscovery::onZKConnect(const std::string& path, ZKClient::ptr clie
     }
 
     ok = true;
-    for (auto& i : qinfo) {
-        for (auto& x : i.second) {
+    for (auto &i : qinfo) {
+        for (auto &x : i.second) {
             ok &= queryInfo(i.first, x);
         }
     }
@@ -144,8 +136,8 @@ void ZKServiceDiscovery::onZKConnect(const std::string& path, ZKClient::ptr clie
     }
 
     ok = true;
-    for (auto& i : qinfo) {
-        for (auto& x : i.second) {
+    for (auto &i : qinfo) {
+        for (auto &x : i.second) {
             ok &= queryData(i.first, x);
         }
     }
@@ -155,7 +147,7 @@ void ZKServiceDiscovery::onZKConnect(const std::string& path, ZKClient::ptr clie
     }
 }
 
-bool ZKServiceDiscovery::existsOrCreate(const std::string& path) {
+bool ZKServiceDiscovery::existsOrCreate(const std::string &path) {
     int32_t v = m_client->exists(path, false);
     if (v == ZOK) {
         return true;
@@ -169,8 +161,7 @@ bool ZKServiceDiscovery::existsOrCreate(const std::string& path) {
             std::string new_val(1024, 0);
             v = m_client->create(path, "", new_val);
             if (v != ZOK && v != ZNODEEXISTS) {
-                IM_LOG_ERROR(g_logger)
-                    << "create path=" << path << " error:" << zerror(v) << " (" << v << ")";
+                IM_LOG_ERROR(g_logger) << "create path=" << path << " error:" << zerror(v) << " (" << v << ")";
                 return false;
             }
             return true;
@@ -186,19 +177,19 @@ bool ZKServiceDiscovery::existsOrCreate(const std::string& path) {
     return false;
 }
 
-static std::string GetProvidersPath(const std::string& domain, const std::string& service) {
+static std::string GetProvidersPath(const std::string &domain, const std::string &service) {
     return "/sylar/" + domain + "/" + service + "/providers";
 }
 
-static std::string GetConsumersPath(const std::string& domain, const std::string& service) {
+static std::string GetConsumersPath(const std::string &domain, const std::string &service) {
     return "/sylar/" + domain + "/" + service + "/consumers";
 }
 
-static std::string GetDomainPath(const std::string& domain) {
+static std::string GetDomainPath(const std::string &domain) {
     return "/sylar/" + domain;
 }
 
-bool ParseDomainService(const std::string& path, std::string& domain, std::string& service) {
+bool ParseDomainService(const std::string &path, std::string &domain, std::string &service) {
     auto v = split(path, '/');
     if (v.size() != 5) {
         return false;
@@ -208,8 +199,8 @@ bool ParseDomainService(const std::string& path, std::string& domain, std::strin
     return true;
 }
 
-bool ZKServiceDiscovery::registerInfo(const std::string& domain, const std::string& service,
-                                      const std::string& ip_and_port, const std::string& data) {
+bool ZKServiceDiscovery::registerInfo(const std::string &domain, const std::string &service,
+                                      const std::string &ip_and_port, const std::string &data) {
     std::string path = GetProvidersPath(domain, service);
     bool v = existsOrCreate(path);
     if (!v) {
@@ -218,19 +209,19 @@ bool ZKServiceDiscovery::registerInfo(const std::string& domain, const std::stri
     }
 
     std::string new_val(1024, 0);
-    int32_t rt = m_client->create(path + "/" + ip_and_port, data, new_val, &ZOO_OPEN_ACL_UNSAFE,
-                                  ZKClient::FlagsType::EPHEMERAL);
+    int32_t rt =
+        m_client->create(path + "/" + ip_and_port, data, new_val, &ZOO_OPEN_ACL_UNSAFE, ZKClient::FlagsType::EPHEMERAL);
     if (rt == ZOK) {
         return true;
     }
     if (!m_isOnTimer) {
-        IM_LOG_ERROR(g_logger) << "create path=" << (path + "/" + ip_and_port)
-                                << " fail, error:" << zerror(rt) << " (" << rt << ")";
+        IM_LOG_ERROR(g_logger) << "create path=" << (path + "/" + ip_and_port) << " fail, error:" << zerror(rt) << " ("
+                               << rt << ")";
     }
     return rt == ZNODEEXISTS;
 }
 
-bool ZKServiceDiscovery::queryInfo(const std::string& domain, const std::string& service) {
+bool ZKServiceDiscovery::queryInfo(const std::string &domain, const std::string &service) {
     if (service != "all") {
         std::string path = GetConsumersPath(domain, service);
         bool v = existsOrCreate(path);
@@ -245,28 +236,28 @@ bool ZKServiceDiscovery::queryInfo(const std::string& domain, const std::string&
         }
 
         std::string new_val(1024, 0);
-        int32_t rt = m_client->create(path + "/" + m_selfInfo, m_selfData, new_val,
-                                      &ZOO_OPEN_ACL_UNSAFE, ZKClient::FlagsType::EPHEMERAL);
+        int32_t rt = m_client->create(path + "/" + m_selfInfo, m_selfData, new_val, &ZOO_OPEN_ACL_UNSAFE,
+                                      ZKClient::FlagsType::EPHEMERAL);
         if (rt == ZOK) {
             return true;
         }
         if (!m_isOnTimer) {
-            IM_LOG_ERROR(g_logger) << "create path=" << (path + "/" + m_selfInfo)
-                                    << " fail, error:" << zerror(rt) << " (" << rt << ")";
+            IM_LOG_ERROR(g_logger) << "create path=" << (path + "/" + m_selfInfo) << " fail, error:" << zerror(rt)
+                                   << " (" << rt << ")";
         }
         return rt == ZNODEEXISTS;
     } else {
         std::vector<std::string> children;
         m_client->getChildren(GetDomainPath(domain), children, false);
         bool rt = true;
-        for (auto& i : children) {
+        for (auto &i : children) {
             rt &= queryInfo(domain, i);
         }
         return rt;
     }
 }
 
-bool ZKServiceDiscovery::getChildren(const std::string& path) {
+bool ZKServiceDiscovery::getChildren(const std::string &path) {
     std::string domain;
     std::string service;
     if (!ParseDomainService(path, domain, service)) {
@@ -277,14 +268,12 @@ bool ZKServiceDiscovery::getChildren(const std::string& path) {
         RWMutex::ReadLock lock(m_mutex);
         auto it = m_queryInfos.find(domain);
         if (it == m_queryInfos.end()) {
-            IM_LOG_ERROR(g_logger)
-                << "get_children path=" << path << " domian=" << domain << " not exists";
+            IM_LOG_ERROR(g_logger) << "get_children path=" << path << " domian=" << domain << " not exists";
             return false;
         }
         if (it->second.count(service) == 0 && it->second.count("all") == 0) {
-            IM_LOG_ERROR(g_logger)
-                << "get_children path=" << path << " service=" << service << " not exists "
-                << Join(it->second.begin(), it->second.end(), ",");
+            IM_LOG_ERROR(g_logger) << "get_children path=" << path << " service=" << service << " not exists "
+                                   << Join(it->second.begin(), it->second.end(), ",");
             return false;
         }
     }
@@ -292,19 +281,17 @@ bool ZKServiceDiscovery::getChildren(const std::string& path) {
     std::vector<std::string> vals;
     int32_t v = m_client->getChildren(path, vals, true);
     if (v != ZOK) {
-        IM_LOG_ERROR(g_logger) << "get_children path=" << path << " fail, error:" << zerror(v)
-                                << " (" << v << ")";
+        IM_LOG_ERROR(g_logger) << "get_children path=" << path << " fail, error:" << zerror(v) << " (" << v << ")";
         return false;
     }
     std::unordered_map<uint64_t, ServiceItemInfo::ptr> infos;
-    for (auto& i : vals) {
+    for (auto &i : vals) {
         auto info = ServiceItemInfo::Create(i, "");
         if (!info) {
             continue;
         }
         infos[info->getId()] = info;
-        IM_LOG_INFO(g_logger) << "domain=" << domain << " service=" << service
-                               << " info=" << info->toString();
+        IM_LOG_INFO(g_logger) << "domain=" << domain << " service=" << service << " info=" << info->toString();
     }
 
     auto new_vals = infos;
@@ -316,7 +303,7 @@ bool ZKServiceDiscovery::getChildren(const std::string& path) {
     return true;
 }
 
-bool ZKServiceDiscovery::queryData(const std::string& domain, const std::string& service) {
+bool ZKServiceDiscovery::queryData(const std::string &domain, const std::string &service) {
     // IM_LOG_INFO(g_logger) << "query_data domain=" << domain
     //                          << " service=" << service;
     if (service != "all") {
@@ -326,33 +313,32 @@ bool ZKServiceDiscovery::queryData(const std::string& domain, const std::string&
         std::vector<std::string> children;
         m_client->getChildren(GetDomainPath(domain), children, false);
         bool rt = true;
-        for (auto& i : children) {
+        for (auto &i : children) {
             rt &= queryData(domain, i);
         }
         return rt;
     }
 }
 
-void ZKServiceDiscovery::onZKChild(const std::string& path, ZKClient::ptr client) {
+void ZKServiceDiscovery::onZKChild(const std::string &path, ZKClient::ptr client) {
     // IM_LOG_INFO(g_logger) << "onZKChild path=" << path;
     getChildren(path);
 }
 
-void ZKServiceDiscovery::onZKChanged(const std::string& path, ZKClient::ptr client) {
+void ZKServiceDiscovery::onZKChanged(const std::string &path, ZKClient::ptr client) {
     IM_LOG_INFO(g_logger) << "onZKChanged path=" << path;
 }
 
-void ZKServiceDiscovery::onZKDeleted(const std::string& path, ZKClient::ptr client) {
+void ZKServiceDiscovery::onZKDeleted(const std::string &path, ZKClient::ptr client) {
     IM_LOG_INFO(g_logger) << "onZKDeleted path=" << path;
 }
 
-void ZKServiceDiscovery::onZKExpiredSession(const std::string& path, ZKClient::ptr client) {
+void ZKServiceDiscovery::onZKExpiredSession(const std::string &path, ZKClient::ptr client) {
     IM_LOG_INFO(g_logger) << "onZKExpiredSession path=" << path;
     client->reconnect();
 }
 
-void ZKServiceDiscovery::onWatch(int type, int stat, const std::string& path,
-                                 ZKClient::ptr client) {
+void ZKServiceDiscovery::onWatch(int type, int stat, const std::string &path, ZKClient::ptr client) {
     if (stat == ZKClient::StateType::CONNECTED) {
         if (type == ZKClient::EventType::SESSION) {
             return onZKConnect(path, client);
@@ -368,8 +354,8 @@ void ZKServiceDiscovery::onWatch(int type, int stat, const std::string& path,
             return onZKExpiredSession(path, client);
         }
     }
-    IM_LOG_ERROR(g_logger) << "onWatch hosts=" << m_hosts << " type=" << type << " stat=" << stat
-                            << " path=" << path << " client=" << client;
+    IM_LOG_ERROR(g_logger) << "onWatch hosts=" << m_hosts << " type=" << type << " stat=" << stat << " path=" << path
+                           << " client=" << client;
 }
 
 }  // namespace IM

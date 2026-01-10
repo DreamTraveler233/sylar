@@ -1,15 +1,14 @@
 #include "core/ds/roaring_bitmap.hpp"
 
-#include <math.h>
-#include <string.h>
-
 #include <iostream>
+#include <math.h>
 #include <sstream>
+#include <string.h>
 
 #include "core/base/macro.hpp"
 
 namespace IM::ds {
-RoaringBitmap::RoaringBitmap(const Roaring& b) : m_bitmap(b) {}
+RoaringBitmap::RoaringBitmap(const Roaring &b) : m_bitmap(b) {}
 
 RoaringBitmap::RoaringBitmap() {}
 
@@ -17,7 +16,7 @@ RoaringBitmap::RoaringBitmap(uint32_t size) {
     m_bitmap.addRange(0, size);
 }
 
-RoaringBitmap::RoaringBitmap(const RoaringBitmap& b) {
+RoaringBitmap::RoaringBitmap(const RoaringBitmap &b) {
     m_bitmap = b.m_bitmap;
 }
 
@@ -43,7 +42,7 @@ bool RoaringBitmap::readFrom(ByteArray::ptr ba) {
     return false;
 }
 
-RoaringBitmap& RoaringBitmap::operator=(const RoaringBitmap& b) {
+RoaringBitmap &RoaringBitmap::operator=(const RoaringBitmap &b) {
     if (this == &b) {
         return *this;
     }
@@ -51,7 +50,7 @@ RoaringBitmap& RoaringBitmap::operator=(const RoaringBitmap& b) {
     return *this;
 }
 
-RoaringBitmap& RoaringBitmap::operator&=(const RoaringBitmap& b) {
+RoaringBitmap &RoaringBitmap::operator&=(const RoaringBitmap &b) {
     m_bitmap &= b.m_bitmap;
     return *this;
 }
@@ -59,45 +58,45 @@ RoaringBitmap& RoaringBitmap::operator&=(const RoaringBitmap& b) {
 // RoaringBitmap& RoaringBitmap::operator~() {
 // }
 
-RoaringBitmap& RoaringBitmap::operator|=(const RoaringBitmap& b) {
+RoaringBitmap &RoaringBitmap::operator|=(const RoaringBitmap &b) {
     m_bitmap |= b.m_bitmap;
     return *this;
 }
 
-RoaringBitmap& RoaringBitmap::operator-=(const RoaringBitmap& b) {
+RoaringBitmap &RoaringBitmap::operator-=(const RoaringBitmap &b) {
     m_bitmap -= b.m_bitmap;
     return *this;
 }
 
-RoaringBitmap& RoaringBitmap::operator^=(const RoaringBitmap& b) {
+RoaringBitmap &RoaringBitmap::operator^=(const RoaringBitmap &b) {
     m_bitmap ^= b.m_bitmap;
     return *this;
 }
 
-bool RoaringBitmap::operator==(const RoaringBitmap& b) const {
+bool RoaringBitmap::operator==(const RoaringBitmap &b) const {
     if (this == &b) {
         return true;
     }
     return m_bitmap == b.m_bitmap;
 }
 
-bool RoaringBitmap::operator!=(const RoaringBitmap& b) const {
+bool RoaringBitmap::operator!=(const RoaringBitmap &b) const {
     return !(*this == b);
 }
 
-RoaringBitmap RoaringBitmap::operator&(const RoaringBitmap& b) {
+RoaringBitmap RoaringBitmap::operator&(const RoaringBitmap &b) {
     return RoaringBitmap(m_bitmap & b.m_bitmap);
 }
 
-RoaringBitmap RoaringBitmap::operator|(const RoaringBitmap& b) {
+RoaringBitmap RoaringBitmap::operator|(const RoaringBitmap &b) {
     return RoaringBitmap(m_bitmap | b.m_bitmap);
 }
 
-RoaringBitmap RoaringBitmap::operator-(const RoaringBitmap& b) {
+RoaringBitmap RoaringBitmap::operator-(const RoaringBitmap &b) {
     return RoaringBitmap(m_bitmap - b.m_bitmap);
 }
 
-RoaringBitmap RoaringBitmap::operator^(const RoaringBitmap& b) {
+RoaringBitmap RoaringBitmap::operator^(const RoaringBitmap &b) {
     return RoaringBitmap(m_bitmap ^ b.m_bitmap);
 }
 
@@ -152,13 +151,13 @@ void RoaringBitmap::rforeach(std::function<bool(uint32_t)> cb) {
     }
 }
 
-void RoaringBitmap::listPosAsc(std::vector<uint32_t>& pos) {
+void RoaringBitmap::listPosAsc(std::vector<uint32_t> &pos) {
     for (auto it = m_bitmap.begin(); it != m_bitmap.end(); ++it) {
         pos.push_back(*it);
     }
 }
 
-bool RoaringBitmap::cross(const RoaringBitmap& b) const {
+bool RoaringBitmap::cross(const RoaringBitmap &b) const {
     return m_bitmap.intersect(b.m_bitmap);
 }
 

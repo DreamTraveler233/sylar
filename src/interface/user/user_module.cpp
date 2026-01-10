@@ -30,7 +30,7 @@ constexpr uint32_t kCmdGoOnline = 515;
 constexpr uint32_t kCmdRegister = 516;
 constexpr uint32_t kCmdForget = 517;
 
-Json::Value UserToJson(const IM::model::User& u) {
+Json::Value UserToJson(const IM::model::User &u) {
     Json::Value out(Json::objectValue);
     out["id"] = (Json::UInt64)u.id;
     out["mobile"] = u.mobile;
@@ -48,7 +48,7 @@ Json::Value UserToJson(const IM::model::User& u) {
     return out;
 }
 
-Json::Value UserInfoToJson(const IM::dto::UserInfo& u) {
+Json::Value UserInfoToJson(const IM::dto::UserInfo &u) {
     Json::Value out(Json::objectValue);
     out["uid"] = (Json::UInt64)u.uid;
     out["nickname"] = u.nickname;
@@ -61,7 +61,7 @@ Json::Value UserInfoToJson(const IM::dto::UserInfo& u) {
     return out;
 }
 
-Json::Value UserSettingsToJson(const IM::model::UserSettings& s) {
+Json::Value UserSettingsToJson(const IM::model::UserSettings &s) {
     Json::Value out(Json::objectValue);
     out["user_id"] = (Json::UInt64)s.user_id;
     out["theme_mode"] = s.theme_mode;
@@ -72,7 +72,7 @@ Json::Value UserSettingsToJson(const IM::model::UserSettings& s) {
     return out;
 }
 
-void WriteOk(IM::RockResponse::ptr response, const Json::Value& data = Json::Value()) {
+void WriteOk(IM::RockResponse::ptr response, const Json::Value &data = Json::Value()) {
     Json::Value out(Json::objectValue);
     out["code"] = 200;
     if (!data.isNull()) {
@@ -83,12 +83,12 @@ void WriteOk(IM::RockResponse::ptr response, const Json::Value& data = Json::Val
     response->setResultStr("ok");
 }
 
-void WriteErr(IM::RockResponse::ptr response, int code, const std::string& err) {
+void WriteErr(IM::RockResponse::ptr response, int code, const std::string &err) {
     response->setResult(code == 0 ? 500 : code);
     response->setResultStr(err.empty() ? "error" : err);
 }
 
-bool ParseJsonBody(const IM::RockRequest::ptr& request, Json::Value& out) {
+bool ParseJsonBody(const IM::RockRequest::ptr &request, Json::Value &out) {
     if (!request) return false;
     if (!IM::JsonUtil::FromString(out, request->getBody())) return false;
     return out.isObject();
@@ -108,7 +108,7 @@ bool UserModule::onServerUp() {
 }
 
 bool UserModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockResponse::ptr response,
-                                  IM::RockStream::ptr /*stream*/) {
+                                   IM::RockStream::ptr /*stream*/) {
     const auto cmd = request ? request->getCmd() : 0;
 
     if (cmd < kCmdLoadUserInfo || cmd > kCmdForget) {
@@ -287,15 +287,14 @@ bool UserModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockRespons
             const std::string theme_bag_img = IM::JsonUtil::GetString(body, "theme_bag_img");
             const std::string theme_color = IM::JsonUtil::GetString(body, "theme_color");
             const std::string notify_cue_tone = IM::JsonUtil::GetString(body, "notify_cue_tone");
-            const std::string keyboard_event_notify =
-                IM::JsonUtil::GetString(body, "keyboard_event_notify");
+            const std::string keyboard_event_notify = IM::JsonUtil::GetString(body, "keyboard_event_notify");
             if (user_id == 0) {
                 response->setResult(400);
                 response->setResultStr("missing user_id");
                 return true;
             }
-            auto r = m_user_service->SaveConfigInfo(user_id, theme_mode, theme_bag_img, theme_color,
-                                                   notify_cue_tone, keyboard_event_notify);
+            auto r = m_user_service->SaveConfigInfo(user_id, theme_mode, theme_bag_img, theme_color, notify_cue_tone,
+                                                    keyboard_event_notify);
             if (!r.ok) {
                 WriteErr(response, r.code, r.err);
                 return true;
@@ -426,8 +425,7 @@ bool UserModule::handleRockRequest(IM::RockRequest::ptr request, IM::RockRespons
 
             std::string err;
             if (!m_user_repo->CreateUserLoginLog(log, &err)) {
-                IM_LOG_ERROR(g_logger) << "CreateUserLoginLog failed, uid=" << log.user_id
-                                       << ", err=" << err;
+                IM_LOG_ERROR(g_logger) << "CreateUserLoginLog failed, uid=" << log.user_id << ", err=" << err;
                 response->setResult(500);
                 response->setResultStr("记录登录日志失败");
                 return true;

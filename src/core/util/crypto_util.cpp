@@ -1,9 +1,8 @@
 #include "core/util/crypto_util.hpp"
 
+#include <iostream>
 #include <openssl/pem.h>
 #include <stdio.h>
-
-#include <iostream>
 
 #include "core/base/macro.hpp"
 
@@ -15,39 +14,35 @@
 
 namespace IM {
 static auto g_logger = IM_LOG_NAME("util");
-int32_t CryptoUtil::AES256Ecb(const void* key, const void* in, int32_t in_len, void* out,
-                              bool encode) {
+int32_t CryptoUtil::AES256Ecb(const void *key, const void *in, int32_t in_len, void *out, bool encode) {
     int32_t len = 0;
-    return Crypto(EVP_aes_256_ecb(), encode, (const uint8_t*)key, nullptr, (const uint8_t*)in,
-                  in_len, (uint8_t*)out, &len);
+    return Crypto(EVP_aes_256_ecb(), encode, (const uint8_t *)key, nullptr, (const uint8_t *)in, in_len, (uint8_t *)out,
+                  &len);
 }
 
-int32_t CryptoUtil::AES128Ecb(const void* key, const void* in, int32_t in_len, void* out,
-                              bool encode) {
+int32_t CryptoUtil::AES128Ecb(const void *key, const void *in, int32_t in_len, void *out, bool encode) {
     int32_t len = 0;
-    return Crypto(EVP_aes_128_ecb(), encode, (const uint8_t*)key, nullptr, (const uint8_t*)in,
-                  in_len, (uint8_t*)out, &len);
+    return Crypto(EVP_aes_128_ecb(), encode, (const uint8_t *)key, nullptr, (const uint8_t *)in, in_len, (uint8_t *)out,
+                  &len);
 }
 
-int32_t CryptoUtil::AES256Cbc(const void* key, const void* iv, const void* in, int32_t in_len,
-                              void* out, bool encode) {
+int32_t CryptoUtil::AES256Cbc(const void *key, const void *iv, const void *in, int32_t in_len, void *out, bool encode) {
     int32_t len = 0;
-    return Crypto(EVP_aes_256_cbc(), encode, (const uint8_t*)key, (const uint8_t*)iv,
-                  (const uint8_t*)in, in_len, (uint8_t*)out, &len);
+    return Crypto(EVP_aes_256_cbc(), encode, (const uint8_t *)key, (const uint8_t *)iv, (const uint8_t *)in, in_len,
+                  (uint8_t *)out, &len);
 }
 
-int32_t CryptoUtil::AES128Cbc(const void* key, const void* iv, const void* in, int32_t in_len,
-                              void* out, bool encode) {
+int32_t CryptoUtil::AES128Cbc(const void *key, const void *iv, const void *in, int32_t in_len, void *out, bool encode) {
     int32_t len = 0;
-    return Crypto(EVP_aes_128_cbc(), encode, (const uint8_t*)key, (const uint8_t*)iv,
-                  (const uint8_t*)in, in_len, (uint8_t*)out, &len);
+    return Crypto(EVP_aes_128_cbc(), encode, (const uint8_t *)key, (const uint8_t *)iv, (const uint8_t *)in, in_len,
+                  (uint8_t *)out, &len);
 }
 
-int32_t CryptoUtil::Crypto(const EVP_CIPHER* cipher, bool enc, const void* key, const void* iv,
-                           const void* in, int32_t in_len, void* out, int32_t* out_len) {
+int32_t CryptoUtil::Crypto(const EVP_CIPHER *cipher, bool enc, const void *key, const void *iv, const void *in,
+                           int32_t in_len, void *out, int32_t *out_len) {
     int tmp_len = 0;
     bool has_error = false;
-    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     do {
         if (!ctx) {
             has_error = true;
@@ -60,18 +55,17 @@ int32_t CryptoUtil::Crypto(const EVP_CIPHER* cipher, bool enc, const void* key, 
         }
         // 设置 key/iv
         if (EVP_CIPHER_key_length(cipher) > 0 || EVP_CIPHER_iv_length(cipher) > 0) {
-            if (EVP_CipherInit_ex(ctx, nullptr, nullptr, (const uint8_t*)key, (const uint8_t*)iv,
-                                  enc) != 1) {
+            if (EVP_CipherInit_ex(ctx, nullptr, nullptr, (const uint8_t *)key, (const uint8_t *)iv, enc) != 1) {
                 has_error = true;
                 break;
             }
         }
-        if (EVP_CipherUpdate(ctx, (uint8_t*)out, &tmp_len, (const uint8_t*)in, in_len) != 1) {
+        if (EVP_CipherUpdate(ctx, (uint8_t *)out, &tmp_len, (const uint8_t *)in, in_len) != 1) {
             has_error = true;
             break;
         }
         *out_len = tmp_len;
-        if (EVP_CipherFinal_ex(ctx, (uint8_t*)out + tmp_len, &tmp_len) != 1) {
+        if (EVP_CipherFinal_ex(ctx, (uint8_t *)out + tmp_len, &tmp_len) != 1) {
             has_error = true;
             break;
         }
@@ -86,11 +80,10 @@ int32_t CryptoUtil::Crypto(const EVP_CIPHER* cipher, bool enc, const void* key, 
     return *out_len;
 }
 
-int32_t RSACipher::GenerateKey(const std::string& pubkey_file, const std::string& prikey_file,
-                               uint32_t length) {
+int32_t RSACipher::GenerateKey(const std::string &pubkey_file, const std::string &prikey_file, uint32_t length) {
     int rt = 0;
-    FILE* fp = nullptr;
-    RSA* rsa = nullptr;
+    FILE *fp = nullptr;
+    RSA *rsa = nullptr;
     do {
         rsa = RSA_generate_key(length, RSA_F4, NULL, NULL);
         if (!rsa) {
@@ -125,8 +118,8 @@ int32_t RSACipher::GenerateKey(const std::string& pubkey_file, const std::string
     return rt;
 }
 
-RSACipher::ptr RSACipher::Create(const std::string& pubkey_file, const std::string& prikey_file) {
-    FILE* fp = nullptr;
+RSACipher::ptr RSACipher::Create(const std::string &pubkey_file, const std::string &prikey_file) {
+    FILE *fp = nullptr;
     do {
         RSACipher::ptr rt(new RSACipher);
         // 读取公钥：优先 PKCS#1 (BEGIN RSA PUBLIC KEY)，失败回退到 SubjectPublicKeyInfo (BEGIN PUBLIC KEY)
@@ -138,7 +131,7 @@ RSACipher::ptr RSACipher::Create(const std::string& pubkey_file, const std::stri
         rt->m_pubkey = PEM_read_RSAPublicKey(fp, NULL, NULL, NULL);
         if (!rt->m_pubkey) {
             rewind(fp);
-            EVP_PKEY* pkey = PEM_read_PUBKEY(fp, NULL, NULL, NULL);
+            EVP_PKEY *pkey = PEM_read_PUBKEY(fp, NULL, NULL, NULL);
             if (pkey) {
                 rt->m_pubkey = EVP_PKEY_get1_RSA(pkey);
                 EVP_PKEY_free(pkey);
@@ -172,7 +165,7 @@ RSACipher::ptr RSACipher::Create(const std::string& pubkey_file, const std::stri
         rt->m_prikey = PEM_read_RSAPrivateKey(fp, NULL, NULL, NULL);
         if (!rt->m_prikey) {
             rewind(fp);
-            EVP_PKEY* pkey = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
+            EVP_PKEY *pkey = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
             if (pkey) {
                 rt->m_prikey = EVP_PKEY_get1_RSA(pkey);
                 EVP_PKEY_free(pkey);
@@ -215,23 +208,23 @@ RSACipher::~RSACipher() {
     }
 }
 
-int32_t RSACipher::privateEncrypt(const void* from, int flen, void* to, int padding) {
-    return RSA_private_encrypt(flen, (const uint8_t*)from, (uint8_t*)to, m_prikey, padding);
+int32_t RSACipher::privateEncrypt(const void *from, int flen, void *to, int padding) {
+    return RSA_private_encrypt(flen, (const uint8_t *)from, (uint8_t *)to, m_prikey, padding);
 }
 
-int32_t RSACipher::publicEncrypt(const void* from, int flen, void* to, int padding) {
-    return RSA_public_encrypt(flen, (const uint8_t*)from, (uint8_t*)to, m_pubkey, padding);
+int32_t RSACipher::publicEncrypt(const void *from, int flen, void *to, int padding) {
+    return RSA_public_encrypt(flen, (const uint8_t *)from, (uint8_t *)to, m_pubkey, padding);
 }
 
-int32_t RSACipher::privateDecrypt(const void* from, int flen, void* to, int padding) {
-    return RSA_private_decrypt(flen, (const uint8_t*)from, (uint8_t*)to, m_prikey, padding);
+int32_t RSACipher::privateDecrypt(const void *from, int flen, void *to, int padding) {
+    return RSA_private_decrypt(flen, (const uint8_t *)from, (uint8_t *)to, m_prikey, padding);
 }
 
-int32_t RSACipher::publicDecrypt(const void* from, int flen, void* to, int padding) {
-    return RSA_public_decrypt(flen, (const uint8_t*)from, (uint8_t*)to, m_pubkey, padding);
+int32_t RSACipher::publicDecrypt(const void *from, int flen, void *to, int padding) {
+    return RSA_public_decrypt(flen, (const uint8_t *)from, (uint8_t *)to, m_pubkey, padding);
 }
 
-int32_t RSACipher::privateEncrypt(const void* from, int flen, std::string& to, int padding) {
+int32_t RSACipher::privateEncrypt(const void *from, int flen, std::string &to, int padding) {
     int rsa_size = getPriRSASize();
     if (rsa_size <= 0) {
         to.clear();
@@ -247,7 +240,7 @@ int32_t RSACipher::privateEncrypt(const void* from, int flen, std::string& to, i
     return len;
 }
 
-int32_t RSACipher::publicEncrypt(const void* from, int flen, std::string& to, int padding) {
+int32_t RSACipher::publicEncrypt(const void *from, int flen, std::string &to, int padding) {
     int rsa_size = getPubRSASize();
     if (rsa_size <= 0) {
         to.clear();
@@ -263,7 +256,7 @@ int32_t RSACipher::publicEncrypt(const void* from, int flen, std::string& to, in
     return len;
 }
 
-int32_t RSACipher::privateDecrypt(const void* from, int flen, std::string& to, int padding) {
+int32_t RSACipher::privateDecrypt(const void *from, int flen, std::string &to, int padding) {
     int rsa_size = getPriRSASize();
     if (rsa_size <= 0) {
         to.clear();
@@ -279,7 +272,7 @@ int32_t RSACipher::privateDecrypt(const void* from, int flen, std::string& to, i
     return len;
 }
 
-int32_t RSACipher::publicDecrypt(const void* from, int flen, std::string& to, int padding) {
+int32_t RSACipher::publicDecrypt(const void *from, int flen, std::string &to, int padding) {
     int rsa_size = getPubRSASize();
     if (rsa_size <= 0) {
         to.clear();

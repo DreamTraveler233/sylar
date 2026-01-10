@@ -14,8 +14,7 @@ NameServerModule::NameServerModule() : RockModule("NameServerModule", "1.0.0", "
     m_domains = std::make_shared<NSDomainSet>();
 }
 
-bool NameServerModule::handleRockRequest(RockRequest::ptr request, RockResponse::ptr response,
-                                         RockStream::ptr stream) {
+bool NameServerModule::handleRockRequest(RockRequest::ptr request, RockResponse::ptr response, RockStream::ptr stream) {
     Atomic::addFetch(s_request_count, 1);
     switch (request->getCmd()) {
         case (int)NSCommand::REGISTER:
@@ -71,70 +70,64 @@ NSClientInfo::ptr NameServerModule::get(RockStream::ptr rs) {
     return it == m_sessions.end() ? nullptr : it->second;
 }
 
-bool NameServerModule::handleRegister(RockRequest::ptr request, RockResponse::ptr response,
-                                      RockStream::ptr stream) {
+bool NameServerModule::handleRegister(RockRequest::ptr request, RockResponse::ptr response, RockStream::ptr stream) {
     auto rr = request->getAsPB<RegisterRequest>();
     if (!rr) {
-        IM_LOG_ERROR(g_logger) << "invalid register request from: "
-                                << stream->getRemoteAddressString();
+        IM_LOG_ERROR(g_logger) << "invalid register request from: " << stream->getRemoteAddressString();
         return false;
     }
     auto old_value = get(stream);
     NSClientInfo::ptr new_value;
     for (int i = 0; i < rr->infos_size(); ++i) {
-        auto& info = rr->infos(i);
-#define XX(info, attr)                                                                       \
-    if (!info.has_##attr()) {                                                                \
-        IM_LOG_ERROR(g_logger) << "invalid register request from: "                         \
-                                << stream->getRemoteAddressString() << " " #attr " is null"; \
-        return false;                                                                        \
+        auto &info = rr->infos(i);
+#define XX(info, attr)                                                                                  \
+    if (!info.has_##attr()) {                                                                           \
+        IM_LOG_ERROR(g_logger) << "invalid register request from: " << stream->getRemoteAddressString() \
+                               << " " #attr " is null";                                                 \
+        return false;                                                                                   \
     }
         XX(info, node);
         XX(info, domain);
 
         if (info.cmds_size() == 0) {
-            IM_LOG_ERROR(g_logger)
-                << "invalid register request from: " << stream->getRemoteAddressString()
-                << " cmds is null";
+            IM_LOG_ERROR(g_logger) << "invalid register request from: " << stream->getRemoteAddressString()
+                                   << " cmds is null";
             return false;
         }
-        auto& node = info.node();
+        auto &node = info.node();
         XX(node, ip);
         XX(node, port);
         XX(node, weight);
 
         NSNode::ptr ns_node(new NSNode(node.ip(), node.port(), node.weight()));
         if (!(ns_node->getId() >> 32)) {
-            IM_LOG_ERROR(g_logger)
-                << "invalid register request from: " << stream->getRemoteAddressString()
-                << " ip=" << node.ip() << " invalid";
+            IM_LOG_ERROR(g_logger) << "invalid register request from: " << stream->getRemoteAddressString()
+                                   << " ip=" << node.ip() << " invalid";
             return false;
         }
 
         if (old_value) {
             if (old_value->m_node->getId() != ns_node->getId()) {
-                IM_LOG_ERROR(g_logger)
-                    << "invalid register request from: " << stream->getRemoteAddressString()
-                    << " old.ip=" << old_value->m_node->getIp()
-                    << " old.port=" << old_value->m_node->getPort()
-                    << " cur.ip=" << ns_node->getIp() << " cur.port=" << ns_node->getPort();
+                IM_LOG_ERROR(g_logger) << "invalid register request from: " << stream->getRemoteAddressString()
+                                       << " old.ip=" << old_value->m_node->getIp()
+                                       << " old.port=" << old_value->m_node->getPort() << " cur.ip=" << ns_node->getIp()
+                                       << " cur.port=" << ns_node->getPort();
                 return false;
             }
         }
         if (new_value) {
             if (new_value->m_node->getId() != ns_node->getId()) {
-                IM_LOG_ERROR(g_logger)
-                    << "invalid register request from: " << stream->getRemoteAddressString()
-                    << " new.ip=" << new_value->m_node->getIp()
-                    << " new.port=" << new_value->m_node->getPort()
-                    << " cur.ip=" << ns_node->getIp() << " cur.port=" << ns_node->getPort();
+                IM_LOG_ERROR(g_logger) << "invalid register request from: " << stream->getRemoteAddressString()
+                                       << " new.ip=" << new_value->m_node->getIp()
+                                       << " new.port=" << new_value->m_node->getPort() << " cur.ip=" << ns_node->getIp()
+                                       << " cur.port=" << ns_node->getPort();
                 return false;
             }
         } else {
             new_value.reset(new NSClientInfo);
             new_value->m_node = ns_node;
         }
-        for (auto& cmd : info.cmds()) {
+        for (auto &cmd : info.cmds()) {
             new_value->m_domain2cmds[info.domain()].insert(cmd);
         }
     }
@@ -144,18 +137,16 @@ bool NameServerModule::handleRegister(RockRequest::ptr request, RockResponse::pt
     return true;
 }
 
-void diff(const std::map<std::string, std::set<uint32_t>>& old_value,
-          const std::map<std::string, std::set<uint32_t>>& new_value,
-          std::map<std::string, std::set<uint32_t>>& dels,
-          std::map<std::string, std::set<uint32_t>>& news,
-          std::map<std::string, std::set<uint32_t>>& comms) {
-    for (auto& i : old_value) {
+void diff(const std::map<std::string, std::set<uint32_t>> &old_value,
+          const std::map<std::string, std::set<uint32_t>> &new_value, std::map<std::string, std::set<uint32_t>> &dels,
+          std::map<std::string, std::set<uint32_t>> &news, std::map<std::string, std::set<uint32_t>> &comms) {
+    for (auto &i : old_value) {
         auto it = new_value.find(i.first);
         if (it == new_value.end()) {
             dels.insert(i);
             continue;
         }
-        for (auto& n : i.second) {
+        for (auto &n : i.second) {
             auto iit = it->second.find(n);
             if (iit == it->second.end()) {
                 dels[i.first].insert(n);
@@ -165,13 +156,13 @@ void diff(const std::map<std::string, std::set<uint32_t>>& old_value,
         }
     }
 
-    for (auto& i : new_value) {
+    for (auto &i : new_value) {
         auto it = old_value.find(i.first);
         if (it == old_value.end()) {
             news.insert(i);
             continue;
         }
-        for (auto& n : i.second) {
+        for (auto &n : i.second) {
             auto iit = it->second.find(n);
             if (iit == it->second.end()) {
                 news[i.first].insert(n);
@@ -204,10 +195,10 @@ void NameServerModule::set(RockStream::ptr rs, NSClientInfo::ptr new_value) {
         new_v = new_value->m_domain2cmds;
     }
     diff(old_v, new_v, dels, news, comms);
-    for (auto& i : dels) {
+    for (auto &i : dels) {
         auto d = m_domains->get(i.first);
         if (d) {
-            for (auto& c : i.second) {
+            for (auto &c : i.second) {
                 d->del(c, old_value->m_node->getId());
                 // auto info = nty->add_dels();
                 // info->set_domain(i.first);
@@ -220,13 +211,13 @@ void NameServerModule::set(RockStream::ptr rs, NSClientInfo::ptr new_value) {
             // ds.insert(i.first);
         }
     }
-    for (auto& i : news) {
+    for (auto &i : news) {
         auto d = m_domains->get(i.first);
         if (!d) {
             d.reset(new NSDomain(i.first));
             m_domains->add(d);
         }
-        for (auto& c : i.second) {
+        for (auto &c : i.second) {
             d->add(c, new_value->m_node);
 
             // auto info = nty->add_updates();
@@ -241,13 +232,13 @@ void NameServerModule::set(RockStream::ptr rs, NSClientInfo::ptr new_value) {
     }
     if (!comms.empty()) {
         if (old_value->m_node->getWeight() != new_value->m_node->getWeight()) {
-            for (auto& i : comms) {
+            for (auto &i : comms) {
                 auto d = m_domains->get(i.first);
                 if (!d) {
                     d.reset(new NSDomain(i.first));
                     m_domains->add(d);
                 }
-                for (auto& c : i.second) {
+                for (auto &c : i.second) {
                     d->add(c, new_value->m_node);
 
                     // auto info = nty->add_updates();
@@ -275,40 +266,37 @@ void NameServerModule::set(RockStream::ptr rs, NSClientInfo::ptr new_value) {
     }
 }
 
-std::set<RockStream::ptr> NameServerModule::getStreams(const std::string& domain) {
+std::set<RockStream::ptr> NameServerModule::getStreams(const std::string &domain) {
     RWMutex::ReadLock lock(m_mutex);
     auto it = m_domainToSessions.find(domain);
     return it == m_domainToSessions.end() ? std::set<RockStream::ptr>() : it->second;
 }
 
-void NameServerModule::doNotify(std::set<std::string>& domains,
-                                std::shared_ptr<NotifyMessage> nty) {
+void NameServerModule::doNotify(std::set<std::string> &domains, std::shared_ptr<NotifyMessage> nty) {
     RockNotify::ptr notify(new RockNotify());
     notify->setNotify((int)NSNotify::NODE_CHANGE);
     notify->setAsPB(*nty);
-    for (auto& i : domains) {
+    for (auto &i : domains) {
         auto ss = getStreams(i);
-        for (auto& n : ss) {
+        for (auto &n : ss) {
             n->sendMessage(notify);
         }
     }
 }
 
-bool NameServerModule::handleQuery(RockRequest::ptr request, RockResponse::ptr response,
-                                   RockStream::ptr stream) {
+bool NameServerModule::handleQuery(RockRequest::ptr request, RockResponse::ptr response, RockStream::ptr stream) {
     auto qreq = request->getAsPB<QueryRequest>();
     if (!qreq) {
-        IM_LOG_ERROR(g_logger) << "invalid query request from: "
-                                << stream->getRemoteAddressString();
+        IM_LOG_ERROR(g_logger) << "invalid query request from: " << stream->getRemoteAddressString();
         return false;
     }
     if (!qreq->domains_size()) {
-        IM_LOG_ERROR(g_logger) << "invalid query request from: "
-                                << stream->getRemoteAddressString() << " domains is null";
+        IM_LOG_ERROR(g_logger) << "invalid query request from: " << stream->getRemoteAddressString()
+                               << " domains is null";
     }
     std::set<NSDomain::ptr> domains;
     std::set<std::string> ds;
-    for (auto& i : qreq->domains()) {
+    for (auto &i : qreq->domains()) {
         auto d = m_domains->get(i);
         if (d) {
             domains.insert(d);
@@ -316,17 +304,17 @@ bool NameServerModule::handleQuery(RockRequest::ptr request, RockResponse::ptr r
         ds.insert(i);
     }
     auto qrsp = std::make_shared<QueryResponse>();
-    for (auto& i : domains) {
+    for (auto &i : domains) {
         std::vector<NSNodeSet::ptr> nss;
         i->listAll(nss);
-        for (auto& n : nss) {
+        for (auto &n : nss) {
             auto item = qrsp->add_infos();
             item->set_domain(i->getDomain());
             item->set_cmd(n->getCmd());
             std::vector<NSNode::ptr> ns;
             n->listAll(ns);
 
-            for (auto& x : ns) {
+            for (auto &x : ns) {
                 auto node = item->add_nodes();
                 node->set_ip(x->getIp());
                 node->set_port(x->getPort());
@@ -341,7 +329,7 @@ bool NameServerModule::handleQuery(RockRequest::ptr request, RockResponse::ptr r
     return true;
 }
 
-void NameServerModule::setQueryDomain(RockStream::ptr rs, const std::set<std::string>& ds) {
+void NameServerModule::setQueryDomain(RockStream::ptr rs, const std::set<std::string> &ds) {
     std::set<std::string> old_ds;
     {
         RWMutex::ReadLock lock(m_mutex);
@@ -357,10 +345,10 @@ void NameServerModule::setQueryDomain(RockStream::ptr rs, const std::set<std::st
     if (!rs->isConnected()) {
         return;
     }
-    for (auto& i : old_ds) {
+    for (auto &i : old_ds) {
         m_domainToSessions[i].erase(rs);
     }
-    for (auto& i : ds) {
+    for (auto &i : ds) {
         m_domainToSessions[i].insert(rs);
     }
     if (ds.empty()) {
@@ -370,8 +358,7 @@ void NameServerModule::setQueryDomain(RockStream::ptr rs, const std::set<std::st
     }
 }
 
-bool NameServerModule::handleTick(RockRequest::ptr request, RockResponse::ptr response,
-                                  RockStream::ptr stream) {
+bool NameServerModule::handleTick(RockRequest::ptr request, RockResponse::ptr response, RockStream::ptr stream) {
     return true;
 }
 
@@ -385,9 +372,9 @@ std::string NameServerModule::statusString() {
 
     ss << "domainToSession: " << std::endl;
     RWMutex::ReadLock lock(m_mutex);
-    for (auto& i : m_domainToSessions) {
+    for (auto &i : m_domainToSessions) {
         ss << "    " << i.first << ":" << std::endl;
-        for (auto& v : i.second) {
+        for (auto &v : i.second) {
             ss << "        " << v->getRemoteAddressString() << std::endl;
         }
         ss << std::endl;

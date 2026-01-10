@@ -6,8 +6,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "core/config/config.hpp"
 #include "core/base/macro.hpp"
+#include "core/config/config.hpp"
 #include "core/util/util.hpp"
 
 namespace IM {
@@ -19,19 +19,18 @@ std::string ProcessInfo::toString() const {
     std::stringstream ss;
     ss << "[ProcessInfo parent_id=" << parent_id << " main_id=" << main_id
        << " parent_start_time=" << TimeUtil::TimeToStr(parent_start_time)
-       << " main_start_time=" << TimeUtil::TimeToStr(main_start_time)
-       << " restart_count=" << restart_count << "]";
+       << " main_start_time=" << TimeUtil::TimeToStr(main_start_time) << " restart_count=" << restart_count << "]";
     return ss.str();
 }
 
 /**
-     * @brief 实际启动应用程序的函数
-     * @param[in] argc 参数个数
-     * @param[in] argv 参数值数组
-     * @param[in] main_cb 用户定义的主函数回调
-     * @return 返回主函数回调的执行结果
-     */
-static int real_start(int argc, char** argv, std::function<int(int argc, char** argv)> main_cb) {
+ * @brief 实际启动应用程序的函数
+ * @param[in] argc 参数个数
+ * @param[in] argv 参数值数组
+ * @param[in] main_cb 用户定义的主函数回调
+ * @return 返回主函数回调的执行结果
+ */
+static int real_start(int argc, char **argv, std::function<int(int argc, char **argv)> main_cb) {
     // 记录子进程ID和启动时间
     ProcessInfoMgr::GetInstance()->main_id = getpid();
     ProcessInfoMgr::GetInstance()->main_start_time = time(0);
@@ -39,13 +38,13 @@ static int real_start(int argc, char** argv, std::function<int(int argc, char** 
 }
 
 /**
-     * @brief 守护进程主函数，负责创建和管理子进程
-     * @param argc 命令行参数个数
-     * @param argv 命令行参数数组
-     * @param main_cb 主回调函数，当创建子进程时会调用该函数
-     * @return int 执行结果，0表示正常退出，-1表示执行出错
-     */
-static int real_daemon(int argc, char** argv, std::function<int(int argc, char** argv)> main_cb) {
+ * @brief 守护进程主函数，负责创建和管理子进程
+ * @param argc 命令行参数个数
+ * @param argv 命令行参数数组
+ * @param main_cb 主回调函数，当创建子进程时会调用该函数
+ * @return int 执行结果，0表示正常退出，-1表示执行出错
+ */
+static int real_daemon(int argc, char **argv, std::function<int(int argc, char **argv)> main_cb) {
     // 将当前进程转换为守护进程，保持当前工作目录不变，并关闭文件描述符
     if (daemon(1, 0) == -1) {
         // 处理错误情况
@@ -70,8 +69,7 @@ static int real_daemon(int argc, char** argv, std::function<int(int argc, char**
             return real_start(argc, argv, main_cb);
         } else if (pid < 0) {
             // fork失败处理
-            IM_LOG_ERROR(g_logger) << "fork fail return=" << pid << " errno=" << errno
-                                    << " errstr=" << strerror(errno);
+            IM_LOG_ERROR(g_logger) << "fork fail return=" << pid << " errno=" << errno << " errstr=" << strerror(errno);
             return -1;
         } else {
             // 父进程
@@ -101,8 +99,7 @@ static int real_daemon(int argc, char** argv, std::function<int(int argc, char**
     return 0;
 }
 
-int start_daemon(int argc, char** argv, std::function<int(int argc, char** argv)> main_cb,
-                 bool is_daemon) {
+int start_daemon(int argc, char **argv, std::function<int(int argc, char **argv)> main_cb, bool is_daemon) {
     if (!is_daemon)  // 不启用守护进程
     {
         // 记录父进程ID和启动时间

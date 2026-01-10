@@ -1,8 +1,8 @@
 /**
  * @file    ws_server.hpp
  * @brief   WebSocket服务端主类声明，负责监听、连接管理与事件分发。
- * @author  DreamTraveler233
- * @date    2025-11-01
+ * @author DreamTraveler233
+ * @date 2026-01-10
  * @note    依赖tcp_server、ws_servlet、ws_session等模块。
  */
 
@@ -10,6 +10,7 @@
 #define __IM_NET_HTTP_WS_SERVER_HPP__
 
 #include "core/net/core/tcp_server.hpp"
+
 #include "ws_servlet.hpp"
 #include "ws_session.hpp"
 
@@ -34,8 +35,8 @@ class WSServer : public TcpServer {
      * @param   accept_worker  连接接收调度器
      * @note    支持自定义线程池分离，提升性能
      */
-    WSServer(IOManager* worker = IOManager::GetThis(), IOManager* io_worker = IOManager::GetThis(),
-             IOManager* accept_worker = IOManager::GetThis());
+    WSServer(IOManager *worker = IOManager::GetThis(), IOManager *io_worker = IOManager::GetThis(),
+             IOManager *accept_worker = IOManager::GetThis());
 
     /**
      * @brief   获取WebSocket业务分发器

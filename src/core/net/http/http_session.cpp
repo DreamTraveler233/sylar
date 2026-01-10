@@ -6,8 +6,7 @@
 
 namespace IM::http {
 static IM::ConfigVar<uint32_t>::ptr g_mempool_enable =
-    IM::Config::Lookup("mempool.enable", (uint32_t)1,
-                      "enable ngx-style memory pool for IO buffers");
+    IM::Config::Lookup("mempool.enable", (uint32_t)1, "enable ngx-style memory pool for IO buffers");
 
 HttpSession::HttpSession(Socket::ptr sock, bool owner) : SocketStream(sock, owner) {}
 
@@ -25,9 +24,9 @@ HttpRequest::ptr HttpSession::recvRequest() {
     // uint64_t buff_size = 100;
 
     // 分配缓冲区内存：按配置决定是否走会话内存池；失败则回退到堆。
-    char* data = nullptr;
+    char *data = nullptr;
     if (use_pool) {
-        data = static_cast<char*>(m_reqPool.palloc(buff_size));
+        data = static_cast<char *>(m_reqPool.palloc(buff_size));
     }
     std::unique_ptr<char[]> heap_buf;
     if (!data) {
@@ -97,7 +96,7 @@ int HttpSession::sendResponse(HttpResponse::ptr rsp) {
     return writeFixSize(data.c_str(), data.size());
 }
 
-int HttpSession::read(void* buffer, size_t length) {
+int HttpSession::read(void *buffer, size_t length) {
     if (!m_leftoverBuf.empty()) {
         size_t copy_len = std::min(length, m_leftoverBuf.size());
         memcpy(buffer, m_leftoverBuf.data(), copy_len);

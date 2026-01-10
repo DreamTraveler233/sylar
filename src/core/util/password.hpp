@@ -1,3 +1,12 @@
+/**
+ * @file password.hpp
+ * @brief 通用工具类
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 通用工具类。
+ */
+
 #ifndef __IM_UTIL_PASSWORD_HPP__
 #define __IM_UTIL_PASSWORD_HPP__
 
@@ -15,7 +24,7 @@ class Password {
      * @param iterations 迭代次数，默认为120000
      * @return 返回格式为"pbkdf2_sha256$<iterations>$<salt_hex>$<hash_hex>"的哈希字符串
      */
-    static std::string Hash(const std::string& password, uint32_t iterations = 120000);
+    static std::string Hash(const std::string &password, uint32_t iterations = 120000);
 
     /**
      * @brief 验证明文密码与存储的哈希字符串是否匹配
@@ -23,9 +32,9 @@ class Password {
      * @param stored_hash 存储的哈希字符串，格式为"pbkdf2_sha256$<iterations>$<salt_hex>$<hash_hex>"
      * @return 匹配成功返回true，否则返回false
      */
-    static bool Verify(const std::string& password, const std::string& stored_hash);
+    static bool Verify(const std::string &password, const std::string &stored_hash);
 };
 
 }  // namespace IM::util
 
-#endif // __IM_UTIL_PASSWORD_HPP__
+#endif  // __IM_UTIL_PASSWORD_HPP__

@@ -1,3 +1,12 @@
+/**
+ * @file hash_map.hpp
+ * @brief 数据结构相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 数据结构相关。
+ */
+
 #ifndef __IM_DS_HASH_MAP_HPP__
 #define __IM_DS_HASH_MAP_HPP__
 
@@ -5,9 +14,10 @@
 #include <iostream>
 #include <memory>
 
+#include "core/base/macro.hpp"
+
 #include "ds_util.hpp"
 #include "lock.hpp"
-#include "core/base/macro.hpp"
 #include "util.hpp"
 
 namespace IM::ds {
@@ -17,10 +27,10 @@ class HashMap {
     typedef std::shared_ptr<HashMap> ptr;
     typedef Pair<K, V> value_type;
 
-    typedef std::function<bool(const K& k, const V& v)> rcallback;
-    typedef std::function<bool(const K& k, V& v)> wcallback;
+    typedef std::function<bool(const K &k, const V &v)> rcallback;
+    typedef std::function<bool(const K &k, V &v)> wcallback;
 
-    HashMap(const uint32_t& size = 0) : m_total(0) {
+    HashMap(const uint32_t &size = 0) : m_total(0) {
         m_size = basket(size);
         m_datas = new std::vector<Node>[m_size]();
     }
@@ -51,7 +61,7 @@ class HashMap {
         }
     }
 
-    bool get(const K& k, V& v) {
+    bool get(const K &k, V &v) {
         uint32_t hashvalue = m_posHash(k);
         RWMutex::ReadLock lock(m_mutex);
         uint32_t pos = hashvalue % m_size;
@@ -65,7 +75,7 @@ class HashMap {
         return true;
     }
 
-    bool exists(const K& k) {
+    bool exists(const K &k) {
         uint32_t hashvalue = m_posHash(k);
         RWMutex::ReadLock lock(m_mutex);
         uint32_t pos = hashvalue % m_size;
@@ -75,7 +85,7 @@ class HashMap {
         return it != m_datas[pos].end();
     }
 
-    bool set(const K& k, const V& v) {
+    bool set(const K &k, const V &v) {
         if (needRehash()) {
             rehash();
         }
@@ -104,7 +114,7 @@ class HashMap {
 
     uint64_t getTotal() const { return m_total; }
 
-    bool del(const K& k) {
+    bool del(const K &k) {
         uint32_t hashvalue = m_posHash(k);
         RWMutex::ReadLock lock(m_mutex);
         uint32_t pos = hashvalue % m_size;
@@ -132,7 +142,7 @@ class HashMap {
         freeDatas(m_datas, m_size);
     }
 
-    void swap(HashMap& oth) {
+    void swap(HashMap &oth) {
         RWMutex::WriteLock lock(m_mutex);
         RWMutex::WriteLock lock2(oth.m_mutex);
         std::swap(m_total, oth.m_total);
@@ -140,15 +150,15 @@ class HashMap {
         std::swap(m_datas, oth.m_datas);
     }
 
-    void merge(HashMap& oth) {
+    void merge(HashMap &oth) {
         std::vector<std::pair<K, V>> tmp;
         tmp.reserve(oth.getTotal());
-        oth.rforeach([&tmp](const K& k, const V& v) {
+        oth.rforeach([&tmp](const K &k, const V &v) {
             tmp.push_back(std::make_pair(k, v));
             return true;
         });
 
-        for (auto& i : tmp) {
+        for (auto &i : tmp) {
             set(i.first, i.second);
         }
     }
@@ -160,17 +170,16 @@ class HashMap {
         }
     }
 
-    std::ostream& dump(std::ostream& os) {
+    std::ostream &dump(std::ostream &os) {
         typename RWMutex::ReadLock lock(m_mutex);
-        os << "[HashMap total=" << m_total << " bucket=" << m_size << " rate=" << getRate() << "]"
-           << std::endl;
+        os << "[HashMap total=" << m_total << " bucket=" << m_size << " rate=" << getRate() << "]" << std::endl;
         return os;
     }
 
     // for K,V is POD
-    bool writeTo(std::ostream& os, uint64_t speed = -1) {
+    bool writeTo(std::ostream &os, uint64_t speed = -1) {
         RWMutex::ReadLock lock(m_mutex);
-        os.write((const char*)&m_size, sizeof(m_size));
+        os.write((const char *)&m_size, sizeof(m_size));
 
         std::vector<Node> ns;
 
@@ -183,18 +192,18 @@ class HashMap {
         }
 
         size_t size = ns.size() * sizeof(Node);
-        os.write((const char*)&size, sizeof(size));
+        os.write((const char *)&size, sizeof(size));
         if (speed == (uint64_t)-1) {
-            os.write((const char*)&ns[0], size);
+            os.write((const char *)&ns[0], size);
         } else {
-            WriteFixToStreamWithSpeed(os, (const char*)&ns[0], size, speed);
+            WriteFixToStreamWithSpeed(os, (const char *)&ns[0], size, speed);
         }
 
         // std::cout << "writeTo size: " << os.tellp() << std::endl;
         return (bool)os;
     }
 
-    bool readFrom(std::istream& is, uint64_t speed = -1) {
+    bool readFrom(std::istream &is, uint64_t speed = -1) {
         do {
             try {
                 freeDatas(m_datas, m_size);
@@ -212,11 +221,11 @@ class HashMap {
                 // LOG_INFO() << "ns_size: " << size;
                 ns.resize(size / sizeof(Node));
                 if (speed == (uint64_t)-1) {
-                    if (!ReadFixFromStream(is, (char*)&ns[0], size)) {
+                    if (!ReadFixFromStream(is, (char *)&ns[0], size)) {
                         break;
                     }
                 } else {
-                    if (!ReadFixFromStreamWithSpeed(is, (char*)&ns[0], size, speed)) {
+                    if (!ReadFixFromStreamWithSpeed(is, (char *)&ns[0], size, speed)) {
                         break;
                     }
                 }
@@ -224,7 +233,7 @@ class HashMap {
                 m_total = size / sizeof(Node);
 
                 m_datas = new std::vector<Node>[m_size]();
-                for (auto& n : ns) {
+                for (auto &n : ns) {
                     m_datas[m_posHash(n.key) % m_size].push_back(n);
                 }
                 for (size_t i = 0; i < m_size; ++i) {
@@ -244,11 +253,11 @@ class HashMap {
         K key;
         V val;
 
-        Node(const K& k = K()) : key(k), val() {}
+        Node(const K &k = K()) : key(k), val() {}
 
-        bool operator<(const Node& o) const { return key < o.key; }
+        bool operator<(const Node &o) const { return key < o.key; }
 
-        bool operator==(const Node& o) const { return key == o.key; }
+        bool operator==(const Node &o) const { return key == o.key; }
     };
 
     void rehashUnlock() {
@@ -256,9 +265,9 @@ class HashMap {
         if (size == m_size) {
             return;
         }
-        std::vector<Node>* datas = new std::vector<Node>[size]();
+        std::vector<Node> *datas = new std::vector<Node>[size]();
         for (size_t i = 0; i < m_size; ++i) {
-            for (auto& n : m_datas[i]) {
+            for (auto &n : m_datas[i]) {
                 datas[m_posHash(n.key) % size].push_back(n);
             }
         }
@@ -273,7 +282,7 @@ class HashMap {
         m_datas = datas;
     }
 
-    void freeDatas(std::vector<Node>*& datas, uint64_t size) {
+    void freeDatas(std::vector<Node> *&datas, uint64_t size) {
         if (!datas) {
             return;
         }
@@ -288,7 +297,7 @@ class HashMap {
    private:
     uint64_t m_size;
     uint64_t m_total;
-    std::vector<Node>* m_datas;
+    std::vector<Node> *m_datas;
     RWMutex m_mutex;
     PosHash m_posHash;
 
@@ -301,4 +310,4 @@ RWMutex HashMap<K, V, PosHash>::s_mutex[MAX_MUTEX];
 
 }  // namespace IM::ds
 
-#endif // __IM_DS_HASH_MAP_HPP__
+#endif  // __IM_DS_HASH_MAP_HPP__

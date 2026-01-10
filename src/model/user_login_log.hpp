@@ -1,3 +1,12 @@
+/**
+ * @file user_login_log.hpp
+ * @brief 数据模型实体
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 数据模型实体。
+ */
+
 #ifndef __IM_MODEL_USER_LOGIN_LOG_HPP__
 #define __IM_MODEL_USER_LOGIN_LOG_HPP__
 

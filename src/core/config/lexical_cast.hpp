@@ -1,7 +1,15 @@
+/**
+ * @file lexical_cast.hpp
+ * @brief 类型转换模板类定义文件
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件提供了基于 YAML 的类型转换功能，支持各种标准库容器（如 list, map, set 等）
+ * 与 YAML 字符串之间的相互转换。通过模板特化 LexicalCast 实现扩展。
+ */
+
 #ifndef __IM_CONFIG_LEXICAL_CAST_HPP__
 #define __IM_CONFIG_LEXICAL_CAST_HPP__
-
-#include <yaml-cpp/yaml.h>
 
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
@@ -10,30 +18,31 @@
 #include <map>
 #include <set>
 #include <unordered_set>
+#include <yaml-cpp/yaml.h>
 
 #include "core/log/logger_manager.hpp"
 
 namespace IM {
 /**
-     * 不同类型的数据转换
-     * 主要思路：
-     *     使用模板的全特化和偏特化满足不同类型的转换
-     * 基本类型：使用 boost::lexical_cast 实现
-     * 容器类型/自定义类型：使用 YAML 进行序列化和反序列化
-     */
+ * 不同类型的数据转换
+ * 主要思路：
+ *     使用模板的全特化和偏特化满足不同类型的转换
+ * 基本类型：使用 boost::lexical_cast 实现
+ * 容器类型/自定义类型：使用 YAML 进行序列化和反序列化
+ */
 
 // 主模板，实现通用数据转换 F from_type  T to_type
 template <class F, class T>
 class LexicalCast {
    public:
-    T operator()(const F& from) const { return boost::lexical_cast<T>(from); }
+    T operator()(const F &from) const { return boost::lexical_cast<T>(from); }
 };
 
 // 专门处理字符串到 bool 的转换，支持多种常见写法
 template <>
 class LexicalCast<std::string, bool> {
    public:
-    bool operator()(const std::string& v) const {
+    bool operator()(const std::string &v) const {
         // 去除首尾空白并转小写
         auto begin = v.begin();
         auto end = v.end();
@@ -54,7 +63,7 @@ class LexicalCast<std::string, bool> {
 template <class T>
 class LexicalCast<std::string, std::vector<T>> {
    public:
-    std::vector<T> operator()(const std::string& v) const {
+    std::vector<T> operator()(const std::string &v) const {
         // 将字符串解析为YAML节点， node 相当于一个数组
         YAML::Node node = YAML::Load(v);
         typename std::vector<T> vec;
@@ -73,9 +82,9 @@ class LexicalCast<std::string, std::vector<T>> {
 template <class T>
 class LexicalCast<std::vector<T>, std::string> {
    public:
-    std::string operator()(const std::vector<T>& v) const {
+    std::string operator()(const std::vector<T> &v) const {
         YAML::Node node;
-        for (auto& i : v) {
+        for (auto &i : v) {
             node.push_back(YAML::Load(LexicalCast<T, std::string>()(i)));
         }
         std::stringstream ss;
@@ -88,7 +97,7 @@ class LexicalCast<std::vector<T>, std::string> {
 template <class T>
 class LexicalCast<std::string, std::list<T>> {
    public:
-    std::list<T> operator()(const std::string& v) const {
+    std::list<T> operator()(const std::string &v) const {
         // 将字符串解析为YAML节点， node 相当于一个数组
         YAML::Node node = YAML::Load(v);
         typename std::list<T> list;
@@ -107,9 +116,9 @@ class LexicalCast<std::string, std::list<T>> {
 template <class T>
 class LexicalCast<std::list<T>, std::string> {
    public:
-    std::string operator()(const std::list<T>& v) const {
+    std::string operator()(const std::list<T> &v) const {
         YAML::Node node;
-        for (auto& i : v) {
+        for (auto &i : v) {
             node.push_back(YAML::Load(LexicalCast<T, std::string>()(i)));
         }
         std::stringstream ss;
@@ -122,7 +131,7 @@ class LexicalCast<std::list<T>, std::string> {
 template <class T>
 class LexicalCast<std::string, std::set<T>> {
    public:
-    std::set<T> operator()(const std::string& v) const {
+    std::set<T> operator()(const std::string &v) const {
         // 将字符串解析为YAML节点， node 相当于一个数组
         YAML::Node node = YAML::Load(v);
         typename std::set<T> set;
@@ -141,9 +150,9 @@ class LexicalCast<std::string, std::set<T>> {
 template <class T>
 class LexicalCast<std::set<T>, std::string> {
    public:
-    std::string operator()(const std::set<T>& v) const {
+    std::string operator()(const std::set<T> &v) const {
         YAML::Node node;
-        for (auto& i : v) {
+        for (auto &i : v) {
             node.push_back(YAML::Load(LexicalCast<T, std::string>()(i)));
         }
         std::stringstream ss;
@@ -156,7 +165,7 @@ class LexicalCast<std::set<T>, std::string> {
 template <class T>
 class LexicalCast<std::string, std::unordered_set<T>> {
    public:
-    std::unordered_set<T> operator()(const std::string& v) const {
+    std::unordered_set<T> operator()(const std::string &v) const {
         // 将字符串解析为YAML节点， node 相当于一个数组
         YAML::Node node = YAML::Load(v);
         typename std::unordered_set<T> unordered_set;
@@ -175,9 +184,9 @@ class LexicalCast<std::string, std::unordered_set<T>> {
 template <class T>
 class LexicalCast<std::unordered_set<T>, std::string> {
    public:
-    std::string operator()(const std::unordered_set<T>& v) const {
+    std::string operator()(const std::unordered_set<T> &v) const {
         YAML::Node node;
-        for (auto& i : v) {
+        for (auto &i : v) {
             node.push_back(YAML::Load(LexicalCast<T, std::string>()(i)));
         }
         std::stringstream ss;
@@ -190,7 +199,7 @@ class LexicalCast<std::unordered_set<T>, std::string> {
 template <class T>
 class LexicalCast<std::string, std::map<std::string, T>> {
    public:
-    std::map<std::string, T> operator()(const std::string& v) const {
+    std::map<std::string, T> operator()(const std::string &v) const {
         // 将字符串解析为YAML节点， node 相当于一个数组
         YAML::Node node = YAML::Load(v);
         typename std::map<std::string, T> map;
@@ -209,9 +218,9 @@ class LexicalCast<std::string, std::map<std::string, T>> {
 template <class T>
 class LexicalCast<std::map<std::string, T>, std::string> {
    public:
-    std::string operator()(const std::map<std::string, T>& v) const {
+    std::string operator()(const std::map<std::string, T> &v) const {
         YAML::Node node;
-        for (auto& i : v) {
+        for (auto &i : v) {
             node[i.first] = YAML::Load(LexicalCast<T, std::string>()(i.second));
         }
         std::stringstream ss;
@@ -224,7 +233,7 @@ class LexicalCast<std::map<std::string, T>, std::string> {
 template <class T>
 class LexicalCast<std::string, std::unordered_map<std::string, T>> {
    public:
-    std::unordered_map<std::string, T> operator()(const std::string& v) const {
+    std::unordered_map<std::string, T> operator()(const std::string &v) const {
         // 将字符串解析为YAML节点， node 相当于一个数组
         YAML::Node node = YAML::Load(v);
         typename std::unordered_map<std::string, T> unordered_map;
@@ -233,8 +242,7 @@ class LexicalCast<std::string, std::unordered_map<std::string, T>> {
             ss.str("");       // 清空字符串流
             ss << it.second;  // 将节点元素输出到字符串流中（将YAML节点转化为字符串形式）
             // 将字符串转为 T 类型后添加到 unordered_map 中
-            unordered_map.insert(
-                std::make_pair(it.first.Scalar(), LexicalCast<std::string, T>()(ss.str())));
+            unordered_map.insert(std::make_pair(it.first.Scalar(), LexicalCast<std::string, T>()(ss.str())));
         }
         return unordered_map;
     }
@@ -244,9 +252,9 @@ class LexicalCast<std::string, std::unordered_map<std::string, T>> {
 template <class T>
 class LexicalCast<std::unordered_map<std::string, T>, std::string> {
    public:
-    std::string operator()(const std::unordered_map<std::string, T>& v) const {
+    std::string operator()(const std::unordered_map<std::string, T> &v) const {
         YAML::Node node;
-        for (auto& i : v) {
+        for (auto &i : v) {
             node[i.first] = YAML::Load(LexicalCast<T, std::string>()(i.second));
         }
         std::stringstream ss;
@@ -258,12 +266,12 @@ class LexicalCast<std::unordered_map<std::string, T>, std::string> {
 template <>
 class LexicalCast<LogDefine, std::string> {
    public:
-    std::string operator()(const LogDefine& val) const {
+    std::string operator()(const LogDefine &val) const {
         YAML::Node node;
         node["name"] = val.name;
         node["level"] = LogLevel::ToString(val.level);
         node["formatter"] = val.formatter;
-        for (const auto& appender : val.appenders) {
+        for (const auto &appender : val.appenders) {
             YAML::Node appender_node;
             if (appender.type == 1) {
                 appender_node["type"] = "FileLogAppender";
@@ -288,7 +296,7 @@ class LexicalCast<LogDefine, std::string> {
 template <>
 class LexicalCast<std::string, LogDefine> {
    public:
-    LogDefine operator()(const std::string& val) const {
+    LogDefine operator()(const std::string &val) const {
         YAML::Node node = YAML::Load(val);
         LogDefine ld;
         if (node["name"].IsDefined()) {
@@ -301,7 +309,7 @@ class LexicalCast<std::string, LogDefine> {
             ld.formatter = node["formatter"].as<std::string>();
         }
         if (node["appenders"].IsDefined()) {
-            for (const auto& appender_node : node["appenders"]) {
+            for (const auto &appender_node : node["appenders"]) {
                 LogAppenderDefine lad;
                 if (appender_node["type"].IsDefined()) {
                     if (appender_node["type"].as<std::string>() == "FileLogAppender") {
@@ -320,8 +328,7 @@ class LexicalCast<std::string, LogDefine> {
                     lad.path = appender_node["path"].as<std::string>();
                 }
                 if (appender_node["rotate_type"].IsDefined()) {
-                    lad.rotateType = LogFile::rotateTypeFromString(
-                        appender_node["rotate_type"].as<std::string>());
+                    lad.rotateType = LogFile::rotateTypeFromString(appender_node["rotate_type"].as<std::string>());
                 }
                 if (appender_node["max_size"].IsDefined()) {
                     lad.maxFileSize = appender_node["max_size"].as<uint64_t>();

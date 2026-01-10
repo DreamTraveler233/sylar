@@ -2,31 +2,33 @@
 
 #include <unordered_set>
 
-#include "interface/api/ws_gateway_module.hpp"
 #include "core/base/macro.hpp"
+
 #include "infra/db/mysql.hpp"
-#include "dto/user_dto.hpp"
 #include "infra/repository/contact_repository_impl.hpp"
+
+#include "interface/api/ws_gateway_module.hpp"
+
+#include "dto/user_dto.hpp"
 
 namespace IM::app {
 
 static auto g_logger = IM_LOG_NAME("root");
-static constexpr const char* kDBName = "default";
+static constexpr const char *kDBName = "default";
 
 ContactServiceImpl::ContactServiceImpl(IM::domain::repository::IContactRepository::Ptr contact_repo,
-                                                                             IM::domain::service::IUserService::Ptr user_service,
+                                       IM::domain::service::IUserService::Ptr user_service,
                                        IM::domain::repository::ITalkRepository::Ptr talk_repo,
                                        IM::domain::service::IMessageService::Ptr message_service,
                                        IM::domain::service::ITalkService::Ptr talk_service)
     : m_contact_repo(std::move(contact_repo)),
-            m_user_service(std::move(user_service)),
+      m_user_service(std::move(user_service)),
       m_talk_repo(std::move(talk_repo)),
       m_message_service(std::move(message_service)),
       m_talk_service(std::move(talk_service)) {}
 
-Result<dto::TalkSessionItem> ContactServiceImpl::AgreeApply(const uint64_t user_id,
-                                                            const uint64_t apply_id,
-                                                            const std::string& remark) {
+Result<dto::TalkSessionItem> ContactServiceImpl::AgreeApply(const uint64_t user_id, const uint64_t apply_id,
+                                                            const std::string &remark) {
     Result<dto::TalkSessionItem> result;
     std::string err;
 
@@ -42,8 +44,7 @@ Result<dto::TalkSessionItem> ContactServiceImpl::AgreeApply(const uint64_t user_
     // 2. 获取事务绑定的数据库连接
     auto db = trans->getMySQL();
     if (!db) {
-        IM_LOG_ERROR(g_logger) << "AgreeApply get transaction connection failed, apply_id="
-                               << apply_id;
+        IM_LOG_ERROR(g_logger) << "AgreeApply get transaction connection failed, apply_id=" << apply_id;
         result.code = 500;
         result.err = "处理好友申请失败";
         return result;
@@ -53,8 +54,7 @@ Result<dto::TalkSessionItem> ContactServiceImpl::AgreeApply(const uint64_t user_
     if (!m_contact_repo->AgreeApply(db, user_id, apply_id, remark, &err)) {
         trans->rollback();
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "HandleContactApply AgreeApply failed, apply_id=" << apply_id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "HandleContactApply AgreeApply failed, apply_id=" << apply_id << ", err=" << err;
             result.code = 500;
             result.err = "更新好友申请状态失败";
             return result;
@@ -66,9 +66,8 @@ Result<dto::TalkSessionItem> ContactServiceImpl::AgreeApply(const uint64_t user_
     if (!m_contact_repo->GetDetailById(db, apply_id, apply, &err)) {
         trans->rollback();
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "HandleContactApply GetDetailById failed, apply_id=" << apply_id
-                << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "HandleContactApply GetDetailById failed, apply_id=" << apply_id
+                                   << ", err=" << err;
             result.code = 500;
             result.err = "获取好友申请详情失败";
             return result;
@@ -87,9 +86,8 @@ Result<dto::TalkSessionItem> ContactServiceImpl::AgreeApply(const uint64_t user_
         trans->rollback();
         if (!err.empty()) {
             // 失败则回滚事务，防止只建立单向好友关系
-            IM_LOG_ERROR(g_logger)
-                << "AgreeApply Upsert failed for applicant->target, apply_id=" << apply_id
-                << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "AgreeApply Upsert failed for applicant->target, apply_id=" << apply_id
+                                   << ", err=" << err;
             result.code = 500;
             result.err = "创建/更新好友记录失败";
             return result;
@@ -107,9 +105,8 @@ Result<dto::TalkSessionItem> ContactServiceImpl::AgreeApply(const uint64_t user_
         trans->rollback();
         if (!err.empty()) {
             // 失败则回滚事务，防止只建立单向好友关系
-            IM_LOG_ERROR(g_logger)
-                << "AgreeApply Upsert failed for applicant->target, apply_id=" << apply_id
-                << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "AgreeApply Upsert failed for applicant->target, apply_id=" << apply_id
+                                   << ", err=" << err;
             result.code = 500;
             result.err = "创建/更新好友记录失败";
             return result;
@@ -138,8 +135,7 @@ Result<dto::TalkSessionItem> ContactServiceImpl::AgreeApply(const uint64_t user_
     }
 
     // 同步为申请人创建会话（容错，不影响主流程）
-    auto session_result_applicant =
-        m_talk_service->createSession(apply.apply_user_id, apply.target_user_id, 1);
+    auto session_result_applicant = m_talk_service->createSession(apply.apply_user_id, apply.target_user_id, 1);
 
     // 推送会话创建事件，传递具体的会话数据到双方
     if (session_result_current.ok) {
@@ -157,8 +153,7 @@ Result<dto::TalkSessionItem> ContactServiceImpl::AgreeApply(const uint64_t user_
         s["msg_text"] = session_result_current.data.msg_text;
         s["updated_at"] = session_result_current.data.updated_at;
         IM::api::WsGatewayModule::PushToUser(apply.target_user_id, "im.session.create", s);
-        IM::api::WsGatewayModule::PushToUser(apply.target_user_id, "im.session.reload",
-                                             Json::Value());
+        IM::api::WsGatewayModule::PushToUser(apply.target_user_id, "im.session.reload", Json::Value());
     }
 
     Json::Value s2;
@@ -176,41 +171,38 @@ Result<dto::TalkSessionItem> ContactServiceImpl::AgreeApply(const uint64_t user_
         s2["msg_text"] = session_result_applicant.data.msg_text;
         s2["updated_at"] = session_result_applicant.data.updated_at;
         IM::api::WsGatewayModule::PushToUser(apply.apply_user_id, "im.session.create", s2);
-        IM::api::WsGatewayModule::PushToUser(apply.apply_user_id, "im.session.reload",
-                                             Json::Value());
+        IM::api::WsGatewayModule::PushToUser(apply.apply_user_id, "im.session.reload", Json::Value());
     }
 
     // 同时向申请者发送接受通知（im.contact.accept），包含被同意者资讯
     if (m_user_service) {
         auto acceptor_r = m_user_service->LoadUserInfoSimple(apply.target_user_id);
         if (acceptor_r.ok) {
-            const auto& acceptor = acceptor_r.data;
-        Json::Value payload_accept;
-        payload_accept["acceptor_id"] = (Json::UInt64)apply.target_user_id;
-        payload_accept["acceptor_name"] = acceptor.nickname;
-        payload_accept["acceptor_avatar"] = acceptor.avatar;
-        payload_accept["accept_time"] = (Json::UInt64)IM::TimeUtil::NowToMS();
-        // 如果有申请人会话信息，也一并附加
-        if (session_result_applicant.ok) {
-            payload_accept["session"] = s2;
-        }
-        IM::api::WsGatewayModule::PushToUser(apply.apply_user_id, "im.contact.accept",
-                                             payload_accept);
+            const auto &acceptor = acceptor_r.data;
+            Json::Value payload_accept;
+            payload_accept["acceptor_id"] = (Json::UInt64)apply.target_user_id;
+            payload_accept["acceptor_name"] = acceptor.nickname;
+            payload_accept["acceptor_avatar"] = acceptor.avatar;
+            payload_accept["accept_time"] = (Json::UInt64)IM::TimeUtil::NowToMS();
+            // 如果有申请人会话信息，也一并附加
+            if (session_result_applicant.ok) {
+                payload_accept["session"] = s2;
+            }
+            IM::api::WsGatewayModule::PushToUser(apply.apply_user_id, "im.contact.accept", payload_accept);
         }
     }
 
     // 发送欢迎消息给双方
     if (session_result_current.ok) {
-        m_message_service->SendMessage(user_id, 1, apply.apply_user_id, 1,
-                                       "我们已经是好友了，可以开始聊天了", "", "", "",
-                                       std::vector<uint64_t>());
+        m_message_service->SendMessage(user_id, 1, apply.apply_user_id, 1, "我们已经是好友了，可以开始聊天了", "", "",
+                                       "", std::vector<uint64_t>());
     }
 
     return result;
 }
 
 Result<void> ContactServiceImpl::CreateContactApply(uint64_t apply_user_id, uint64_t target_user_id,
-                                                    const std::string& remark) {
+                                                    const std::string &remark) {
     Result<void> result;
     std::string err;
 
@@ -232,7 +224,7 @@ Result<void> ContactServiceImpl::CreateContactApply(uint64_t apply_user_id, uint
     if (m_user_service) {
         auto applicant_r = m_user_service->LoadUserInfoSimple(apply_user_id);
         if (applicant_r.ok) {
-            const auto& applicant = applicant_r.data;
+            const auto &applicant = applicant_r.data;
             Json::Value payload;
             payload["remark"] = remark;
             payload["nickname"] = applicant.nickname;
@@ -247,15 +239,14 @@ Result<void> ContactServiceImpl::CreateContactApply(uint64_t apply_user_id, uint
     return result;
 }
 
-Result<void> ContactServiceImpl::RejectApply(const uint64_t handler_user_id,
-                                             const uint64_t apply_user_id,
-                                             const std::string& remark) {
+Result<void> ContactServiceImpl::RejectApply(const uint64_t handler_user_id, const uint64_t apply_user_id,
+                                             const std::string &remark) {
     Result<void> result;
     std::string err;
 
     if (!m_contact_repo->RejectApply(handler_user_id, apply_user_id, remark, &err)) {
-        IM_LOG_ERROR(g_logger) << "HandleContactApply RejectApply failed, apply_user_id="
-                               << apply_user_id << ", err=" << err;
+        IM_LOG_ERROR(g_logger) << "HandleContactApply RejectApply failed, apply_user_id=" << apply_user_id
+                               << ", err=" << err;
         result.code = 500;
         result.err = "处理好友申请失败";
         return result;
@@ -265,15 +256,13 @@ Result<void> ContactServiceImpl::RejectApply(const uint64_t handler_user_id,
     return result;
 }
 
-Result<std::vector<dto::ContactApplyItem>> ContactServiceImpl::ListContactApplies(
-    uint64_t user_id) {
+Result<std::vector<dto::ContactApplyItem>> ContactServiceImpl::ListContactApplies(uint64_t user_id) {
     Result<std::vector<dto::ContactApplyItem>> result;
     std::string err;
 
     if (!m_contact_repo->GetContactApplyItemById(user_id, result.data, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "ListContactApplies failed, user_id=" << user_id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "ListContactApplies failed, user_id=" << user_id << ", err=" << err;
             result.code = 500;
             result.err = "获取好友申请列表失败";
             return result;
@@ -283,14 +272,12 @@ Result<std::vector<dto::ContactApplyItem>> ContactServiceImpl::ListContactApplie
     return result;
 }
 
-Result<std::vector<dto::ContactGroupItem>> ContactServiceImpl::GetContactGroupLists(
-    const uint64_t user_id) {
+Result<std::vector<dto::ContactGroupItem>> ContactServiceImpl::GetContactGroupLists(const uint64_t user_id) {
     Result<std::vector<dto::ContactGroupItem>> result;
     std::string err;
 
     if (!m_contact_repo->GetContactGroupItemListByUserId(user_id, result.data, &err)) {
-        IM_LOG_ERROR(g_logger) << "ListContactGroups failed, user_id=" << user_id
-                               << ", err=" << err;
+        IM_LOG_ERROR(g_logger) << "ListContactGroups failed, user_id=" << user_id << ", err=" << err;
         result.code = 500;
         result.err = "获取联系人分组列表失败";
         return result;
@@ -299,7 +286,7 @@ Result<std::vector<dto::ContactGroupItem>> ContactServiceImpl::GetContactGroupLi
     return result;
 }
 
-Result<model::User> ContactServiceImpl::SearchByMobile(const std::string& mobile) {
+Result<model::User> ContactServiceImpl::SearchByMobile(const std::string &mobile) {
     Result<model::User> result;
 
     if (!m_user_service) {
@@ -320,16 +307,14 @@ Result<model::User> ContactServiceImpl::SearchByMobile(const std::string& mobile
     return result;
 }
 
-Result<dto::ContactDetails> ContactServiceImpl::GetContactDetail(const uint64_t user_id,
-                                                                 const uint64_t target_id) {
+Result<dto::ContactDetails> ContactServiceImpl::GetContactDetail(const uint64_t user_id, const uint64_t target_id) {
     Result<dto::ContactDetails> result;
     std::string err;
 
     // 查询我的视角下好友的信息
     if (!m_contact_repo->GetByOwnerAndTarget(user_id, target_id, result.data, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "GetContactDetail failed, " << "target_id=" << target_id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "GetContactDetail failed, " << "target_id=" << target_id << ", err=" << err;
             result.code = 500;
             result.err = "获取联系人详情失败";
             return result;
@@ -340,8 +325,7 @@ Result<dto::ContactDetails> ContactServiceImpl::GetContactDetail(const uint64_t 
     Result<IM::dto::ContactDetails> result_friend;
     if (!m_contact_repo->GetByOwnerAndTarget(target_id, user_id, result_friend.data, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "GetContactDetail failed, " << "target_id=" << target_id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "GetContactDetail failed, " << "target_id=" << target_id << ", err=" << err;
             result.code = 500;
             result.err = "获取联系人详情失败";
             return result;
@@ -376,8 +360,7 @@ Result<uint64_t> ContactServiceImpl::GetPendingContactApplyCount(uint64_t user_i
 
     if (!m_contact_repo->GetPendingCountById(user_id, result.data, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "GetPendingContactApplyCount failed, user_id=" << user_id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "GetPendingContactApplyCount failed, user_id=" << user_id << ", err=" << err;
             result.code = 500;
             result.err = "获取未处理的好友申请数量失败";
             return result;
@@ -388,9 +371,8 @@ Result<uint64_t> ContactServiceImpl::GetPendingContactApplyCount(uint64_t user_i
     return result;
 }
 
-Result<void> ContactServiceImpl::EditContactRemark(const uint64_t user_id,
-                                                   const uint64_t contact_id,
-                                                   const std::string& remark) {
+Result<void> ContactServiceImpl::EditContactRemark(const uint64_t user_id, const uint64_t contact_id,
+                                                   const std::string &remark) {
     Result<void> result;
     std::string err;
 
@@ -407,8 +389,8 @@ Result<void> ContactServiceImpl::EditContactRemark(const uint64_t user_id,
     // 2. 获取事务绑定的数据库连接
     auto db = trans->getMySQL();
     if (!db) {
-        IM_LOG_ERROR(g_logger) << "EditContactRemark get transaction connection failed, user_id="
-                               << user_id << ", contact_id=" << contact_id;
+        IM_LOG_ERROR(g_logger) << "EditContactRemark get transaction connection failed, user_id=" << user_id
+                               << ", contact_id=" << contact_id;
         result.code = 500;
         result.err = "修改联系人备注失败";
         return result;
@@ -418,8 +400,7 @@ Result<void> ContactServiceImpl::EditContactRemark(const uint64_t user_id,
     if (!m_contact_repo->EditRemark(db, user_id, contact_id, remark, &err)) {
         if (!err.empty()) {
             trans->rollback();  // 回滚事务
-            IM_LOG_ERROR(g_logger)
-                << "EditContactRemark failed, user_id=" << user_id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "EditContactRemark failed, user_id=" << user_id << ", err=" << err;
             result.code = 500;
             result.err = "修改联系人备注失败";
             return result;
@@ -430,9 +411,8 @@ Result<void> ContactServiceImpl::EditContactRemark(const uint64_t user_id,
     if (!m_talk_repo->editRemarkWithConn(db, user_id, contact_id, remark, &err)) {
         if (!err.empty()) {
             trans->rollback();  // 回滚事务
-            IM_LOG_ERROR(g_logger)
-                << "EditContactRemark EditConversationRemark failed, user_id=" << user_id
-                << ", contact_id=" << contact_id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "EditContactRemark EditConversationRemark failed, user_id=" << user_id
+                                   << ", contact_id=" << contact_id << ", err=" << err;
             result.code = 500;
             result.err = "修改联系人备注失败";
             return result;
@@ -471,8 +451,8 @@ Result<void> ContactServiceImpl::DeleteContact(const uint64_t user_id, const uin
     // 2. 获取事务绑定的数据库连接
     auto db = trans->getMySQL();
     if (!db) {
-        IM_LOG_ERROR(g_logger) << "DeleteContact get transaction connection failed, user_id="
-                               << user_id << ", contact_id=" << contact_id;
+        IM_LOG_ERROR(g_logger) << "DeleteContact get transaction connection failed, user_id=" << user_id
+                               << ", contact_id=" << contact_id;
         result.code = 500;
         result.err = "删除联系人失败";
         return result;
@@ -496,10 +476,8 @@ Result<void> ContactServiceImpl::DeleteContact(const uint64_t user_id, const uin
         if (!m_contact_repo->UpdateContactCount(db, group_id, false, &err)) {
             trans->rollback();  // 回滚事务
             if (!err.empty()) {
-                IM_LOG_ERROR(g_logger)
-                    << "DeleteContact UpdateContactCount failed, user_id=" << user_id
-                    << ", contact_id=" << contact_id << ", group_id=" << group_id
-                    << ", err=" << err;
+                IM_LOG_ERROR(g_logger) << "DeleteContact UpdateContactCount failed, user_id=" << user_id
+                                       << ", contact_id=" << contact_id << ", group_id=" << group_id << ", err=" << err;
                 result.code = 500;
                 result.err = "更新联系人分组数量失败";
                 return result;
@@ -511,8 +489,8 @@ Result<void> ContactServiceImpl::DeleteContact(const uint64_t user_id, const uin
     if (!m_contact_repo->DeleteContact(db, user_id, contact_id, &err)) {
         trans->rollback();  // 回滚事务
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger) << "DeleteContact failed, user_id=" << user_id
-                                   << ", contact_id=" << contact_id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "DeleteContact failed, user_id=" << user_id << ", contact_id=" << contact_id
+                                   << ", err=" << err;
             result.code = 500;
             result.err = "删除联系人失败";
             return result;
@@ -535,8 +513,8 @@ Result<void> ContactServiceImpl::DeleteContact(const uint64_t user_id, const uin
     if (!m_contact_repo->RemoveFromGroup(db, user_id, contact_id, &err)) {
         trans->rollback();  // 回滚事务
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger) << "DeleteContact failed, user_id=" << user_id
-                                   << ", contact_id=" << contact_id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "DeleteContact failed, user_id=" << user_id << ", contact_id=" << contact_id
+                                   << ", err=" << err;
             result.code = 500;
             result.err = "从分组中移除联系人失败";
             return result;
@@ -545,8 +523,7 @@ Result<void> ContactServiceImpl::DeleteContact(const uint64_t user_id, const uin
 
     // 7. 提交事务
     if (!trans->commit()) {
-        IM_LOG_ERROR(g_logger) << "DeleteContact commit failed, user_id=" << user_id
-                               << ", contact_id=" << contact_id;
+        IM_LOG_ERROR(g_logger) << "DeleteContact commit failed, user_id=" << user_id << ", contact_id=" << contact_id;
         result.code = 500;
         result.err = "删除联系人失败";
         return result;
@@ -572,8 +549,7 @@ Result<void> ContactServiceImpl::DeleteContact(const uint64_t user_id, const uin
 }
 
 Result<void> ContactServiceImpl::SaveContactGroup(
-    const uint64_t user_id,
-    const std::vector<std::tuple<uint64_t, uint64_t, std::string>>& groupItems) {
+    const uint64_t user_id, const std::vector<std::tuple<uint64_t, uint64_t, std::string>> &groupItems) {
     Result<void> result;
     std::string err;
     std::unordered_set<uint64_t> ids_seen;
@@ -588,15 +564,14 @@ Result<void> ContactServiceImpl::SaveContactGroup(
     }
     auto db = trans->getMySQL();
     if (!db) {
-        IM_LOG_ERROR(g_logger) << "SaveContactGroup get transaction connection failed, user_id="
-                               << user_id;
+        IM_LOG_ERROR(g_logger) << "SaveContactGroup get transaction connection failed, user_id=" << user_id;
         result.code = 500;
         result.err = "保存联系人分组失败";
         return result;
     }
 
     // 2. 新增/更新分组
-    for (const auto& item : groupItems) {
+    for (const auto &item : groupItems) {
         if (std::get<0>(item) == 0) {
             // id 为0，表示新建分组
             IM::model::ContactGroup new_group;
@@ -617,8 +592,8 @@ Result<void> ContactServiceImpl::SaveContactGroup(
         } else {
             ids_seen.insert(std::get<0>(item));  // 记录已见ID
             // id 不为0，表示更新分组
-            if (!m_contact_repo->UpdateContactGroup(db, std::get<0>(item), std::get<1>(item),
-                                                    std::get<2>(item), &err)) {
+            if (!m_contact_repo->UpdateContactGroup(db, std::get<0>(item), std::get<1>(item), std::get<2>(item),
+                                                    &err)) {
                 trans->rollback();
                 if (!err.empty()) {
                     IM_LOG_ERROR(g_logger) << "SaveContactGroup failed, user_id=" << user_id
@@ -636,9 +611,8 @@ Result<void> ContactServiceImpl::SaveContactGroup(
     if (!m_contact_repo->GetContactGroupItemListByUserId(db, user_id, existing_groups, &err)) {
         trans->rollback();
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "SaveContactGroup ListByUserIdWithConn failed, user_id=" << user_id
-                << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "SaveContactGroup ListByUserIdWithConn failed, user_id=" << user_id
+                                   << ", err=" << err;
             result.code = 500;
             result.err = "保存联系人分组失败";
             return result;
@@ -646,15 +620,14 @@ Result<void> ContactServiceImpl::SaveContactGroup(
     }
 
     // 4. 删除不在传入列表中的分组
-    for (const auto& group : existing_groups) {
+    for (const auto &group : existing_groups) {
         if (ids_seen.find(group.id) == ids_seen.end()) {
             // 将分组中的联系人移除
             if (!m_contact_repo->RemoveFromGroupByGroupId(db, user_id, group.id, &err)) {
                 trans->rollback();
                 if (!err.empty()) {
-                    IM_LOG_ERROR(g_logger)
-                        << "SaveContactGroup RemoveFromGroupByGroupId failed, user_id=" << user_id
-                        << ", id=" << group.id << ", err=" << err;
+                    IM_LOG_ERROR(g_logger) << "SaveContactGroup RemoveFromGroupByGroupId failed, user_id=" << user_id
+                                           << ", id=" << group.id << ", err=" << err;
                     result.code = 500;
                     result.err = "保存联系人分组失败";
                     return result;
@@ -686,8 +659,7 @@ Result<void> ContactServiceImpl::SaveContactGroup(
     return result;
 }
 
-Result<void> ContactServiceImpl::ChangeContactGroup(const uint64_t user_id,
-                                                    const uint64_t contact_id,
+Result<void> ContactServiceImpl::ChangeContactGroup(const uint64_t user_id, const uint64_t contact_id,
                                                     const uint64_t group_id) {
     Result<void> result;
     std::string err;
@@ -705,8 +677,8 @@ Result<void> ContactServiceImpl::ChangeContactGroup(const uint64_t user_id,
     // 2. 获取事务绑定的数据库连接
     auto db = trans->getMySQL();
     if (!db) {
-        IM_LOG_ERROR(g_logger) << "DeleteContact get transaction connection failed, user_id="
-                               << user_id << ", contact_id=" << contact_id;
+        IM_LOG_ERROR(g_logger) << "DeleteContact get transaction connection failed, user_id=" << user_id
+                               << ", contact_id=" << contact_id;
         result.code = 500;
         result.err = "修改联系人分组失败";
         return result;
@@ -717,9 +689,8 @@ Result<void> ContactServiceImpl::ChangeContactGroup(const uint64_t user_id,
     if (!m_contact_repo->GetOldGroupId(db, user_id, contact_id, old_group_id, &err)) {
         trans->rollback();  // 回滚事务
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "ChangeContactGroup GetGroup failed, contact_id=" << contact_id
-                << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "ChangeContactGroup GetGroup failed, contact_id=" << contact_id
+                                   << ", err=" << err;
             result.code = 500;
             result.err = "获取联系人分组失败";
             return result;
@@ -742,9 +713,8 @@ Result<void> ContactServiceImpl::ChangeContactGroup(const uint64_t user_id,
         if (!m_contact_repo->UpdateContactCount(db, old_group_id, false, &err)) {
             trans->rollback();  // 回滚事务
             if (!err.empty()) {
-                IM_LOG_ERROR(g_logger)
-                    << "ChangeContactGroup UpdateContactCount failed, contact_id=" << contact_id
-                    << ", group_id=" << old_group_id << ", err=" << err;
+                IM_LOG_ERROR(g_logger) << "ChangeContactGroup UpdateContactCount failed, contact_id=" << contact_id
+                                       << ", group_id=" << old_group_id << ", err=" << err;
                 result.code = 500;
                 result.err = "修改联系人分组失败";
                 return result;
@@ -756,9 +726,8 @@ Result<void> ContactServiceImpl::ChangeContactGroup(const uint64_t user_id,
     if (!m_contact_repo->UpdateContactCount(db, group_id, true, &err)) {
         trans->rollback();  // 回滚事务
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "ChangeContactGroup UpdateContactCount failed, contact_id=" << contact_id
-                << ", group_id=" << group_id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "ChangeContactGroup UpdateContactCount failed, contact_id=" << contact_id
+                                   << ", group_id=" << group_id << ", err=" << err;
             result.code = 500;
             result.err = "修改联系人分组失败";
             return result;

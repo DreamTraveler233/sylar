@@ -12,21 +12,20 @@ auto g_log_defines = IM::Config::Lookup("logs", std::set<LogDefine>(), "logs con
 // 静态变量初始化在main函数之前
 struct LogInit {
     /**
-         * @brief 日志配置变更监听回调函数
-         *
-         * 当日志配置发生变更时，此函数会被调用，负责根据新的配置更新所有日志器(Logger)的配置。
-         * 包括新增、修改和删除日志器配置的操作。
-         *
-         * @param old_val 变更前的日志配置集合
-         * @param new_val 变更后的日志配置集合
-         */
+     * @brief 日志配置变更监听回调函数
+     *
+     * 当日志配置发生变更时，此函数会被调用，负责根据新的配置更新所有日志器(Logger)的配置。
+     * 包括新增、修改和删除日志器配置的操作。
+     *
+     * @param old_val 变更前的日志配置集合
+     * @param new_val 变更后的日志配置集合
+     */
     LogInit() {
-        g_log_defines->addListener([](const std::set<LogDefine>& old_val,
-                                      const std::set<LogDefine>& new_val) {
+        g_log_defines->addListener([](const std::set<LogDefine> &old_val, const std::set<LogDefine> &new_val) {
             IM_LOG_INFO(g_logger) << "logger config changed";
 
             // 遍历新的日志配置，处理新增和修改的日志器
-            for (auto& i : new_val) {
+            for (auto &i : new_val) {
                 // 查找日志器，如果找不到则创建并添加到日志器管理器中
                 auto logger = IM_LOG_NAME(i.name);
 
@@ -43,7 +42,7 @@ struct LogInit {
                 logger->clearAppender();
 
                 // 遍历该日志器的所有输出器配置
-                for (auto& j : i.appenders) {
+                for (auto &j : i.appenders) {
                     LogAppender::ptr ap;
 
                     // 根据类型创建对应的日志输出器
@@ -87,7 +86,7 @@ struct LogInit {
             }
 
             // 遍历旧的日志配置，处理已删除的日志器
-            for (auto& i : old_val) {
+            for (auto &i : old_val) {
                 auto it = new_val.find(i);
                 if (it == new_val.end()) {
                     // 如果在新配置中找不到当前旧配置项，说明这个配置项被删除了

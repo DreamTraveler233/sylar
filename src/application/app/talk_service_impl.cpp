@@ -1,12 +1,13 @@
 #include "application/app/talk_service_impl.hpp"
 
 #include "core/base/macro.hpp"
+
 #include "dto/contact_dto.hpp"
 
 namespace IM::app {
 
 static auto g_logger = IM_LOG_NAME("root");
-static constexpr const char* kDBName = "default";
+static constexpr const char *kDBName = "default";
 
 TalkServiceImpl::TalkServiceImpl(IM::domain::repository::ITalkRepository::Ptr talk_repo,
                                  IM::domain::repository::IContactRepository::Ptr contact_repo,
@@ -17,16 +18,14 @@ TalkServiceImpl::TalkServiceImpl(IM::domain::repository::ITalkRepository::Ptr ta
       m_message_repo(std::move(message_repo)),
       m_group_repo(std::move(group_repo)) {}
 
-Result<std::vector<dto::TalkSessionItem>> TalkServiceImpl::getSessionListByUserId(
-    const uint64_t user_id) {
+Result<std::vector<dto::TalkSessionItem>> TalkServiceImpl::getSessionListByUserId(const uint64_t user_id) {
     Result<std::vector<dto::TalkSessionItem>> result;
     std::string err;
 
     if (!m_talk_repo->getSessionListByUserId(user_id, result.data, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "TalkServiceImpl::getSessionListByUserId failed, user_id=" << user_id
-                << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "TalkServiceImpl::getSessionListByUserId failed, user_id=" << user_id
+                                   << ", err=" << err;
             result.code = 500;
             result.err = "获取会话列表失败";
             return result;
@@ -37,16 +36,15 @@ Result<std::vector<dto::TalkSessionItem>> TalkServiceImpl::getSessionListByUserI
     return result;
 }
 
-Result<void> TalkServiceImpl::setSessionTop(const uint64_t user_id, const uint64_t to_from_id,
-                                            const uint8_t talk_mode, const uint8_t action) {
+Result<void> TalkServiceImpl::setSessionTop(const uint64_t user_id, const uint64_t to_from_id, const uint8_t talk_mode,
+                                            const uint8_t action) {
     Result<void> result;
     std::string err;
 
     if (!m_talk_repo->setSessionTop(user_id, to_from_id, talk_mode, action, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "TalkServiceImpl::setSessionTop failed, to_from_id=" << to_from_id
-                << ", talk_mode=" << talk_mode << ", action=" << action << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "TalkServiceImpl::setSessionTop failed, to_from_id=" << to_from_id
+                                   << ", talk_mode=" << talk_mode << ", action=" << action << ", err=" << err;
             result.code = 500;
             result.err = "设置会话置顶失败";
             return result;
@@ -64,9 +62,8 @@ Result<void> TalkServiceImpl::setSessionDisturb(const uint64_t user_id, const ui
 
     if (!m_talk_repo->setSessionDisturb(user_id, to_from_id, talk_mode, action, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "TalkServiceImpl::setSessionDisturb failed, to_from_id=" << to_from_id
-                << ", talk_mode=" << talk_mode << ", action=" << action << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "TalkServiceImpl::setSessionDisturb failed, to_from_id=" << to_from_id
+                                   << ", talk_mode=" << talk_mode << ", action=" << action << ", err=" << err;
             result.code = 500;
             result.err = "设置会话免打扰失败";
             return result;
@@ -77,8 +74,7 @@ Result<void> TalkServiceImpl::setSessionDisturb(const uint64_t user_id, const ui
     return result;
 }
 
-Result<dto::TalkSessionItem> TalkServiceImpl::createSession(const uint64_t user_id,
-                                                            const uint64_t to_from_id,
+Result<dto::TalkSessionItem> TalkServiceImpl::createSession(const uint64_t user_id, const uint64_t to_from_id,
                                                             const uint8_t talk_mode) {
     Result<dto::TalkSessionItem> result;
     std::string err;
@@ -95,8 +91,7 @@ Result<dto::TalkSessionItem> TalkServiceImpl::createSession(const uint64_t user_
     // 2. 获取事务绑定的数据库连接
     auto db = trans->getMySQL();
     if (!db) {
-        IM_LOG_ERROR(g_logger) << "createSession get transaction connection failed, user_id="
-                               << user_id;
+        IM_LOG_ERROR(g_logger) << "createSession get transaction connection failed, user_id=" << user_id;
         result.code = 500;
         result.err = "创建会话失败";
         return result;
@@ -112,9 +107,8 @@ Result<dto::TalkSessionItem> TalkServiceImpl::createSession(const uint64_t user_
         }
         if (!m_talk_repo->findOrCreateSingleTalk(db, user_id, to_from_id, talk_id, &err)) {
             trans->rollback();
-            IM_LOG_ERROR(g_logger)
-                << "createSession findOrCreateSingleTalk failed, user_id=" << user_id
-                << ", to_from_id=" << to_from_id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "createSession findOrCreateSingleTalk failed, user_id=" << user_id
+                                   << ", to_from_id=" << to_from_id << ", err=" << err;
             result.code = 500;
             result.err = "创建会话失败";
             return result;
@@ -122,9 +116,8 @@ Result<dto::TalkSessionItem> TalkServiceImpl::createSession(const uint64_t user_
     } else if (talk_mode == 2) {  // 群聊
         if (!m_talk_repo->findOrCreateGroupTalk(db, to_from_id, talk_id, &err)) {
             trans->rollback();
-            IM_LOG_ERROR(g_logger)
-                << "createSession findOrCreateGroupTalk failed, user_id=" << user_id
-                << ", group_id=" << to_from_id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "createSession findOrCreateGroupTalk failed, user_id=" << user_id
+                                   << ", group_id=" << to_from_id << ", err=" << err;
             result.code = 500;
             result.err = "创建会话失败";
             return result;
@@ -139,15 +132,13 @@ Result<dto::TalkSessionItem> TalkServiceImpl::createSession(const uint64_t user_
     IM::dto::ContactDetails cd;
     if (!m_contact_repo->GetByOwnerAndTarget(db, user_id, to_from_id, cd, &err)) {
         trans->rollback();  // 回滚事务
-        IM_LOG_ERROR(g_logger)
-            << "TalkServiceImpl::createSession GetByOwnerAndTargetWithConn failed, user_id="
-            << user_id << ", to_from_id=" << to_from_id
-            << ", talk_mode=" << static_cast<int>(talk_mode) << ", err=" << err;
+        IM_LOG_ERROR(g_logger) << "TalkServiceImpl::createSession GetByOwnerAndTargetWithConn failed, user_id="
+                               << user_id << ", to_from_id=" << to_from_id
+                               << ", talk_mode=" << static_cast<int>(talk_mode) << ", err=" << err;
         result.code = 500;
         result.err = "创建会话失败";
         return result;
     }
-
 
     IM::model::TalkSession session;
     session.user_id = user_id;
@@ -158,18 +149,16 @@ Result<dto::TalkSessionItem> TalkServiceImpl::createSession(const uint64_t user_
         session.name = cd.nickname;
         session.avatar = cd.avatar;
         session.remark = cd.contact_remark;
-    }else if (talk_mode == 2) {
-    // 获取群组信息
+    } else if (talk_mode == 2) {
+        // 获取群组信息
         IM::model::Group group;
         if (!m_group_repo->GetGroupById(db, to_from_id, group, &err)) {
             trans->rollback();  // 回滚事务
-            IM_LOG_ERROR(g_logger)
-                << "TalkServiceImpl::createSession GetGroupById failed, user_id=" << user_id
-                << ", group_id=" << to_from_id
-                << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "TalkServiceImpl::createSession GetGroupById failed, user_id=" << user_id
+                                   << ", group_id=" << to_from_id << ", err=" << err;
             result.code = 500;
             result.err = "创建会话失败";
-            return result;  
+            return result;
         }
         session.name = group.group_name;
         session.avatar = group.avatar;
@@ -177,10 +166,9 @@ Result<dto::TalkSessionItem> TalkServiceImpl::createSession(const uint64_t user_
     if (!m_talk_repo->createSession(db, session, &err)) {
         trans->rollback();  // 回滚事务
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "TalkServiceImpl::createSession failed, user_id=" << user_id
-                << ", to_from_id=" << to_from_id << ", talk_mode=" << static_cast<int>(talk_mode)
-                << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "TalkServiceImpl::createSession failed, user_id=" << user_id
+                                   << ", to_from_id=" << to_from_id << ", talk_mode=" << static_cast<int>(talk_mode)
+                                   << ", err=" << err;
             result.code = 500;
             result.err = "创建会话失败";
         }
@@ -190,10 +178,9 @@ Result<dto::TalkSessionItem> TalkServiceImpl::createSession(const uint64_t user_
     if (!m_talk_repo->getSessionByUserId(db, user_id, result.data, to_from_id, talk_mode, &err)) {
         trans->rollback();  // 回滚事务
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "TalkServiceImpl::createSession getSessionByUserId failed, user_id=" << user_id
-                << ", to_from_id=" << to_from_id << ", talk_mode=" << static_cast<int>(talk_mode)
-                << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "TalkServiceImpl::createSession getSessionByUserId failed, user_id=" << user_id
+                                   << ", to_from_id=" << to_from_id << ", talk_mode=" << static_cast<int>(talk_mode)
+                                   << ", err=" << err;
             result.code = 500;
             result.err = "获取会话信息失败";
         }
@@ -204,9 +191,8 @@ Result<dto::TalkSessionItem> TalkServiceImpl::createSession(const uint64_t user_
         // 提交失败也要回滚，保证数据一致性
         const auto commit_err = db->getErrStr();
         trans->rollback();
-        IM_LOG_ERROR(g_logger)
-            << "TalkServiceImpl::createSession commit transaction failed, user_id=" << user_id
-            << ", err=" << commit_err;
+        IM_LOG_ERROR(g_logger) << "TalkServiceImpl::createSession commit transaction failed, user_id=" << user_id
+                               << ", err=" << commit_err;
         result.code = 500;
         result.err = "创建会话失败";
         return result;
@@ -223,9 +209,8 @@ Result<void> TalkServiceImpl::deleteSession(const uint64_t user_id, const uint64
 
     if (!m_talk_repo->deleteSession(user_id, to_from_id, talk_mode, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "TalkServiceImpl::deleteSession failed, user_id=" << user_id
-                << ", to_from_id=" << to_from_id << ", talk_mode=" << talk_mode << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "TalkServiceImpl::deleteSession failed, user_id=" << user_id
+                                   << ", to_from_id=" << to_from_id << ", talk_mode=" << talk_mode << ", err=" << err;
             result.code = 500;
             result.err = "删除会话失败";
             return result;
@@ -236,17 +221,15 @@ Result<void> TalkServiceImpl::deleteSession(const uint64_t user_id, const uint64
     return result;
 }
 
-Result<void> TalkServiceImpl::clearSessionUnreadNum(const uint64_t user_id,
-                                                    const uint64_t to_from_id,
+Result<void> TalkServiceImpl::clearSessionUnreadNum(const uint64_t user_id, const uint64_t to_from_id,
                                                     const uint8_t talk_mode) {
     Result<void> result;
     std::string err;
 
     if (!m_talk_repo->clearSessionUnreadNum(user_id, to_from_id, talk_mode, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "TalkServiceImpl::clearSessionUnreadNum failed, user_id=" << user_id
-                << ", to_from_id=" << to_from_id << ", talk_mode=" << talk_mode << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "TalkServiceImpl::clearSessionUnreadNum failed, user_id=" << user_id
+                                   << ", to_from_id=" << to_from_id << ", talk_mode=" << talk_mode << ", err=" << err;
             result.code = 500;
             result.err = "清除会话未读消息数失败";
             return result;

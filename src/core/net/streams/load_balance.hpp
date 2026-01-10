@@ -1,3 +1,12 @@
+/**
+ * @file load_balance.hpp
+ * @brief 网络通信相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 网络通信相关。
+ */
+
 #ifndef __IM_NET_STREAMS_LOAD_BALANCE_HPP__
 #define __IM_NET_STREAMS_LOAD_BALANCE_HPP__
 
@@ -5,9 +14,10 @@
 #include <vector>
 
 #include "core/io/lock.hpp"
+#include "core/util/util.hpp"
+
 #include "service_discovery.hpp"
 #include "socket_stream.hpp"
-#include "core/util/util.hpp"
 
 namespace IM {
 class HolderStatsSet;
@@ -48,14 +58,14 @@ class HolderStats {
 class HolderStatsSet {
    public:
     HolderStatsSet(uint32_t size = 5);
-    HolderStats& get(const uint32_t& now = time(0));
+    HolderStats &get(const uint32_t &now = time(0));
 
-    float getWeight(const uint32_t& now = time(0));
+    float getWeight(const uint32_t &now = time(0));
 
     HolderStats getTotal();
 
    private:
-    void init(const uint32_t& now);
+    void init(const uint32_t &now);
 
    private:
     uint32_t m_lastUpdateTime = 0;  // seconds
@@ -73,7 +83,7 @@ class LoadBalanceItem {
     void setId(uint64_t v) { m_id = v; }
     uint64_t getId() const { return m_id; }
 
-    HolderStats& get(const uint32_t& now = time(0));
+    HolderStats &get(const uint32_t &now = time(0));
 
     template <class T>
     std::shared_ptr<T> getStreamAs() {
@@ -114,14 +124,14 @@ class LoadBalance : public ILoadBalance {
     typedef std::shared_ptr<LoadBalance> ptr;
     void add(LoadBalanceItem::ptr v);
     void del(LoadBalanceItem::ptr v);
-    void set(const std::vector<LoadBalanceItem::ptr>& vs);
+    void set(const std::vector<LoadBalanceItem::ptr> &vs);
 
     LoadBalanceItem::ptr getById(uint64_t id);
-    void update(const std::unordered_map<uint64_t, LoadBalanceItem::ptr>& adds,
-                std::unordered_map<uint64_t, LoadBalanceItem::ptr>& dels);
+    void update(const std::unordered_map<uint64_t, LoadBalanceItem::ptr> &adds,
+                std::unordered_map<uint64_t, LoadBalanceItem::ptr> &dels);
     void init();
 
-    std::string statusString(const std::string& prefix);
+    std::string statusString(const std::string &prefix);
 
    protected:
     virtual void initNolock() = 0;
@@ -206,20 +216,18 @@ class SDLoadBalance {
     stream_callback getCb() const { return m_cb; }
     void setCb(stream_callback v) { m_cb = v; }
 
-    LoadBalance::ptr get(const std::string& domain, const std::string& service,
-                         bool auto_create = false);
+    LoadBalance::ptr get(const std::string &domain, const std::string &service, bool auto_create = false);
 
-    void initConf(
-        const std::unordered_map<std::string, std::unordered_map<std::string, std::string>>& confs);
+    void initConf(const std::unordered_map<std::string, std::unordered_map<std::string, std::string>> &confs);
 
     std::string statusString();
 
    private:
-    void onServiceChange(const std::string& domain, const std::string& service,
-                         const std::unordered_map<uint64_t, ServiceItemInfo::ptr>& old_value,
-                         const std::unordered_map<uint64_t, ServiceItemInfo::ptr>& new_value);
+    void onServiceChange(const std::string &domain, const std::string &service,
+                         const std::unordered_map<uint64_t, ServiceItemInfo::ptr> &old_value,
+                         const std::unordered_map<uint64_t, ServiceItemInfo::ptr> &new_value);
 
-    ILoadBalance::Type getType(const std::string& domain, const std::string& service);
+    ILoadBalance::Type getType(const std::string &domain, const std::string &service);
     LoadBalance::ptr createLoadBalance(ILoadBalance::Type type);
     LoadBalanceItem::ptr createLoadBalanceItem(ILoadBalance::Type type);
 
@@ -235,4 +243,4 @@ class SDLoadBalance {
 
 }  // namespace IM
 
-#endif // __IM_NET_STREAMS_LOAD_BALANCE_HPP__
+#endif  // __IM_NET_STREAMS_LOAD_BALANCE_HPP__

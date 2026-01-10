@@ -2,18 +2,18 @@
 
 namespace IM::infra::repository {
 
-static constexpr const char* kDBName = "default";
+static constexpr const char *kDBName = "default";
 
 MediaRepositoryImpl::MediaRepositoryImpl(std::shared_ptr<IM::MySQLManager> db_manager)
     : m_db_manager(std::move(db_manager)) {}
 
-bool MediaRepositoryImpl::CreateMediaFile(const model::MediaFile& f, std::string* err) {
+bool MediaRepositoryImpl::CreateMediaFile(const model::MediaFile &f, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "INSERT INTO im_media_file (id, upload_id, user_id, file_name, file_size, mime, "
         "storage_type, storage_path, url, status, created_at, updated_at) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
@@ -49,14 +49,14 @@ bool MediaRepositoryImpl::CreateMediaFile(const model::MediaFile& f, std::string
     return true;
 }
 
-bool MediaRepositoryImpl::GetMediaFileByUploadId(const std::string& upload_id,
-                                                 model::MediaFile& out, std::string* err) {
+bool MediaRepositoryImpl::GetMediaFileByUploadId(const std::string &upload_id, model::MediaFile &out,
+                                                 std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT id, upload_id, user_id, file_name, file_size, mime, storage_type, storage_path, "
         "url, status, created_at FROM im_media_file WHERE upload_id = ? LIMIT 1";
     auto stmt = db->prepare(sql);
@@ -91,14 +91,13 @@ bool MediaRepositoryImpl::GetMediaFileByUploadId(const std::string& upload_id,
     return true;
 }
 
-bool MediaRepositoryImpl::GetMediaFileById(const std::string& id, model::MediaFile& out,
-                                           std::string* err) {
+bool MediaRepositoryImpl::GetMediaFileById(const std::string &id, model::MediaFile &out, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT id, upload_id, user_id, file_name, file_size, mime, storage_type, storage_path, "
         "url, status, created_at FROM im_media_file WHERE id = ? LIMIT 1";
     auto stmt = db->prepare(sql);
@@ -133,13 +132,13 @@ bool MediaRepositoryImpl::GetMediaFileById(const std::string& id, model::MediaFi
     return true;
 }
 
-bool MediaRepositoryImpl::CreateMediaSession(const model::UploadSession& s, std::string* err) {
+bool MediaRepositoryImpl::CreateMediaSession(const model::UploadSession &s, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "INSERT INTO im_upload_session (upload_id, user_id, file_name, file_size, shard_size, "
         "shard_num, uploaded_count, status, temp_path, created_at, updated_at) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
@@ -168,14 +167,14 @@ bool MediaRepositoryImpl::CreateMediaSession(const model::UploadSession& s, std:
     return true;
 }
 
-bool MediaRepositoryImpl::GetMediaSessionByUploadId(const std::string& upload_id,
-                                                    model::UploadSession& out, std::string* err) {
+bool MediaRepositoryImpl::GetMediaSessionByUploadId(const std::string &upload_id, model::UploadSession &out,
+                                                    std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT upload_id, user_id, file_name, file_size, shard_size, shard_num, uploaded_count, "
         "status, temp_path, created_at FROM im_upload_session WHERE upload_id = ? LIMIT 1";
     auto stmt = db->prepare(sql);
@@ -209,15 +208,13 @@ bool MediaRepositoryImpl::GetMediaSessionByUploadId(const std::string& upload_id
     return true;
 }
 
-bool MediaRepositoryImpl::UpdateUploadedCount(const std::string& upload_id, uint32_t count,
-                                              std::string* err) {
+bool MediaRepositoryImpl::UpdateUploadedCount(const std::string &upload_id, uint32_t count, std::string *err) {
     auto db = IM::MySQLMgr::GetInstance()->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
-        "UPDATE im_upload_session SET uploaded_count = ?, updated_at = NOW() WHERE upload_id = ?";
+    const char *sql = "UPDATE im_upload_session SET uploaded_count = ?, updated_at = NOW() WHERE upload_id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -232,15 +229,13 @@ bool MediaRepositoryImpl::UpdateUploadedCount(const std::string& upload_id, uint
     return true;
 }
 
-bool MediaRepositoryImpl::UpdateMediaSessionStatus(const std::string& upload_id, uint8_t status,
-                                                   std::string* err) {
+bool MediaRepositoryImpl::UpdateMediaSessionStatus(const std::string &upload_id, uint8_t status, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
-        "UPDATE im_upload_session SET status = ?, updated_at = NOW() WHERE upload_id = ?";
+    const char *sql = "UPDATE im_upload_session SET status = ?, updated_at = NOW() WHERE upload_id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";

@@ -12,7 +12,7 @@ static auto g_logger = IM_LOG_NAME("root");
 namespace {
 constexpr uint32_t kCmdGetContactDetail = 401;
 
-Json::Value ContactDetailsToJson(const IM::dto::ContactDetails& d) {
+Json::Value ContactDetailsToJson(const IM::dto::ContactDetails &d) {
     Json::Value out(Json::objectValue);
     out["user_id"] = (Json::UInt64)d.user_id;
     out["avatar"] = d.avatar;
@@ -29,8 +29,7 @@ Json::Value ContactDetailsToJson(const IM::dto::ContactDetails& d) {
 }  // namespace
 
 ContactModule::ContactModule(IM::domain::service::IContactQueryService::Ptr contact_query_service)
-    : RockModule("svc.contact", "0.1.0", "builtin"),
-      m_contact_query_service(std::move(contact_query_service)) {}
+    : RockModule("svc.contact", "0.1.0", "builtin"), m_contact_query_service(std::move(contact_query_service)) {}
 
 bool ContactModule::onServerUp() {
     registerService("rock", "im", "svc-contact");

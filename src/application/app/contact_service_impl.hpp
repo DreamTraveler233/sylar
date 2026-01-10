@@ -1,3 +1,12 @@
+/**
+ * @file contact_service_impl.hpp
+ * @brief 应用层服务实现
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 应用层服务实现。
+ */
+
 #ifndef __IM_APP_CONTACT_SERVICE_IMPL_HPP__
 #define __IM_APP_CONTACT_SERVICE_IMPL_HPP__
 
@@ -12,31 +21,28 @@ namespace IM::app {
 class ContactServiceImpl : public IM::domain::service::IContactService {
    public:
     explicit ContactServiceImpl(IM::domain::repository::IContactRepository::Ptr contact_repo,
-                                          IM::domain::service::IUserService::Ptr user_service,
+                                IM::domain::service::IUserService::Ptr user_service,
                                 IM::domain::repository::ITalkRepository::Ptr talk_repo,
                                 IM::domain::service::IMessageService::Ptr message_service,
                                 IM::domain::service::ITalkService::Ptr talk_service);
 
     Result<dto::TalkSessionItem> AgreeApply(const uint64_t user_id, const uint64_t apply_id,
-                                            const std::string& remark) override;
-    Result<model::User> SearchByMobile(const std::string& mobile) override;
-    Result<dto::ContactDetails> GetContactDetail(const uint64_t user_id,
-                                                 const uint64_t target_id) override;
+                                            const std::string &remark) override;
+    Result<model::User> SearchByMobile(const std::string &mobile) override;
+    Result<dto::ContactDetails> GetContactDetail(const uint64_t user_id, const uint64_t target_id) override;
     Result<std::vector<dto::ContactItem>> ListFriends(const uint64_t user_id) override;
     Result<void> CreateContactApply(const uint64_t apply_user_id, const uint64_t target_user_id,
-                                    const std::string& remark) override;
+                                    const std::string &remark) override;
     Result<uint64_t> GetPendingContactApplyCount(const uint64_t user_id) override;
     Result<std::vector<dto::ContactApplyItem>> ListContactApplies(const uint64_t user_id) override;
     Result<void> RejectApply(const uint64_t handler_user_id, const uint64_t apply_user_id,
-                             const std::string& remark) override;
+                             const std::string &remark) override;
     Result<void> EditContactRemark(const uint64_t user_id, const uint64_t contact_id,
-                                   const std::string& remark) override;
+                                   const std::string &remark) override;
     Result<void> DeleteContact(const uint64_t user_id, const uint64_t contact_id) override;
-    Result<void> SaveContactGroup(
-        const uint64_t user_id,
-        const std::vector<std::tuple<uint64_t, uint64_t, std::string>>& groupItems) override;
-    Result<std::vector<dto::ContactGroupItem>> GetContactGroupLists(
-        const uint64_t user_id) override;
+    Result<void> SaveContactGroup(const uint64_t user_id,
+                                  const std::vector<std::tuple<uint64_t, uint64_t, std::string>> &groupItems) override;
+    Result<std::vector<dto::ContactGroupItem>> GetContactGroupLists(const uint64_t user_id) override;
     Result<void> ChangeContactGroup(const uint64_t user_id, const uint64_t contact_id,
                                     const uint64_t group_id) override;
 

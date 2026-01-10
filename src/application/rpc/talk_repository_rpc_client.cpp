@@ -13,8 +13,7 @@ static auto g_logger = IM_LOG_NAME("root");
 // We register talk.rpc_addr at static-init time to ensure services like svc_message
 // (which may construct TalkRepositoryRpcClient later during runtime) can still
 // read the configured fixed address.
-static auto g_talk_rpc_addr =
-    IM::Config::Lookup("talk.rpc_addr", std::string(""), "svc-talk rpc address ip:port");
+static auto g_talk_rpc_addr = IM::Config::Lookup("talk.rpc_addr", std::string(""), "svc-talk rpc address ip:port");
 
 namespace {
 
@@ -26,15 +25,12 @@ constexpr uint32_t kCmdListUsersByTalkId = 708;
 
 }  // namespace
 
-TalkRepositoryRpcClient::TalkRepositoryRpcClient()
-    : m_rpc_addr(g_talk_rpc_addr) {}
+TalkRepositoryRpcClient::TalkRepositoryRpcClient() : m_rpc_addr(g_talk_rpc_addr) {}
 
-IM::RockResult::ptr TalkRepositoryRpcClient::rockJsonRequest(const std::string& ip_port, uint32_t cmd,
-                                                            const Json::Value& body,
-                                                            uint32_t timeout_ms) {
+IM::RockResult::ptr TalkRepositoryRpcClient::rockJsonRequest(const std::string &ip_port, uint32_t cmd,
+                                                             const Json::Value &body, uint32_t timeout_ms) {
     if (ip_port.empty()) {
-        return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr,
-                                                nullptr);
+        return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr, nullptr);
     }
 
     IM::RockConnection::ptr conn;
@@ -49,13 +45,11 @@ IM::RockResult::ptr TalkRepositoryRpcClient::rockJsonRequest(const std::string& 
     if (!conn) {
         auto addr = IM::Address::LookupAny(ip_port);
         if (!addr) {
-            return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr,
-                                                    nullptr);
+            return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr, nullptr);
         }
         IM::RockConnection::ptr new_conn(new IM::RockConnection);
         if (!new_conn->connect(addr)) {
-            return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr,
-                                                    nullptr);
+            return std::make_shared<IM::RockResult>(IM::AsyncSocketStream::NOT_CONNECT, 0, nullptr, nullptr);
         }
         new_conn->start();
         {
@@ -77,9 +71,8 @@ std::string TalkRepositoryRpcClient::resolveSvcTalkAddr() {
     if (!fixed.empty()) return fixed;
 
     if (auto sd = IM::Application::GetInstance()->getServiceDiscovery()) {
-        std::unordered_map<
-            std::string,
-            std::unordered_map<std::string, std::unordered_map<uint64_t, IM::ServiceItemInfo::ptr>>>
+        std::unordered_map<std::string,
+                           std::unordered_map<std::string, std::unordered_map<uint64_t, IM::ServiceItemInfo::ptr>>>
             infos;
         sd->listServer(infos);
         auto itD = infos.find("im");
@@ -98,14 +91,12 @@ std::string TalkRepositoryRpcClient::resolveSvcTalkAddr() {
     return "";
 }
 
-bool TalkRepositoryRpcClient::getGroupTalkId(const uint64_t group_id, uint64_t& out_talk_id,
-                                            std::string* err) {
+bool TalkRepositoryRpcClient::getGroupTalkId(const uint64_t group_id, uint64_t &out_talk_id, std::string *err) {
     Json::Value req(Json::objectValue);
     req["group_id"] = (Json::UInt64)group_id;
 
     const auto addr = resolveSvcTalkAddr();
-    IM_LOG_INFO(g_logger) << "TalkRepoRpc getGroupTalkId -> svc-talk addr='" << addr
-                          << "' group_id=" << group_id;
+    IM_LOG_INFO(g_logger) << "TalkRepoRpc getGroupTalkId -> svc-talk addr='" << addr << "' group_id=" << group_id;
 
     auto rr = rockJsonRequest(addr, kCmdGetGroupTalkId, req, kTimeoutMs);
     if (!rr || !rr->response) {
@@ -115,8 +106,7 @@ bool TalkRepositoryRpcClient::getGroupTalkId(const uint64_t group_id, uint64_t& 
     }
     if (rr->response->getResult() != 200) {
         if (err) *err = rr->response->getResultStr();
-        IM_LOG_WARN(g_logger) << "TalkRepoRpc getGroupTalkId failed: result="
-                              << rr->response->getResult() << " msg='"
+        IM_LOG_WARN(g_logger) << "TalkRepoRpc getGroupTalkId failed: result=" << rr->response->getResult() << " msg='"
                               << rr->response->getResultStr() << "'";
         return false;
     }
@@ -137,15 +127,13 @@ bool TalkRepositoryRpcClient::getGroupTalkId(const uint64_t group_id, uint64_t& 
     return true;
 }
 
-bool TalkRepositoryRpcClient::listUsersByTalkId(const uint64_t talk_id,
-                                               std::vector<uint64_t>& out_user_ids,
-                                               std::string* err) {
+bool TalkRepositoryRpcClient::listUsersByTalkId(const uint64_t talk_id, std::vector<uint64_t> &out_user_ids,
+                                                std::string *err) {
     Json::Value req(Json::objectValue);
     req["talk_id"] = (Json::UInt64)talk_id;
 
     const auto addr = resolveSvcTalkAddr();
-    IM_LOG_INFO(g_logger) << "TalkRepoRpc listUsersByTalkId -> svc-talk addr='" << addr
-                          << "' talk_id=" << talk_id;
+    IM_LOG_INFO(g_logger) << "TalkRepoRpc listUsersByTalkId -> svc-talk addr='" << addr << "' talk_id=" << talk_id;
 
     auto rr = rockJsonRequest(addr, kCmdListUsersByTalkId, req, kTimeoutMs);
     if (!rr || !rr->response) {
@@ -155,9 +143,8 @@ bool TalkRepositoryRpcClient::listUsersByTalkId(const uint64_t talk_id,
     }
     if (rr->response->getResult() != 200) {
         if (err) *err = rr->response->getResultStr();
-        IM_LOG_WARN(g_logger) << "TalkRepoRpc listUsersByTalkId failed: result="
-                              << rr->response->getResult() << " msg='"
-                              << rr->response->getResultStr() << "'";
+        IM_LOG_WARN(g_logger) << "TalkRepoRpc listUsersByTalkId failed: result=" << rr->response->getResult()
+                              << " msg='" << rr->response->getResultStr() << "'";
         return false;
     }
 
@@ -171,7 +158,7 @@ bool TalkRepositoryRpcClient::listUsersByTalkId(const uint64_t talk_id,
     const auto arr = out["data"]["user_ids"];
     if (arr.isArray()) {
         out_user_ids.reserve(arr.size());
-        for (const auto& it : arr) {
+        for (const auto &it : arr) {
             if (it.isUInt64()) {
                 out_user_ids.push_back((uint64_t)it.asUInt64());
             } else if (it.isString()) {

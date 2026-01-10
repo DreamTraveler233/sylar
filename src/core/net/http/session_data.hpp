@@ -1,11 +1,20 @@
+/**
+ * @file session_data.hpp
+ * @brief 网络通信相关
+ * @author DreamTraveler233
+ * @date 2026-01-10
+ *
+ * 该文件是 XinYu-IM 项目的组成部分，主要负责 网络通信相关。
+ */
+
 #ifndef __IM_NET_HTTP_SESSION_DATA_HPP__
 #define __IM_NET_HTTP_SESSION_DATA_HPP__
 
 #include <boost/any.hpp>
 #include <unordered_map>
 
-#include "core/io/lock.hpp"
 #include "core/base/singleton.hpp"
+#include "core/io/lock.hpp"
 
 namespace IM::http {
 class SessionData {
@@ -14,13 +23,13 @@ class SessionData {
     SessionData(bool auto_gen = false);
 
     template <class T>
-    void setData(const std::string& key, const T& v) {
+    void setData(const std::string &key, const T &v) {
         RWMutex::WriteLock lock(m_mutex);
         m_datas[key] = v;
     }
 
     template <class T>
-    T getData(const std::string& key, const T& def = T()) {
+    T getData(const std::string &key, const T &def = T()) {
         RWMutex::ReadLock lock(m_mutex);
         auto it = m_datas.find(key);
         if (it == m_datas.end()) {
@@ -35,14 +44,14 @@ class SessionData {
         return def;
     }
 
-    void del(const std::string& key);
+    void del(const std::string &key);
 
-    bool has(const std::string& key);
+    bool has(const std::string &key);
     uint64_t getLastAccessTime() const { return m_lastAccessTime; }
     void setLastAccessTime(uint64_t v) { m_lastAccessTime = v; }
 
-    const std::string& getId() const { return m_id; }
-    void setId(const std::string& val) { m_id = val; }
+    const std::string &getId() const { return m_id; }
+    void setId(const std::string &val) { m_id = val; }
 
    private:
     RWMutex m_mutex;
@@ -54,8 +63,8 @@ class SessionData {
 class SessionDataManager {
    public:
     void add(SessionData::ptr info);
-    void del(const std::string& id);
-    SessionData::ptr get(const std::string& id);
+    void del(const std::string &id);
+    SessionData::ptr get(const std::string &id);
     void check(int64_t ts = 3600);
 
    private:
@@ -67,4 +76,4 @@ typedef Singleton<SessionDataManager> SessionDataMgr;
 
 }  // namespace IM::http
 
-#endif // __IM_NET_HTTP_SESSION_DATA_HPP__
+#endif  // __IM_NET_HTTP_SESSION_DATA_HPP__

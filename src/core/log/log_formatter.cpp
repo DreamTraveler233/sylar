@@ -7,7 +7,7 @@
 #include "core/log/logger.hpp"
 
 namespace IM {
-LogFormatter::LogFormatter(const std::string& pattern) : m_pattern(pattern), m_isError(false) {
+LogFormatter::LogFormatter(const std::string &pattern) : m_pattern(pattern), m_isError(false) {
     IM_ASSERT(!pattern.empty());
     init();
 }
@@ -15,7 +15,7 @@ LogFormatter::LogFormatter(const std::string& pattern) : m_pattern(pattern), m_i
 std::string LogFormatter::format(std::shared_ptr<LogEvent> event) {
     IM_ASSERT(event);
     std::stringstream ss;
-    for (auto& i : m_items) {
+    for (auto &i : m_items) {
         i->format(ss, event);
     }
     return ss.str();
@@ -24,20 +24,20 @@ std::string LogFormatter::format(std::shared_ptr<LogEvent> event) {
 bool LogFormatter::isError() const {
     return m_isError;
 }
-const std::string& LogFormatter::getPattern() const {
+const std::string &LogFormatter::getPattern() const {
     return m_pattern;
 }
 /**
-     * @brief 初始化解析日志格式模式
-     *
-     * 该函数解析传入的格式模式字符串，将其分解为普通字符串和格式化项，
-     * 并根据格式化项创建对应的格式化对象。
-     *
-     * 解析规则：
-     * 1. 普通字符直接作为字符串处理
-     * 2. %后跟字母表示格式化项
-     * 3. %%表示转义的%字符
-     */
+ * @brief 初始化解析日志格式模式
+ *
+ * 该函数解析传入的格式模式字符串，将其分解为普通字符串和格式化项，
+ * 并根据格式化项创建对应的格式化对象。
+ *
+ * 解析规则：
+ * 1. 普通字符直接作为字符串处理
+ * 2. %后跟字母表示格式化项
+ * 3. %%表示转义的%字符
+ */
 void LogFormatter::init() {
     // 存储解析后的格式项，每个元组包含：字符串内容、格式参数、类型(0-普通字符串，1-格式化项)
     std::vector<std::map<std::string, int>> vec;
@@ -70,8 +70,7 @@ void LogFormatter::init() {
 
         // 如果没有找到格式化项名称，则是错误
         if (str.empty()) {
-            std::cout << "pattern parse error: " << m_pattern << " - " << m_pattern.substr(i)
-                      << std::endl;
+            std::cout << "pattern parse error: " << m_pattern << " - " << m_pattern.substr(i) << std::endl;
             m_isError = true;
             vec.push_back({{"<<pattern_error>>", 0}});
             continue;
@@ -116,7 +115,7 @@ void LogFormatter::init() {
     };
 
     // 根据解析结果创建对应的格式化项对象
-    for (auto& i : vec) {
+    for (auto &i : vec) {
         auto it_map = i.begin();
         std::string content = it_map->first;
         int type = it_map->second;
@@ -128,8 +127,7 @@ void LogFormatter::init() {
             auto it = s_format_items.find(content);
             if (it == s_format_items.end()) {
                 // 未找到对应的格式化项，创建错误提示项
-                m_items.push_back(
-                    FormatItem::ptr(new StringFormatItem("<<error_format %" + content + ">>")));
+                m_items.push_back(FormatItem::ptr(new StringFormatItem("<<error_format %" + content + ">>")));
                 m_isError = true;
             } else {
                 // 创建对应的格式化项对象，不传递任何参数
@@ -139,29 +137,29 @@ void LogFormatter::init() {
     }
 }
 
-void MessageFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event) {
+void MessageFormatItem::format(std::ostream &os, std::shared_ptr<LogEvent> event) {
     os << event->getMessage();
 }
 
-void LevelFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event) {
+void LevelFormatItem::format(std::ostream &os, std::shared_ptr<LogEvent> event) {
     os << LogLevel::ToString(event->getLevel());
 }
 
-void ElapseFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event) {
+void ElapseFormatItem::format(std::ostream &os, std::shared_ptr<LogEvent> event) {
     os << event->getElapse();
 }
 
-void NameFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event) {
+void NameFormatItem::format(std::ostream &os, std::shared_ptr<LogEvent> event) {
     os << event->getLogger()->getName();
 }
 
-void ThreadIdFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event) {
+void ThreadIdFormatItem::format(std::ostream &os, std::shared_ptr<LogEvent> event) {
     os << event->getThreadId();
 }
 
 DateTimeFormatItem::DateTimeFormatItem() : m_format("%Y-%m-%d %H:%M:%S") {}
 
-void DateTimeFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event) {
+void DateTimeFormatItem::format(std::ostream &os, std::shared_ptr<LogEvent> event) {
     struct tm tm;
     time_t time = event->getTime();
     localtime_r(&time, &tm);
@@ -170,35 +168,35 @@ void DateTimeFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> even
     os << buf;
 }
 
-void FileNameFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event) {
+void FileNameFormatItem::format(std::ostream &os, std::shared_ptr<LogEvent> event) {
     os << event->getRelativeFileName();
 }
 
-void LineFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event) {
+void LineFormatItem::format(std::ostream &os, std::shared_ptr<LogEvent> event) {
     os << event->getLine();
 }
 
-void NewLineFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event) {
+void NewLineFormatItem::format(std::ostream &os, std::shared_ptr<LogEvent> event) {
     os << std::endl;
 }
 
-void TabFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event) {
+void TabFormatItem::format(std::ostream &os, std::shared_ptr<LogEvent> event) {
     os << "\t";
 }
 
-void FiberIdFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event) {
+void FiberIdFormatItem::format(std::ostream &os, std::shared_ptr<LogEvent> event) {
     os << event->getCoroutineId();
 }
 
-StringFormatItem::StringFormatItem(const std::string& fmt) : m_string(fmt) {}
-void StringFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event) {
+StringFormatItem::StringFormatItem(const std::string &fmt) : m_string(fmt) {}
+void StringFormatItem::format(std::ostream &os, std::shared_ptr<LogEvent> event) {
     os << m_string;
 }
 
-void ThreadNameFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event) {
+void ThreadNameFormatItem::format(std::ostream &os, std::shared_ptr<LogEvent> event) {
     os << event->getThreadName();
 }
-void TraceIdFormatItem::format(std::ostream& os, std::shared_ptr<LogEvent> event) {
+void TraceIdFormatItem::format(std::ostream &os, std::shared_ptr<LogEvent> event) {
     os << event->getTraceId();
 }
 

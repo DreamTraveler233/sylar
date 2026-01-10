@@ -8,8 +8,8 @@
 
 namespace IM::api {
 
-static auto g_upload_base_dir = IM::Config::Lookup<std::string>(
-    "media.upload_base_dir", std::string("data/uploads"), "base dir for uploaded media files");
+static auto g_upload_base_dir = IM::Config::Lookup<std::string>("media.upload_base_dir", std::string("data/uploads"),
+                                                                "base dir for uploaded media files");
 
 StaticFileModule::StaticFileModule() : Module("StaticFileModule", "1.0", "StaticFileModule") {}
 
@@ -34,7 +34,7 @@ bool StaticFileModule::onServerReady() {
 
     auto servlet = std::make_shared<IM::http::StaticServlet>(path, "/media/");
 
-    for (auto& i : svrs) {
+    for (auto &i : svrs) {
         IM::http::HttpServer::ptr http_server = std::dynamic_pointer_cast<IM::http::HttpServer>(i);
         if (http_server) {
             http_server->getServletDispatch()->addGlobServlet("/media/*", servlet);

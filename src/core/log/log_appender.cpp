@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "core/base/macro.hpp"
+
 #include "yaml-cpp/yaml.h"
 
 namespace IM {
@@ -48,7 +49,7 @@ std::string StdoutLogAppender::toYamlString() {
     return ss.str();
 }
 
-FileLogAppender::FileLogAppender(const std::string& fileName) {
+FileLogAppender::FileLogAppender(const std::string &fileName) {
     IM_ASSERT(!fileName.empty())
     m_logFile = LogFileManager::GetInstance()->getLogFile(fileName);
     m_logFile->openFile();
@@ -66,8 +67,7 @@ void FileLogAppender::log(LogEvent::ptr event) {
                     const auto currentSize = m_logFile->getFileSize();
                     // 计算写入该日志消息后的预期文件大小
                     const uint64_t projectedSize =
-                        static_cast<uint64_t>(std::max<int64_t>(0, currentSize)) +
-                        formatted_msg.size();
+                        static_cast<uint64_t>(std::max<int64_t>(0, currentSize)) + formatted_msg.size();
                     if (projectedSize > threshold) {
                         LogFileManager::GetInstance()->rotateBySize(m_logFile);
                     }

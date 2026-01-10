@@ -5,29 +5,30 @@
 #include "core/base/macro.hpp"
 #include "core/config/config.hpp"
 #include "core/net/core/tcp_server.hpp"
-#include "infra/module/crypto_module.hpp"
 #include "core/util/json_util.hpp"
+
+#include "infra/module/crypto_module.hpp"
 
 namespace IM {
 
 static auto g_logger = IM_LOG_NAME("system");
 
 // JWT签名密钥
-static auto g_jwt_secret = IM::Config::Lookup<std::string>(
-    "auth.jwt.secret", std::string("dev-secret"), "jwt hmac secret");
+static auto g_jwt_secret =
+    IM::Config::Lookup<std::string>("auth.jwt.secret", std::string("dev-secret"), "jwt hmac secret");
 // JWT签发者
 static auto g_jwt_issuer =
     IM::Config::Lookup<std::string>("auth.jwt.issuer", std::string("auth-service"), "jwt issuer");
 
 // 预注册：presence 固定 RPC 地址（避免模块在配置加载后才 Lookup 导致取到空默认值）
-static auto g_presence_rpc_addr = IM::Config::Lookup<std::string>(
-    "presence.rpc_addr", std::string(""), "presence rpc address ip:port");
+static auto g_presence_rpc_addr =
+    IM::Config::Lookup<std::string>("presence.rpc_addr", std::string(""), "presence rpc address ip:port");
 
-std::string Ok(const Json::Value& data) {
+std::string Ok(const Json::Value &data) {
     return IM::JsonUtil::ToString(data);
 }
 
-std::string Error(const int code, const std::string& msg) {
+std::string Error(const int code, const std::string &msg) {
     Json::Value root;
     root["code"] = code;
     root["message"] = msg;
@@ -35,13 +36,13 @@ std::string Error(const int code, const std::string& msg) {
     return IM::JsonUtil::ToString(root);
 }
 
-bool ParseBody(const std::string& body, Json::Value& out) {
+bool ParseBody(const std::string &body, Json::Value &out) {
     if (body.empty()) return false;
     if (!IM::JsonUtil::FromString(out, body)) return false;
     return out.isObject();
 }
 
-Result<std::string> SignJwt(const std::string& uid, uint32_t expires_in) {
+Result<std::string> SignJwt(const std::string &uid, uint32_t expires_in) {
     Result<std::string> result;
     auto now = std::chrono::system_clock::now();
     auto exp = now + std::chrono::seconds(expires_in);
@@ -54,7 +55,7 @@ Result<std::string> SignJwt(const std::string& uid, uint32_t expires_in) {
                           .set_subject(uid)
                           .set_payload_claim("uid", jwt::claim(uid))
                           .sign(jwt::algorithm::hs256{g_jwt_secret->getValue()});
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         IM_LOG_ERROR(g_logger) << result.err;
         result.code = 500;
         result.err = "令牌签名失败！";
@@ -70,12 +71,12 @@ Result<std::string> SignJwt(const std::string& uid, uint32_t expires_in) {
  * @param token[in] 待验证的JWT令牌字符串
  * @param out_uid[out] 如果验证成功且该参数非空，则输出令牌中的用户ID
  * @return 验证成功返回true，否则返回false
- * 
+ *
  * 该函数使用HS256算法和预设的密钥来验证JWT令牌，
  * 同时检查签发者信息是否匹配。如果令牌有效且包含
  * uid声明，则将其写入out_uid参数中。
  */
-bool VerifyJwt(const std::string& token, std::string* out_uid) {
+bool VerifyJwt(const std::string &token, std::string *out_uid) {
     try {
         auto dec = jwt::decode(token);
         auto verifier = jwt::verify()
@@ -90,20 +91,20 @@ bool VerifyJwt(const std::string& token, std::string* out_uid) {
             }
         }
         return true;
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         IM_LOG_WARN(g_logger) << "jwt verify failed: " << e.what();
         return false;
     }
 }
 
-bool IsJwtExpired(const std::string& token) {
+bool IsJwtExpired(const std::string &token) {
     try {
         auto dec = jwt::decode(token);
         if (dec.has_expires_at()) {
             auto exp = dec.get_expires_at();
             return exp < std::chrono::system_clock::now();
         }
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         IM_LOG_WARN(g_logger) << "jwt decode failed: " << e.what();
     }
     return false;
@@ -149,7 +150,7 @@ Result<uint64_t> GetUidFromToken(IM::http::HttpRequest::ptr req, IM::http::HttpR
     return result;
 }
 
-Result<void> DecryptPassword(const std::string& encrypted_password, std::string& out_plaintext) {
+Result<void> DecryptPassword(const std::string &encrypted_password, std::string &out_plaintext) {
     Result<void> result;
 
     // Base64 解码

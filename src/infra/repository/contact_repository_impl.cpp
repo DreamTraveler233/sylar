@@ -1,20 +1,19 @@
 #include "infra/repository/contact_repository_impl.hpp"
 
 namespace IM::infra::repository {
-static constexpr const char* kDBName = "default";
+static constexpr const char *kDBName = "default";
 
 ContactRepositoryImpl::ContactRepositoryImpl(std::shared_ptr<IM::MySQLManager> db_manager)
     : m_db_manager(std::move(db_manager)) {}
 
-bool ContactRepositoryImpl::GetContactItemListByUserId(uint64_t user_id,
-                                                       std::vector<dto::ContactItem>& out,
-                                                       std::string* err) {
+bool ContactRepositoryImpl::GetContactItemListByUserId(uint64_t user_id, std::vector<dto::ContactItem> &out,
+                                                       std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT c.group_id, c.remark, u.id AS user_id, u.nickname, u.gender, u.motto, u.avatar "
         "FROM im_contact c JOIN im_user u ON c.friend_user_id = u.id "
         "WHERE c.owner_user_id = ? AND c.status = 1 "
@@ -47,13 +46,13 @@ bool ContactRepositoryImpl::GetContactItemListByUserId(uint64_t user_id,
 }
 
 bool ContactRepositoryImpl::GetByOwnerAndTarget(const uint64_t owner_id, const uint64_t target_id,
-                                                dto::ContactDetails& out, std::string* err) {
+                                                dto::ContactDetails &out, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT u.id AS user_id, u.avatar, u.gender, u.mobile, u.motto, u.nickname, u.email,"
         "c.relation, c.group_id AS contact_group_id, c.remark AS contact_remark FROM im_user u "
         "LEFT JOIN im_contact c ON u.id = c.friend_user_id AND c.owner_user_id = ? WHERE u.id = ?";
@@ -89,14 +88,13 @@ bool ContactRepositoryImpl::GetByOwnerAndTarget(const uint64_t owner_id, const u
     return true;
 }
 
-bool ContactRepositoryImpl::GetByOwnerAndTarget(const std::shared_ptr<IM::MySQL>& db,
-                                                const uint64_t owner_id, const uint64_t target_id,
-                                                dto::ContactDetails& out, std::string* err) {
+bool ContactRepositoryImpl::GetByOwnerAndTarget(const std::shared_ptr<IM::MySQL> &db, const uint64_t owner_id,
+                                                const uint64_t target_id, dto::ContactDetails &out, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT u.id AS user_id, u.avatar, u.gender, u.mobile, u.motto, u.nickname, u.email,"
         "c.relation, c.group_id AS contact_group_id, c.remark AS contact_remark FROM im_user u "
         "LEFT JOIN im_contact c ON u.id = c.friend_user_id AND c.owner_user_id = ? WHERE u.id = ?";
@@ -132,14 +130,14 @@ bool ContactRepositoryImpl::GetByOwnerAndTarget(const std::shared_ptr<IM::MySQL>
     return true;
 }
 
-bool ContactRepositoryImpl::UpsertContact(const std::shared_ptr<IM::MySQL>& db,
-                                          const model::Contact& c, std::string* err) {
+bool ContactRepositoryImpl::UpsertContact(const std::shared_ptr<IM::MySQL> &db, const model::Contact &c,
+                                          std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
     // 使用 ON DUPLICATE KEY 实现有则更新、无则插入的逻辑
-    const char* sql =
+    const char *sql =
         "INSERT INTO im_contact (owner_user_id, friend_user_id, group_id, remark, status, relation,"
         "is_block, created_at, updated_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), "
         "?) "
@@ -178,15 +176,13 @@ bool ContactRepositoryImpl::UpsertContact(const std::shared_ptr<IM::MySQL>& db,
     return true;
 }
 
-bool ContactRepositoryImpl::EditRemark(const std::shared_ptr<IM::MySQL>& db, const uint64_t user_id,
-                                       const uint64_t contact_id, const std::string& remark,
-                                       std::string* err) {
+bool ContactRepositoryImpl::EditRemark(const std::shared_ptr<IM::MySQL> &db, const uint64_t user_id,
+                                       const uint64_t contact_id, const std::string &remark, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
-        "UPDATE im_contact SET remark = ? WHERE owner_user_id = ? AND friend_user_id = ?";
+    const char *sql = "UPDATE im_contact SET remark = ? WHERE owner_user_id = ? AND friend_user_id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -202,14 +198,13 @@ bool ContactRepositoryImpl::EditRemark(const std::shared_ptr<IM::MySQL>& db, con
     return true;
 }
 
-bool ContactRepositoryImpl::DeleteContact(const std::shared_ptr<IM::MySQL>& db,
-                                          const uint64_t user_id, const uint64_t contact_id,
-                                          std::string* err) {
+bool ContactRepositoryImpl::DeleteContact(const std::shared_ptr<IM::MySQL> &db, const uint64_t user_id,
+                                          const uint64_t contact_id, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "UPDATE im_contact SET remark = '', relation = 1, status = 2, deleted_at = NOW() WHERE "
         "owner_user_id = ? "
         "AND friend_user_id = ?";
@@ -227,15 +222,14 @@ bool ContactRepositoryImpl::DeleteContact(const std::shared_ptr<IM::MySQL>& db,
     return true;
 }
 
-bool ContactRepositoryImpl::UpdateStatusAndRelation(const std::shared_ptr<IM::MySQL>& db,
-                                                    const uint64_t user_id,
+bool ContactRepositoryImpl::UpdateStatusAndRelation(const std::shared_ptr<IM::MySQL> &db, const uint64_t user_id,
                                                     const uint64_t contact_id, const uint8_t status,
-                                                    const uint8_t relation, std::string* err) {
+                                                    const uint8_t relation, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "UPDATE im_contact SET status = ?, relation = ? WHERE friend_user_id = ? AND owner_user_id "
         "= ?";
     auto stmt = db->prepare(sql);
@@ -254,15 +248,13 @@ bool ContactRepositoryImpl::UpdateStatusAndRelation(const std::shared_ptr<IM::My
     return true;
 }
 
-bool ContactRepositoryImpl::ChangeContactGroup(const std::shared_ptr<IM::MySQL>& db,
-                                               const uint64_t user_id, const uint64_t contact_id,
-                                               const uint64_t group_id, std::string* err) {
+bool ContactRepositoryImpl::ChangeContactGroup(const std::shared_ptr<IM::MySQL> &db, const uint64_t user_id,
+                                               const uint64_t contact_id, const uint64_t group_id, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
-        "UPDATE im_contact SET group_id = ? WHERE friend_user_id = ? AND owner_user_id = ?";
+    const char *sql = "UPDATE im_contact SET group_id = ? WHERE friend_user_id = ? AND owner_user_id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -278,15 +270,13 @@ bool ContactRepositoryImpl::ChangeContactGroup(const std::shared_ptr<IM::MySQL>&
     return true;
 }
 
-bool ContactRepositoryImpl::GetOldGroupId(const std::shared_ptr<IM::MySQL>& db,
-                                          const uint64_t user_id, const uint64_t contact_id,
-                                          uint64_t& out_group_id, std::string* err) {
+bool ContactRepositoryImpl::GetOldGroupId(const std::shared_ptr<IM::MySQL> &db, const uint64_t user_id,
+                                          const uint64_t contact_id, uint64_t &out_group_id, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
-        "SELECT group_id FROM im_contact WHERE friend_user_id = ? AND owner_user_id = ?";
+    const char *sql = "SELECT group_id FROM im_contact WHERE friend_user_id = ? AND owner_user_id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -310,15 +300,13 @@ bool ContactRepositoryImpl::GetOldGroupId(const std::shared_ptr<IM::MySQL>& db,
     return true;
 }
 
-bool ContactRepositoryImpl::RemoveFromGroup(const std::shared_ptr<IM::MySQL>& db,
-                                            const uint64_t user_id, const uint64_t contact_id,
-                                            std::string* err) {
+bool ContactRepositoryImpl::RemoveFromGroup(const std::shared_ptr<IM::MySQL> &db, const uint64_t user_id,
+                                            const uint64_t contact_id, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
-        "UPDATE im_contact SET group_id = NULL WHERE owner_user_id = ? AND friend_user_id = ?";
+    const char *sql = "UPDATE im_contact SET group_id = NULL WHERE owner_user_id = ? AND friend_user_id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -333,15 +321,13 @@ bool ContactRepositoryImpl::RemoveFromGroup(const std::shared_ptr<IM::MySQL>& db
     return true;
 }
 
-bool ContactRepositoryImpl::RemoveFromGroupByGroupId(const std::shared_ptr<IM::MySQL>& db,
-                                                     const uint64_t user_id,
-                                                     const uint64_t group_id, std::string* err) {
+bool ContactRepositoryImpl::RemoveFromGroupByGroupId(const std::shared_ptr<IM::MySQL> &db, const uint64_t user_id,
+                                                     const uint64_t group_id, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
-        "UPDATE im_contact SET group_id = NULL WHERE owner_user_id = ? AND group_id = ?";
+    const char *sql = "UPDATE im_contact SET group_id = NULL WHERE owner_user_id = ? AND group_id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -356,14 +342,13 @@ bool ContactRepositoryImpl::RemoveFromGroupByGroupId(const std::shared_ptr<IM::M
     return true;
 }
 
-bool ContactRepositoryImpl::CreateContactGroup(const std::shared_ptr<IM::MySQL>& db,
-                                               const model::ContactGroup& g, uint64_t& out_id,
-                                               std::string* err) {
+bool ContactRepositoryImpl::CreateContactGroup(const std::shared_ptr<IM::MySQL> &db, const model::ContactGroup &g,
+                                               uint64_t &out_id, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "INSERT INTO im_contact_group (user_id, name, sort, contact_count, created_at, updated_at) "
         "VALUES (?, ?, "
         "?, ?, NOW(), NOW())";
@@ -384,14 +369,15 @@ bool ContactRepositoryImpl::CreateContactGroup(const std::shared_ptr<IM::MySQL>&
     return true;
 }
 
-bool ContactRepositoryImpl::GetContactGroupItemListByUserId(
-    const uint64_t user_id, std::vector<dto::ContactGroupItem>& outs, std::string* err) {
+bool ContactRepositoryImpl::GetContactGroupItemListByUserId(const uint64_t user_id,
+                                                            std::vector<dto::ContactGroupItem> &outs,
+                                                            std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT id, name, contact_count, sort FROM im_contact_group "
         "WHERE user_id = ? ORDER BY sort ASC, id ASC";
     auto stmt = db->prepare(sql);
@@ -416,14 +402,15 @@ bool ContactRepositoryImpl::GetContactGroupItemListByUserId(
     return true;
 }
 
-bool ContactRepositoryImpl::GetContactGroupItemListByUserId(
-    const std::shared_ptr<IM::MySQL>& db, const uint64_t user_id,
-    std::vector<dto::ContactGroupItem>& outs, std::string* err) {
+bool ContactRepositoryImpl::GetContactGroupItemListByUserId(const std::shared_ptr<IM::MySQL> &db,
+                                                            const uint64_t user_id,
+                                                            std::vector<dto::ContactGroupItem> &outs,
+                                                            std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT id, name, contact_count, sort FROM im_contact_group "
         "WHERE user_id = ? ORDER BY sort ASC, id ASC";
     auto stmt = db->prepare(sql);
@@ -448,14 +435,13 @@ bool ContactRepositoryImpl::GetContactGroupItemListByUserId(
     return true;
 }
 
-bool ContactRepositoryImpl::UpdateContactGroup(const std::shared_ptr<IM::MySQL>& db,
-                                               const uint64_t id, const uint32_t sort,
-                                               const std::string& name, std::string* err) {
+bool ContactRepositoryImpl::UpdateContactGroup(const std::shared_ptr<IM::MySQL> &db, const uint64_t id,
+                                               const uint32_t sort, const std::string &name, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql = "UPDATE im_contact_group SET name = ?, sort = ? WHERE id = ?";
+    const char *sql = "UPDATE im_contact_group SET name = ?, sort = ? WHERE id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -471,13 +457,13 @@ bool ContactRepositoryImpl::UpdateContactGroup(const std::shared_ptr<IM::MySQL>&
     return true;
 }
 
-bool ContactRepositoryImpl::DeleteContactGroup(const std::shared_ptr<IM::MySQL>& db,
-                                               const uint64_t id, std::string* err) {
+bool ContactRepositoryImpl::DeleteContactGroup(const std::shared_ptr<IM::MySQL> &db, const uint64_t id,
+                                               std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql = "DELETE FROM im_contact_group WHERE id = ?";
+    const char *sql = "DELETE FROM im_contact_group WHERE id = ?";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";
@@ -491,14 +477,13 @@ bool ContactRepositoryImpl::DeleteContactGroup(const std::shared_ptr<IM::MySQL>&
     return true;
 }
 
-bool ContactRepositoryImpl::UpdateContactCount(const std::shared_ptr<IM::MySQL>& db,
-                                               const uint64_t group_id, bool increase,
-                                               std::string* err) {
+bool ContactRepositoryImpl::UpdateContactCount(const std::shared_ptr<IM::MySQL> &db, const uint64_t group_id,
+                                               bool increase, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql;
+    const char *sql;
     if (!increase) {
         // 避免无符号整数下溢
         sql =
@@ -520,14 +505,13 @@ bool ContactRepositoryImpl::UpdateContactCount(const std::shared_ptr<IM::MySQL>&
     return true;
 }
 
-bool ContactRepositoryImpl::AgreeApply(const std::shared_ptr<IM::MySQL>& db, const uint64_t user_id,
-                                       const uint64_t apply_id, const std::string& remark,
-                                       std::string* err) {
+bool ContactRepositoryImpl::AgreeApply(const std::shared_ptr<IM::MySQL> &db, const uint64_t user_id,
+                                       const uint64_t apply_id, const std::string &remark, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "UPDATE im_contact_apply SET status = 2, handler_user_id = ?, handle_remark = "
         "?, handled_at = NOW(), updated_at = NOW() WHERE id = ?";
     auto stmt = db->prepare(sql);
@@ -545,14 +529,13 @@ bool ContactRepositoryImpl::AgreeApply(const std::shared_ptr<IM::MySQL>& db, con
     return true;
 }
 
-bool ContactRepositoryImpl::GetDetailById(const std::shared_ptr<IM::MySQL>& db,
-                                          const uint64_t apply_id, model::ContactApply& out,
-                                          std::string* err) {
+bool ContactRepositoryImpl::GetDetailById(const std::shared_ptr<IM::MySQL> &db, const uint64_t apply_id,
+                                          model::ContactApply &out, std::string *err) {
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT id, apply_user_id, target_user_id, remark, status, handler_user_id, "
         "handle_remark, handled_at, created_at, updated_at FROM im_contact_apply WHERE id = ?";
     auto stmt = db->prepare(sql);
@@ -586,8 +569,7 @@ bool ContactRepositoryImpl::GetDetailById(const std::shared_ptr<IM::MySQL>& db,
     return true;
 }
 
-bool ContactRepositoryImpl::GetDetailById(const uint64_t apply_id, model::ContactApply& out,
-                                          std::string* err) {
+bool ContactRepositoryImpl::GetDetailById(const uint64_t apply_id, model::ContactApply &out, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
@@ -596,7 +578,7 @@ bool ContactRepositoryImpl::GetDetailById(const uint64_t apply_id, model::Contac
     return GetDetailById(db, apply_id, out, err);
 }
 
-bool ContactRepositoryImpl::CreateContactApply(const model::ContactApply& a, std::string* err) {
+bool ContactRepositoryImpl::CreateContactApply(const model::ContactApply &a, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
@@ -604,7 +586,7 @@ bool ContactRepositoryImpl::CreateContactApply(const model::ContactApply& a, std
     }
 
     // 1) 快速检查：是否已有待处理申请（status = 1）
-    const char* check_sql =
+    const char *check_sql =
         "SELECT id FROM im_contact_apply WHERE apply_user_id = ? AND target_user_id = ? AND status "
         "= 1 LIMIT 1";
     auto check_stmt = db->prepare(check_sql);
@@ -626,7 +608,7 @@ bool ContactRepositoryImpl::CreateContactApply(const model::ContactApply& a, std
     }
 
     // 2) 尝试插入
-    const char* sql =
+    const char *sql =
         "INSERT INTO im_contact_apply (apply_user_id, target_user_id, remark, status, "
         "handler_user_id, handle_remark, handled_at, created_at, updated_at) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
@@ -661,15 +643,14 @@ bool ContactRepositoryImpl::CreateContactApply(const model::ContactApply& a, std
     return true;
 }
 
-bool ContactRepositoryImpl::RejectApply(const uint64_t handler_user_id,
-                                        const uint64_t apply_user_id, const std::string& remark,
-                                        std::string* err) {
+bool ContactRepositoryImpl::RejectApply(const uint64_t handler_user_id, const uint64_t apply_user_id,
+                                        const std::string &remark, std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "UPDATE im_contact_apply SET status = 3, handler_user_id = ?, handle_remark = "
         "?, handled_at = NOW(), updated_at = NOW() WHERE id = ?";
     auto stmt = db->prepare(sql);
@@ -687,15 +668,14 @@ bool ContactRepositoryImpl::RejectApply(const uint64_t handler_user_id,
     return true;
 }
 
-bool ContactRepositoryImpl::GetContactApplyItemById(const uint64_t id,
-                                                    std::vector<dto::ContactApplyItem>& out,
-                                                    std::string* err) {
+bool ContactRepositoryImpl::GetContactApplyItemById(const uint64_t id, std::vector<dto::ContactApplyItem> &out,
+                                                    std::string *err) {
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
+    const char *sql =
         "SELECT ca.id, ca.target_user_id, ca.apply_user_id, ca.remark, u.nickname, u.avatar, "
         "DATE_FORMAT(ca.created_at, '%Y-%m-%d %H:%i:%s') FROM im_contact_apply ca "
         "LEFT JOIN im_user u ON ca.apply_user_id = u.id "
@@ -726,16 +706,14 @@ bool ContactRepositoryImpl::GetContactApplyItemById(const uint64_t id,
     return true;
 }
 
-bool ContactRepositoryImpl::GetPendingCountById(uint64_t id, uint64_t& out_count,
-                                                std::string* err) {
+bool ContactRepositoryImpl::GetPendingCountById(uint64_t id, uint64_t &out_count, std::string *err) {
     out_count = 0;
     auto db = m_db_manager->get(kDBName);
     if (!db) {
         if (err) *err = "get mysql connection failed";
         return false;
     }
-    const char* sql =
-        "SELECT COUNT(*) FROM im_contact_apply WHERE target_user_id = ? AND status = 1";
+    const char *sql = "SELECT COUNT(*) FROM im_contact_apply WHERE target_user_id = ? AND status = 1";
     auto stmt = db->prepare(sql);
     if (!stmt) {
         if (err) *err = "prepare sql failed";

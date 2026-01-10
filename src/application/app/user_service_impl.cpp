@@ -3,27 +3,30 @@
 #include <jsoncpp/json/json.h>
 
 #include "core/base/macro.hpp"
-#include "infra/db/mysql.hpp"
-#include "infra/repository/user_repository_impl.hpp"
-#include "model/media_file.hpp"
 #include "core/util/password.hpp"
 #include "core/util/security_util.hpp"
-#include "interface/api/ws_gateway_module.hpp"
 #include "core/util/time_util.hpp"
+
+#include "infra/db/mysql.hpp"
+#include "infra/repository/user_repository_impl.hpp"
+
+#include "interface/api/ws_gateway_module.hpp"
+
+#include "model/media_file.hpp"
 
 namespace IM::app {
 
 static auto g_logger = IM_LOG_NAME("system");
-static constexpr const char* kDBName = "default";
+static constexpr const char *kDBName = "default";
 
 UserServiceImpl::UserServiceImpl(IM::domain::repository::IUserRepository::Ptr user_repo,
-                                                                 IM::domain::service::IMediaService::Ptr media_service,
-                                                                 IM::domain::service::ICommonService::Ptr common_service,
-                                                                 IM::domain::repository::ITalkRepository::Ptr talk_repo)
-        : m_user_repo(std::move(user_repo)),
-            m_media_service(std::move(media_service)),
-            m_common_service(std::move(common_service)),
-            m_talk_repo(std::move(talk_repo)) {}
+                                 IM::domain::service::IMediaService::Ptr media_service,
+                                 IM::domain::service::ICommonService::Ptr common_service,
+                                 IM::domain::repository::ITalkRepository::Ptr talk_repo)
+    : m_user_repo(std::move(user_repo)),
+      m_media_service(std::move(media_service)),
+      m_common_service(std::move(common_service)),
+      m_talk_repo(std::move(talk_repo)) {}
 
 Result<model::User> UserServiceImpl::LoadUserInfo(const uint64_t uid) {
     Result<model::User> result;
@@ -31,8 +34,7 @@ Result<model::User> UserServiceImpl::LoadUserInfo(const uint64_t uid) {
 
     if (!m_user_repo->GetUserById(uid, result.data, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "LoadUserInfo GetUserById failed, uid=" << uid << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "LoadUserInfo GetUserById failed, uid=" << uid << ", err=" << err;
             result.code = 500;
             result.err = "加载用户信息失败";
             return result;
@@ -53,7 +55,8 @@ Result<model::User> UserServiceImpl::LoadUserInfo(const uint64_t uid) {
             if (gf_res.ok) {
                 result.data.avatar = gf_res.data.url;
             } else {
-                IM_LOG_WARN(g_logger) << "LoadUserInfo resolve avatar id failed: " << result.data.avatar << ", err=" << gf_res.err;
+                IM_LOG_WARN(g_logger) << "LoadUserInfo resolve avatar id failed: " << result.data.avatar
+                                      << ", err=" << gf_res.err;
             }
         }
     }
@@ -62,9 +65,9 @@ Result<model::User> UserServiceImpl::LoadUserInfo(const uint64_t uid) {
     return result;
 }
 
-Result<void> UserServiceImpl::UpdateUserInfo(const uint64_t uid, const std::string& nickname,
-                                             const std::string& avatar, const std::string& motto,
-                                             const uint32_t gender, const std::string& birthday) {
+Result<void> UserServiceImpl::UpdateUserInfo(const uint64_t uid, const std::string &nickname, const std::string &avatar,
+                                             const std::string &motto, const uint32_t gender,
+                                             const std::string &birthday) {
     Result<void> result;
     std::string err;
 
@@ -87,7 +90,8 @@ Result<void> UserServiceImpl::UpdateUserInfo(const uint64_t uid, const std::stri
             if (gf_res.ok) {
                 real_avatar = gf_res.data.url;
             } else {
-                IM_LOG_WARN(g_logger) << "UpdateUserInfo resolve avatar id failed: " << avatar << ", err=" << gf_res.err;
+                IM_LOG_WARN(g_logger) << "UpdateUserInfo resolve avatar id failed: " << avatar
+                                      << ", err=" << gf_res.err;
             }
         }
     }
@@ -108,7 +112,8 @@ Result<void> UserServiceImpl::UpdateUserInfo(const uint64_t uid, const std::stri
         return result;
     }
 
-    if (!m_user_repo->UpdateUserInfoWithConn(db, uid, nickname, real_avatar, avatar_media_id, motto, gender, birthday, &err)) {
+    if (!m_user_repo->UpdateUserInfoWithConn(db, uid, nickname, real_avatar, avatar_media_id, motto, gender, birthday,
+                                             &err)) {
         IM_LOG_ERROR(g_logger) << "UpdateUserInfo failed, uid=" << uid << ", err=" << err;
         trans->rollback();
         result.code = 500;
@@ -140,8 +145,7 @@ Result<void> UserServiceImpl::UpdateUserInfo(const uint64_t uid, const std::stri
     if (!trans->commit()) {
         const auto commit_err = db->getErrStr();
         trans->rollback();
-        IM_LOG_ERROR(g_logger) << "UpdateUserInfo commit transaction failed, uid=" << uid
-                               << ", err=" << commit_err;
+        IM_LOG_ERROR(g_logger) << "UpdateUserInfo commit transaction failed, uid=" << uid << ", err=" << commit_err;
         result.code = 500;
         result.err = "更新用户信息失败";
         return result;
@@ -165,9 +169,8 @@ Result<void> UserServiceImpl::UpdateUserInfo(const uint64_t uid, const std::stri
     return result;
 }
 
-Result<void> UserServiceImpl::UpdateMobile(const uint64_t uid, const std::string& password,
-                                           const std::string& new_mobile,
-                                           const std::string& sms_code) {
+Result<void> UserServiceImpl::UpdateMobile(const uint64_t uid, const std::string &password,
+                                           const std::string &new_mobile, const std::string &sms_code) {
     Result<void> result;
     std::string err;
 
@@ -191,8 +194,7 @@ Result<void> UserServiceImpl::UpdateMobile(const uint64_t uid, const std::string
     IM::model::User user;
     if (!m_user_repo->GetUserById(uid, user, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "UpdateMobile GetUserById failed, uid=" << uid << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "UpdateMobile GetUserById failed, uid=" << uid << ", err=" << err;
             result.code = 404;
             result.err = "加载用户信息失败";
             return result;
@@ -203,8 +205,7 @@ Result<void> UserServiceImpl::UpdateMobile(const uint64_t uid, const std::string
     IM::model::UserAuth ua;
     if (!m_user_repo->GetUserAuthById(uid, ua, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "UpdateMobile GetUserAuthById failed, uid=" << uid << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "UpdateMobile GetUserAuthById failed, uid=" << uid << ", err=" << err;
             result.code = 500;
             result.err = "加载用户认证信息失败";
             return result;
@@ -235,8 +236,7 @@ Result<void> UserServiceImpl::UpdateMobile(const uint64_t uid, const std::string
 
     if (!m_user_repo->UpdateMobile(uid, new_mobile, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "UpdateMobile UpdateMobile failed, uid=" << uid << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "UpdateMobile UpdateMobile failed, uid=" << uid << ", err=" << err;
             result.code = 500;
             result.err = "更新手机号失败";
             return result;
@@ -247,9 +247,8 @@ Result<void> UserServiceImpl::UpdateMobile(const uint64_t uid, const std::string
     return result;
 }
 
-Result<void> UserServiceImpl::UpdateEmail(const uint64_t uid, const std::string& password,
-                                          const std::string& new_email,
-                                          const std::string& email_code) {
+Result<void> UserServiceImpl::UpdateEmail(const uint64_t uid, const std::string &password, const std::string &new_email,
+                                          const std::string &email_code) {
     Result<void> result;
     std::string err;
 
@@ -273,8 +272,7 @@ Result<void> UserServiceImpl::UpdateEmail(const uint64_t uid, const std::string&
     IM::model::User user;
     if (!m_user_repo->GetUserById(uid, user, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "UpdateEmail GetUserById failed, uid=" << uid << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "UpdateEmail GetUserById failed, uid=" << uid << ", err=" << err;
             result.code = 404;
             result.err = "加载用户信息失败";
             return result;
@@ -285,8 +283,7 @@ Result<void> UserServiceImpl::UpdateEmail(const uint64_t uid, const std::string&
     IM::model::UserAuth ua;
     if (!m_user_repo->GetUserAuthById(uid, ua, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "UpdateEmail GetUserAuthById failed, uid=" << uid << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "UpdateEmail GetUserAuthById failed, uid=" << uid << ", err=" << err;
             result.code = 500;
             result.err = "加载用户认证信息失败";
             return result;
@@ -317,8 +314,7 @@ Result<void> UserServiceImpl::UpdateEmail(const uint64_t uid, const std::string&
 
     if (!m_user_repo->UpdateEmail(uid, new_email, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "UpdateEmail UpdateEmail failed, uid=" << uid << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "UpdateEmail UpdateEmail failed, uid=" << uid << ", err=" << err;
             result.code = 500;
             result.err = "更新邮箱失败";
             return result;
@@ -329,8 +325,8 @@ Result<void> UserServiceImpl::UpdateEmail(const uint64_t uid, const std::string&
     return result;
 }
 
-Result<void> UserServiceImpl::UpdatePassword(const uint64_t uid, const std::string& old_password,
-                                             const std::string& new_password) {
+Result<void> UserServiceImpl::UpdatePassword(const uint64_t uid, const std::string &old_password,
+                                             const std::string &new_password) {
     Result<void> result;
     std::string err;
 
@@ -353,8 +349,7 @@ Result<void> UserServiceImpl::UpdatePassword(const uint64_t uid, const std::stri
     IM::model::UserAuth ua;
     if (!m_user_repo->GetUserAuthById(uid, ua, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "UpdatePassword GetUserAuthById failed, uid=" << uid << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "UpdatePassword GetUserAuthById failed, uid=" << uid << ", err=" << err;
             result.code = 500;
             result.err = "加载用户认证信息失败";
             return result;
@@ -390,23 +385,20 @@ Result<void> UserServiceImpl::UpdatePassword(const uint64_t uid, const std::stri
     return result;
 }
 
-Result<model::User> UserServiceImpl::GetUserByMobile(const std::string& mobile,
-                                                     const std::string& channel) {
+Result<model::User> UserServiceImpl::GetUserByMobile(const std::string &mobile, const std::string &channel) {
     Result<model::User> result;
     std::string err;
 
     if (channel == "register") {
         if (m_user_repo->GetUserByMobile(mobile, result.data, &err)) {
-            IM_LOG_ERROR(g_logger)
-                << "GetUserByMobile failed, mobile=" << mobile << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "GetUserByMobile failed, mobile=" << mobile << ", err=" << err;
             result.code = 400;
             result.err = "手机号已注册!";
             return result;
         }
     } else if (channel == "forget_account") {
         if (!m_user_repo->GetUserByMobile(mobile, result.data, &err)) {
-            IM_LOG_ERROR(g_logger)
-                << "GetUserByMobile failed, mobile=" << mobile << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "GetUserByMobile failed, mobile=" << mobile << ", err=" << err;
             result.code = 400;
             result.err = "手机号未注册!";
             return result;
@@ -416,15 +408,13 @@ Result<model::User> UserServiceImpl::GetUserByMobile(const std::string& mobile,
     return result;
 }
 
-Result<model::User> UserServiceImpl::GetUserByEmail(const std::string& email,
-                                                    const std::string& channel) {
+Result<model::User> UserServiceImpl::GetUserByEmail(const std::string &email, const std::string &channel) {
     Result<model::User> result;
     std::string err;
     if (channel == "register" || channel == "update_email") {
         if (m_user_repo->GetUserByEmail(email, result.data, &err)) {
             if (!err.empty()) {
-                IM_LOG_ERROR(g_logger)
-                    << "GetUserByEmail failed, email=" << email << ", err=" << err;
+                IM_LOG_ERROR(g_logger) << "GetUserByEmail failed, email=" << email << ", err=" << err;
                 result.code = 500;
                 result.err = "查询邮箱失败!";
                 return result;
@@ -448,8 +438,7 @@ Result<void> UserServiceImpl::Offline(const uint64_t id) {
 
     if (!m_user_repo->UpdateOfflineStatus(id, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "UpdateOfflineStatus failed, user_id=" << id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "UpdateOfflineStatus failed, user_id=" << id << ", err=" << err;
             result.code = 500;
             result.err = "更新在线状态失败";
             return result;
@@ -466,8 +455,7 @@ Result<std::string> UserServiceImpl::GetUserOnlineStatus(const uint64_t id) {
 
     if (!m_user_repo->GetOnlineStatus(id, result.data, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "GetUserOnlineStatus failed, user_id=" << id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "GetUserOnlineStatus failed, user_id=" << id << ", err=" << err;
             result.code = 500;
             result.err = "获取用户在线状态失败";
             return result;
@@ -478,11 +466,10 @@ Result<std::string> UserServiceImpl::GetUserOnlineStatus(const uint64_t id) {
     return result;
 }
 
-Result<void> UserServiceImpl::SaveConfigInfo(const uint64_t user_id, const std::string& theme_mode,
-                                             const std::string& theme_bag_img,
-                                             const std::string& theme_color,
-                                             const std::string& notify_cue_tone,
-                                             const std::string& keyboard_event_notify) {
+Result<void> UserServiceImpl::SaveConfigInfo(const uint64_t user_id, const std::string &theme_mode,
+                                             const std::string &theme_bag_img, const std::string &theme_color,
+                                             const std::string &notify_cue_tone,
+                                             const std::string &keyboard_event_notify) {
     Result<void> result;
     std::string err;
 
@@ -495,8 +482,7 @@ Result<void> UserServiceImpl::SaveConfigInfo(const uint64_t user_id, const std::
     new_settings.keyboard_event_notify = keyboard_event_notify;
     if (!m_user_repo->UpsertUserSettings(new_settings, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "Upsert new UserSettings failed, user_id=" << user_id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "Upsert new UserSettings failed, user_id=" << user_id << ", err=" << err;
             result.code = 500;
             result.err = "保存用户设置失败";
             return result;
@@ -512,8 +498,7 @@ Result<IM::model::UserSettings> UserServiceImpl::LoadConfigInfo(const uint64_t u
 
     if (!m_user_repo->GetUserSettings(user_id, result.data, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "LoadConfigInfo failed, user_id=" << user_id << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "LoadConfigInfo failed, user_id=" << user_id << ", err=" << err;
             result.code = 500;
             result.err = "加载用户设置失败";
             return result;
@@ -558,9 +543,8 @@ Result<dto::UserInfo> UserServiceImpl::LoadUserInfoSimple(const uint64_t uid) {
     return result;
 }
 
-Result<model::User> UserServiceImpl::Authenticate(const std::string& mobile,
-                                                  const std::string& password,
-                                                  const std::string& platform) {
+Result<model::User> UserServiceImpl::Authenticate(const std::string &mobile, const std::string &password,
+                                                  const std::string &platform) {
     Result<model::User> result;
     std::string err;
 
@@ -576,8 +560,7 @@ Result<model::User> UserServiceImpl::Authenticate(const std::string& mobile,
     // 获取用户信息
     if (!m_user_repo->GetUserByMobile(mobile, result.data, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "Authenticate GetUserByMobile failed, mobile=" << mobile << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "Authenticate GetUserByMobile failed, mobile=" << mobile << ", err=" << err;
             result.code = 500;
             result.err = "获取用户信息失败";
             return result;
@@ -598,9 +581,8 @@ Result<model::User> UserServiceImpl::Authenticate(const std::string& mobile,
     IM::model::UserAuth ua;
     if (!m_user_repo->GetUserAuthById(result.data.id, ua, &err)) {
         if (!err.empty()) {
-            IM_LOG_ERROR(g_logger)
-                << "Authenticate GetUserAuthById failed, user_id=" << result.data.id
-                << ", err=" << err;
+            IM_LOG_ERROR(g_logger) << "Authenticate GetUserAuthById failed, user_id=" << result.data.id
+                                   << ", err=" << err;
             result.code = 500;
             result.err = "获取用户认证信息失败";
             return result;
@@ -620,8 +602,7 @@ Result<model::User> UserServiceImpl::Authenticate(const std::string& mobile,
     return result;
 }
 
-Result<void> UserServiceImpl::LogLogin(const Result<model::User>& user_result,
-                                       const std::string& platform,
+Result<void> UserServiceImpl::LogLogin(const Result<model::User> &user_result, const std::string &platform,
                                        IM::http::HttpSession::ptr session) {
     Result<void> result;
     std::string err;
@@ -637,8 +618,8 @@ Result<void> UserServiceImpl::LogLogin(const Result<model::User>& user_result,
     log.created_at = TimeUtil::NowToS();
 
     if (!m_user_repo->CreateUserLoginLog(log, &err)) {
-        IM_LOG_ERROR(g_logger) << "LogLogin Create UserLoginLog failed, user_id="
-                               << user_result.data.id << ", err=" << err;
+        IM_LOG_ERROR(g_logger) << "LogLogin Create UserLoginLog failed, user_id=" << user_result.data.id
+                               << ", err=" << err;
         result.code = 500;
         result.err = "记录登录日志失败";
         return result;
@@ -663,11 +644,9 @@ Result<void> UserServiceImpl::GoOnline(const uint64_t id) {
     return result;
 }
 
-Result<model::User> UserServiceImpl::Register(const std::string& nickname,
-                                              const std::string& mobile,
-                                              const std::string& password,
-                                              const std::string& sms_code,
-                                              const std::string& platform) {
+Result<model::User> UserServiceImpl::Register(const std::string &nickname, const std::string &mobile,
+                                              const std::string &password, const std::string &sms_code,
+                                              const std::string &platform) {
     Result<model::User> result;
     std::string err;
 
@@ -718,8 +697,7 @@ Result<model::User> UserServiceImpl::Register(const std::string& nickname,
     u.mobile = mobile;
 
     if (!m_user_repo->CreateUser(db, u, u.id, &err)) {
-        IM_LOG_ERROR(g_logger) << "Register Create user failed, mobile=" << mobile
-                               << ", err=" << err;
+        IM_LOG_ERROR(g_logger) << "Register Create user failed, mobile=" << mobile << ", err=" << err;
         trans->rollback();  // 回滚事务
         result.code = 500;
         result.err = "创建用户失败";
@@ -732,8 +710,7 @@ Result<model::User> UserServiceImpl::Register(const std::string& nickname,
     ua.password_hash = ph;
 
     if (!m_user_repo->CreateUserAuth(db, ua, &err)) {
-        IM_LOG_ERROR(g_logger) << "Register Create user_auth failed, user_id=" << u.id
-                               << ", err=" << err;
+        IM_LOG_ERROR(g_logger) << "Register Create user_auth failed, user_id=" << u.id << ", err=" << err;
         trans->rollback();  // 回滚事务
         result.code = 500;
         result.err = "创建用户认证信息失败";
@@ -744,8 +721,7 @@ Result<model::User> UserServiceImpl::Register(const std::string& nickname,
         // 提交失败也要回滚，保证数据一致性
         const auto commit_err = db->getErrStr();
         trans->rollback();
-        IM_LOG_ERROR(g_logger) << "Register commit transaction failed, mobile=" << mobile
-                               << ", err=" << commit_err;
+        IM_LOG_ERROR(g_logger) << "Register commit transaction failed, mobile=" << mobile << ", err=" << commit_err;
         result.code = 500;
         result.err = "处理好友申请失败";
         return result;
@@ -756,9 +732,8 @@ Result<model::User> UserServiceImpl::Register(const std::string& nickname,
     return result;
 }
 
-Result<model::User> UserServiceImpl::Forget(const std::string& mobile,
-                                            const std::string& new_password,
-                                            const std::string& sms_code) {
+Result<model::User> UserServiceImpl::Forget(const std::string &mobile, const std::string &new_password,
+                                            const std::string &sms_code) {
     Result<model::User> result;
     std::string err;
 
@@ -796,8 +771,7 @@ Result<model::User> UserServiceImpl::Forget(const std::string& mobile,
 
     /*更新用户密码*/
     if (!m_user_repo->UpdatePasswordHash(result.data.id, password_hash, &err)) {
-        IM_LOG_ERROR(g_logger) << "Forget UpdatePasswordHash failed, mobile=" << mobile
-                               << ", err=" << err;
+        IM_LOG_ERROR(g_logger) << "Forget UpdatePasswordHash failed, mobile=" << mobile << ", err=" << err;
         result.code = 500;
         result.err = "更新密码失败";
         return result;
